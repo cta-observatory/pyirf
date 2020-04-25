@@ -4,12 +4,14 @@ channels:
   - default
   - cta-observatory
 dependencies:
+  - ctapipe
   - astropy
   - conda-forge::nbsphinx
   - cython
   - ipython
   - joblib
   - jupyter
+  - gammapy=0.8
   - matplotlib
   - numba
   - numpy>=1.15.4
@@ -24,7 +26,8 @@ dependencies:
   - sphinx-automodapi
   - sphinx_rtd_theme
   - pip
-pip:
-  - rinohtype
+  - pip:
+    - rinohtype
+    - ctaplot
 
 

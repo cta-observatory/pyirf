@@ -5,152 +5,90 @@ import astropy.units as u
 import argparse
 import pandas as pd
 import numpy as np
-
+from astropy.coordinates.angle_utilities import angular_separation
+import matplotlib.pyplot as plt
 from gammapy.spectrum import cosmic_ray_flux, CrabSpectrum
 
-from protopipe.pipeline.utils import load_config
-from protopipe.perf import (CutsOptimisation, CutsDiagnostic, CutsApplicator,
-                            IrfMaker, SensitivityMaker)
+from pyrf.io.io import load_config, get_simu_info
+from pyrf.perf import (CutsOptimisation,
+                       CutsDiagnostic,
+                       CutsApplicator,
+                       IrfMaker,
+                       SensitivityMaker,
+                       )
+
+from astropy.io import fits
 
 import ctaplot
 from copy import deepcopy
 
-def main():
-    # Read arguments
-    parser = argparse.ArgumentParser(description='Make performance files')
-    parser.add_argument('--config_file', type=str, required=True, help='')
-    parser.add_argument(
-        '--obs_time',
-        type=str,
-        required=True,
-        help='Observation time, should be given as a string, value and astropy unit separated by an empty space'
-    )
-    mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument('--wave', dest="mode", action='store_const',
-                            const="wave", default="tail",
-                            help="if set, use wavelet cleaning")
-    mode_group.add_argument('--tail', dest="mode", action='store_const',
-                            const="tail",
-                            help="if set, use tail cleaning, otherwise wavelets")
-    args = parser.parse_args()
+
+def read_and_update_dl2(filepath, tel_id=1, filters=['intensity > 300', 'leakage < 0.2']):
+    """
+    read DL2 data from lstchain file and update it to be compliant with irf Maker
+    """
+    dl2_params_lstcam_key = 'dl2/event/telescope/parameters/LST_LSTCam'  # lstchain DL2 files
+    data = pd.read_hdf(filepath, key=dl2_params_lstcam_key)
+    data = deepcopy(data.query(f'tel_id == {tel_id}'))
+    for filter in filters:
+        data = deepcopy(data.query(filter))
+
+    # angles are in degrees in protopipe
+    data['xi'] = pd.Series(angular_separation(data.reco_az.values * u.rad,
+                                              data.reco_alt.values * u.rad,
+                                              data.mc_az.values * u.rad,
+                                              data.mc_alt.values * u.rad,
+                                              ).to(u.deg).value,
+                           index=data.index)
+
+    data['offset'] = pd.Series(angular_separation(data.reco_az.values * u.rad,
+                                                  data.reco_alt.values * u.rad,
+                                                  data.mc_az_tel.values * u.rad,
+                                                  data.mc_alt_tel.values * u.rad,
+                                                  ).to(u.deg).value,
+                               index=data.index)
+
+    for key in ['mc_alt', 'mc_az', 'reco_alt', 'reco_az', 'mc_alt_tel', 'mc_az_tel']:
+        data[key] = np.rad2deg(data[key])
+
+    return data
+
+
+def main(args):
+    paths = {}
+    paths['gamma'] = args.dl2_gamma_filename
+    paths['proton'] = args.dl2_proton_filename
+    paths['electron'] = args.dl2_electron_filename
 
     # Read configuration file
     cfg = load_config(args.config_file)
+    # cfg = configuration()
 
-    # Add obs. time in configuration file
-    str_obs_time = args.obs_time.split('*')
-    cfg['analysis']['obs_time'] = {'value': float(str_obs_time[0]), 'unit': str(str_obs_time[-1])}
+    cfg['analysis']['obs_time'] = {}
+    cfg['analysis']['obs_time']['unit'] = u.h
+    cfg['analysis']['obs_time']['value'] = args.obs_time
+
+    cfg['general']['outdir'] = args.outdir
 
     # Create output directory if necessary
-    outdir = os.path.join(cfg['general']['outdir'], 'irf_{}_ThSq_{}_Time{:.2f}{}'.format(
-        args.mode,
+    outdir = os.path.join(cfg['general']['outdir'], 'irf_ThSq_{}_Time{:.2f}{}'.format(
         cfg['analysis']['thsq_opt']['type'],
         cfg['analysis']['obs_time']['value'],
         cfg['analysis']['obs_time']['unit'])
-    )
+                          )
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-
-    indir = cfg['general']['indir']
-    # template_input_file = cfg['general']['template_input_file']
 
     # Load data
     particles = ['gamma', 'electron', 'proton']
     evt_dict = dict()  # Contain DL2 file for each type of particle
-    print("Looking for datafiles in {}".format(indir))
     for particle in particles:
-        # template looks like dl2_{}_{}_merged.h5
-        # infile = os.path.join(indir, template_input_file.format(args.mode, particle))
-        infile = [os.path.join(indir, f) for f in os.listdir(indir) if particle in f][0]
-        print(infile)
-        # infile = os.path.join(indir, 'dl2_{}.h5'.format(particle))
-        # key='reco_events'
+        infile = paths[particle]
+        evt_dict[particle] = read_and_update_dl2(infile)
+        cfg = get_simu_info(infile, particle, config=cfg)
 
-
-        ###  LSTCHAIN
-        # key = 'dl2/event/telescope/parameters/LST_LSTCam'
-        # d = pd.read_hdf(infile, key=key)
-        # data = deepcopy(d.query('tel_id == 1')) #.query('intensity > 300').query('leakage < 0.2'))
-        # # data = d
-        # evt_dict[particle] = data
-        # data = evt_dict[particle]
-
-        # log energy from lstchain
-        # data.reco_energy = 10**(data.reco_energy-3)
-        # data.mc_energy = 10**(data.mc_energy-3)
-        # data.reco_energy *= 1e3
-
-        ### angles in degrees
-        # data['mc_alt'] = np.rad2deg(data['mc_alt'])
-        # data['mc_az'] = np.rad2deg(data['mc_az'])
-        # data['reco_alt'] = np.rad2deg(data['reco_alt'])
-        # data['reco_az'] = np.rad2deg(data['reco_az'])
-        #
-        # data['mc_alt_tel'] = np.rad2deg(data['mc_alt_tel'])
-        # data['mc_az_tel'] = np.rad2deg(data['mc_az_tel'])
-
-        ### Gammalearn
-
-        key = 'data'
-        evt_dict[particle] = pd.read_hdf(infile, key=key)
-        data = evt_dict[particle]
-
-        data['mc_alt'] = np.rad2deg(data['mc_altitude'])
-        data['mc_az'] = np.rad2deg(data['mc_azimuth'])
-        data['reco_alt'] = np.rad2deg(data['reco_altitude'])
-        data['reco_az'] = np.rad2deg(data['reco_azimuth'])
-
-        if particle != 'gamma':
-            data['mc_alt_tel'] = pd.Series(70 * np.ones(len(data)), index=data.index)
-            data['mc_az_tel'] = pd.Series(180 * np.ones(len(data)), index=data.index)
-
-        if particle == 'gamma':
-            data['mc_alt_tel'] = pd.Series(69.6 * np.ones(len(data)), index=data.index)
-            data['mc_az_tel'] = pd.Series(180 * np.ones(len(data)), index=data.index)
-
-
-
-        ## for gammas, put source at the center
-        # if particle=='gamma':
-        #     data['mc_alt'] = 70
-        #     data['reco_alt'] =
-        # pointing_alt = 70
-        # data['mc_alt'] += 0.4
-        # data['reco_alt'] += 0.4
-        # data['mc_alt_tel'] = 70
-
-        # print(particle, " mc alt tel", data['mc_alt_tel'])
-        # print(data['mc_az_tel'])
-        # print(data['mc_alt'])
-        # print(data['mc_az'])
-        # print(data['reco_alt'])
-        # print(data['reco_az'])
-
-        data['xi'] = pd.Series(ctaplot.angular_separation_altaz(data.reco_alt,
-                                                                data.reco_az,
-                                                                data.mc_alt,
-                                                                data.mc_az,
-                                                                unit='deg'
-                                                                ),
-                               index=data.index)
-        print("alt mean:", data.mc_alt.mean())
-        print("az mean:", data.mc_az.mean())
-        print("alt mean:", data.reco_alt.mean())
-        print("az mean:", data.reco_az.mean())
-        data['offset'] = pd.Series(ctaplot.angular_separation_altaz(data.reco_alt,
-                                                                    data.reco_az,
-                                                                    (data.mc_alt_tel.values[0]),
-                                                                    (data.mc_az_tel.values[0]),
-                                                                    # 70,
-                                                                    # 180,
-                                                                    unit='deg'
-                                                                    ),
-                                   index=data.index)
-
-
-    # # Apply offset cut to proton and electron
+    # Apply offset cut to proton and electron
     for particle in ['electron', 'proton']:
-        # print('Initial stat: {} {}'.format(len(evt_dict[particle]), particle))
         evt_dict[particle] = evt_dict[particle].query('offset <= {}'.format(
             cfg['particle_information'][particle]['offset_cut'])
         )
@@ -159,15 +97,15 @@ def main():
     for particle in particles:
         # cfg['particle_information'][particle]['n_files'] = \
         #     len(np.unique(evt_dict[particle]['obs_id']))
-        print(particle, cfg['particle_information'][particle]['n_files'])
-        # cfg['particle_information'][particle]['n_files'] = 1
         cfg['particle_information'][particle]['n_simulated'] = \
-            cfg['particle_information'][particle]['n_files'] * cfg['particle_information'][particle]['n_events_per_file']
+            cfg['particle_information'][particle]['n_files'] * cfg['particle_information'][particle][
+                'n_events_per_file']
 
     # Define model for the particles
     model_dict = {'gamma': CrabSpectrum('hegra').model,
                   'proton': cosmic_ray_flux,
                   'electron': cosmic_ray_flux}
+
     # Reco energy binning
     cfg_binning = cfg['analysis']['ereco_binning']
     ereco = np.logspace(np.log10(cfg_binning['emin']),
@@ -177,14 +115,15 @@ def main():
     # Handle theta square cut optimisation
     # (compute 68 % containment radius PSF if necessary)
     thsq_opt_type = cfg['analysis']['thsq_opt']['type']
-    if thsq_opt_type in 'fixed':
-        thsq_values = np.array([cfg['analysis']['thsq_opt']['value']]) * u.deg
-        print('Using fixed theta cut: {}'.format(thsq_values))
-    elif thsq_opt_type in 'opti':
-        thsq_values = np.arange(0.05, 0.40, 0.01) * u.deg
-        thsq_values = np.arange(0.1, 0.80, 0.05) * u.deg
-
-        print('Optimising theta cut for: {}'.format(thsq_values))
+    print(thsq_opt_type)
+    # if thsq_opt_type in 'fixed':
+    #     thsq_values = np.array([cfg['analysis']['thsq_opt']['value']]) * u.deg
+    #     print('Using fixed theta cut: {}'.format(thsq_values))
+    # elif thsq_opt_type in 'opti':
+    #     thsq_values = np.arange(0.05, 0.40, 0.01) * u.deg
+    #     print('Optimising theta cut for: {}'.format(thsq_values))
+    if thsq_opt_type != 'r68':
+        raise ValueError("only r68 supported at the moment")
     elif thsq_opt_type in 'r68':
         print('Using R68% theta cut')
         print('Computing...')
@@ -210,8 +149,6 @@ def main():
                 print('To be handled...')
                 thsq_values.append(0.3)
                 continue
-                # import sys
-                # sys.exit()
 
             psf = np.percentile(data['offset'], radius)
             psf_err = psf / np.sqrt(len(data))
@@ -246,7 +183,7 @@ def main():
     print('- Saving results to disk...')
     cut_optimiser.write_results(
         outdir, '{}.fits'.format(cfg['general']['output_table_name']),
-       format='fits'
+        format='fits'
     )
 
     # Cuts diagnostic
@@ -272,5 +209,253 @@ def main():
     sensitivity_maker.estimate_sensitivity()
 
 
+def plot_sensitivity(irf_filename, ax=None, **kwargs):
+    """
+    Plot the sensitivity
+
+    Parameters
+    ----------
+    irf_filename: path
+    ax:
+    kwargs:
+
+    Returns
+    -------
+    ax
+    """
+    ax = ctaplot.plot_sensitivity_cta_performance('north', color='black', ax=ax)
+
+    with fits.open(irf_filename) as irf:
+        t = irf['SENSITIVITY']
+        elo = t.data['ENERG_LO']
+        ehi = t.data['ENERG_HI']
+        energy = (elo + ehi) / 2.
+        sens = t.data['SENSITIVITY']
+
+    if 'fmt' not in kwargs:
+        kwargs['fmt'] = 'o'
+
+    ax.errorbar(energy, sens,
+                xerr=(ehi - elo) / 2.,
+                **kwargs
+                )
+
+    ax.legend(fontsize=17)
+    ax.grid(which='both')
+    return ax
+
+
+def plot_angular_resolution(irf_filename, ax=None, **kwargs):
+    """
+    Plot angular resolution from an IRF file
+
+    Parameters
+    ----------
+    irf_filename
+    ax
+    kwargs
+
+    Returns
+    -------
+
+    """
+
+    ax = ctaplot.plot_angular_resolution_cta_performance('north', color='black', ax=ax)
+
+    with fits.open(irf_filename) as irf:
+        psf_hdu = irf['POINT SPREAD FUNCTION']
+        e_lo = psf_hdu.data['ENERG_LO']
+        e_hi = psf_hdu.data['ENERG_HI']
+        energy = (e_lo + e_hi) / 2.
+        psf = psf_hdu.data['PSF68']
+
+    if 'fmt' not in kwargs:
+        kwargs['fmt'] = 'o'
+
+    ax.errorbar(energy, psf,
+                xerr=(e_hi - e_lo) / 2.,
+                **kwargs,
+                )
+
+    ax.legend(fontsize=17)
+    ax.grid(which='both')
+    return ax
+
+
+def plot_energy_resolution(gamma_filename, ax=None, **kwargs):
+    """
+    Plot angular resolution from an IRF file
+
+    Parameters
+    ----------
+    irf_filename
+    ax
+    kwargs
+
+    Returns
+    -------
+
+    """
+    data = pd.read_hdf(gamma_filename)
+
+    ax = ctaplot.plot_angular_resolution_cta_performance('north', color='black', label='CTA North', ax=ax)
+    ax = ctaplot.plot_energy_resolution(data.mc_energy, data.reco_energy, ax=ax, **kwargs)
+    ax.grid(which='both')
+    ax.set_title('Energy resoluton', fontsize=18)
+    ax.legend()
+    return ax
+
+
+def plot_background_rate(irf_filename, ax=None, **kwargs):
+    """
+
+    Returns
+    -------
+
+    """
+    from ctaplot.io.dataset import load_any_resource
+
+    ax = plt.gca() if ax is None else ax
+
+    bkg = load_any_resource('CTA-Performance-prod3b-v2-North-20deg-50h-BackgroundSqdeg.txt')
+    ax.loglog((bkg[0] + bkg[1]) / 2., bkg[2], label='CTA performances North', color='black')
+
+    with fits.open(irf_filename) as irf:
+        elo = irf['BACKGROUND'].data['ENERG_LO']
+        ehi = irf['BACKGROUND'].data['ENERG_HI']
+        energy = (elo + ehi) / 2.
+        bkg = irf['BACKGROUND'].data['BGD']
+
+    if 'fmt' not in kwargs:
+        kwargs['fmt'] = 'o'
+
+    ax.errorbar(energy, bkg,
+                xerr=(ehi - elo) / 2.,
+                **kwargs
+                )
+
+    ax.legend(fontsize=17)
+    ax.grid(which='both')
+    return ax
+
+
+def plot_effective_area(irf_filename, ax=None, **kwargs):
+    """
+
+    Parameters
+    ----------
+    irf_filename
+    ax
+    kwargs
+
+    Returns
+    -------
+
+    """
+
+    ax = ctaplot.plot_effective_area_cta_performance('north', color='black', ax=ax)
+
+    with fits.open(irf_filename) as irf:
+        elo = irf['SPECRESP'].data['ENERG_LO']
+        ehi = irf['SPECRESP'].data['ENERG_HI']
+        energy = (elo + ehi) / 2.
+        eff_area = irf['SPECRESP'].data['SPECRESP']
+        eff_area_no_cut = irf['SPECRESP (NO CUTS)'].data['SPECRESP (NO CUTS)']
+
+    if 'label' not in kwargs:
+        kwargs['label'] = 'Effective area [m2]'
+    else:
+        user_label = kwargs['label']
+        kwargs['label'] = f'{user_label}'
+
+    ax.loglog(energy, eff_area, **kwargs)
+
+    kwargs['label'] = f"{kwargs['label']} (no cuts)"
+    kwargs['linestyle'] = '--'
+
+    ax.loglog(energy, eff_area_no_cut, **kwargs)
+
+    ax.legend(fontsize=17)
+    ax.grid(which='both')
+    return ax
+
+
 if __name__ == '__main__':
-    main()
+    from pyrf.io.io import get_resource
+
+    # performance_default_config = get_resource('performance.yml')
+    performance_default_config = '/Users/thomasvuillaume/Work/CTA/Dev/cta-observatory/pyrf/pyrf/resources/performance.yml'
+
+    parser = argparse.ArgumentParser(description='Make performance files')
+
+    parser.add_argument(
+        '--obs_time',
+        dest='obs_time',
+        type=float,
+        default=50,
+        help='Observation time in hours'
+    )
+
+    parser.add_argument('--dl2_gamma', '-g',
+                        dest='dl2_gamma_filename',
+                        type=str,
+                        required=True,
+                        help='path to the gamma dl2 file'
+                        )
+
+    parser.add_argument('--dl2_proton', '-p',
+                        dest='dl2_proton_filename',
+                        type=str,
+                        required=True,
+                        help='path to the proton dl2 file'
+                        )
+
+    parser.add_argument('--dl2_electron', '-e',
+                        dest='dl2_electron_filename',
+                        type=str,
+                        required=True,
+                        help='path to the electron dl2 file'
+                        )
+
+    parser.add_argument('--outdir', '-o',
+                        dest='outdir',
+                        type=str,
+                        default='.',
+                        help="Output directory"
+                        )
+
+    parser.add_argument('--conf', '-c',
+                        dest='config_file',
+                        type=str,
+                        default=performance_default_config,
+                        help="Optional. Path to a config file."
+                             " If none is given, the standard performance config is used"
+                        )
+
+    args = parser.parse_args()
+
+    main(args)
+
+    irf_filename = os.path.join(args.outdir, 'irf_ThSq_r68_Time50.00h/irf.fits.gz')
+    fig_output = os.path.join(args.outdir, 'irf_ThSq_r68_Time50.00h/')
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+    ax = plot_angular_resolution(irf_filename, ax=ax, label='LST1 (lstchain)')
+    fig.savefig(os.path.join(fig_output, 'angular_resolution.png'), dpi=200, fmt='png')
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+    ax = plot_background_rate(irf_filename, ax=ax, label='LST1 (lstchain)')
+    fig.savefig(os.path.join(fig_output, 'background_rate.png'), dpi=200, fmt='png')
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+    ax = plot_effective_area(irf_filename, ax=ax, label='LST1 (lstchain)')
+    fig.savefig(os.path.join(fig_output, 'effective_area.png'), dpi=200, fmt='png')
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+    ax = plot_sensitivity(irf_filename, ax=ax, label='LST1 (lstchain)')
+    fig.savefig(os.path.join(fig_output, 'sensitivity.png'), dpi=200, fmt='png')
+
+    gamma_filename = os.path.join(args.outdir, 'irf_ThSq_r68_Time50.00h/gamma_processed.h5')
+    fig, ax = plt.subplots(figsize=(12, 7))
+    ax = plot_energy_resolution(gamma_filename, ax=ax, label='LST1 (lstchain)')
+    fig.savefig(os.path.join(fig_output, 'energy_resolution.png'), dpi=200, fmt='png')
