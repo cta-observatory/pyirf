@@ -1,2 +1,4 @@
-# pyrf
+pyrf
+====
+
 Python IRF builder
