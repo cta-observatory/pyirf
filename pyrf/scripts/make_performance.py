@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 from astropy.coordinates.angle_utilities import angular_separation
 import matplotlib.pyplot as plt
-from gammapy.spectrum import cosmic_ray_flux, CrabSpectrum
+# from gammapy.spectrum import cosmic_ray_flux, CrabSpectrum
 
 from pyrf.io.io import load_config, get_simu_info
 from pyrf.perf import (CutsOptimisation,
@@ -102,9 +102,14 @@ def main(args):
                 'n_events_per_file']
 
     # Define model for the particles
-    model_dict = {'gamma': CrabSpectrum('hegra').model,
-                  'proton': cosmic_ray_flux,
-                  'electron': cosmic_ray_flux}
+    # model_dict = {'gamma': CrabSpectrum('hegra').model,
+    #               'proton': cosmic_ray_flux,
+    #               'electron': cosmic_ray_flux}
+
+    from gammapy.modeling.models import create_cosmic_ray_spectral_model, create_crab_spectral_model
+    model_dict = {'gamma': create_crab_spectral_model('hegra'),
+                  'proton': create_cosmic_ray_spectral_model('proton'),
+                  'electron': create_cosmic_ray_spectral_model('electron')}
 
     # Reco energy binning
     cfg_binning = cfg['analysis']['ereco_binning']
@@ -381,8 +386,7 @@ def plot_effective_area(irf_filename, ax=None, **kwargs):
 
 
 if __name__ == '__main__':
-    from pyrf.io.io import get_resource
-
+    # from pyrf.io.io import get_resource
     # performance_default_config = get_resource('performance.yml')
     performance_default_config = '/Users/thomasvuillaume/Work/CTA/Dev/cta-observatory/pyrf/pyrf/resources/performance.yml'
 
@@ -451,9 +455,9 @@ if __name__ == '__main__':
     ax = plot_effective_area(irf_filename, ax=ax, label='LST1 (lstchain)')
     fig.savefig(os.path.join(fig_output, 'effective_area.png'), dpi=200, fmt='png')
 
-    fig, ax = plt.subplots(figsize=(12, 7))
-    ax = plot_sensitivity(irf_filename, ax=ax, label='LST1 (lstchain)')
-    fig.savefig(os.path.join(fig_output, 'sensitivity.png'), dpi=200, fmt='png')
+    # fig, ax = plt.subplots(figsize=(12, 7))
+    # ax = plot_sensitivity(irf_filename, ax=ax, label='LST1 (lstchain)')
+    # fig.savefig(os.path.join(fig_output, 'sensitivity.png'), dpi=200, fmt='png')
 
     gamma_filename = os.path.join(args.outdir, 'irf_ThSq_r68_Time50.00h/gamma_processed.h5')
     fig, ax = plt.subplots(figsize=(12, 7))

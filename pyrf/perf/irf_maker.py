@@ -5,10 +5,13 @@ from astropy.table import Table, Column
 from astropy.io import fits
 import pandas as pd
 
-from gammapy.utils.nddata import NDDataArray, BinnedDataAxis
-from gammapy.utils.energy import EnergyBounds
+from gammapy.utils.nddata import NDDataArray #, BinnedDataAxis
+from gammapy.maps import MapAxis
+from gammapy.maps.utils import edges_from_lo_hi
+# from gammapy.utils.energy import EnergyBounds
 from gammapy.irf import EffectiveAreaTable, EnergyDispersion2D
-from gammapy.spectrum import SensitivityEstimator
+# from gammapy.spectrum import SensitivityEstimator
+from gammapy.estimators import SensitivityEstimator
 
 __all__ = ["IrfMaker", "SensitivityMaker", "BkgData", "Irf"]
 
@@ -57,6 +60,9 @@ class SensitivityMaker(object):
         self.config = config
         self.outdir = outdir
         self.irf = None
+        self.arf = None
+        self.rmf = None
+        self.bkg = None
 
     def load_irf(self):
         filename = os.path.join(self.outdir, "irf.fits.gz")
@@ -70,44 +76,74 @@ class SensitivityMaker(object):
             energy_hi = bkg_table["ENERG_HI"].quantity
             bkg = bkg_table["BGD"].quantity
 
+            # axes = [
+            #     BinnedDataAxis(
+            #         energy_lo, energy_hi, interpolation_mode="log", name="energy"
+            #     )
+            # ]
             axes = [
-                BinnedDataAxis(
-                    energy_lo, energy_hi, interpolation_mode="log", name="energy"
-                )
+                MapAxis.from_edges(edges_from_lo_hi(energy_lo, energy_hi), interp='log', name='energy')
             ]
             bkg = BkgData(data=NDDataArray(axes=axes, data=bkg))
 
         # Create rmf with appropriate dimensions (e_reco->bkg, e_true->area)
-        e_reco_min = bkg.energy.lo[0]
-        e_reco_max = bkg.energy.hi[-1]
-        e_reco_bin = bkg.energy.nbins
-        e_reco_axis = EnergyBounds.equal_log_spacing(
-            e_reco_min, e_reco_max, e_reco_bin, "TeV"
-        )
+        # e_reco_min = bkg.energy.lo[0]
+        # e_reco_max = bkg.energy.hi[-1]
+        # e_reco_bin = bkg.energy.nbins
+        e_reco_min = bkg.energy.edges[0]
+        e_reco_max = bkg.energy.edges[-1]
+        e_reco_bin = bkg.energy.nbin
 
-        e_true_min = aeff.energy.lo[0]
-        e_true_max = aeff.energy.hi[-1]
-        e_true_bin = aeff.energy.nbins
-        e_true_axis = EnergyBounds.equal_log_spacing(
+        # e_reco_axis = EnergyBounds.equal_log_spacing(
+        #     e_reco_min, e_reco_max, e_reco_bin, "TeV"
+        # )
+        e_reco_axis = MapAxis.from_energy_bounds(
+            e_reco_min, e_reco_max, e_reco_bin, "TeV"
+        ).edges
+
+        # e_true_min = aeff.energy.lo[0]
+        # e_true_max = aeff.energy.hi[-1]
+        # e_true_bin = aeff.energy.nbins
+        e_true_min = aeff.energy.edges[0]
+        e_true_max = aeff.energy.edges[-1]
+        e_true_bin = aeff.energy.nbin
+
+        # e_true_axis = EnergyBounds.equal_log_spacing(
+        #     e_true_min, e_true_max, e_true_bin, "TeV"
+        # )
+        e_true_axis = MapAxis.from_energy_bounds(
             e_true_min, e_true_max, e_true_bin, "TeV"
-        )
+        ).edges
 
         # Fake offset...
         rmf = edisp.to_energy_dispersion(
             offset=0.5 * u.deg, e_reco=e_reco_axis, e_true=e_true_axis
         )
-
+        self.arf = aeff
+        self.bkg = bkg
+        self.rmf = rmf
         self.irf = Irf(bkg=bkg, aeff=aeff, rmf=rmf)
 
     def estimate_sensitivity(self):
         obs_time = self.config["analysis"]["obs_time"]["value"] * u.Unit(
             self.config["analysis"]["obs_time"]["unit"]
         )
-        sensitivity_estimator = SensitivityEstimator(irf=self.irf, livetime=obs_time)
-        sensitivity_estimator.run()
-        self.sens = sensitivity_estimator.results_table
-
-        self.add_sensitivity_to_irf()
+        # sensitivity_estimator = SensitivityEstimator(irf=self.irf, livetime=obs_time)
+        # sensitivity_estimator = SensitivityEstimator(arf=self.arf,
+        #                                             rmf=self.rmf,
+        #                                             bkg=self.bkg,
+        #                                             livetime=obs_time,
+        #                                             )
+        # from gammapy.datasets.spectrum import SpectrumDatasetOnOff
+        # dataset_on_off = SpectrumDatasetOnOff.from_spectrum_dataset(
+        #     dataset=spectrum_dataset, acceptance=1, acceptance_off=1,
+        # )
+        #
+        # sensitivity_estimator.run()
+        # self.sens = sensitivity_estimator.results_table
+        #
+        # self.add_sensitivity_to_irf()
+        pass
 
     def add_sensitivity_to_irf(self):
         cfg_binning = self.config["analysis"]["ereco_binning"]
@@ -246,6 +282,12 @@ class IrfMaker(object):
 
         hdulist.writeto(os.path.join(self.outdir, "irf.fits.gz"), overwrite=True)
 
+    def compute_acceptance(self):
+        """
+        Compute acceptance gamma/background
+        """
+
+
     def make_bkg_rate(self):
         """Build background rate"""
         nbin = len(self.table)
@@ -258,7 +300,6 @@ class IrfMaker(object):
         )
 
         for ibin, info in enumerate(self.table):
-
             energ_lo[ibin] = info["emin"]
             energ_hi[ibin] = info["emax"]
 
@@ -272,7 +313,7 @@ class IrfMaker(object):
                     (data_p["reco_energy"] >= info["emin"])
                     & (data_p["reco_energy"] < info["emax"])
                     & (data_p["pass_best_cutoff"])
-                ]["weight"]
+                    ]["weight"]
             )
 
             n_e = sum(
@@ -280,34 +321,34 @@ class IrfMaker(object):
                     (data_e["reco_energy"] >= info["emin"])
                     & (data_e["reco_energy"] < info["emax"])
                     & (data_e["pass_best_cutoff"])
-                ]["weight"]
+                    ]["weight"]
             )
 
             # Correct number of background due to acceptance
             acceptance_g = (
-                2 * np.pi * (1 - np.cos(info["angular_cut"] * u.deg.to("rad")))
+                    2 * np.pi * (1 - np.cos(info["angular_cut"] * u.deg.to("rad")))
             )
             acceptance_p = (
-                2
-                * np.pi
-                * (
-                    1
-                    - np.cos(
+                    2
+                    * np.pi
+                    * (
+                            1
+                            - np.cos(
                         self.config["particle_information"]["proton"]["offset_cut"]
                         * u.deg.to("rad")
                     )
-                )
+                    )
             )
             acceptance_e = (
-                2
-                * np.pi
-                * (
-                    1
-                    - np.cos(
+                    2
+                    * np.pi
+                    * (
+                            1
+                            - np.cos(
                         self.config["particle_information"]["electron"]["offset_cut"]
                         * u.deg.to("rad")
                     )
-                )
+                    )
             )
 
             n_p *= acceptance_g / acceptance_p
@@ -321,7 +362,7 @@ class IrfMaker(object):
         t["ENERG_HI"] = Column(
             energ_hi, unit="TeV", description="energy max", format="E"
         )
-        t["BGD"] = Column(bgd, unit="TeV", description="Background", format="E")
+        t["BGD"] = Column(bgd, unit="1/s", description="Background", format="E")
 
         return IrfMaker._make_hdu("BACKGROUND", t, ["ENERG_LO", "ENERG_HI", "BGD"])
 
@@ -333,7 +374,6 @@ class IrfMaker(object):
         psf = np.zeros(nbin)
 
         for ibin, info in enumerate(self.table):
-
             energ_lo[ibin] = info["emin"]
             energ_hi[ibin] = info["emax"]
 
@@ -365,7 +405,7 @@ class IrfMaker(object):
         )
 
     def make_effective_area(
-        self, apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
+            self, apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
     ):
         nbin = len(self.etrue) - 1
         energ_lo = np.zeros(nbin)
@@ -403,9 +443,9 @@ class IrfMaker(object):
 
             # Compute number of number of events in simulation
             simu_evts = (
-                float(nsimu_tot)
-                * (emax.value ** index - emin.value ** index)
-                / (emax_simu ** index - emin_simu ** index)
+                    float(nsimu_tot)
+                    * (emax.value ** index - emin.value ** index)
+                    / (emax_simu ** index - emin_simu ** index)
             )
 
             area[ibin] = (sel / simu_evts) * area_simu.value
@@ -432,7 +472,7 @@ class IrfMaker(object):
         data_g = self.evt_dict["gamma"]
         data_g = data_g[
             (data_g["pass_best_cutoff"]) & (data_g["pass_angular_cut"])
-        ].copy()
+            ].copy()
 
         for imigra in range(len(migra) - 1):
             migra_min = migra[imigra]
@@ -448,7 +488,7 @@ class IrfMaker(object):
                         & (data_g["mc_energy"] < emax)
                         & ((data_g["reco_energy"] / data_g["mc_energy"]) >= migra_min)
                         & ((data_g["reco_energy"] / data_g["mc_energy"]) < migra_max)
-                    ]
+                        ]
                 )
                 counts[imigra][ietrue] = sel
 
@@ -501,9 +541,9 @@ class IrfMaker(object):
             counts, (len(theta_lo), counts.shape[0], counts.shape[1])
         )
         dim_matrix = (
-            len(table_energy["ETRUE_LO"])
-            * len(table_migra["MIGRA_LO"])
-            * len(table_theta["THETA_LO"])
+                len(table_energy["ETRUE_LO"])
+                * len(table_migra["MIGRA_LO"])
+                * len(table_theta["THETA_LO"])
         )
         matrix = Table([extended_mig_matrix.ravel()], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
