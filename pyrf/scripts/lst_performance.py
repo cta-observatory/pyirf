@@ -135,6 +135,7 @@ def main(args):
         ereco = np.logspace(np.log10(cfg_binning['emin']),
                             np.log10(cfg_binning['emax']),
                             cfg_binning['nbin'] + 1) * u.TeV
+        ereco = ctaplot.ana.irf_cta().E_bin * u.TeV
         radius = 68
 
         thsq_values = list()
