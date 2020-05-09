@@ -387,9 +387,8 @@ def plot_effective_area(irf_filename, ax=None, **kwargs):
 
 if __name__ == '__main__':
 
-    # performance_default_config = get_resource('performance.yml')
-    # performance_default_config = '/Users/thomasvuillaume/Work/CTA/Dev/cta-observatory/pyrf/pyrf/resources/performance.yml'
-    performance_default_config = pkg_resources.resource_filename('pyrf', 'resources/performance.yml')
+    # performance_default_config = pkg_resources.resource_filename('pyrf', 'resources/performance.yml')
+    performance_default_config = os.path.join(os.path.dirname(__file__), "../resources/performance.yml")
 
     parser = argparse.ArgumentParser(description='Make performance files')
 
