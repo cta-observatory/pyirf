@@ -111,9 +111,10 @@ def main(args):
 
     # Reco energy binning
     cfg_binning = cfg['analysis']['ereco_binning']
-    ereco = np.logspace(np.log10(cfg_binning['emin']),
-                        np.log10(cfg_binning['emax']),
-                        cfg_binning['nbin'] + 1) * u.TeV
+    # ereco = np.logspace(np.log10(cfg_binning['emin']),
+    #                     np.log10(cfg_binning['emax']),
+    #                     cfg_binning['nbin'] + 1) * u.TeV
+    ereco = ctaplot.ana.irf_cta().E_bin * u.TeV
 
     # Handle theta square cut optimisation
     # (compute 68 % containment radius PSF if necessary)
