@@ -8,7 +8,7 @@ setup(
     install_requires=[
         'astropy',
         'ctaplot~=0.5.0',
-        'gammapy=0.8',
+        'gammapy==0.8',
         'matplotlib',
         'numpy',
         'pandas',
