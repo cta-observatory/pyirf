@@ -25,7 +25,7 @@ def main():
         '--obs_time',
         type=str,
         required=True,
-        help='Observation time, should be given as a string, value and astropy unit separated by an empty space'
+        help='Observation time, should be given as a string, value and astropy unit separated by a dot. E.g:`50.h`'
     )
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument('--wave', dest="mode", action='store_const',
@@ -40,8 +40,9 @@ def main():
     cfg = load_config(args.config_file)
 
     # Add obs. time in configuration file
-    str_obs_time = args.obs_time.split()
+    str_obs_time = args.obs_time.split('.')
     cfg['analysis']['obs_time'] = {'value': float(str_obs_time[0]), 'unit': str(str_obs_time[-1])}
+    print(cfg['analysis']['obs_time'])
 
     # Create output directory if necessary
     outdir = os.path.join(cfg['general']['outdir'], 'irf_{}_ThSq_{}_Time{:.2f}{}'.format(
@@ -73,6 +74,8 @@ def main():
 
     # Add required data in configuration file for future computation
     for particle in particles:
+        n_files = cfg['particle_information'][particle]['n_files']
+        print(f"{n_files} files for {particle}")
         cfg['particle_information'][particle]['n_files'] = \
             len(np.unique(evt_dict[particle]['obs_id']))
         cfg['particle_information'][particle]['n_simulated'] = \
