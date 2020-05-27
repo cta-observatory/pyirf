@@ -4,7 +4,7 @@ channels:
   - default
   - cta-observatory
 dependencies:
-  - ctapipe
+  - ctapipe==0.7
   - astropy
   - conda-forge::nbsphinx
   - cython
