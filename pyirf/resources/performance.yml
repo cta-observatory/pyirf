@@ -35,32 +35,32 @@ analysis:
 
 particle_information:
  gamma:
-#  n_events_per_file: 22500000  #  10**5 * 10
+  n_events_per_file: 22500000  #  10**5 * 10
   n_files: 1
-#  e_min: 0.05
-#  e_max: 50
-#  gen_radius: 1000
-#  diff_cone: 0
-#  gen_gamma: 2
+  e_min: 0.05
+  e_max: 50
+  gen_radius: 1000
+  diff_cone: 0
+  gen_gamma: 2
 
  proton:
-#  n_events_per_file: 3750000000  #  2 * 10**5 * 20
+  n_events_per_file: 3750000000  #  2 * 10**5 * 20
   n_files: 1
-#  e_min: 0.01
-#  e_max: 100
-#  gen_radius: 2500
-#  diff_cone: 1
-#  gen_gamma: 2
+  e_min: 0.01
+  e_max: 100
+  gen_radius: 2500
+  diff_cone: 1
+  gen_gamma: 2
   offset_cut: 1.
 
  electron:
-#  n_events_per_file: 450000000  #  10**5 * 20
+  n_events_per_file: 450000000  #  10**5 * 20
   n_files: 1
-#  e_min: 0.005
-#  e_max: 5
-#  gen_radius: 1000
-#  diff_cone: 1
-#  gen_gamma: 2
+  e_min: 0.005
+  e_max: 5
+  gen_radius: 1000
+  diff_cone: 1
+  gen_gamma: 2
   offset_cut: 1.
 
 column_definition:
