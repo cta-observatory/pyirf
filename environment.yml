@@ -1,5 +1,5 @@
 # A conda environment with all useful package for ctapipe developers
-name: pyrf
+name: pyirf
 channels:
   - default
   - cta-observatory

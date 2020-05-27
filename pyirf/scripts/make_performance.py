@@ -8,13 +8,13 @@ import numpy as np
 
 from gammapy.spectrum import cosmic_ray_flux, CrabSpectrum
 
-from pyrf.io.io import load_config
-from pyrf.perf import (CutsOptimisation,
-                       CutsDiagnostic,
-                       CutsApplicator,
-                       IrfMaker,
-                       SensitivityMaker,
-                       )
+from pyirf.io.io import load_config
+from pyirf.perf import (CutsOptimisation,
+                        CutsDiagnostic,
+                        CutsApplicator,
+                        IrfMaker,
+                        SensitivityMaker,
+                        )
 
 
 def main():

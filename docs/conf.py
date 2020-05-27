@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'pyrf'
+project = 'pyirf'
 copyright = '2020, Julien Lefaucheur, Michele Peresano, Thomas Vuillaume'
 author = 'Julien Lefaucheur, Michele Peresano, Thomas Vuillaume'
 

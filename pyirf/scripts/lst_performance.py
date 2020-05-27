@@ -13,13 +13,13 @@ from gammapy.spectrum import cosmic_ray_flux, CrabSpectrum
 import ctaplot
 from copy import deepcopy
 
-from pyrf.io.io import load_config, get_simu_info
-from pyrf.perf import (CutsOptimisation,
-                       CutsDiagnostic,
-                       CutsApplicator,
-                       IrfMaker,
-                       SensitivityMaker,
-                       )
+from pyirf.io.io import load_config, get_simu_info
+from pyirf.perf import (CutsOptimisation,
+                        CutsDiagnostic,
+                        CutsApplicator,
+                        IrfMaker,
+                        SensitivityMaker,
+                        )
 
 
 
@@ -387,7 +387,7 @@ def plot_effective_area(irf_filename, ax=None, **kwargs):
 
 if __name__ == '__main__':
 
-    # performance_default_config = pkg_resources.resource_filename('pyrf', 'resources/performance.yml')
+    # performance_default_config = pkg_resources.resource_filename('pyirf', 'resources/performance.yml')
     performance_default_config = os.path.join(os.path.dirname(__file__), "../resources/performance.yml")
 
     parser = argparse.ArgumentParser(description='Make performance files')

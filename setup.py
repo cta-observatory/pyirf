@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-exec(open('pyrf/version.py').read())
+exec(open('pyirf/version.py').read())
 
 setup(
     version=__version__,
