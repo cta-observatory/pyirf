@@ -1,29 +1,27 @@
 #!/usr/bin/env python
 
 import os
-import astropy.units as u
 import argparse
 import pandas as pd
 import numpy as np
-from astropy.coordinates.angle_utilities import angular_separation
 import matplotlib.pyplot as plt
-# from gammapy.spectrum import cosmic_ray_flux, CrabSpectrum
-
-from pyrf.io.io import load_config, get_simu_info
-from pyrf.perf import (CutsOptimisation,
-                       CutsDiagnostic,
-                       CutsApplicator,
-                       IrfMaker,
-                       SensitivityMaker,
-                       )
-
+import astropy.units as u
 from astropy.io import fits
-
+from astropy.coordinates.angle_utilities import angular_separation
 import ctaplot
 from copy import deepcopy
 
+from pyirf.io.io import load_config, get_simu_info
+from pyirf.perf import (CutsOptimisation,
+                        CutsDiagnostic,
+                        CutsApplicator,
+                        IrfMaker,
+                        SensitivityMaker,
+                        )
 
-def read_and_update_dl2(filepath, tel_id=1, filters=['intensity > 300', 'leakage < 0.2']):
+
+
+def read_and_update_dl2(filepath, tel_id=1, filters=['intensity > 0']):
     """
     read DL2 data from lstchain file and update it to be compliant with irf Maker
     """
@@ -113,9 +111,10 @@ def main(args):
 
     # Reco energy binning
     cfg_binning = cfg['analysis']['ereco_binning']
-    ereco = np.logspace(np.log10(cfg_binning['emin']),
-                        np.log10(cfg_binning['emax']),
-                        cfg_binning['nbin'] + 1) * u.TeV
+    # ereco = np.logspace(np.log10(cfg_binning['emin']),
+    #                     np.log10(cfg_binning['emax']),
+    #                     cfg_binning['nbin'] + 1) * u.TeV
+    ereco = ctaplot.ana.irf_cta().E_bin * u.TeV
 
     # Handle theta square cut optimisation
     # (compute 68 % containment radius PSF if necessary)
@@ -136,6 +135,7 @@ def main(args):
         ereco = np.logspace(np.log10(cfg_binning['emin']),
                             np.log10(cfg_binning['emax']),
                             cfg_binning['nbin'] + 1) * u.TeV
+        ereco = ctaplot.ana.irf_cta().E_bin * u.TeV
         radius = 68
 
         thsq_values = list()
@@ -386,9 +386,8 @@ def plot_effective_area(irf_filename, ax=None, **kwargs):
 
 
 if __name__ == '__main__':
-    # from pyrf.io.io import get_resource
-    # performance_default_config = get_resource('performance.yml')
-    performance_default_config = '/Users/thomasvuillaume/Work/CTA/Dev/cta-observatory/pyrf/pyrf/resources/performance.yml'
+
+    performance_default_config = os.path.join(os.path.dirname(__file__), "../resources/performance.yml")
 
     parser = argparse.ArgumentParser(description='Make performance files')
 
