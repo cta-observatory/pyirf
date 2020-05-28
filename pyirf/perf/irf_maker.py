@@ -163,6 +163,9 @@ class IrfMaker(object):
     ----------
     config: `dict`
         Configuration file
+    evt_dict : `dict`
+        Dict for each particle type, containing a table with the required column for IRF computing.
+        TODO: define explicitely the name it expects.
     outdir: `str`
         Output directory where analysis results is saved
     """
@@ -173,32 +176,24 @@ class IrfMaker(object):
 
         # Read data saved on disk
         self.evt_dict = {}
-        for particle in ["gamma", "electron", "proton"]:
-            self.evt_dict[particle] = pd.read_hdf(
-                os.path.join(outdir, "{}_processed.h5".format(particle))
-            )
+        #Loop on the particle type
+        for particle in evt_dict.keys():
+            self.evt_dict[particle] = evt_dict[particle]
 
-        # Read table with cuts
-        self.table = Table.read(
-            os.path.join(
-                outdir, "{}.fits".format(config["general"]["output_table_name"])
-            ),
-            format="fits",
-        )
-        self.table = self.table[np.where(self.table["keep"].data)[0]]
-
+        cfg_binning_ereco = config["analysis"]["ereco_binning"]
+        cfg_binning_etrue = config["analysis"]["etrue_binning"]
+        self.nbin_ereco = cfg_binning_ereco["nbin"]
+        self.nbin_etrue = cfg_binning_etrue["nbin"]
         # Binning
         self.ereco = np.logspace(
-            np.log10(self.table["emin"][0]),
-            np.log10(self.table["emax"][-1]),
-            len(self.table),
+            np.log10(cfg_binning_ereco["emin"]),
+            np.log10(cfg_binning_ereco["emax"]),
+            self.nbin_ereco+ 1,
         )
-
-        cfg_binning = config["analysis"]["etrue_binning"]
         self.etrue = np.logspace(
-            np.log10(cfg_binning["emin"]),
-            np.log10(cfg_binning["emax"]),
-            cfg_binning["nbin"] + 1,
+            np.log10(cfg_binning_etrue["emin"]),
+            np.log10(cfg_binning_etrue["emax"]),
+            self.nbin_etrue + 1,
         )
 
     def build_irf(self):
@@ -246,9 +241,16 @@ class IrfMaker(object):
 
         hdulist.writeto(os.path.join(self.outdir, "irf.fits.gz"), overwrite=True)
 
-    def make_bkg_rate(self):
-        """Build background rate"""
-        nbin = len(self.table)
+    def make_bkg_rate(self, angular_cut):
+        """Build background rate
+
+         Parameters
+        ----------
+        angular_cut: `astropy.units.Quantity`, dimension N reco energy bin
+            Array of angular cut to apply in each reconstructed energy bin
+            to estimate the acceptance ratio for the background estimate
+        """
+        nbin = self.nbin_ereco
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
         bgd = np.zeros(nbin)
@@ -257,10 +259,10 @@ class IrfMaker(object):
             self.config["analysis"]["obs_time"]["unit"]
         )
 
-        for ibin, info in enumerate(self.table):
+        for ibin, (emin,emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
 
-            energ_lo[ibin] = info["emin"]
-            energ_hi[ibin] = info["emax"]
+            energ_lo[ibin] = emin
+            energ_hi[ibin] = emax
 
             # References
             data_p = self.evt_dict["proton"]
@@ -269,23 +271,23 @@ class IrfMaker(object):
             # Compute number of events passing cuts selection
             n_p = sum(
                 data_p[
-                    (data_p["reco_energy"] >= info["emin"])
-                    & (data_p["reco_energy"] < info["emax"])
+                    (data_p["reco_energy"] >= emin)
+                    & (data_p["reco_energy"] < emax)
                     & (data_p["pass_best_cutoff"])
                 ]["weight"]
             )
 
             n_e = sum(
                 data_e[
-                    (data_e["reco_energy"] >= info["emin"])
-                    & (data_e["reco_energy"] < info["emax"])
+                    (data_e["reco_energy"] >= emin)
+                    & (data_e["reco_energy"] < emax)
                     & (data_e["pass_best_cutoff"])
                 ]["weight"]
             )
 
             # Correct number of background due to acceptance
             acceptance_g = (
-                2 * np.pi * (1 - np.cos(info["angular_cut"] * u.deg.to("rad")))
+                2 * np.pi * (1 - np.cos(angular_cut))
             )
             acceptance_p = (
                 2
@@ -327,23 +329,23 @@ class IrfMaker(object):
 
     def make_point_spread_function(self, radius=68):
         """Buil point spread function with radius containment `radius`"""
-        nbin = len(self.table)
+        nbin = self.nbin_ereco
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
         psf = np.zeros(nbin)
 
-        for ibin, info in enumerate(self.table):
+        for ibin, (emin, emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
 
-            energ_lo[ibin] = info["emin"]
-            energ_hi[ibin] = info["emax"]
+            energ_lo[ibin] = emin
+            energ_hi[ibin] = emax
 
             # References
             data_g = self.evt_dict["gamma"]
 
             # Select data passing cuts selection
             sel = data_g.loc[
-                (data_g["reco_energy"] >= info["emin"])
-                & (data_g["reco_energy"] < info["emax"])
+                (data_g["reco_energy"] >= emin)
+                & (data_g["reco_energy"] < emax)
                 & (data_g["pass_best_cutoff"]),
                 [self.config['column_definition']['angular_distance_to_the_src']],
             ]
@@ -365,11 +367,11 @@ class IrfMaker(object):
         )
 
     def make_effective_area(
-        self, apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
+        self, apply_score_cut=True, apply_angular_cut=True
     ):
         nbin = len(self.etrue) - 1
-        energ_lo = np.zeros(nbin)
-        energ_hi = np.zeros(nbin)
+        energy_true_lo = np.zeros(nbin)
+        energy_true_hi = np.zeros(nbin)
         area = np.zeros(nbin)
 
         # Get simulation infos
@@ -409,19 +411,55 @@ class IrfMaker(object):
             )
 
             area[ibin] = (sel / simu_evts) * area_simu.value
-            energ_lo[ibin] = emin.value
-            energ_hi[ibin] = emax.value
+            energy_true_lo[ibin] = emin.value
+            energy_true_hi[ibin] = emax.value
 
-        t = Table()
-        t["ENERG_LO"] = Column(
-            energ_lo, unit="TeV", description="energy min", format="E"
+        table_energy = Table()
+        table_energy["ETRUE_LO"] = Column(
+            energy_true_lo,
+            unit="TeV",
+            description="energy min",
+            format=str(len(energy_true_lo)) + "E",
         )
-        t["ENERG_HI"] = Column(
-            energ_hi, unit="TeV", description="energy max", format="E"
+        table_energy["ETRUE_HI"] = Column(
+            energy_true_hi,
+            unit="TeV",
+            description="energy max",
+            format=str(len(energy_true_hi)) + "E",
         )
-        t[hdu_name] = Column(area, unit="m2", description="Effective area", format="E")
 
-        return IrfMaker._make_hdu(hdu_name, t, ["ENERG_LO", "ENERG_HI", hdu_name])
+        # Needed for format, a bit hacky...
+        theta_lo = [0.0, 1.0]
+        theta_hi = [1.0, 2.0]
+        table_theta = Table()
+        table_theta["THETA_LO"] = Column(
+            theta_lo,
+            unit="deg",
+            description="theta min",
+            format=str(len(theta_lo)) + "E",
+        )
+        table_theta["THETA_HI"] = Column(
+            theta_hi,
+            unit="deg",
+            description="theta max",
+            format=str(len(theta_hi)) + "E",
+        )
+
+        extended_area = np.resize(
+            area, (len(theta_lo), area.shape[0])
+        )
+        dim_extended_area = (
+            len(table_energy["ETRUE_LO"])
+            * len(table_theta["THETA_LO"])
+        )
+
+        aeff_2D = Table([extended_area], names=["AEFF"])
+        aeff_2D["AEFF"].unit = u.Unit("m2")
+        aeff_2D["AEFF"].format = str(dim_extended_area) + "E"
+
+        hdu = IrfMaker._make_aeff_hdu(table_energy, table_theta, aeff_2D)
+
+        return hdu
 
     def make_energy_dispersion(self):
         migra = np.linspace(0.0, 3.0, 300 + 1)
@@ -505,7 +543,7 @@ class IrfMaker(object):
             * len(table_migra["MIGRA_LO"])
             * len(table_theta["THETA_LO"])
         )
-        matrix = Table([extended_mig_matrix.ravel()], names=["MATRIX"])
+        matrix = Table([extended_mig_matrix], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
         matrix["MATRIX"].format = str(dim_matrix) + "E"
         hdu = IrfMaker._make_edisp_hdu(table_energy, table_migra, table_theta, matrix)
@@ -521,6 +559,58 @@ class IrfMaker(object):
         ]
         hdu = fits.BinTableHDU.from_columns(col_list)
         hdu.header.set("EXTNAME", hdu_name)
+        return hdu
+
+    @classmethod
+    def _make_aeff_hdu(cls, table_energy, table_theta, aeff):
+        """List of columns"""
+        hdu = fits.BinTableHDU.from_columns(
+            [
+                fits.Column(
+                    name="ETRUE_LO",
+                    format=table_energy["ETRUE_LO"].format,
+                    unit=table_energy["ETRUE_LO"].unit.to_string(),
+                    array=np.atleast_2d(table_energy["ETRUE_LO"]),
+                ),
+                fits.Column(
+                    "ETRUE_HI",
+                    table_energy["ETRUE_HI"].format,
+                    unit=table_energy["ETRUE_HI"].unit.to_string(),
+                    array=np.atleast_2d(table_energy["ETRUE_HI"]),
+                ),
+                fits.Column(
+                    "THETA_LO",
+                    table_theta["THETA_LO"].format,
+                    unit=table_theta["THETA_LO"].unit.to_string(),
+                    array=np.atleast_2d(table_theta["THETA_LO"]),
+                ),
+                fits.Column(
+                    "THETA_HI",
+                    table_theta["THETA_HI"].format,
+                    unit=table_theta["THETA_HI"].unit.to_string(),
+                    array=np.atleast_2d(table_theta["THETA_HI"]),
+                ),
+                fits.Column(
+                    "AEFF",
+                    aeff["AEFF"].format,
+                    unit=aeff["AEFF"].unit.to_string(),
+                    array=np.expand_dims(aeff["AEFF"].data, 0),
+                    dim=str(aeff["AEFF"].data.T.shape),
+                ),
+            ]
+        )
+
+        hdu.header.set(
+            "TDIM7",
+            "("
+            + str(len(table_energy["ETRUE_LO"]))
+            + ","
+            + str(len(table_theta["THETA_LO"]))
+            + ")",
+        )
+        hdu.header.set(
+            "EXTNAME", "AEFF", "name of this binary table extension "
+        )
         return hdu
 
     @classmethod
@@ -568,11 +658,12 @@ class IrfMaker(object):
                     "MATRIX",
                     matrix["MATRIX"].format,
                     unit=matrix["MATRIX"].unit.to_string(),
-                    array=np.expand_dims(matrix["MATRIX"], 0),
+                    array=np.expand_dims(matrix["MATRIX"].data, 0),
+                    dim=str(matrix["MATRIX"].data.T.shape),
                 ),
             ]
         )
-
+        
         hdu.header.set(
             "TDIM7",
             "("
