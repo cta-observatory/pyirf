@@ -1,3 +1,6 @@
 numpy
 pygments >= 2.5.1
 rinohtype
+sphinx
+sphinx-automodapi
+sphinx_rtd_theme
