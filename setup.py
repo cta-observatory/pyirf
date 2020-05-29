@@ -13,9 +13,7 @@ setup(
         'numpy',
         'pandas',
         'scipy',
-        'scikit-learn',
         'tables',
         'ctapipe==0.7',
-        'rinohtype',
     ],
 )
