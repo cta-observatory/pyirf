@@ -16,5 +16,6 @@ setup(
         'scikit-learn',
         'tables',
         'ctapipe==0.7',
+        'rinohtype',
     ],
 )
