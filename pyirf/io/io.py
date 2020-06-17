@@ -5,6 +5,8 @@ from ctapipe.io.containers import MCHeaderContainer
 import yaml
 import pkg_resources
 import os
+from astropy.table import Table
+
 
 def load_config(name):
     """Load YAML configuration file."""
@@ -27,10 +29,11 @@ def read_simu_info_hdf5(filename):
     """
 
     with HDF5TableReader(filename) as reader:
-        mcheader = reader.read('/simulation/run_config', MCHeaderContainer())
+        mcheader = reader.read("/simulation/run_config", MCHeaderContainer())
         mc = next(mcheader)
 
     return mc
+
 
 def read_simu_info_merged_hdf5(filename):
     """
@@ -49,16 +52,21 @@ def read_simu_info_merged_hdf5(filename):
 
     """
     with open_file(filename) as file:
-        simu_info = file.root['simulation/run_config']
+        simu_info = file.root["simulation/run_config"]
         colnames = simu_info.colnames
-        not_to_check = ['num_showers', 'shower_prog_start', 'detector_prog_start', 'obs_id']
+        not_to_check = [
+            "num_showers",
+            "shower_prog_start",
+            "detector_prog_start",
+            "obs_id",
+        ]
         for k in colnames:
             if k not in not_to_check:
                 assert np.all(simu_info[:][k] == simu_info[0][k])
-        num_showers = simu_info[:]['num_showers'].sum()
+        num_showers = simu_info[:]["num_showers"].sum()
 
     combined_mcheader = read_simu_info_hdf5(filename)
-    combined_mcheader['num_showers'] = num_showers
+    combined_mcheader["num_showers"] = num_showers
     return combined_mcheader
 
 
@@ -67,26 +75,53 @@ def get_simu_info(filepath, particle_name, config={}):
     read simu info from file and return config
     """
 
-    if 'particle_information' not in config:
-        config['particle_information'] = {}
-    if particle_name not in config['particle_information']:
-        config['particle_information'][particle_name] = {}
-    cfg = config['particle_information'][particle_name]
+    if "particle_information" not in config:
+        config["particle_information"] = {}
+    if particle_name not in config["particle_information"]:
+        config["particle_information"][particle_name] = {}
+    cfg = config["particle_information"][particle_name]
 
     simu = read_simu_info_merged_hdf5(filepath)
-    cfg['n_events_per_file'] = simu.num_showers * simu.shower_reuse
-    cfg['n_files'] = 1
-    cfg['e_min'] = simu.energy_range_min
-    cfg['e_max'] = simu.energy_range_max
-    cfg['gen_radius'] = simu.max_scatter_range
-    cfg['diff_cone'] = simu.max_viewcone_radius
-    cfg['gen_gamma'] = -simu.spectral_index
+    cfg["n_events_per_file"] = simu.num_showers * simu.shower_reuse
+    cfg["n_files"] = 1
+    cfg["e_min"] = simu.energy_range_min
+    cfg["e_max"] = simu.energy_range_max
+    cfg["gen_radius"] = simu.max_scatter_range
+    cfg["diff_cone"] = simu.max_viewcone_radius
+    cfg["gen_gamma"] = -simu.spectral_index
 
     print(particle_name)
     print(cfg)
 
     return config
 
+
+def read_EventDisplay(indir=None, infile=None):
+    """Read DL2 files in FITS format from the EventDisplay analysis chain.
+
+    Parameters
+    ----------
+    indir : str
+        Path of the DL2 file.
+    infile : str
+        Name of the DL2 file.
+
+    Returns
+    -------
+
+    table : astropy.Table
+        Astropy Table object containing the reconstructed events information.
+
+    """
+
+    if (not indir) or (not infile):
+        print("WARNING: missing input information!")
+        print("Please, check that the folder exists and it contains the file.")
+        exit()
+
+    table = Table.read(f"{infile}", hdu=1)
+
+    return table
 
 
 # def get_resource(resource_name):
