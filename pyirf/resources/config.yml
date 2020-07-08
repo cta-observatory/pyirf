@@ -1,0 +1,8 @@
+# Example configuration file for PYIRF
+
+# Based on protopipe one, it should progressively use GADF nomenclature.
+
+general:
+ output_table_name: 'table_best_cutoff' # Output table name
+ indir: '' # where is the DL2 data
+ outdir: '' # where to store DL3 data
