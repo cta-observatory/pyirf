@@ -175,8 +175,8 @@ class IrfMaker(object):
         self.outdir = outdir
 
         # Read data saved on disk
-        self.evt_dict = {}
-        #Loop on the particle type
+        self.evt_dict = evt_dict
+        # Loop on the particle type
         for particle in evt_dict.keys():
             self.evt_dict[particle] = evt_dict[particle]
 
@@ -188,7 +188,7 @@ class IrfMaker(object):
         self.ereco = np.logspace(
             np.log10(cfg_binning_ereco["emin"]),
             np.log10(cfg_binning_ereco["emax"]),
-            self.nbin_ereco+ 1,
+            self.nbin_ereco + 1,
         )
         self.etrue = np.logspace(
             np.log10(cfg_binning_etrue["emin"]),
@@ -259,8 +259,7 @@ class IrfMaker(object):
             self.config["analysis"]["obs_time"]["unit"]
         )
 
-        for ibin, (emin,emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
-
+        for ibin, (emin, emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
             energ_lo[ibin] = emin
             energ_hi[ibin] = emax
 
@@ -274,7 +273,7 @@ class IrfMaker(object):
                     (data_p["reco_energy"] >= emin)
                     & (data_p["reco_energy"] < emax)
                     & (data_p["pass_best_cutoff"])
-                ]["weight"]
+                    ]["weight"]
             )
 
             n_e = sum(
@@ -282,34 +281,34 @@ class IrfMaker(object):
                     (data_e["reco_energy"] >= emin)
                     & (data_e["reco_energy"] < emax)
                     & (data_e["pass_best_cutoff"])
-                ]["weight"]
+                    ]["weight"]
             )
 
             # Correct number of background due to acceptance
             acceptance_g = (
-                2 * np.pi * (1 - np.cos(angular_cut))
+                    2 * np.pi * (1 - np.cos(angular_cut))
             )
             acceptance_p = (
-                2
-                * np.pi
-                * (
-                    1
-                    - np.cos(
+                    2
+                    * np.pi
+                    * (
+                            1
+                            - np.cos(
                         self.config["particle_information"]["proton"]["offset_cut"]
                         * u.deg.to("rad")
                     )
-                )
+                    )
             )
             acceptance_e = (
-                2
-                * np.pi
-                * (
-                    1
-                    - np.cos(
+                    2
+                    * np.pi
+                    * (
+                            1
+                            - np.cos(
                         self.config["particle_information"]["electron"]["offset_cut"]
                         * u.deg.to("rad")
                     )
-                )
+                    )
             )
 
             n_p *= acceptance_g / acceptance_p
@@ -335,7 +334,6 @@ class IrfMaker(object):
         psf = np.zeros(nbin)
 
         for ibin, (emin, emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
-
             energ_lo[ibin] = emin
             energ_hi[ibin] = emax
 
@@ -367,7 +365,7 @@ class IrfMaker(object):
         )
 
     def make_effective_area(
-        self, apply_score_cut=True, apply_angular_cut=True
+            self, apply_score_cut=True, apply_angular_cut=True
     ):
         nbin = len(self.etrue) - 1
         energy_true_lo = np.zeros(nbin)
@@ -405,9 +403,9 @@ class IrfMaker(object):
 
             # Compute number of number of events in simulation
             simu_evts = (
-                float(nsimu_tot)
-                * (emax.value ** index - emin.value ** index)
-                / (emax_simu ** index - emin_simu ** index)
+                    float(nsimu_tot)
+                    * (emax.value ** index - emin.value ** index)
+                    / (emax_simu ** index - emin_simu ** index)
             )
 
             area[ibin] = (sel / simu_evts) * area_simu.value
@@ -429,6 +427,12 @@ class IrfMaker(object):
         )
 
         # Needed for format, a bit hacky...
+        # Those value are artificial. In the DL3 format, the IRFs are offset FOV dependant, here name theta.
+        # For point-like MC simulation produced at only one offset theta0 this trick is needed because those IRF can
+        # only be use for sources located at theta0 from the camera center. We give the same value for the IRFs for two
+        # artificial offsets, like this the interpolation at theta0 in the high level analysis tools will
+        # be correct. This will be remove when we use diffuse MC simulation that will allow to define IRF properly at
+        # different offset in the FOV.
         theta_lo = [0.0, 1.0]
         theta_hi = [1.0, 2.0]
         table_theta = Table()
@@ -449,8 +453,8 @@ class IrfMaker(object):
             area, (len(theta_lo), area.shape[0])
         )
         dim_extended_area = (
-            len(table_energy["ETRUE_LO"])
-            * len(table_theta["THETA_LO"])
+                len(table_energy["ETRUE_LO"])
+                * len(table_theta["THETA_LO"])
         )
 
         aeff_2D = Table([extended_area], names=["AEFF"])
@@ -470,7 +474,7 @@ class IrfMaker(object):
         data_g = self.evt_dict["gamma"]
         data_g = data_g[
             (data_g["pass_best_cutoff"]) & (data_g["pass_angular_cut"])
-        ].copy()
+            ].copy()
 
         for imigra in range(len(migra) - 1):
             migra_min = migra[imigra]
@@ -486,7 +490,7 @@ class IrfMaker(object):
                         & (data_g["mc_energy"] < emax)
                         & ((data_g["reco_energy"] / data_g["mc_energy"]) >= migra_min)
                         & ((data_g["reco_energy"] / data_g["mc_energy"]) < migra_max)
-                    ]
+                        ]
                 )
                 counts[imigra][ietrue] = sel
 
@@ -519,6 +523,12 @@ class IrfMaker(object):
         )
 
         # Needed for format, a bit hacky...
+        # Those value are artificial. In the DL3 format, the IRFs are offset FOV dependant, here name theta.
+        # For point-like MC simulation produced at only one offset theta0 this trick is needed because those IRF can
+        # only be use for sources located at theta0 from the camera center. We give the same value for the IRFs for two
+        # artificial offsets, like this the interpolation at theta0 in the high level analysis tools will
+        # be correct. This will be remove when we use diffuse MC simulation that will allow to define IRF properly at
+        # different offset in the FOV.
         theta_lo = [0.0, 1.0]
         theta_hi = [1.0, 2.0]
         table_theta = Table()
@@ -539,9 +549,9 @@ class IrfMaker(object):
             counts, (len(theta_lo), counts.shape[0], counts.shape[1])
         )
         dim_matrix = (
-            len(table_energy["ETRUE_LO"])
-            * len(table_migra["MIGRA_LO"])
-            * len(table_theta["THETA_LO"])
+                len(table_energy["ETRUE_LO"])
+                * len(table_migra["MIGRA_LO"])
+                * len(table_theta["THETA_LO"])
         )
         matrix = Table([extended_mig_matrix], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
@@ -563,118 +573,59 @@ class IrfMaker(object):
 
     @classmethod
     def _make_aeff_hdu(cls, table_energy, table_theta, aeff):
-        """List of columns"""
-        hdu = fits.BinTableHDU.from_columns(
-            [
-                fits.Column(
-                    name="ETRUE_LO",
-                    format=table_energy["ETRUE_LO"].format,
-                    unit=table_energy["ETRUE_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_LO"]),
-                ),
-                fits.Column(
-                    "ETRUE_HI",
-                    table_energy["ETRUE_HI"].format,
-                    unit=table_energy["ETRUE_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_HI"]),
-                ),
-                fits.Column(
-                    "THETA_LO",
-                    table_theta["THETA_LO"].format,
-                    unit=table_theta["THETA_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_theta["THETA_LO"]),
-                ),
-                fits.Column(
-                    "THETA_HI",
-                    table_theta["THETA_HI"].format,
-                    unit=table_theta["THETA_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_theta["THETA_HI"]),
-                ),
-                fits.Column(
-                    "AEFF",
-                    aeff["AEFF"].format,
-                    unit=aeff["AEFF"].unit.to_string(),
-                    array=np.expand_dims(aeff["AEFF"].data, 0),
-                    dim=str(aeff["AEFF"].data.T.shape),
-                ),
-            ]
-        )
+        """Create the Bintable HDU for the effective area describe here
+        https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html#effective-area-vs-true-energy
+        """
+        table = Table({
+            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
+            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
+            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
+            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
+            'EFFAREA': aeff["AEFF"].data[np.newaxis, :, :] * aeff["AEFF"].unit,
+        })
 
-        hdu.header.set(
-            "TDIM7",
-            "("
-            + str(len(table_energy["ETRUE_LO"]))
-            + ","
-            + str(len(table_theta["THETA_LO"]))
-            + ")",
-        )
-        hdu.header.set(
-            "EXTNAME", "AEFF", "name of this binary table extension "
-        )
-        return hdu
+        header = fits.Header()
+        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
+        header['HDUCLASS'] = 'GADF', ''
+        header['HDUCLAS1'] = 'RESPONSE', ''
+        header['HDUCLAS2'] = 'EFF_AREA', ''
+        header['HDUCLAS3'] = 'POINT-LIKE', ''
+        header['HDUCLAS4'] = 'AEFF_2D', ''
+
+        aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
+
+        primary_hdu = fits.PrimaryHDU()
+        hdulist = fits.HDUList([primary_hdu, aeff_hdu])
+
+        return hdulist
 
     @classmethod
     def _make_edisp_hdu(cls, table_energy, table_migra, table_theta, matrix):
-        """List of columns"""
-        hdu = fits.BinTableHDU.from_columns(
-            [
-                fits.Column(
-                    name="ETRUE_LO",
-                    format=table_energy["ETRUE_LO"].format,
-                    unit=table_energy["ETRUE_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_LO"]),
-                ),
-                fits.Column(
-                    "ETRUE_HI",
-                    table_energy["ETRUE_HI"].format,
-                    unit=table_energy["ETRUE_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_HI"]),
-                ),
-                fits.Column(
-                    "MIGRA_LO",
-                    table_migra["MIGRA_LO"].format,
-                    unit=table_migra["MIGRA_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_migra["MIGRA_LO"]),
-                ),
-                fits.Column(
-                    "MIGRA_HI",
-                    table_migra["MIGRA_HI"].format,
-                    unit=table_migra["MIGRA_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_migra["MIGRA_HI"]),
-                ),
-                fits.Column(
-                    "THETA_LO",
-                    table_theta["THETA_LO"].format,
-                    unit=table_theta["THETA_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_theta["THETA_LO"]),
-                ),
-                fits.Column(
-                    "THETA_HI",
-                    table_theta["THETA_HI"].format,
-                    unit=table_theta["THETA_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_theta["THETA_HI"]),
-                ),
-                fits.Column(
-                    "MATRIX",
-                    matrix["MATRIX"].format,
-                    unit=matrix["MATRIX"].unit.to_string(),
-                    array=np.expand_dims(matrix["MATRIX"].data, 0),
-                    dim=str(matrix["MATRIX"].data.T.shape),
-                ),
-            ]
-        )
-        
-        hdu.header.set(
-            "TDIM7",
-            "("
-            + str(len(table_energy["ETRUE_LO"]))
-            + ","
-            + str(len(table_migra["MIGRA_LO"]))
-            + ","
-            + str(len(table_theta["THETA_LO"]))
-            + ")",
-        )
-        hdu.header.set(
-            "EXTNAME", "ENERGY DISPERSION", "name of this binary table extension "
-        )
-        return hdu
+        """Create the Bintable HDU for the energy dispersion describe here
+        https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
+        """
+
+        table = Table({
+            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
+            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
+            'MIGRA_LO': table_migra["MIGRA_LO"][np.newaxis, :].data * table_migra["MIGRA_LO"].unit,
+            'MIGRA_HI': table_migra["MIGRA_HI"][np.newaxis, :].data * table_migra["MIGRA_HI"].unit,
+            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
+            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
+            'MATRIX': matrix["MATRIX"][np.newaxis, :, :] * matrix["MATRIX"].unit,
+        })
+
+        header = fits.Header()
+        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
+        header['HDUCLASS'] = 'GADF', ''
+        header['HDUCLAS1'] = 'RESPONSE', ''
+        header['HDUCLAS2'] = 'EDISP', ''
+        header['HDUCLAS3'] = 'POINT-LIKE', ''
+        header['HDUCLAS4'] = 'EDISP_2D', ''
+
+        edisp_hdu = fits.BinTableHDU(table, header, name='ENERGY DISPERSION')
+
+        primary_hdu = fits.PrimaryHDU()
+        hdulist = fits.HDUList([primary_hdu, edisp_hdu])
+
+        return hdulist
