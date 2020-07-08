@@ -60,10 +60,12 @@ def main():
     # Load data
     particles = ['gamma', 'electron', 'proton']
     evt_dict = dict()  # Contain DL2 file for each type of particle
+
+    dl2_params_key = 'dl2/event/telescope/parameters/LST_LSTCam'
     for particle in particles:
         # template looks like dl2_{}_{}_merged.h5
         infile = os.path.join(indir, template_input_file.format(args.mode, particle))
-        evt_dict[particle] = pd.read_hdf(infile, key='reco_events')
+        evt_dict[particle] = pd.read_hdf(infile, key=dl2_params_key)
 
     # Apply offset cut to proton and electron
     for particle in ['electron', 'proton']:
@@ -75,8 +77,8 @@ def main():
     # Add required data in configuration file for future computation
     for particle in particles:
         n_files = cfg['particle_information'][particle]['n_files']
-        print(f"{n_files} files for {particle}")
-        cfg['particle_information'][particle]['n_files'] = \
+        print("{} files for {}".format(n_files, particle))
+        cfg['particle_information'][particle]['nfiles'] = \
             len(np.unique(evt_dict[particle]['obs_id']))
         cfg['particle_information'][particle]['n_simulated'] = \
             cfg['particle_information'][particle]['n_files'] * cfg['particle_information'][particle]['n_events_per_file']

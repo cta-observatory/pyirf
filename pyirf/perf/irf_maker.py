@@ -68,7 +68,7 @@ class SensitivityMaker(object):
             bkg_table = Table.read(bkg_fits_table)
             energy_lo = bkg_table["ENERG_LO"].quantity
             energy_hi = bkg_table["ENERG_HI"].quantity
-            bkg = bkg_table["BGD"].quantity
+            bkg = bkg_table["BKG"].quantity
 
             axes = [
                 BinnedDataAxis(
@@ -205,7 +205,7 @@ class IrfMaker(object):
         bkg_rate = self.make_bkg_rate()
         psf = self.make_point_spread_function()
         area = self.make_effective_area(
-            apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
+            apply_score_cut=True, apply_angular_cut=True, hdu_name="EFFAREA"
         )  # Effective area with cuts applied
         edisp = self.make_energy_dispersion()
 
@@ -213,17 +213,17 @@ class IrfMaker(object):
         area_no_cuts = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=False,
-            hdu_name="SPECRESP (NO CUTS)",
+            hdu_name="EFFAREA (NO CUTS)",
         )  # Effective area with cuts applied
         area_no_score_cut = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=True,
-            hdu_name="SPECRESP (WITH ANGULAR CUT)",
+            hdu_name="EFFAREA (WITH ANGULAR CUT)",
         )  # Effective area with cuts applied
         area_no_angular_cut = self.make_effective_area(
             apply_score_cut=True,
             apply_angular_cut=False,
-            hdu_name="SPECRESP (WITH SCORE CUT)",
+            hdu_name="EFFAREA (WITH SCORE CUT)",
         )  # Effective area with cuts applied
 
         # Primary header
@@ -321,9 +321,9 @@ class IrfMaker(object):
         t["ENERG_HI"] = Column(
             energ_hi, unit="TeV", description="energy max", format="E"
         )
-        t["BGD"] = Column(bgd, unit="TeV", description="Background", format="E")
+        t["BKG"] = Column(bkg, unit="TeV", description="Background", format="E")
 
-        return IrfMaker._make_hdu("BACKGROUND", t, ["ENERG_LO", "ENERG_HI", "BGD"])
+        return IrfMaker._make_hdu("BACKGROUND", t, ["ENERG_LO", "ENERG_HI", "BKG"])
 
     def make_point_spread_function(self, radius=68):
         """Buil point spread function with radius containment `radius`"""
@@ -365,7 +365,7 @@ class IrfMaker(object):
         )
 
     def make_effective_area(
-        self, apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
+        self, apply_score_cut=True, apply_angular_cut=True, hdu_name="EFFAREA"
     ):
         nbin = len(self.etrue) - 1
         energ_lo = np.zeros(nbin)
@@ -453,13 +453,13 @@ class IrfMaker(object):
                 counts[imigra][ietrue] = sel
 
         table_energy = Table()
-        table_energy["ETRUE_LO"] = Column(
+        table_energy["ENERG_LO"] = Column(
             etrue[:-1],
             unit="TeV",
             description="energy min",
             format=str(len(etrue) - 1) + "E",
         )
-        table_energy["ETRUE_HI"] = Column(
+        table_energy["ENERG_HI"] = Column(
             etrue[1:],
             unit="TeV",
             description="energy max",
@@ -501,7 +501,7 @@ class IrfMaker(object):
             counts, (len(theta_lo), counts.shape[0], counts.shape[1])
         )
         dim_matrix = (
-            len(table_energy["ETRUE_LO"])
+            len(table_energy["ENERG_LO"])
             * len(table_migra["MIGRA_LO"])
             * len(table_theta["THETA_LO"])
         )
@@ -529,16 +529,16 @@ class IrfMaker(object):
         hdu = fits.BinTableHDU.from_columns(
             [
                 fits.Column(
-                    name="ETRUE_LO",
-                    format=table_energy["ETRUE_LO"].format,
-                    unit=table_energy["ETRUE_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_LO"]),
+                    name="ENERG_LO",
+                    format=table_energy["ENERG_LO"].format,
+                    unit=table_energy["ENERG_LO"].unit.to_string(),
+                    array=np.atleast_2d(table_energy["ENERG_LO"]),
                 ),
                 fits.Column(
-                    "ETRUE_HI",
-                    table_energy["ETRUE_HI"].format,
-                    unit=table_energy["ETRUE_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_HI"]),
+                    "ENERG_HI",
+                    table_energy["ENERG_HI"].format,
+                    unit=table_energy["ENERG_HI"].unit.to_string(),
+                    array=np.atleast_2d(table_energy["ENERG_HI"]),
                 ),
                 fits.Column(
                     "MIGRA_LO",
@@ -576,7 +576,7 @@ class IrfMaker(object):
         hdu.header.set(
             "TDIM7",
             "("
-            + str(len(table_energy["ETRUE_LO"]))
+            + str(len(table_energy["ENERG_LO"]))
             + ","
             + str(len(table_migra["MIGRA_LO"]))
             + ","
