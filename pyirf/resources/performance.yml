@@ -1,6 +1,8 @@
 general:
  # Output table name
  output_table_name: 'table_best_cutoff'
+ indir: '' # where is the DL2 data
+ outdir: '' # where to store DL3 data
 
 analysis:
 
