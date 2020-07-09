@@ -225,7 +225,7 @@ class IrfMaker(object):
             apply_angular_cut=False,
             hdu_name="EFFAREA (WITH SCORE CUT)",
         )  # Effective area with cuts applied
-
+        print('This works?')
         # Primary header
         n = np.arange(100.0)
         primary_hdu = fits.PrimaryHDU(n)
