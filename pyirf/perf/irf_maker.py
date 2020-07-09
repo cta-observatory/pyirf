@@ -225,7 +225,7 @@ class IrfMaker(object):
             apply_angular_cut=False,
             hdu_name="EFFAREA (WITH SCORE CUT)",
         )  # Effective area with cuts applied
-        print('This works?')
+
         # Primary header
         n = np.arange(100.0)
         primary_hdu = fits.PrimaryHDU(n)
@@ -321,9 +321,21 @@ class IrfMaker(object):
         t["ENERG_HI"] = Column(
             energ_hi, unit="TeV", description="energy max", format="E"
         )
+
+        #Added the same hacky method for offset angle
+        theta_lo = [0.0, 1.0]
+        theta_hi = [1.0, 2.0]
+
+        t["THETA_LO"] = Column(
+            theta_lo, unit="deg", description="theta min", format=str(len(theta_lo)) + "E",
+        )
+        t["THETA_HI"] = Column(
+            theta_hi, unit="deg", description="theta max", format=str(len(theta_hi)) + "E",
+        )
+
         t["BKG"] = Column(bkg, unit="TeV", description="Background", format="E")
 
-        return IrfMaker._make_hdu("BACKGROUND", t, ["ENERG_LO", "ENERG_HI", "BKG"])
+        return IrfMaker._make_hdu("BACKGROUND", t, ["ENERG_LO", "ENERG_HI", "THETA_LO", "THETA_HI" , "BKG"])
 
     def make_point_spread_function(self, radius=68):
         """Buil point spread function with radius containment `radius`"""
@@ -419,9 +431,20 @@ class IrfMaker(object):
         t["ENERG_HI"] = Column(
             energ_hi, unit="TeV", description="energy max", format="E"
         )
-        t[hdu_name] = Column(area, unit="m2", description="Effective area", format="E")
+        #Added the same hacky method for offset angle
+        theta_lo = [0.0, 1.0]
+        theta_hi = [1.0, 2.0]
 
-        return IrfMaker._make_hdu(hdu_name, t, ["ENERG_LO", "ENERG_HI", hdu_name])
+        t["THETA_LO"] = Column(
+            theta_lo, unit="deg", description="theta min", format=str(len(theta_lo)) + "E",
+        )
+        t["THETA_HI"] = Column(
+            theta_hi, unit="deg", description="theta max", format=str(len(theta_hi)) + "E",
+        )
+
+        t["EFFAREA"] = Column(area, unit="m2", description="Effective area", format="E")
+
+        return IrfMaker._make_hdu(hdu_name, t, ["ENERG_LO", "ENERG_HI", "THETA_LO", "THETA_HI", "EFFAREA"])
 
     def make_energy_dispersion(self):
         migra = np.linspace(0.0, 3.0, 300 + 1)
