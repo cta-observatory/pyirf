@@ -122,6 +122,16 @@ def read_EventDisplay(indir=None, infile=None):
     table = Table.read(f"{infile}", hdu=1)
 
     return table
+def write(cuts=None, irfs=None):
+    """Write DL3 data.
+
+    This should be writer for the DL3 data!
+    Format is still unclear, but nomenclature should follow GADF.
+
+    We need at least the applied optimized cuts and the IRFs.
+
+    """
+    return None
 
 
 # def get_resource(resource_name):
