@@ -1,11 +1,32 @@
+"""Set of classes and functions of input and output.
+
+Proposal of general structure:
+- a reader for each data format (in the end only FITS, but also HDF5 for now)
+- a mapper that reads user-defined DL2 column names into GADF format
+- there should be only one output format (we follow GADF).
+
+Currently some column names are defined in the configuration file under the
+section 'column_definition'.
+
+"""
+
+
+# PYTHON STANDARD LIBRARY
+# import os
+
+# THIRD-PARTY MODULES
+
+from astropy.table import Table
+from astropy.io import fits
+import yaml
+
+# import pkg_resources
 from tables import open_file
 import numpy as np
+import pandas as pd
+
 from ctapipe.io import HDF5TableReader
 from ctapipe.io.containers import MCHeaderContainer
-import yaml
-import pkg_resources
-import os
-from astropy.table import Table
 
 
 def load_config(name):
@@ -96,8 +117,6 @@ def get_simu_info(filepath, particle_name, config={}):
     return config
 
 
-def read_EventDisplay(indir=None, infile=None):
-    """Read DL2 files in FITS format from the EventDisplay analysis chain.
 def GADF_mapper(config=None):
     """Defines the format to be used internally.
 
@@ -124,6 +143,10 @@ def GADF_mapper(config=None):
 
     return columns
 
+
+def read_FITS(config=None, infile=None):
+    """Store contents of a FITS file into one or more astropy tables.
+
     Parameters
     ----------
     indir : str
@@ -137,16 +160,49 @@ def GADF_mapper(config=None):
     table : astropy.Table
         Astropy Table object containing the reconstructed events information.
 
+    Notes
+    -----
+    For the moment this is more specific to EventDisplay.
+    This means that:
+    - if GADF mandatory columns names are missing, only a warning is raised,
+    - it is possible to add custom columns.
+
     """
+    DL2data = dict()
 
-    if (not indir) or (not infile):
-        print("WARNING: missing input information!")
-        print("Please, check that the folder exists and it contains the file.")
-        exit()
+    colnames = GADF_mapper(config=config)
 
-    table = Table.read(f"{infile}", hdu=1)
+    # later differentiate between EVENTS, GTI & POINTING
 
-    return table
+    with fits.open(infile) as hdul:
+
+        print(f"Found {len(hdul)} Header Data Units in {hdul.filename()}.")
+
+        EVENTS = hdul[1]
+
+        # map the keys
+
+        for GADF_key, USER_key in colnames.items():
+
+            print(f"Checking if {GADF_key} exists...")
+
+            if (
+                USER_key in EVENTS.columns.names
+            ):  # this will take into account also custom columns
+                # for Event Display EVENTS is HDU 1
+                DL2data[GADF_key] = EVENTS.data[USER_key]
+            else:  # later use better warnings
+                print(f"WARNING : {GADF_key} not present in DL2 data!")
+
+    # Convert to pandas dataframe
+    # This is only for compatibility with current code of pyirf (ex protopipe.perf)
+    # we can of course decide to use only astropy tables or something else
+
+    DL2data = pd.DataFrame.from_dict(DL2data)
+
+    return DL2data
+
+
 def write(cuts=None, irfs=None):
     """Write DL3 data.
 
