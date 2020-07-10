@@ -98,6 +98,31 @@ def get_simu_info(filepath, particle_name, config={}):
 
 def read_EventDisplay(indir=None, infile=None):
     """Read DL2 files in FITS format from the EventDisplay analysis chain.
+def GADF_mapper(config=None):
+    """Defines the format to be used internally.
+
+    It should be always based on the latest version of [1].
+    All readers should call it to map input data from different formats.
+
+    Names in config file should be changed to GADF+
+
+    """
+
+    columns = {}
+
+    # columns["GADF_DEF"] = config["column_definition"]["USER DEF"]
+
+    for key in config["column_definition"]:
+        columns[key] = config["column_definition"][key]
+
+    print("MAPPING TO GADF....")
+    print(columns)
+
+    # TO ADD in config
+
+    # Mandatory and optional header keywords
+
+    return columns
 
     Parameters
     ----------
