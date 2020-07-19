@@ -68,7 +68,7 @@ class SensitivityMaker(object):
             bkg_table = Table.read(bkg_fits_table)
             energy_lo = bkg_table["ENERG_LO"].quantity
             energy_hi = bkg_table["ENERG_HI"].quantity
-            bkg = bkg_table["BGD"].quantity
+            bkg = bkg_table["BKG"].quantity
 
             axes = [
                 BinnedDataAxis(
@@ -200,7 +200,7 @@ class IrfMaker(object):
         bkg_rate = self.make_bkg_rate()
         psf = self.make_point_spread_function()
         area = self.make_effective_area(
-            apply_score_cut=True, apply_angular_cut=True, hdu_name="EFFAREA"
+            apply_score_cut=True, apply_angular_cut=True, hdu_name="EFFECTIVE AREA"
         )  # Effective area with cuts applied
         edisp = self.make_energy_dispersion()
 
@@ -208,17 +208,17 @@ class IrfMaker(object):
         area_no_cuts = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=False,
-            hdu_name="EFFAREA (NO CUTS)",
+            hdu_name="EFFECTIVE AREA (NO CUTS)",
         )  # Effective area with cuts applied
         area_no_score_cut = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=True,
-            hdu_name="EFFAREA (WITH ANGULAR CUT)",
+            hdu_name="EFFECTIVE AREA (WITH ANGULAR CUT)",
         )  # Effective area with cuts applied
         area_no_angular_cut = self.make_effective_area(
             apply_score_cut=True,
             apply_angular_cut=False,
-            hdu_name="EFFAREA (WITH SCORE CUT)",
+            hdu_name="EFFECTIVE AREA (WITH SCORE CUT)",
         )  # Effective area with cuts applied
 
         # Primary header
@@ -241,7 +241,7 @@ class IrfMaker(object):
 
         hdulist.writeto(os.path.join(self.outdir, "irf.fits.gz"), overwrite=True)
 
-    def make_bkg_rate(self, angular_cut):
+    def make_bkg_rate(self):
         """Build background rate
 
          Parameters
@@ -250,7 +250,7 @@ class IrfMaker(object):
             Array of angular cut to apply in each reconstructed energy bin
             to estimate the acceptance ratio for the background estimate
         """
-        nbin = self.nbin_ereco
+        nbin = len(self.table)
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
         bgd = np.zeros(nbin)
@@ -259,9 +259,9 @@ class IrfMaker(object):
             self.config["analysis"]["obs_time"]["unit"]
         )
 
-        for ibin, (emin, emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
-            energ_lo[ibin] = emin
-            energ_hi[ibin] = emax
+        for ibin, info in enumerate(self.table):
+            energ_lo[ibin] = info["emin"]
+            energ_hi[ibin] = info["emax"]
 
             # References
             data_p = self.evt_dict["proton"]
@@ -286,7 +286,7 @@ class IrfMaker(object):
 
             # Correct number of background due to acceptance
             acceptance_g = (
-                    2 * np.pi * (1 - np.cos(angular_cut))
+                    2 * np.pi * (1 - np.cos(info["angular_cut"] * u.deg.to("rad")))
             )
             acceptance_p = (
                     2
@@ -322,9 +322,25 @@ class IrfMaker(object):
         t["ENERG_HI"] = Column(
             energ_hi, unit="TeV", description="energy max", format="E"
         )
-        t["BGD"] = Column(bgd, unit="TeV", description="Background", format="E")
+        theta_lo = [0.0, 1.0]
+        theta_hi = [1.0, 2.0]
+        table_theta = Table()
+        t["THETA_LO"] = Column(
+            theta_lo,
+            unit="deg",
+            description="theta min",
+            format=str(len(theta_lo)) + "E",
+        )
+        t["THETA_HI"] = Column(
+            theta_hi,
+            unit="deg",
+            description="theta max",
+            format=str(len(theta_hi)) + "E",
+        )
 
-        return IrfMaker._make_hdu("BACKGROUND", t, ["ENERG_LO", "ENERG_HI", "BGD"])
+        t["BKG"] = Column(bgd, unit="TeV", description="Background", format="E")
+
+        return IrfMaker._make_hdu("BKG_2D", t, ["ENERG_LO", "ENERG_HI", "THETA_LO","THETA_HI", "BKG"])
 
     def make_point_spread_function(self, radius=68):
         """Buil point spread function with radius containment `radius`"""
