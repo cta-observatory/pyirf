@@ -200,7 +200,7 @@ class IrfMaker(object):
         bkg_rate = self.make_bkg_rate()
         psf = self.make_point_spread_function()
         area = self.make_effective_area(
-            apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
+            apply_score_cut=True, apply_angular_cut=True, hdu_name="EFFAREA"
         )  # Effective area with cuts applied
         edisp = self.make_energy_dispersion()
 
@@ -208,17 +208,17 @@ class IrfMaker(object):
         area_no_cuts = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=False,
-            hdu_name="SPECRESP (NO CUTS)",
+            hdu_name="EFFAREA (NO CUTS)",
         )  # Effective area with cuts applied
         area_no_score_cut = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=True,
-            hdu_name="SPECRESP (WITH ANGULAR CUT)",
+            hdu_name="EFFAREA (WITH ANGULAR CUT)",
         )  # Effective area with cuts applied
         area_no_angular_cut = self.make_effective_area(
             apply_score_cut=True,
             apply_angular_cut=False,
-            hdu_name="SPECRESP (WITH SCORE CUT)",
+            hdu_name="EFFAREA (WITH SCORE CUT)",
         )  # Effective area with cuts applied
 
         # Primary header
