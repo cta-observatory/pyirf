@@ -180,27 +180,53 @@ class IrfMaker(object):
         for particle in evt_dict.keys():
             self.evt_dict[particle] = evt_dict[particle]
 
-        cfg_binning_ereco = config["analysis"]["ereco_binning"]
-        cfg_binning_etrue = config["analysis"]["etrue_binning"]
-        self.nbin_ereco = cfg_binning_ereco["nbin"]
-        self.nbin_etrue = cfg_binning_etrue["nbin"]
+        #Read table with cuts
+        self.table = Table.read(
+            os.path.join(
+                outdir, "{}.fits".format(config["general"]["output_table_name"])
+            ),
+            format="fits",
+        )
+        self.table = self.table[np.where(self.table["keep"].data)[0]]
+
         # Binning
         self.ereco = np.logspace(
-            np.log10(cfg_binning_ereco["emin"]),
-            np.log10(cfg_binning_ereco["emax"]),
-            self.nbin_ereco + 1,
+            np.log10(self.table["emin"][0]),
+            np.log10(self.table["emax"][-1]),
+            len(self.table),
         )
+
+        cfg_binning = config["analysis"]["etrue_binning"]
         self.etrue = np.logspace(
-            np.log10(cfg_binning_etrue["emin"]),
-            np.log10(cfg_binning_etrue["emax"]),
-            self.nbin_etrue + 1,
+            np.log10(cfg_binning["emin"]),
+            np.log10(cfg_binning["emax"]),
+            cfg_binning["nbin"] + 1,
         )
+
+
+
+        #cfg_binning_ereco = config["analysis"]["ereco_binning"]
+        #cfg_binning_etrue = config["analysis"]["etrue_binning"]
+        #self.nbin_ereco = cfg_binning_ereco["nbin"]
+        #self.nbin_etrue = cfg_binning_etrue["nbin"]
+
+        # Binning
+        #self.ereco = np.logspace(
+        #    np.log10(cfg_binning_ereco["emin"]),
+        #    np.log10(cfg_binning_ereco["emax"]),
+        #    self.nbin_ereco + 1,
+        #)
+        #self.etrue = np.logspace(
+        #    np.log10(cfg_binning_etrue["emin"]),
+        #    np.log10(cfg_binning_etrue["emax"]),
+        #    self.nbin_etrue + 1,
+        #)
 
     def build_irf(self):
         bkg_rate = self.make_bkg_rate()
         psf = self.make_point_spread_function()
         area = self.make_effective_area(
-            apply_score_cut=True, apply_angular_cut=True, hdu_name="EFFECTIVE AREA"
+            apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
         )  # Effective area with cuts applied
         edisp = self.make_energy_dispersion()
 
@@ -208,17 +234,17 @@ class IrfMaker(object):
         area_no_cuts = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=False,
-            hdu_name="EFFECTIVE AREA (NO CUTS)",
+            hdu_name="SPECRESP (NO CUTS)",
         )  # Effective area with cuts applied
         area_no_score_cut = self.make_effective_area(
             apply_score_cut=False,
             apply_angular_cut=True,
-            hdu_name="EFFECTIVE AREA (WITH ANGULAR CUT)",
+            hdu_name="SPECRESP (WITH ANGULAR CUT)",
         )  # Effective area with cuts applied
         area_no_angular_cut = self.make_effective_area(
             apply_score_cut=True,
             apply_angular_cut=False,
-            hdu_name="EFFECTIVE AREA (WITH SCORE CUT)",
+            hdu_name="SPECRESP (WITH SCORE CUT)",
         )  # Effective area with cuts applied
 
         # Primary header
@@ -344,22 +370,22 @@ class IrfMaker(object):
 
     def make_point_spread_function(self, radius=68):
         """Buil point spread function with radius containment `radius`"""
-        nbin = self.nbin_ereco
+        nbin = len(self.table)
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
         psf = np.zeros(nbin)
 
-        for ibin, (emin, emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
-            energ_lo[ibin] = emin
-            energ_hi[ibin] = emax
+        for ibin, info in enumerate(self.table):
+            energ_lo[ibin] = info["emin"]
+            energ_hi[ibin] = info["emax"]
 
             # References
             data_g = self.evt_dict["gamma"]
 
             # Select data passing cuts selection
             sel = data_g.loc[
-                (data_g["reco_energy"] >= emin)
-                & (data_g["reco_energy"] < emax)
+                (data_g["reco_energy"] >= info["emin"])
+                & (data_g["reco_energy"] < info["emax"])
                 & (data_g["pass_best_cutoff"]),
                 [self.config['column_definition']['angular_distance_to_the_src']],
             ]
