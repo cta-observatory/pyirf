@@ -12,8 +12,7 @@ Install the alpha release of pyirf (v0.1.0-alpha):
     wget https://raw.githubusercontent.com/cta-observatory/pyirf/$PYIRF_VER/environment.yml
     conda env create -n pyirf -f environment.yml
     conda activate pyirf
-    pip install  https://github.com/cta-observatory/pyirf/releases/tag/$PYIRF_VER
-
+    pip install  https://github.com/cta-observatory/pyirf/archive/$PYIRF_VER.zip
 
 
 Once you have generated DL2 files using lstchain v0.5.x for gammas, protons and electrons, you may use the script:
