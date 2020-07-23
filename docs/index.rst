@@ -22,6 +22,7 @@ pyirf can:
    :caption: Contents:
 
    perf/index
+   lstchain_irf
 
 Indices and tables
 ==================
