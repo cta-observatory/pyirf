@@ -22,6 +22,7 @@ from pyirf.perf import (CutsOptimisation,
                         )
 
 
+from gammapy.irf import EnergyDispersion2D
 
 
 
@@ -287,7 +288,7 @@ def plot_angular_resolution(irf_filename, ax=None, **kwargs):
     return ax
 
 
-def plot_energy_resolution(gamma_filename, ax=None, **kwargs):
+def plot_energy_resolution_hdf(gamma_filename, ax=None, **kwargs):
     """
     Plot angular resolution from an IRF file
 
@@ -307,6 +308,38 @@ def plot_energy_resolution(gamma_filename, ax=None, **kwargs):
     ax = ctaplot.plot_energy_resolution(data.mc_energy, data.reco_energy, ax=ax, **kwargs)
     ax.grid(which='both')
     ax.set_title('Energy resoluton', fontsize=18)
+    ax.legend()
+    return ax
+
+
+def plot_energy_resolution(irf_file, ax=None, **kwargs):
+    """
+    Plot angular resolution from an IRF file
+    Parameters
+    ----------
+    irf_filename
+    ax
+    kwargs
+    Returns
+    -------
+    """
+
+    e2d = EnergyDispersion2D.read(irf_file, hdu='ENERGY DISPERSION')
+    edisp = e2d.to_energy_dispersion('0 deg')
+
+    energy_bin = np.logspace(-1.5, 1, 15)
+    e = np.sqrt(energy_bin[1:] * energy_bin[:-1])
+    xerr = (e - energy_bin[:-1], energy_bin[1:] - e)
+    r = edisp.get_resolution(e)
+
+    if 'fmt' not in kwargs:
+        kwargs['fmt'] = 'o'
+
+    ax.errorbar(e, r, xerr=xerr, **kwargs)
+    ax.set_xscale('log')
+    ax.grid(True, which='both')
+    ax.set_title('Energy resoluton')
+    ax.set_xlabel('Energy [TeV]')
     ax.legend()
     return ax
 
@@ -461,5 +494,5 @@ if __name__ == '__main__':
 
     gamma_filename = os.path.join(args.outdir, 'irf_ThSq_r68_Time50.00h/gamma_processed.h5')
     fig, ax = plt.subplots(figsize=(12, 7))
-    ax = plot_energy_resolution(gamma_filename, ax=ax, label='LST1 (lstchain)')
+    ax = plot_energy_resolution(irf_filename, ax=ax, label='LST1 (lstchain)')
     fig.savefig(os.path.join(fig_output, 'energy_resolution.png'), dpi=200, fmt='png')
