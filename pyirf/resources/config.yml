@@ -43,6 +43,10 @@ analysis:
   emax: 50
   nbin: 42
 
+# =============================================================================
+#                               TO REVIEW
+# =============================================================================
+
 particle_information:
  gamma:
   n_events_per_file: 22500000  #  10**5 * 10
@@ -126,6 +130,6 @@ column_definition:
   TRUE_AZ: 'MC_AZ'
   # Column name for classification output (protopipe)
   classification_output:
-    name: 'gammaness'
-    range: [0, 1]
-  angular_distance_to_the_src: 'xi'
+    name: 'gammaness' # should be substituted by EVENT_TYPE
+    range: [0, 1] # technically always true (some algorithms could have different domains?)
+  angular_distance_to_the_src: 'THETA' # WARNING: for point-source simulations!
