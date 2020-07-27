@@ -196,11 +196,11 @@ class IrfMaker(object):
             self.nbin_etrue + 1,
         )
 
-    def build_irf(self):
-        bkg_rate = self.make_bkg_rate()
+    def build_irf(self, angular_cut):
+        bkg_rate = self.make_bkg_rate(angular_cut)
         psf = self.make_point_spread_function()
         area = self.make_effective_area(
-            apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
+            hdu_name="SPECRESP", apply_score_cut=True, apply_angular_cut=True
         )  # Effective area with cuts applied
         edisp = self.make_energy_dispersion()
 
@@ -270,45 +270,43 @@ class IrfMaker(object):
             # Compute number of events passing cuts selection
             n_p = sum(
                 data_p[
-                    (data_p["reco_energy"] >= emin)
-                    & (data_p["reco_energy"] < emax)
+                    (data_p["ENERGY"] >= emin)
+                    & (data_p["ENERGY"] < emax)
                     & (data_p["pass_best_cutoff"])
-                    ]["weight"]
+                ]["weight"]
             )
 
             n_e = sum(
                 data_e[
-                    (data_e["reco_energy"] >= emin)
-                    & (data_e["reco_energy"] < emax)
+                    (data_e["ENERGY"] >= emin)
+                    & (data_e["ENERGY"] < emax)
                     & (data_e["pass_best_cutoff"])
-                    ]["weight"]
+                ]["weight"]
             )
 
             # Correct number of background due to acceptance
-            acceptance_g = (
-                    2 * np.pi * (1 - np.cos(angular_cut))
-            )
+            acceptance_g = 2 * np.pi * (1 - np.cos(angular_cut[ibin]))
             acceptance_p = (
-                    2
-                    * np.pi
-                    * (
-                            1
-                            - np.cos(
+                2
+                * np.pi
+                * (
+                    1
+                    - np.cos(
                         self.config["particle_information"]["proton"]["offset_cut"]
                         * u.deg.to("rad")
                     )
-                    )
+                )
             )
             acceptance_e = (
-                    2
-                    * np.pi
-                    * (
-                            1
-                            - np.cos(
+                2
+                * np.pi
+                * (
+                    1
+                    - np.cos(
                         self.config["particle_information"]["electron"]["offset_cut"]
                         * u.deg.to("rad")
                     )
-                    )
+                )
             )
 
             n_p *= acceptance_g / acceptance_p
@@ -342,14 +340,17 @@ class IrfMaker(object):
 
             # Select data passing cuts selection
             sel = data_g.loc[
-                (data_g["reco_energy"] >= emin)
-                & (data_g["reco_energy"] < emax)
+                (data_g["ENERGY"] >= emin)
+                & (data_g["ENERGY"] < emax)
                 & (data_g["pass_best_cutoff"]),
-                [self.config['column_definition']['angular_distance_to_the_src']],
+                [self.config["column_definition"]["angular_distance_to_the_src"]],
             ]
 
             # Compute PSF
-            psf[ibin] = np.percentile(sel[self.config['column_definition']['angular_distance_to_the_src']], radius)
+            psf[ibin] = np.percentile(
+                sel[self.config["column_definition"]["angular_distance_to_the_src"]],
+                radius,
+            )
 
         t = Table()
         t["ENERG_LO"] = Column(
@@ -365,8 +366,25 @@ class IrfMaker(object):
         )
 
     def make_effective_area(
-            self, apply_score_cut=True, apply_angular_cut=True
+        self, hdu_name, apply_score_cut=True, apply_angular_cut=True
     ):
+        """Compute effective area.
+
+        Parameters
+        ----------
+        hdu_name: str
+            Name of the FITS file HDU to write in.
+        apply_score_cut: bool
+            If True, apply the best cut on particle classification.
+        apply_angular_cut: bool
+            If True, apply the best cut on angular separation.
+
+        Returns
+        -------
+        hdu: astropy.io.fits.HDUList
+            Bintable HDU for the effective area.
+
+        """
         nbin = len(self.etrue) - 1
         energy_true_lo = np.zeros(nbin)
         energy_true_hi = np.zeros(nbin)
@@ -392,7 +410,7 @@ class IrfMaker(object):
             data_g = self.evt_dict["gamma"]
 
             # Conditions to select gamma-rays
-            condition = (data_g["mc_energy"] >= emin) & (data_g["mc_energy"] < emax)
+            condition = (data_g["TRUE_ENERGY"] >= emin) & (data_g["TRUE_ENERGY"] < emax)
             if apply_score_cut is True:
                 condition &= data_g["pass_best_cutoff"]
             if apply_angular_cut is True:
@@ -403,9 +421,9 @@ class IrfMaker(object):
 
             # Compute number of number of events in simulation
             simu_evts = (
-                    float(nsimu_tot)
-                    * (emax.value ** index - emin.value ** index)
-                    / (emax_simu ** index - emin_simu ** index)
+                float(nsimu_tot)
+                * (emax.value ** index - emin.value ** index)
+                / (emax_simu ** index - emin_simu ** index)
             )
 
             area[ibin] = (sel / simu_evts) * area_simu.value
@@ -449,13 +467,8 @@ class IrfMaker(object):
             format=str(len(theta_hi)) + "E",
         )
 
-        extended_area = np.resize(
-            area, (len(theta_lo), area.shape[0])
-        )
-        dim_extended_area = (
-                len(table_energy["ETRUE_LO"])
-                * len(table_theta["THETA_LO"])
-        )
+        extended_area = np.resize(area, (len(theta_lo), area.shape[0]))
+        dim_extended_area = len(table_energy["ETRUE_LO"]) * len(table_theta["THETA_LO"])
 
         aeff_2D = Table([extended_area], names=["AEFF"])
         aeff_2D["AEFF"].unit = u.Unit("m2")
@@ -474,7 +487,7 @@ class IrfMaker(object):
         data_g = self.evt_dict["gamma"]
         data_g = data_g[
             (data_g["pass_best_cutoff"]) & (data_g["pass_angular_cut"])
-            ].copy()
+        ].copy()
 
         for imigra in range(len(migra) - 1):
             migra_min = migra[imigra]
@@ -486,11 +499,11 @@ class IrfMaker(object):
 
                 sel = len(
                     data_g[
-                        (data_g["mc_energy"] >= emin)
-                        & (data_g["mc_energy"] < emax)
-                        & ((data_g["reco_energy"] / data_g["mc_energy"]) >= migra_min)
-                        & ((data_g["reco_energy"] / data_g["mc_energy"]) < migra_max)
-                        ]
+                        (data_g["TRUE_ENERGY"] >= emin)
+                        & (data_g["TRUE_ENERGY"] < emax)
+                        & ((data_g["ENERGY"] / data_g["TRUE_ENERGY"]) >= migra_min)
+                        & ((data_g["ENERGY"] / data_g["TRUE_ENERGY"]) < migra_max)
+                    ]
                 )
                 counts[imigra][ietrue] = sel
 
@@ -549,9 +562,9 @@ class IrfMaker(object):
             counts, (len(theta_lo), counts.shape[0], counts.shape[1])
         )
         dim_matrix = (
-                len(table_energy["ETRUE_LO"])
-                * len(table_migra["MIGRA_LO"])
-                * len(table_theta["THETA_LO"])
+            len(table_energy["ETRUE_LO"])
+            * len(table_migra["MIGRA_LO"])
+            * len(table_theta["THETA_LO"])
         )
         matrix = Table([extended_mig_matrix], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
@@ -576,28 +589,38 @@ class IrfMaker(object):
         """Create the Bintable HDU for the effective area describe here
         https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html#effective-area-vs-true-energy
         """
-        table = Table({
-            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
-            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
-            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
-            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
-            'EFFAREA': aeff["AEFF"].data[np.newaxis, :, :] * aeff["AEFF"].unit,
-        })
+        table = Table(
+            {
+                "ENERG_LO": table_energy["ETRUE_LO"][np.newaxis, :].data
+                * table_energy["ETRUE_LO"].unit,
+                "ENERG_HI": table_energy["ETRUE_HI"][np.newaxis, :].data
+                * table_energy["ETRUE_HI"].unit,
+                "THETA_LO": table_theta["THETA_LO"][np.newaxis, :].data
+                * table_theta["THETA_LO"].unit,
+                "THETA_HI": table_theta["THETA_HI"][np.newaxis, :].data
+                * table_theta["THETA_HI"].unit,
+                "EFFAREA": aeff["AEFF"].data[np.newaxis, :, :] * aeff["AEFF"].unit,
+            }
+        )
 
         header = fits.Header()
-        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
-        header['HDUCLASS'] = 'GADF', ''
-        header['HDUCLAS1'] = 'RESPONSE', ''
-        header['HDUCLAS2'] = 'EFF_AREA', ''
-        header['HDUCLAS3'] = 'POINT-LIKE', ''
-        header['HDUCLAS4'] = 'AEFF_2D', ''
+        header["HDUDOC"] = (
+            "https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html",
+            "",
+        )
+        header["HDUCLASS"] = "GADF", ""
+        header["HDUCLAS1"] = "RESPONSE", ""
+        header["HDUCLAS2"] = "EFF_AREA", ""
+        header["HDUCLAS3"] = "POINT-LIKE", ""
+        header["HDUCLAS4"] = "AEFF_2D", ""
 
-        aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
+        aeff_hdu = fits.BinTableHDU(table, header, name="EFFECTIVE AREA")
 
-        primary_hdu = fits.PrimaryHDU()
-        hdulist = fits.HDUList([primary_hdu, aeff_hdu])
+        # primary_hdu = fits.PrimaryHDU()
+        # hdulist = fits.HDUList([primary_hdu, aeff_hdu])
 
-        return hdulist
+        # return hdulist
+        return aeff_hdu
 
     @classmethod
     def _make_edisp_hdu(cls, table_energy, table_migra, table_theta, matrix):
@@ -605,27 +628,39 @@ class IrfMaker(object):
         https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
         """
 
-        table = Table({
-            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
-            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
-            'MIGRA_LO': table_migra["MIGRA_LO"][np.newaxis, :].data * table_migra["MIGRA_LO"].unit,
-            'MIGRA_HI': table_migra["MIGRA_HI"][np.newaxis, :].data * table_migra["MIGRA_HI"].unit,
-            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
-            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
-            'MATRIX': matrix["MATRIX"][np.newaxis, :, :] * matrix["MATRIX"].unit,
-        })
+        table = Table(
+            {
+                "ENERG_LO": table_energy["ETRUE_LO"][np.newaxis, :].data
+                * table_energy["ETRUE_LO"].unit,
+                "ENERG_HI": table_energy["ETRUE_HI"][np.newaxis, :].data
+                * table_energy["ETRUE_HI"].unit,
+                "MIGRA_LO": table_migra["MIGRA_LO"][np.newaxis, :].data
+                * table_migra["MIGRA_LO"].unit,
+                "MIGRA_HI": table_migra["MIGRA_HI"][np.newaxis, :].data
+                * table_migra["MIGRA_HI"].unit,
+                "THETA_LO": table_theta["THETA_LO"][np.newaxis, :].data
+                * table_theta["THETA_LO"].unit,
+                "THETA_HI": table_theta["THETA_HI"][np.newaxis, :].data
+                * table_theta["THETA_HI"].unit,
+                "MATRIX": matrix["MATRIX"][np.newaxis, :, :] * matrix["MATRIX"].unit,
+            }
+        )
 
         header = fits.Header()
-        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
-        header['HDUCLASS'] = 'GADF', ''
-        header['HDUCLAS1'] = 'RESPONSE', ''
-        header['HDUCLAS2'] = 'EDISP', ''
-        header['HDUCLAS3'] = 'POINT-LIKE', ''
-        header['HDUCLAS4'] = 'EDISP_2D', ''
+        header["HDUDOC"] = (
+            "https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html",
+            "",
+        )
+        header["HDUCLASS"] = "GADF", ""
+        header["HDUCLAS1"] = "RESPONSE", ""
+        header["HDUCLAS2"] = "EDISP", ""
+        header["HDUCLAS3"] = "POINT-LIKE", ""
+        header["HDUCLAS4"] = "EDISP_2D", ""
 
-        edisp_hdu = fits.BinTableHDU(table, header, name='ENERGY DISPERSION')
+        edisp_hdu = fits.BinTableHDU(table, header, name="ENERGY DISPERSION")
 
-        primary_hdu = fits.PrimaryHDU()
-        hdulist = fits.HDUList([primary_hdu, edisp_hdu])
-
-        return hdulist
+        # primary_hdu = fits.PrimaryHDU()
+        # hdulist = fits.HDUList([primary_hdu, edisp_hdu])
+        #
+        # return hdulist
+        return edisp_hdu

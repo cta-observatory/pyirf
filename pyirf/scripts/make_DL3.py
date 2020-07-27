@@ -81,12 +81,12 @@ def main():
 
     cfg = load_config(args.config_file)
 
-    # # Add obs. time to the configuration file (why is this needed?)
-    # str_obs_time = args.obs_time.split(".")
-    # cfg["analysis"]["obs_time"] = {
-    #     "value": float(str_obs_time[0]),
-    #     "unit": str(str_obs_time[-1]),
-    # }
+    # Add obs. time to the configuration file
+    str_obs_time = args.obs_time.split(".")
+    cfg["analysis"]["obs_time"] = {
+        "value": float(str_obs_time[0]),
+        "unit": str(str_obs_time[-1]),
+    }
 
     # Get input directory
     indir = cfg["general"]["indir"]
@@ -134,13 +134,21 @@ def main():
 
     if args.pipeline == "EventDisplay":
 
+        # THETA IS SUPPOSED TO BE IN DL2 DATA ACCORDING TO GADF
+        # EventDisplay provides true and reconstructed directions, so we
+        # calculate it here and we add it to the tables.
+
+        # WARNING:
+        # this is true only for point-source simulations!
+        # in the case of diffuse simulations we must distinguish between
+        # - distance between reconstructed direction and center of the FoV
+        # - distance between reconstructed and true direction
+
         for particle in particles:
 
-            # print(evt_dict[particle].head(n=5))
-
             THETA = angular_separation(
-                evt_dict[particle]["TRUE_AZ"],  # az
-                evt_dict[particle]["TRUE_ALT"],  # alt
+                evt_dict[particle]["TRUE_AZ"],
+                evt_dict[particle]["TRUE_ALT"],
                 evt_dict[particle]["AZ"],
                 evt_dict[particle]["ALT"],
             )  # in degrees
@@ -148,16 +156,14 @@ def main():
             # Add THETA column
             evt_dict[particle]["THETA"] = THETA
 
+            # print(evt_dict[particle].head(n=5))
+
     # =========================================================================
     #                   REST OF THE OPERATIONS (TO BE REFACTORED)
     # =========================================================================
 
     # Apply offset cut to proton and electron
     for particle in ["electron", "proton"]:
-
-        # OFFSET IS SUPPOSED TO BE IN DL2 DATA
-        # EventDisplay provides true and reconstructed directions, so we
-        # calculate it here
 
         # There seems to be a problem in using pandas from FITS data
         # ValueError: Big-endian buffer not supported on little-endian compiler
@@ -167,7 +173,10 @@ def main():
 
         evt_dict[particle] = Table.from_pandas(evt_dict[particle])
 
-        # print(evt_dict[particle].head(n=5))
+        if args.debug:
+            print(particle)
+            # print(evt_dict[particle].head(n=5))
+            print(evt_dict[particle])
 
         # print('Initial stat: {} {}'.format(len(evt_dict[particle]), particle))
 
@@ -175,7 +184,7 @@ def main():
             evt_dict[particle]["THETA"]
             < cfg["particle_information"][particle]["offset_cut"]
         )
-        evt_dict[particle]["THETA"][mask_theta]
+        evt_dict[particle] = evt_dict[particle][mask_theta]
         # PANDAS EQUIVALENT
         # evt_dict[particle] = evt_dict[particle].query(
         #     "THETA <= {}".format(cfg["particle_information"][particle]["offset_cut"])
@@ -235,6 +244,19 @@ def main():
         radius = 68
 
         thsq_values = list()
+
+        # There seems to be a problem in using pandas from FITS data
+        # ValueError: Big-endian buffer not supported on little-endian compiler
+
+        # I convert to astropy table....
+        # should we use only those?
+
+        evt_dict["gamma"] = Table.from_pandas(evt_dict["gamma"])
+        if args.debug:
+            print("GAMMAS")
+            # print(evt_dict["gamma"].head(n=5))
+            print(evt_dict["gamma"])
+
         for ibin in range(len(ereco) - 1):
             emin = ereco[ibin]
             emax = ereco[ibin + 1]
@@ -244,14 +266,6 @@ def main():
             #     emin.value, emax.value
             # )
             # data = evt_dict["gamma"].query(energy_query).copy()
-
-            # There seems to be a problem in using pandas from FITS data
-            # ValueError: Big-endian buffer not supported on little-endian compiler
-
-            # I convert to astropy table....
-            # should we use only those?
-
-            evt_dict["gamma"] = Table.from_pandas(evt_dict["gamma"])
 
             mask_energy = (evt_dict["gamma"]["ENERGY"] > emin.value) & (
                 evt_dict["gamma"]["ENERGY"] < emax.value
@@ -284,7 +298,9 @@ def main():
     # Weight events
     print("- Weighting events...")
     cut_optimiser.weight_events(
-        model_dict=model_dict, colname_mc_energy=cfg["column_definition"]["mc_energy"]
+        model_dict=model_dict,
+        # colname_mc_energy=cfg["column_definition"]["TRUE_ENERGY"],
+        colname_mc_energy="TRUE_ENERGY",
     )
 
     # Find best cutoff to reach best sensitivity
@@ -306,12 +322,12 @@ def main():
     # Apply cuts and save data
     print("### Applying cuts to data...")
     cut_applicator = CutsApplicator(config=cfg, evt_dict=evt_dict, outdir=outdir)
-    cut_applicator.apply_cuts()
+    cut_applicator.apply_cuts(args.debug)
 
     # Irf Maker
     print("### Building IRF...")
     irf_maker = IrfMaker(config=cfg, evt_dict=evt_dict, outdir=outdir)
-    irf_maker.build_irf()
+    irf_maker.build_irf(thsq_values)
 
     # Sensitivity maker
     print("### Estimating sensitivity...")
