@@ -30,7 +30,19 @@ from ctapipe.io.containers import MCHeaderContainer
 
 
 def load_config(name):
-    """Load YAML configuration file."""
+    """Load YAML configuration file.
+    
+    Parameters
+    ----------
+    name : str
+        Path of the configuration file.
+    
+    Returns
+    -------
+    cfg : dict
+        Dictionary containing all the configuration information.
+    
+    """
     try:
         with open(name, "r") as stream:
             cfg = yaml.load(stream, Loader=yaml.FullLoader)
@@ -117,13 +129,30 @@ def get_simu_info(filepath, particle_name, config={}):
     return config
 
 
-def GADF_mapper(config=None):
-    """Defines the format to be used internally.
+def GADF_mapper(debug=False, config=None):
+    """Defines the format to be used internally after input.
 
-    It should be always based on the latest version of [1].
-    All readers should call it to map input data from different formats.
+    It should be always based on the latest version of [1]_.
+    All readers should call this function to map input data from different
+    formats.
+    
+    Parameters
+    ----------
+    config : dict
+        Dictionary obtained from pyirf.io.load_config.
+    debug  : bool
+        If True, print some debugging information.
 
-    Names in config file should be changed to GADF+
+    Returns
+    -------
+
+    columns : dict
+        Dictionary that maps user-defined DL2 quantities to the GADF equivalent.
+        
+    Notes
+    -----
+    
+    .. [1] https://gamma-astro-data-formats.readthedocs.io/en/latest/ 
 
     """
 
@@ -134,25 +163,24 @@ def GADF_mapper(config=None):
     for key in config["column_definition"]:
         columns[key] = config["column_definition"][key]
 
-    print("MAPPING TO GADF....")
-    print(columns)
-
-    # TO ADD in config
-
-    # Mandatory and optional header keywords
+    if debug:
+        print("MAPPING TO GADF....")
+        print(columns)
 
     return columns
 
 
-def read_FITS(config=None, infile=None):
+def read_FITS(config=None, infile=None, debug=False):
     """Store contents of a FITS file into one or more astropy tables.
 
     Parameters
     ----------
-    indir : str
+    config : str
         Path of the DL2 file.
     infile : str
-        Name of the DL2 file.
+        Path of the DL2 file.
+    debug  : bool
+        If True, print some debugging information.
 
     Returns
     -------
@@ -162,15 +190,21 @@ def read_FITS(config=None, infile=None):
 
     Notes
     -----
-    For the moment this is more specific to EventDisplay.
-    This means that:
+    For the moment this reader is specific to EventDisplay.
+    
+    If DL2 files in FITS format are supposed to have all the same structure,
+    then this reader is fine; if not, this reader will become
+    read_EventDisplay_FITS and others will follow.
+    
+    In general, though, for the the final FITS reader or any other specific one:
+    
     - if GADF mandatory columns names are missing, only a warning is raised,
     - it is possible to add custom columns.
 
     """
     DL2data = dict()
 
-    colnames = GADF_mapper(config=config)
+    colnames = GADF_mapper(debug, config=config)
 
     # later differentiate between EVENTS, GTI & POINTING
 
@@ -204,12 +238,17 @@ def read_FITS(config=None, infile=None):
 
 
 def write(cuts=None, irfs=None):
-    """Write DL3 data.
+    """DL3 data writer.
 
-    This should be writer for the DL3 data!
-    Format is still unclear, but nomenclature should follow GADF.
-
-    We need at least the applied optimized cuts and the IRFs.
+    This should be writer for the DL3 data.
+    For the moment it is just a dummy function for reference.
+    Final format is still unclear, we are trying to follow the latest
+    version of GADF [1]_.
+    
+    Notes
+    -----
+    
+    .. [1] https://gamma-astro-data-formats.readthedocs.io/en/latest/
 
     """
     return None
