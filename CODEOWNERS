@@ -3,3 +3,6 @@
 # https://help.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
 
 pyirf/io/io.py  @HealthyPear
+notebooks/comparison_with_EventDisplay.ipynb  @HealthyPear
+resources/config.yml  @HealthyPear
+pyirf/scripts/make_DL3.py @HealthyPear
