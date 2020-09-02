@@ -40,7 +40,24 @@ master_doc = 'index'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'rinoh.frontend.sphinx'
+    'rinoh.frontend.sphinx',
+    "sphinx_automodapi.automodapi",
+    "sphinx.ext.autodoc",
+    "numpydoc",
+    "sphinx.ext.doctest",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.todo",
+    "sphinx.ext.coverage",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.ifconfig",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
+    "sphinx_automodapi.automodapi",
+    "sphinx_automodapi.smart_resolver",
+    # "nbsphinx",
+    # "IPython.sphinxext.ipython_console_highlighting",
+    
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -62,4 +79,4 @@ html_theme = 'alabaster'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+# html_static_path = ['_static']
