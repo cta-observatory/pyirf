@@ -1,16 +1,17 @@
 # Example configuration file for PYIRF
 
-# Based on protopipe one, it should progressively use GADF nomenclature.
+# NOTE: It is still partly based on the one used in protopipe.perf, but it
+# will progressively use GADF nomenclature and be generalized.
 
 general:
-  # part of the DL2 filename(s) common between particle types (drop extension)
-  template_input_file: '{}_onSource.S.3HB9-FD_ID0.eff-0-CUT0.fits'
+  # part of the DL2 filename(s) common between particle types
+  template_input_file: ''
    # Output table name
   output_table_name: 'table_best_cutoff'
    # where is the DL2 data
-  indir: '/Users/michele/Applications/ctasoft/tests/pyirf/EventDisplay/DL2/Paranal_20deg/CUT0'
+  indir: ''
   # where to store DL3 data
-  outdir: '/Users/michele/Applications/ctasoft/tests/pyirf/EventDisplay/from_pyirf'
+  outdir: ''
 
 analysis:
 
@@ -37,15 +38,18 @@ analysis:
   emax: 50
   nbin: 21
 
- # Reco energy binning
+ # True energy binning
  etrue_binning:  # TeV
   emin: 0.05
   emax: 50
   nbin: 42
 
 # =============================================================================
-#                               TO REVIEW
+#                          TO REVIEW / GENERALIZE
 # =============================================================================
+
+# This section comes from protopipe and is related to the particular production
+# used for its testing
 
 particle_information:
  gamma:
@@ -80,11 +84,12 @@ particle_information:
 # =============================================================================
 # PLEASE, COMPILE THE FOLLOWING PART DEPENDING ON THE CONTENT OF YOUR DL2 FILES
 #
-#           some quantity are mandatory, some optional, some custom
+#           some quantities are mandatory, some optional, some custom
 #
 #           Definitions for mandatory and optional quantities come from
 #           the latest version of GADF.
-#           Custom are there only for legacy data.
+#           Custom quantities are mainly useful for legacy and data formats
+#           under development.
 #
 # =============================================================================
 
