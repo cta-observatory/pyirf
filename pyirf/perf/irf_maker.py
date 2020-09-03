@@ -1,13 +1,14 @@
 import os
 import numpy as np
 import astropy.units as u
+from astropy.coordinates import Angle
 from astropy.table import Table, Column
 from astropy.io import fits
 import pandas as pd
 
 from gammapy.utils.nddata import NDDataArray, BinnedDataAxis
 from gammapy.utils.energy import EnergyBounds
-from gammapy.irf import EffectiveAreaTable, EnergyDispersion2D
+from gammapy.irf import EffectiveAreaTable2D, EnergyDispersion2D
 from gammapy.spectrum import SensitivityEstimator
 
 __all__ = ["IrfMaker", "SensitivityMaker", "BkgData", "Irf"]
@@ -61,7 +62,7 @@ class SensitivityMaker(object):
     def load_irf(self):
         filename = os.path.join(self.outdir, "irf.fits.gz")
         with fits.open(filename, memmap=False) as hdulist:
-            aeff = EffectiveAreaTable.from_hdulist(hdulist=hdulist)
+            aeff = EffectiveAreaTable2D.from_hdulist(hdulist=hdulist)
             edisp = EnergyDispersion2D.read(filename, hdu="ENERGY DISPERSION")
 
             bkg_fits_table = hdulist["BACKGROUND"]
@@ -85,9 +86,9 @@ class SensitivityMaker(object):
             e_reco_min, e_reco_max, e_reco_bin, "TeV"
         )
 
-        e_true_min = aeff.energy.lo[0]
-        e_true_max = aeff.energy.hi[-1]
-        e_true_bin = aeff.energy.nbins
+        e_true_min = aeff.data.axes[0].lo[0]
+        e_true_max = aeff.data.axes[0].hi[-1]
+        e_true_bin = len(aeff.data.axes[0].bins) - 1
         e_true_axis = EnergyBounds.equal_log_spacing(
             e_true_min, e_true_max, e_true_bin, "TeV"
         )
@@ -96,6 +97,14 @@ class SensitivityMaker(object):
         rmf = edisp.to_energy_dispersion(
             offset=0.5 * u.deg, e_reco=e_reco_axis, e_true=e_true_axis
         )
+
+        # This is required because in gammapy v0.8
+        # gammapy.spectrum.utils.integrate_model
+        # calls the attribute aeff.energy which is an attribute of
+        # EffectiveAreaTable and not of  EffectiveAreaTable2D
+        # WARNING the angle is not important, but only because we started with
+        # on-axis data! TO UPDATE
+        aeff = aeff.to_effective_area_table(Angle("1d"))
 
         self.irf = Irf(bkg=bkg, aeff=aeff, rmf=rmf)
 
