@@ -9,7 +9,7 @@ Welcome to pyirf's documentation!
 `pyirf` is a prototype for the generation of Instrument Response Functions (IRFs)
 for the `Cherenkov Telescope Array <https://www.cta-observatory.org/>`__
 (CTA).
-The package is being developed and tested by members of the CTA consortium and 
+The package is being developed and tested by members of the CTA consortium and
 is a spin-off of the analog sub-process of the
 `pipeline protopype <https://cta-observatory.github.io/protopipe/>`_.
 
@@ -22,20 +22,20 @@ Its main features are currently to,
   * compute the instrument response functions, effective area,
     point spread function and energy resolution (:ref:`perf`)
   * estimate the sensitivity of the array (:ref:`perf`),
-  
+
 with plans to extend its capabilities to reach the requirements of the
 future observatory.
-  
+
 .. Should we add the following or is it too soon? --->
 .. Event though the initial efforts are focused on CTA, it is potentially possible
 .. to extend the capabilities of `pyirf` to other IACTs instruments as well.
-  
+
 The source code is hosted on a `GitHub repository <https://github.com/cta-observatory/pyirf>`__, to
 which this documentation is linked.
 
 .. warning::
   This is not yet stable code, so expect large and rapid changes.
-   
+
 .. _pyirf_intro:
 .. toctree::
   :caption: Overview

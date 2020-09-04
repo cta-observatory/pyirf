@@ -13,6 +13,8 @@
 import os
 import sys
 
+from pyirf import __version__
+
 sys.path.insert(0, os.path.abspath(".."))
 
 
@@ -23,7 +25,7 @@ copyright = "2020, Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
 author = "Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0-alpha"
+version = f"{__version__}"
 
 
 # -- General configuration ---------------------------------------------------
@@ -78,6 +80,17 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # a list of builtin themes.
 #
 html_theme = "alabaster"
+
+html_theme_options = {
+    "github_user": "cta-observatory",
+    "github_repo": "pyirf",
+    "badge_branch": "master",
+    "codecov_button": "true",
+    "github_button": "true",
+    "travis_button": "true",
+    "sidebar_collapse": "false",
+    "sidebar_includehidden": "true",
+}
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

@@ -1,4 +1,4 @@
-.. _install-basic:
+.. _basic:
 
 Basic users
 ===========
