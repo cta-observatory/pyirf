@@ -13,6 +13,7 @@ dependencies:
   - jupyter
   - gammapy=0.8
   - matplotlib
+  - nbsphinx
   - numba
   - numpy>=1.15.4
   - numpydoc
@@ -29,5 +30,3 @@ dependencies:
   - pip:
     - rinohtype
     - ctaplot
-
-
