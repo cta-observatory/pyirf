@@ -508,8 +508,10 @@ class IrfMaker(object):
         return hdu
 
     def make_energy_dispersion(self):
-        migra = np.linspace(0.0, 3.0, 300 + 1)
-        etrue = np.logspace(np.log10(0.01), np.log10(10000), 60 + 1)
+        etrue = self.etrue#np.logspace(np.log10(0.01)), np.log10(10000), 60 + 1)
+        migra_bin = self.config["analysis"]["emigra_binning"]['nbin']
+        migra = np.linspace(0.0, 5.0, migra_bin)
+
         counts = np.zeros([len(migra) - 1, len(etrue) - 1])
 
         # Select events
@@ -628,11 +630,13 @@ class IrfMaker(object):
 
         header = fits.Header()
         header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
-        header['HDUCLASS'] = 'GADF', ''
-        header['HDUCLAS1'] = 'RESPONSE', ''
+        header['HDUCLASS'] = 'aeff_2d', ''
+        header['HDUCLAS1'] = 'aeff_2d', ''
         header['HDUCLAS2'] = 'EFF_AREA', ''
         header['HDUCLAS3'] = 'POINT-LIKE', ''
         header['HDUCLAS4'] = 'AEFF_2D', ''
+        header['TELESCOP'] = 'CTA', ''
+        header['INSTRUME'] = 'LST-1', ''
 
         aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
 
@@ -659,11 +663,13 @@ class IrfMaker(object):
 
         header = fits.Header()
         header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
-        header['HDUCLASS'] = 'GADF', ''
-        header['HDUCLAS1'] = 'RESPONSE', ''
+        header['HDUCLASS'] = 'edisp_2d', ''
+        header['HDUCLAS1'] = 'edisp_2d', ''
         header['HDUCLAS2'] = 'EDISP', ''
         header['HDUCLAS3'] = 'POINT-LIKE', ''
         header['HDUCLAS4'] = 'EDISP_2D', ''
+        header['TELESCOP'] = 'CTA', ''
+        header['INSTRUME'] = 'LST-1', ''
 
         edisp_hdu = fits.BinTableHDU(table, header, name='ENERGY DISPERSION')
 
