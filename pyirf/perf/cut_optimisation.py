@@ -531,7 +531,7 @@ class CutsOptimisation(object):
                 )
 
             min_stat = 100
-            if len(g) <= min_stat or len(g) <= min_stat or len(g) <= min_stat:
+            if len(g) <= min_stat or len(p) <= min_stat or len(e) <= min_stat:
                 print("Not enough statistics")
                 print("  g={}, p={} e={}".format(len(g), len(p), len(e)))
                 key = CutsOptimisation._get_energy_key(emin, emax)
