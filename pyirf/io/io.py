@@ -31,17 +31,17 @@ from ctapipe.io.containers import MCHeaderContainer
 
 def load_config(name):
     """Load YAML configuration file.
-    
+
     Parameters
     ----------
     name : str
         Path of the configuration file.
-    
+
     Returns
     -------
     cfg : dict
         Dictionary containing all the configuration information.
-    
+
     """
     try:
         with open(name, "r") as stream:
@@ -135,7 +135,7 @@ def GADF_mapper(debug=False, config=None):
     It should be always based on the latest version of [1]_.
     All readers should call this function to map input data from different
     formats.
-    
+
     Parameters
     ----------
     config : dict
@@ -148,11 +148,11 @@ def GADF_mapper(debug=False, config=None):
 
     columns : dict
         Dictionary that maps user-defined DL2 quantities to the GADF equivalent.
-        
+
     Notes
     -----
-    
-    .. [1] https://gamma-astro-data-formats.readthedocs.io/en/latest/ 
+
+    .. [1] https://gamma-astro-data-formats.readthedocs.io/en/latest/
 
     """
 
@@ -191,13 +191,13 @@ def read_FITS(config=None, infile=None, debug=False):
     Notes
     -----
     For the moment this reader is specific to EventDisplay.
-    
+
     If DL2 files in FITS format are supposed to have all the same structure,
     then this reader is fine; if not, this reader will become
     read_EventDisplay_FITS and others will follow.
-    
+
     In general, though, for the the final FITS reader or any other specific one:
-    
+
     - if GADF mandatory columns names are missing, only a warning is raised,
     - it is possible to add custom columns.
 
@@ -244,10 +244,10 @@ def write(cuts=None, irfs=None):
     For the moment it is just a dummy function for reference.
     Final format is still unclear, we are trying to follow the latest
     version of GADF [1]_.
-    
+
     Notes
     -----
-    
+
     .. [1] https://gamma-astro-data-formats.readthedocs.io/en/latest/
 
     """
