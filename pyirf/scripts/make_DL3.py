@@ -1,5 +1,4 @@
-"""
-Script to produce DL3 data from DL2 data and a configuration file.
+"""Script to produce DL3 data from DL2 data and a configuration file.
 
 Is it initially thought as a clean start based on old code for reproducing
 EventDisplay DL3 data based on the latest release of the GADF format.
