@@ -43,11 +43,9 @@ class CutsApplicator(object):
 
     def apply_cuts(self, debug):
         """
-        Flag particles (gamma; hadron, electron) passing angular cut or the best cutoff
+        Flag particle types passing either the angular cut or the best cutoff
         and the save the data
         """
-
-        evt_dict_selected = dict()
 
         for particle in self.evt_dict.keys():
             data = self.apply_cuts_on_data(self.evt_dict[particle].copy(), debug)
@@ -488,13 +486,13 @@ class CutsOptimisation(object):
         """
         self.results_dict = dict()
         # colname_reco_energy = self.config["column_definition"]["reco_energy"]
-        colname_reco_energy = "ENERGY"
+        # colname_reco_energy = "ENERGY"
         clf_output_bounds = self.config["column_definition"]["classification_output"][
             "range"
         ]
-        colname_angular_dist = self.config["column_definition"][
-            "angular_distance_to_the_src"
-        ]
+        # colname_angular_dist = self.config["column_definition"][
+        #     "angular_distance_to_the_src"
+        # ]
         thsq_opt_type = self.config["analysis"]["thsq_opt"]["type"]
 
         # Loop on energy
@@ -593,7 +591,8 @@ class CutsOptimisation(object):
                     )
                 )
 
-                # Add corrected weight taking into account angular cuts applied to gamma-rays
+                # Add corrected weight taking into account the angular cuts
+                # that have been applied to gamma-rays
                 sel_g["weight_corrected"] = sel_g["weight"]
                 p["weight_corrected"] = p["weight"] * acceptance_g / acceptance_p
                 e["weight_corrected"] = e["weight"] * acceptance_g / acceptance_e
@@ -617,9 +616,10 @@ class CutsOptimisation(object):
                     "diagnostic_data": re_binned_data,
                 }
 
-            # Select best theta cut (lowest flux). In case of equality, select the
-            # one with the highest sig efficiency (flux are sorted as a function of
-            # decreasing signal efficiencies)
+            # Select best theta cut (lowest flux).
+            # In case of equality, select the one with the highest signal
+            # efficiency (flux are sorted as a function of decreasing signal
+            # efficiencies).
             flux_list = []
             eff_sig = []
             th = []
@@ -892,7 +892,7 @@ class CutsOptimisation(object):
         # Fill data and save diagnostic result
         for idx, key in enumerate(self.results_dict.keys()):
             bin_info = self.results_dict[key]
-            if bin_info["keep"] == False:
+            if bin_info["keep"] is False:
                 keep[idx] = bin_info["keep"]
                 continue
             bin_results = self.results_dict[key]["results"]

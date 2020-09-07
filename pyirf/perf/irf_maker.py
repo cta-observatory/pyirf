@@ -377,7 +377,8 @@ class IrfMaker(object):
     def make_effective_area(
         self, hdu_name, apply_score_cut=True, apply_angular_cut=True
     ):
-        """Compute effective area.
+        """
+        Compute effective area.
 
         Parameters
         ----------

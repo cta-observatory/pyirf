@@ -1,4 +1,5 @@
-"""Script to produce DL3 data from DL2 data and a configuration file.
+"""
+Script to produce DL3 data from DL2 data and a configuration file.
 
 Is it initially thought as a clean start based on old code for reproducing
 EventDisplay DL3 data based on the latest release of the GADF format.
@@ -21,11 +22,9 @@ import os
 # THIRD-PARTY MODULES
 
 import numpy as np
-import pandas as pd
 import astropy.units as u
 from astropy.table import Table
 from astropy.coordinates.angle_utilities import angular_separation
-from astropy.io import fits
 from gammapy.spectrum import cosmic_ray_flux, CrabSpectrum  # UPDATE TO LATEST
 
 # THIS PACKAGE
@@ -282,7 +281,7 @@ def main():
                 # sys.exit()
 
             psf = np.percentile(data["THETA"], radius)
-            psf_err = psf / np.sqrt(len(data))
+            # psf_err = psf / np.sqrt(len(data)) # not used after?
 
             thsq_values.append(psf)
         thsq_values = np.array(thsq_values) * u.deg

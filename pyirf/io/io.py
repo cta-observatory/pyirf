@@ -1,4 +1,5 @@
-"""Set of classes and functions of input and output.
+"""
+Set of classes and functions of input and output.
 
 Proposal of general structure:
 - a reader for each data format (in the end only FITS, but also HDF5 for now)
@@ -16,7 +17,6 @@ section 'column_definition'.
 
 # THIRD-PARTY MODULES
 
-from astropy.table import Table
 from astropy.io import fits
 import yaml
 
@@ -30,7 +30,8 @@ from ctapipe.io.containers import MCHeaderContainer
 
 
 def load_config(name):
-    """Load YAML configuration file.
+    """
+    Load YAML configuration file.
 
     Parameters
     ----------
@@ -71,9 +72,10 @@ def read_simu_info_hdf5(filename):
 def read_simu_info_merged_hdf5(filename):
     """
     Read simu info from a merged hdf5 file.
-    Check that simu info are the same for all runs from merged file
-    Combine relevant simu info such as num_showers (sum)
-    Note: works for a single run file as well
+
+    Check that simu info are the same for all runs from merged file.
+    Combine relevant simu info such as num_showers (sum).
+    Note: works for a single run file as well.
 
     Parameters
     ----------
@@ -104,9 +106,7 @@ def read_simu_info_merged_hdf5(filename):
 
 
 def get_simu_info(filepath, particle_name, config={}):
-    """
-    read simu info from file and return config
-    """
+    """Read simulated information from file and return config."""
 
     if "particle_information" not in config:
         config["particle_information"] = {}
@@ -171,7 +171,8 @@ def GADF_mapper(debug=False, config=None):
 
 
 def read_FITS(config=None, infile=None, debug=False):
-    """Store contents of a FITS file into one or more astropy tables.
+    """
+    Store contents of a FITS file into one or more astropy tables.
 
     Parameters
     ----------
@@ -238,7 +239,8 @@ def read_FITS(config=None, infile=None, debug=False):
 
 
 def write(cuts=None, irfs=None):
-    """DL3 data writer.
+    """
+    DL3 data writer.
 
     This should be writer for the DL3 data.
     For the moment it is just a dummy function for reference.
