@@ -25,7 +25,7 @@ copyright = "2020, Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
 author = "Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
 
 # The full version, including alpha/beta/rc tags
-version = f"{__version__}"
+version = __version__
 
 
 # -- General configuration ---------------------------------------------------
