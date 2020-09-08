@@ -44,7 +44,8 @@ which this documentation is linked.
   install/index
   usage/index
   contribute/index
-  changelog
+  CHANGELOG
+  AUTHORS
 
 .. _pyirf_structure:
 .. toctree::

@@ -37,6 +37,10 @@ So your PR should always come with:
  - same for docstrings
  - execution (locally on your machine, for the moment) of the benchmarks
 
+Please, at the time of your first contribution, add your first and last
+name together with your contact email in the `AUTHORS.rst` file that you find
+in the documentation folder of the project.
+
 Further details
 ---------------
 
