@@ -5,10 +5,13 @@ from astropy.table import Table, Column
 from astropy.io import fits
 import pandas as pd
 
-from gammapy.utils.nddata import NDDataArray, BinnedDataAxis
-from gammapy.utils.energy import EnergyBounds
+from gammapy.utils.nddata import NDDataArray #, BinnedDataAxis
+from gammapy.maps import MapAxis
+from gammapy.maps.utils import edges_from_lo_hi
+# from gammapy.utils.energy import EnergyBounds
 from gammapy.irf import EffectiveAreaTable, EnergyDispersion2D
-from gammapy.spectrum import SensitivityEstimator
+# from gammapy.spectrum import SensitivityEstimator
+from gammapy.estimators import SensitivityEstimator
 
 __all__ = ["IrfMaker", "SensitivityMaker", "BkgData", "Irf"]
 
@@ -57,6 +60,9 @@ class SensitivityMaker(object):
         self.config = config
         self.outdir = outdir
         self.irf = None
+        self.arf = None
+        self.rmf = None
+        self.bkg = None
 
     def load_irf(self):
         filename = os.path.join(self.outdir, "irf.fits.gz")
@@ -68,46 +74,76 @@ class SensitivityMaker(object):
             bkg_table = Table.read(bkg_fits_table)
             energy_lo = bkg_table["ENERG_LO"].quantity
             energy_hi = bkg_table["ENERG_HI"].quantity
-            bkg = bkg_table["BKG"].quantity
+            bkg = bkg_table["BGD"].quantity
 
+            # axes = [
+            #     BinnedDataAxis(
+            #         energy_lo, energy_hi, interpolation_mode="log", name="energy"
+            #     )
+            # ]
             axes = [
-                BinnedDataAxis(
-                    energy_lo, energy_hi, interpolation_mode="log", name="energy"
-                )
+                MapAxis.from_edges(edges_from_lo_hi(energy_lo, energy_hi), interp='log', name='energy')
             ]
             bkg = BkgData(data=NDDataArray(axes=axes, data=bkg))
 
         # Create rmf with appropriate dimensions (e_reco->bkg, e_true->area)
-        e_reco_min = bkg.energy.lo[0]
-        e_reco_max = bkg.energy.hi[-1]
-        e_reco_bin = bkg.energy.nbins
-        e_reco_axis = EnergyBounds.equal_log_spacing(
-            e_reco_min, e_reco_max, e_reco_bin, "TeV"
-        )
+        # e_reco_min = bkg.energy.lo[0]
+        # e_reco_max = bkg.energy.hi[-1]
+        # e_reco_bin = bkg.energy.nbins
+        e_reco_min = bkg.energy.edges[0]
+        e_reco_max = bkg.energy.edges[-1]
+        e_reco_bin = bkg.energy.nbin
 
-        e_true_min = aeff.energy.lo[0]
-        e_true_max = aeff.energy.hi[-1]
-        e_true_bin = aeff.energy.nbins
-        e_true_axis = EnergyBounds.equal_log_spacing(
+        # e_reco_axis = EnergyBounds.equal_log_spacing(
+        #     e_reco_min, e_reco_max, e_reco_bin, "TeV"
+        # )
+        e_reco_axis = MapAxis.from_energy_bounds(
+            e_reco_min, e_reco_max, e_reco_bin, "TeV"
+        ).edges
+
+        # e_true_min = aeff.energy.lo[0]
+        # e_true_max = aeff.energy.hi[-1]
+        # e_true_bin = aeff.energy.nbins
+        e_true_min = aeff.energy.edges[0]
+        e_true_max = aeff.energy.edges[-1]
+        e_true_bin = aeff.energy.nbin
+
+        # e_true_axis = EnergyBounds.equal_log_spacing(
+        #     e_true_min, e_true_max, e_true_bin, "TeV"
+        # )
+        e_true_axis = MapAxis.from_energy_bounds(
             e_true_min, e_true_max, e_true_bin, "TeV"
-        )
+        ).edges
 
         # Fake offset...
         rmf = edisp.to_energy_dispersion(
             offset=0.5 * u.deg, e_reco=e_reco_axis, e_true=e_true_axis
         )
-
+        self.arf = aeff
+        self.bkg = bkg
+        self.rmf = rmf
         self.irf = Irf(bkg=bkg, aeff=aeff, rmf=rmf)
 
     def estimate_sensitivity(self):
         obs_time = self.config["analysis"]["obs_time"]["value"] * u.Unit(
             self.config["analysis"]["obs_time"]["unit"]
         )
-        sensitivity_estimator = SensitivityEstimator(irf=self.irf, livetime=obs_time)
-        sensitivity_estimator.run()
-        self.sens = sensitivity_estimator.results_table
-
-        self.add_sensitivity_to_irf()
+        # sensitivity_estimator = SensitivityEstimator(irf=self.irf, livetime=obs_time)
+        # sensitivity_estimator = SensitivityEstimator(arf=self.arf,
+        #                                             rmf=self.rmf,
+        #                                             bkg=self.bkg,
+        #                                             livetime=obs_time,
+        #                                             )
+        # from gammapy.datasets.spectrum import SpectrumDatasetOnOff
+        # dataset_on_off = SpectrumDatasetOnOff.from_spectrum_dataset(
+        #     dataset=spectrum_dataset, acceptance=1, acceptance_off=1,
+        # )
+        #
+        # sensitivity_estimator.run()
+        # self.sens = sensitivity_estimator.results_table
+        #
+        # self.add_sensitivity_to_irf()
+        pass
 
     def add_sensitivity_to_irf(self):
         cfg_binning = self.config["analysis"]["ereco_binning"]
@@ -163,9 +199,6 @@ class IrfMaker(object):
     ----------
     config: `dict`
         Configuration file
-    evt_dict : `dict`
-        Dict for each particle type, containing a table with the required column for IRF computing.
-        TODO: define explicitely the name it expects.
     outdir: `str`
         Output directory where analysis results is saved
     """
@@ -175,12 +208,13 @@ class IrfMaker(object):
         self.outdir = outdir
 
         # Read data saved on disk
-        self.evt_dict = evt_dict
-        # Loop on the particle type
-        for particle in evt_dict.keys():
-            self.evt_dict[particle] = evt_dict[particle]
+        self.evt_dict = {}
+        for particle in ["gamma", "electron", "proton"]:
+            self.evt_dict[particle] = pd.read_hdf(
+                os.path.join(outdir, "{}_processed.h5".format(particle))
+            )
 
-        #Read table with cuts
+        # Read table with cuts
         self.table = Table.read(
             os.path.join(
                 outdir, "{}.fits".format(config["general"]["output_table_name"])
@@ -202,25 +236,6 @@ class IrfMaker(object):
             np.log10(cfg_binning["emax"]),
             cfg_binning["nbin"] + 1,
         )
-
-
-
-        #cfg_binning_ereco = config["analysis"]["ereco_binning"]
-        #cfg_binning_etrue = config["analysis"]["etrue_binning"]
-        #self.nbin_ereco = cfg_binning_ereco["nbin"]
-        #self.nbin_etrue = cfg_binning_etrue["nbin"]
-
-        # Binning
-        #self.ereco = np.logspace(
-        #    np.log10(cfg_binning_ereco["emin"]),
-        #    np.log10(cfg_binning_ereco["emax"]),
-        #    self.nbin_ereco + 1,
-        #)
-        #self.etrue = np.logspace(
-        #    np.log10(cfg_binning_etrue["emin"]),
-        #    np.log10(cfg_binning_etrue["emax"]),
-        #    self.nbin_etrue + 1,
-        #)
 
     def build_irf(self):
         bkg_rate = self.make_bkg_rate()
@@ -267,15 +282,14 @@ class IrfMaker(object):
 
         hdulist.writeto(os.path.join(self.outdir, "irf.fits.gz"), overwrite=True)
 
-    def make_bkg_rate(self):
-        """Build background rate
-
-         Parameters
-        ----------
-        angular_cut: `astropy.units.Quantity`, dimension N reco energy bin
-            Array of angular cut to apply in each reconstructed energy bin
-            to estimate the acceptance ratio for the background estimate
+    def compute_acceptance(self):
         """
+        Compute acceptance gamma/background
+        """
+
+
+    def make_bkg_rate(self):
+        """Build background rate"""
         nbin = len(self.table)
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
@@ -296,16 +310,16 @@ class IrfMaker(object):
             # Compute number of events passing cuts selection
             n_p = sum(
                 data_p[
-                    (data_p["reco_energy"] >= emin)
-                    & (data_p["reco_energy"] < emax)
+                    (data_p["reco_energy"] >= info["emin"])
+                    & (data_p["reco_energy"] < info["emax"])
                     & (data_p["pass_best_cutoff"])
                     ]["weight"]
             )
 
             n_e = sum(
                 data_e[
-                    (data_e["reco_energy"] >= emin)
-                    & (data_e["reco_energy"] < emax)
+                    (data_e["reco_energy"] >= info["emin"])
+                    & (data_e["reco_energy"] < info["emax"])
                     & (data_e["pass_best_cutoff"])
                     ]["weight"]
             )
@@ -348,25 +362,9 @@ class IrfMaker(object):
         t["ENERG_HI"] = Column(
             energ_hi, unit="TeV", description="energy max", format="E"
         )
-        theta_lo = [0.0, 1.0]
-        theta_hi = [1.0, 2.0]
-        table_theta = Table()
-        t["THETA_LO"] = Column(
-            theta_lo,
-            unit="deg",
-            description="theta min",
-            format=str(len(theta_lo)) + "E",
-        )
-        t["THETA_HI"] = Column(
-            theta_hi,
-            unit="deg",
-            description="theta max",
-            format=str(len(theta_hi)) + "E",
-        )
+        t["BGD"] = Column(bgd, unit="1/s", description="Background", format="E")
 
-        t["BKG"] = Column(bgd, unit="TeV", description="Background", format="E")
-
-        return IrfMaker._make_hdu("BKG_2D", t, ["ENERG_LO", "ENERG_HI", "THETA_LO","THETA_HI", "BKG"])
+        return IrfMaker._make_hdu("BACKGROUND", t, ["ENERG_LO", "ENERG_HI", "BGD"])
 
     def make_point_spread_function(self, radius=68):
         """Buil point spread function with radius containment `radius`"""
@@ -407,11 +405,11 @@ class IrfMaker(object):
         )
 
     def make_effective_area(
-            self, apply_score_cut=True, apply_angular_cut=True
+            self, apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
     ):
         nbin = len(self.etrue) - 1
-        energy_true_lo = np.zeros(nbin)
-        energy_true_hi = np.zeros(nbin)
+        energ_lo = np.zeros(nbin)
+        energ_hi = np.zeros(nbin)
         area = np.zeros(nbin)
 
         # Get simulation infos
@@ -451,67 +449,23 @@ class IrfMaker(object):
             )
 
             area[ibin] = (sel / simu_evts) * area_simu.value
-            energy_true_lo[ibin] = emin.value
-            energy_true_hi[ibin] = emax.value
+            energ_lo[ibin] = emin.value
+            energ_hi[ibin] = emax.value
 
-        table_energy = Table()
-        table_energy["ETRUE_LO"] = Column(
-            energy_true_lo,
-            unit="TeV",
-            description="energy min",
-            format=str(len(energy_true_lo)) + "E",
+        t = Table()
+        t["ENERG_LO"] = Column(
+            energ_lo, unit="TeV", description="energy min", format="E"
         )
-        table_energy["ETRUE_HI"] = Column(
-            energy_true_hi,
-            unit="TeV",
-            description="energy max",
-            format=str(len(energy_true_hi)) + "E",
+        t["ENERG_HI"] = Column(
+            energ_hi, unit="TeV", description="energy max", format="E"
         )
+        t[hdu_name] = Column(area, unit="m2", description="Effective area", format="E")
 
-        # Needed for format, a bit hacky...
-        # Those value are artificial. In the DL3 format, the IRFs are offset FOV dependant, here name theta.
-        # For point-like MC simulation produced at only one offset theta0 this trick is needed because those IRF can
-        # only be use for sources located at theta0 from the camera center. We give the same value for the IRFs for two
-        # artificial offsets, like this the interpolation at theta0 in the high level analysis tools will
-        # be correct. This will be remove when we use diffuse MC simulation that will allow to define IRF properly at
-        # different offset in the FOV.
-        theta_lo = [0.0, 1.0]
-        theta_hi = [1.0, 2.0]
-        table_theta = Table()
-        table_theta["THETA_LO"] = Column(
-            theta_lo,
-            unit="deg",
-            description="theta min",
-            format=str(len(theta_lo)) + "E",
-        )
-        table_theta["THETA_HI"] = Column(
-            theta_hi,
-            unit="deg",
-            description="theta max",
-            format=str(len(theta_hi)) + "E",
-        )
-
-        extended_area = np.resize(
-            area, (len(theta_lo), area.shape[0])
-        )
-        dim_extended_area = (
-                len(table_energy["ETRUE_LO"])
-                * len(table_theta["THETA_LO"])
-        )
-
-        aeff_2D = Table([extended_area], names=["AEFF"])
-        aeff_2D["AEFF"].unit = u.Unit("m2")
-        aeff_2D["AEFF"].format = str(dim_extended_area) + "E"
-
-        hdu = IrfMaker._make_aeff_hdu(table_energy, table_theta, aeff_2D)
-
-        return hdu
+        return IrfMaker._make_hdu(hdu_name, t, ["ENERG_LO", "ENERG_HI", hdu_name])
 
     def make_energy_dispersion(self):
-        etrue = self.etrue#np.logspace(np.log10(0.01)), np.log10(10000), 60 + 1)
-        migra_bin = self.config["analysis"]["emigra_binning"]['nbin']
-        migra = np.linspace(0.0, 5.0, migra_bin)
-
+        migra = np.linspace(0.0, 3.0, 300 + 1)
+        etrue = np.logspace(np.log10(0.01), np.log10(10000), 60 + 1)
         counts = np.zeros([len(migra) - 1, len(etrue) - 1])
 
         # Select events
@@ -567,12 +521,6 @@ class IrfMaker(object):
         )
 
         # Needed for format, a bit hacky...
-        # Those value are artificial. In the DL3 format, the IRFs are offset FOV dependant, here name theta.
-        # For point-like MC simulation produced at only one offset theta0 this trick is needed because those IRF can
-        # only be use for sources located at theta0 from the camera center. We give the same value for the IRFs for two
-        # artificial offsets, like this the interpolation at theta0 in the high level analysis tools will
-        # be correct. This will be remove when we use diffuse MC simulation that will allow to define IRF properly at
-        # different offset in the FOV.
         theta_lo = [0.0, 1.0]
         theta_hi = [1.0, 2.0]
         table_theta = Table()
@@ -597,7 +545,7 @@ class IrfMaker(object):
                 * len(table_migra["MIGRA_LO"])
                 * len(table_theta["THETA_LO"])
         )
-        matrix = Table([extended_mig_matrix], names=["MATRIX"])
+        matrix = Table([extended_mig_matrix.ravel()], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
         matrix["MATRIX"].format = str(dim_matrix) + "E"
         hdu = IrfMaker._make_edisp_hdu(table_energy, table_migra, table_theta, matrix)
@@ -616,64 +564,66 @@ class IrfMaker(object):
         return hdu
 
     @classmethod
-    def _make_aeff_hdu(cls, table_energy, table_theta, aeff):
-        """Create the Bintable HDU for the effective area describe here
-        https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html#effective-area-vs-true-energy
-        """
-        table = Table({
-            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
-            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
-            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
-            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
-            'EFFAREA': aeff["AEFF"].data[np.newaxis, :, :] * aeff["AEFF"].unit,
-        })
-
-        header = fits.Header()
-        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
-        header['HDUCLASS'] = 'aeff_2d', ''
-        header['HDUCLAS1'] = 'aeff_2d', ''
-        header['HDUCLAS2'] = 'EFF_AREA', ''
-        header['HDUCLAS3'] = 'POINT-LIKE', ''
-        header['HDUCLAS4'] = 'AEFF_2D', ''
-        header['TELESCOP'] = 'CTA', ''
-        header['INSTRUME'] = 'LST-1', ''
-
-        aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
-
-        primary_hdu = fits.PrimaryHDU()
-        hdulist = fits.HDUList([primary_hdu, aeff_hdu])
-
-        return hdulist
-
-    @classmethod
     def _make_edisp_hdu(cls, table_energy, table_migra, table_theta, matrix):
-        """Create the Bintable HDU for the energy dispersion describe here
-        https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
-        """
+        """List of columns"""
+        hdu = fits.BinTableHDU.from_columns(
+            [
+                fits.Column(
+                    name="ETRUE_LO",
+                    format=table_energy["ETRUE_LO"].format,
+                    unit=table_energy["ETRUE_LO"].unit.to_string(),
+                    array=np.atleast_2d(table_energy["ETRUE_LO"]),
+                ),
+                fits.Column(
+                    "ETRUE_HI",
+                    table_energy["ETRUE_HI"].format,
+                    unit=table_energy["ETRUE_HI"].unit.to_string(),
+                    array=np.atleast_2d(table_energy["ETRUE_HI"]),
+                ),
+                fits.Column(
+                    "MIGRA_LO",
+                    table_migra["MIGRA_LO"].format,
+                    unit=table_migra["MIGRA_LO"].unit.to_string(),
+                    array=np.atleast_2d(table_migra["MIGRA_LO"]),
+                ),
+                fits.Column(
+                    "MIGRA_HI",
+                    table_migra["MIGRA_HI"].format,
+                    unit=table_migra["MIGRA_HI"].unit.to_string(),
+                    array=np.atleast_2d(table_migra["MIGRA_HI"]),
+                ),
+                fits.Column(
+                    "THETA_LO",
+                    table_theta["THETA_LO"].format,
+                    unit=table_theta["THETA_LO"].unit.to_string(),
+                    array=np.atleast_2d(table_theta["THETA_LO"]),
+                ),
+                fits.Column(
+                    "THETA_HI",
+                    table_theta["THETA_HI"].format,
+                    unit=table_theta["THETA_HI"].unit.to_string(),
+                    array=np.atleast_2d(table_theta["THETA_HI"]),
+                ),
+                fits.Column(
+                    "MATRIX",
+                    matrix["MATRIX"].format,
+                    unit=matrix["MATRIX"].unit.to_string(),
+                    array=np.expand_dims(matrix["MATRIX"], 0),
+                ),
+            ]
+        )
 
-        table = Table({
-            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
-            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
-            'MIGRA_LO': table_migra["MIGRA_LO"][np.newaxis, :].data * table_migra["MIGRA_LO"].unit,
-            'MIGRA_HI': table_migra["MIGRA_HI"][np.newaxis, :].data * table_migra["MIGRA_HI"].unit,
-            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
-            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
-            'MATRIX': matrix["MATRIX"][np.newaxis, :, :] * matrix["MATRIX"].unit,
-        })
-
-        header = fits.Header()
-        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
-        header['HDUCLASS'] = 'edisp_2d', ''
-        header['HDUCLAS1'] = 'edisp_2d', ''
-        header['HDUCLAS2'] = 'EDISP', ''
-        header['HDUCLAS3'] = 'POINT-LIKE', ''
-        header['HDUCLAS4'] = 'EDISP_2D', ''
-        header['TELESCOP'] = 'CTA', ''
-        header['INSTRUME'] = 'LST-1', ''
-
-        edisp_hdu = fits.BinTableHDU(table, header, name='ENERGY DISPERSION')
-
-        primary_hdu = fits.PrimaryHDU()
-        hdulist = fits.HDUList([primary_hdu, edisp_hdu])
-
-        return hdulist
+        hdu.header.set(
+            "TDIM7",
+            "("
+            + str(len(table_energy["ETRUE_LO"]))
+            + ","
+            + str(len(table_migra["MIGRA_LO"]))
+            + ","
+            + str(len(table_theta["THETA_LO"]))
+            + ")",
+        )
+        hdu.header.set(
+            "EXTNAME", "ENERGY DISPERSION", "name of this binary table extension "
+        )
+        return hdu

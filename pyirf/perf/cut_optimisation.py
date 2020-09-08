@@ -3,8 +3,10 @@ import matplotlib.pyplot as plt
 import numpy as np
 import astropy.units as u
 from astropy.table import Table, Column
-from gammapy.spectrum.models import PowerLaw
-from gammapy.stats import significance_on_off
+# from gammapy.spectrum.models import PowerLaw
+from gammapy.modeling.models import PowerLawSpectralModel
+# from gammapy.stats import significance_on_off
+from gammapy.stats import WStatCountsStatistic
 
 from .utils import save_obj, load_obj, plot_hist
 
@@ -324,22 +326,25 @@ class CutsOptimisation(object):
         emin = conf_part['e_min'] * u.TeV
         emax = conf_part['e_max'] * u.TeV
         amplitude = 1. * u.Unit('1 / (cm2 s TeV)')
-        pwl_integral = PowerLaw(
+        # pwl_integral = PowerLaw(
+        #     index=index_simu, amplitude=amplitude).integral(emin=emin, emax=emax)
+        pwl_integral = PowerLawSpectralModel(
             index=index_simu, amplitude=amplitude).integral(emin=emin, emax=emax)
 
-        tsimu = nsimu / (area_simu * omega_simu * pwl_integral)
+        tsimu = nsimu / (area_simu * pwl_integral)
         tobs = self.config['analysis']['obs_time']['value'] * u.Unit(self.config['analysis']['obs_time']['unit'])
 
-        phi_simu = amplitude * (energy / (1 * u.TeV)) ** (-index_simu)
+        phi_simu = amplitude * (energy / (1 * u.TeV)) ** (-index_simu) #/ omega_simu
 
-        if particle in 'proton':
-            phi_exp = model(energy, 'proton')
-        elif particle in 'electron':
-            phi_exp = model(energy, 'electron')
-        elif particle in 'gamma':
-            phi_exp = model(energy)
-        else:
-            print('oups...')
+        # if particle in 'proton':
+        #     phi_exp = model(energy, 'proton')
+        # elif particle in 'electron':
+        #     phi_exp = model(energy, 'electron')
+        # elif particle in 'gamma':
+        #     phi_exp = model(energy)
+        # else:
+        #     print('oups...')
+        phi_exp = model(energy)
 
         return ((tobs / tsimu) * (phi_exp / phi_simu)).decompose()
 
@@ -577,20 +582,28 @@ class CutsOptimisation(object):
 
         # Gross binning
         flux_level = np.arange(0., 10, 0.01)[1:]
-        sigma = significance_on_off(n_on=excess * flux_level + bkg,
+        # sigma = significance_on_off(n_on=excess * flux_level + bkg,
+        #                             n_off=bkg / alpha,
+        #                             alpha=alpha,
+        #                             method='lima')
+        sigma = WStatCountsStatistic(n_on=excess * flux_level + bkg,
                                     n_off=bkg / alpha,
-                                    alpha=alpha,
-                                    method='lima')
+                                    alpha=alpha).significance
+
 
         the_idx = (np.abs(sigma - min_sigma)).argmin()
         min_flux = flux_level[the_idx]
 
         # Fine binning
         flux_level = np.arange(min_flux - 0.05, min_flux + 0.05, 0.001)
-        sigma = significance_on_off(n_on=excess * flux_level + bkg,
+        # sigma = significance_on_off(n_on=excess * flux_level + bkg,
+        #                             n_off=bkg / alpha,
+        #                             alpha=alpha,
+        #                             method='lima')
+        sigma = WStatCountsStatistic(n_on=excess * flux_level + bkg,
                                     n_off=bkg / alpha,
-                                    alpha=alpha,
-                                    method='lima')
+                                    alpha=alpha).significance
+
         the_idx = (np.abs(sigma - min_sigma)).argmin()
 
         return flux_level[the_idx], sigma[the_idx]
@@ -632,9 +645,12 @@ class CutsOptimisation(object):
         res['cumul_noff'] = res['hist_eff_bkg'] * sum(res['hist_bkg']) / alpha
         res['cumul_excess'] = sum(res['hist_sig']) - np.cumsum(res['hist_sig'])
         res['cumul_non'] = res['cumul_excess'] + res['cumul_noff'] * alpha
-        res['cumul_sigma'] = significance_on_off(
-            n_on=res['cumul_non'], n_off=res['cumul_noff'], alpha=alpha, method='lima'
-        )
+        # res['cumul_sigma'] = significance_on_off(
+        #     n_on=res['cumul_non'], n_off=res['cumul_noff'], alpha=alpha, method='lima'
+        # )
+        res['cumul_sigma'] = WStatCountsStatistic(
+            n_on=res['cumul_non'], n_off=res['cumul_noff'], alpha=alpha
+        ).significance
 
         return res
 
