@@ -3,8 +3,13 @@
 Installation
 ============
 
-The only requirement is an Anaconda (or Miniconda) installation which supports
-Python 3.
+The only requirement is a Python3.x installation with a compatible package
+manager (e.g. pip).
+
+A virtual environment manager such as the one provided by an Anaconda
+(or Miniconda) installation supporting such python version is recommended.
+
+These instructions we will assume that this is the case.
 
 There are two different ways to install `pyirf`,
 
