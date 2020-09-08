@@ -199,6 +199,9 @@ class IrfMaker(object):
     ----------
     config: `dict`
         Configuration file
+    evt_dict : `dict`
+        Dict for each particle type, containing a table with the required column for IRF computing.
+        TODO: define explicitely the name it expects.
     outdir: `str`
         Output directory where analysis results is saved
     """
@@ -208,33 +211,28 @@ class IrfMaker(object):
         self.outdir = outdir
 
         # Read data saved on disk
-        self.evt_dict = {}
-        for particle in ["gamma", "electron", "proton"]:
-            self.evt_dict[particle] = pd.read_hdf(
-                os.path.join(outdir, "{}_processed.h5".format(particle))
-            )
+        self.evt_dict = evt_dict
+        # Loop on the particle type
+        for particle in evt_dict.keys():
+            self.evt_dict[particle] = evt_dict[particle]
 
-        # Read table with cuts
-        self.table = Table.read(
-            os.path.join(
-                outdir, "{}.fits".format(config["general"]["output_table_name"])
-            ),
-            format="fits",
-        )
-        self.table = self.table[np.where(self.table["keep"].data)[0]]
+        cfg_binning_ereco = config["analysis"]["ereco_binning"]
+        cfg_binning_etrue = config["analysis"]["etrue_binning"]
+        self.nbin_ereco = cfg_binning_ereco["nbin"]
+        self.nbin_etrue = cfg_binning_etrue["nbin"]
 
         # Binning
         self.ereco = np.logspace(
-            np.log10(self.table["emin"][0]),
-            np.log10(self.table["emax"][-1]),
-            len(self.table),
+            np.log10(cfg_binning_ereco["emin"]),
+            np.log10(cfg_binning_ereco["emax"]),
+            self.nbin_ereco + 1,
         )
 
-        cfg_binning = config["analysis"]["etrue_binning"]
+
         self.etrue = np.logspace(
-            np.log10(cfg_binning["emin"]),
-            np.log10(cfg_binning["emax"]),
-            cfg_binning["nbin"] + 1,
+            np.log10(cfg_binning_etrue["emin"]),
+            np.log10(cfg_binning_etrue["emax"]),
+            self.nbin_etrue + 1,
         )
 
     def build_irf(self):
@@ -288,9 +286,15 @@ class IrfMaker(object):
         """
 
 
-    def make_bkg_rate(self):
-        """Build background rate"""
-        nbin = len(self.table)
+    def make_bkg_rate(self, angular_cut):
+        """Build background rate
+         Parameters
+        ----------
+        angular_cut: `astropy.units.Quantity`, dimension N reco energy bin
+            Array of angular cut to apply in each reconstructed energy bin
+            to estimate the acceptance ratio for the background estimate
+        """
+        nbin = self.nbin_ereco
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
         bgd = np.zeros(nbin)
@@ -299,9 +303,9 @@ class IrfMaker(object):
             self.config["analysis"]["obs_time"]["unit"]
         )
 
-        for ibin, info in enumerate(self.table):
-            energ_lo[ibin] = info["emin"]
-            energ_hi[ibin] = info["emax"]
+        for ibin, (emin, emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
+            energ_lo[ibin] = emin
+            energ_hi[ibin] = emax
 
             # References
             data_p = self.evt_dict["proton"]
@@ -310,46 +314,46 @@ class IrfMaker(object):
             # Compute number of events passing cuts selection
             n_p = sum(
                 data_p[
-                    (data_p["reco_energy"] >= info["emin"])
-                    & (data_p["reco_energy"] < info["emax"])
+                    (data_p["reco_energy"] >= emin)
+                    & (data_p["reco_energy"] < emax)
                     & (data_p["pass_best_cutoff"])
                     ]["weight"]
             )
 
             n_e = sum(
                 data_e[
-                    (data_e["reco_energy"] >= info["emin"])
-                    & (data_e["reco_energy"] < info["emax"])
+                    (data_e["reco_energy"] >= emin)
+                    & (data_e["reco_energy"] < emax)
                     & (data_e["pass_best_cutoff"])
-                    ]["weight"]
+                        ]["weight"]
             )
 
             # Correct number of background due to acceptance
             acceptance_g = (
-                    2 * np.pi * (1 - np.cos(info["angular_cut"] * u.deg.to("rad")))
+                        2 * np.pi * (1 - np.cos(angular_cut))
             )
             acceptance_p = (
-                    2
-                    * np.pi
-                    * (
-                            1
-                            - np.cos(
-                        self.config["particle_information"]["proton"]["offset_cut"]
-                        * u.deg.to("rad")
+                        2
+                        * np.pi
+                        * (
+                                1
+                                - np.cos(
+                            self.config["particle_information"]["proton"]["offset_cut"]
+                            * u.deg.to("rad")
+                            )
+                        )
                     )
-                    )
-            )
             acceptance_e = (
-                    2
-                    * np.pi
-                    * (
-                            1
-                            - np.cos(
-                        self.config["particle_information"]["electron"]["offset_cut"]
-                        * u.deg.to("rad")
+                        2
+                        * np.pi
+                        * (
+                                1
+                                - np.cos(
+                            self.config["particle_information"]["electron"]["offset_cut"]
+                            * u.deg.to("rad")
+                            )
+                        )
                     )
-                    )
-            )
 
             n_p *= acceptance_g / acceptance_p
             n_e *= acceptance_g / acceptance_e
@@ -368,22 +372,22 @@ class IrfMaker(object):
 
     def make_point_spread_function(self, radius=68):
         """Buil point spread function with radius containment `radius`"""
-        nbin = len(self.table)
+        nbin = self.nbin_ereco
         energ_lo = np.zeros(nbin)
         energ_hi = np.zeros(nbin)
         psf = np.zeros(nbin)
 
-        for ibin, info in enumerate(self.table):
-            energ_lo[ibin] = info["emin"]
-            energ_hi[ibin] = info["emax"]
+        for ibin, (emin, emax) in enumerate(zip(self.ereco[0:-1], self.ereco[1:])):
+            energ_lo[ibin] = emin
+            energ_hi[ibin] = emax
 
             # References
             data_g = self.evt_dict["gamma"]
 
             # Select data passing cuts selection
             sel = data_g.loc[
-                (data_g["reco_energy"] >= info["emin"])
-                & (data_g["reco_energy"] < info["emax"])
+                (data_g["reco_energy"] >= emin)
+                & (data_g["reco_energy"] < emax)
                 & (data_g["pass_best_cutoff"]),
                 [self.config['column_definition']['angular_distance_to_the_src']],
             ]
@@ -405,11 +409,11 @@ class IrfMaker(object):
         )
 
     def make_effective_area(
-            self, apply_score_cut=True, apply_angular_cut=True, hdu_name="SPECRESP"
+                self, apply_score_cut=True, apply_angular_cut=True
     ):
         nbin = len(self.etrue) - 1
-        energ_lo = np.zeros(nbin)
-        energ_hi = np.zeros(nbin)
+        energy_true_lo = np.zeros(nbin)
+        energy_true_hi = np.zeros(nbin)
         area = np.zeros(nbin)
 
         # Get simulation infos
@@ -443,25 +447,65 @@ class IrfMaker(object):
 
             # Compute number of number of events in simulation
             simu_evts = (
-                    float(nsimu_tot)
-                    * (emax.value ** index - emin.value ** index)
-                    / (emax_simu ** index - emin_simu ** index)
+                        float(nsimu_tot)
+                        * (emax.value ** index - emin.value ** index)
+                        / (emax_simu ** index - emin_simu ** index)
             )
 
             area[ibin] = (sel / simu_evts) * area_simu.value
-            energ_lo[ibin] = emin.value
-            energ_hi[ibin] = emax.value
+            energy_true_lo[ibin] = emin.value
+            energy_true_hi[ibin] = emax.value
 
-        t = Table()
-        t["ENERG_LO"] = Column(
-            energ_lo, unit="TeV", description="energy min", format="E"
+        table_energy = Table()
+        table_energy["ETRUE_LO"] = Column(
+            energy_true_lo,
+            unit="TeV",
+            description="energy min",
+            format=str(len(energy_true_lo)) + "E",
+        table_energy["ETRUE_HI"] = Column(
+            energy_true_hi,
+            unit="TeV",
+            description="energy max",
+            format=str(len(energy_true_hi)) + "E",
         )
-        t["ENERG_HI"] = Column(
-            energ_hi, unit="TeV", description="energy max", format="E"
-        )
-        t[hdu_name] = Column(area, unit="m2", description="Effective area", format="E")
 
-        return IrfMaker._make_hdu(hdu_name, t, ["ENERG_LO", "ENERG_HI", hdu_name])
+        # Needed for format, a bit hacky...
+        # Those value are artificial. In the DL3 format, the IRFs are offset FOV dependant, here name theta.
+        # For point-like MC simulation produced at only one offset theta0 this trick is needed because those IRF can
+        # only be use for sources located at theta0 from the camera center. We give the same value for the IRFs for two
+        # artificial offsets, like this the interpolation at theta0 in the high level analysis tools will
+        # be correct. This will be remove when we use diffuse MC simulation that will allow to define IRF properly at
+        # different offset in the FOV.
+        theta_lo = [0.0, 1.0]
+        theta_hi = [1.0, 2.0]
+        table_theta = Table()
+        table_theta["THETA_LO"] = Column(
+            theta_lo,
+            unit="deg",
+            description="theta min",
+            format=str(len(theta_lo)) + "E",
+        )
+        table_theta["THETA_HI"] = Column(
+            theta_hi,
+            unit="deg",
+            description="theta max",
+            format=str(len(theta_hi)) + "E",
+        )
+        extended_area = np.resize(
+            area, (len(theta_lo), area.shape[0])
+        )
+        dim_extended_area = (
+                len(table_energy["ETRUE_LO"])
+                * len(table_theta["THETA_LO"])
+        )
+
+        aeff_2D = Table([extended_area], names=["AEFF"])
+        aeff_2D["AEFF"].unit = u.Unit("m2")
+        aeff_2D["AEFF"].format = str(dim_extended_area) + "E"
+
+        hdu = IrfMaker._make_aeff_hdu(table_energy, table_theta, aeff_2D)
+
+        return hdu
 
     def make_energy_dispersion(self):
         migra = np.linspace(0.0, 3.0, 300 + 1)
@@ -472,7 +516,7 @@ class IrfMaker(object):
         data_g = self.evt_dict["gamma"]
         data_g = data_g[
             (data_g["pass_best_cutoff"]) & (data_g["pass_angular_cut"])
-            ].copy()
+                ].copy()
 
         for imigra in range(len(migra) - 1):
             migra_min = migra[imigra]
@@ -521,6 +565,12 @@ class IrfMaker(object):
         )
 
         # Needed for format, a bit hacky...
+        # Those value are artificial. In the DL3 format, the IRFs are offset FOV dependant, here name theta.
+        # For point-like MC simulation produced at only one offset theta0 this trick is needed because those IRF can
+        # only be use for sources located at theta0 from the camera center. We give the same value for the IRFs for two
+        # artificial offsets, like this the interpolation at theta0 in the high level analysis tools will
+        # be correct. This will be remove when we use diffuse MC simulation that will allow to define IRF properly at
+        # different offset in the FOV.
         theta_lo = [0.0, 1.0]
         theta_hi = [1.0, 2.0]
         table_theta = Table()
@@ -541,11 +591,11 @@ class IrfMaker(object):
             counts, (len(theta_lo), counts.shape[0], counts.shape[1])
         )
         dim_matrix = (
-                len(table_energy["ETRUE_LO"])
-                * len(table_migra["MIGRA_LO"])
-                * len(table_theta["THETA_LO"])
+                    len(table_energy["ETRUE_LO"])
+                    * len(table_migra["MIGRA_LO"])
+                    * len(table_theta["THETA_LO"])
         )
-        matrix = Table([extended_mig_matrix.ravel()], names=["MATRIX"])
+        matrix = Table([extended_mig_matrix], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
         matrix["MATRIX"].format = str(dim_matrix) + "E"
         hdu = IrfMaker._make_edisp_hdu(table_energy, table_migra, table_theta, matrix)
@@ -564,66 +614,59 @@ class IrfMaker(object):
         return hdu
 
     @classmethod
-    def _make_edisp_hdu(cls, table_energy, table_migra, table_theta, matrix):
-        """List of columns"""
-        hdu = fits.BinTableHDU.from_columns(
-            [
-                fits.Column(
-                    name="ETRUE_LO",
-                    format=table_energy["ETRUE_LO"].format,
-                    unit=table_energy["ETRUE_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_LO"]),
-                ),
-                fits.Column(
-                    "ETRUE_HI",
-                    table_energy["ETRUE_HI"].format,
-                    unit=table_energy["ETRUE_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_energy["ETRUE_HI"]),
-                ),
-                fits.Column(
-                    "MIGRA_LO",
-                    table_migra["MIGRA_LO"].format,
-                    unit=table_migra["MIGRA_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_migra["MIGRA_LO"]),
-                ),
-                fits.Column(
-                    "MIGRA_HI",
-                    table_migra["MIGRA_HI"].format,
-                    unit=table_migra["MIGRA_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_migra["MIGRA_HI"]),
-                ),
-                fits.Column(
-                    "THETA_LO",
-                    table_theta["THETA_LO"].format,
-                    unit=table_theta["THETA_LO"].unit.to_string(),
-                    array=np.atleast_2d(table_theta["THETA_LO"]),
-                ),
-                fits.Column(
-                    "THETA_HI",
-                    table_theta["THETA_HI"].format,
-                    unit=table_theta["THETA_HI"].unit.to_string(),
-                    array=np.atleast_2d(table_theta["THETA_HI"]),
-                ),
-                fits.Column(
-                    "MATRIX",
-                    matrix["MATRIX"].format,
-                    unit=matrix["MATRIX"].unit.to_string(),
-                    array=np.expand_dims(matrix["MATRIX"], 0),
-                ),
-            ]
-        )
+     def _make_aeff_hdu(cls, table_energy, table_theta, aeff):
+        """Create the Bintable HDU for the effective area describe here
+        https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html#effective-area-vs-true-energy
+        """
+        table = Table({
+            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
+            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
+            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
+            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
+            'EFFAREA': aeff["AEFF"].data[np.newaxis, :, :] * aeff["AEFF"].unit,
+        })
 
-        hdu.header.set(
-            "TDIM7",
-            "("
-            + str(len(table_energy["ETRUE_LO"]))
-            + ","
-            + str(len(table_migra["MIGRA_LO"]))
-            + ","
-            + str(len(table_theta["THETA_LO"]))
-            + ")",
-        )
-        hdu.header.set(
-            "EXTNAME", "ENERGY DISPERSION", "name of this binary table extension "
-        )
-        return hdu
+        header = fits.Header()
+        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
+        header['HDUCLASS'] = 'GADF', ''
+        header['HDUCLAS1'] = 'RESPONSE', ''
+        header['HDUCLAS2'] = 'EFF_AREA', ''
+        header['HDUCLAS3'] = 'POINT-LIKE', ''
+        header['HDUCLAS4'] = 'AEFF_2D', ''
+
+        aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
+
+        primary_hdu = fits.PrimaryHDU()
+        hdulist = fits.HDUList([primary_hdu, aeff_hdu])
+
+        return hdulist
+        @classmethod
+    def _make_edisp_hdu(cls, table_energy, table_migra, table_theta, matrix):
+        """Create the Bintable HDU for the energy dispersion describe here
+        https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
+        """
+
+        table = Table({
+            'ENERG_LO': table_energy["ETRUE_LO"][np.newaxis, :].data * table_energy["ETRUE_LO"].unit,
+            'ENERG_HI': table_energy["ETRUE_HI"][np.newaxis, :].data * table_energy["ETRUE_HI"].unit,
+            'MIGRA_LO': table_migra["MIGRA_LO"][np.newaxis, :].data * table_migra["MIGRA_LO"].unit,
+            'MIGRA_HI': table_migra["MIGRA_HI"][np.newaxis, :].data * table_migra["MIGRA_HI"].unit,
+            'THETA_LO': table_theta["THETA_LO"][np.newaxis, :].data * table_theta["THETA_LO"].unit,
+            'THETA_HI': table_theta["THETA_HI"][np.newaxis, :].data * table_theta["THETA_HI"].unit,
+            'MATRIX': matrix["MATRIX"][np.newaxis, :, :] * matrix["MATRIX"].unit,
+        })
+
+        header = fits.Header()
+        header['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html', ''
+        header['HDUCLASS'] = 'GADF', ''
+        header['HDUCLAS1'] = 'RESPONSE', ''
+        header['HDUCLAS2'] = 'EDISP', ''
+        header['HDUCLAS3'] = 'POINT-LIKE', ''
+        header['HDUCLAS4'] = 'EDISP_2D', ''
+
+        edisp_hdu = fits.BinTableHDU(table, header, name='ENERGY DISPERSION')
+
+        primary_hdu = fits.PrimaryHDU()
+        hdulist = fits.HDUList([primary_hdu, edisp_hdu])
+
+        return hdulist

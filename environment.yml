@@ -11,7 +11,7 @@ dependencies:
   - ipython
   - joblib
   - jupyter
-  - gammapy=0.18
+  - gammapy==0.18
   - matplotlib
   - numba
   - numpy>=1.15.4
