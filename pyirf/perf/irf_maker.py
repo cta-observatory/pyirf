@@ -462,6 +462,7 @@ class IrfMaker(object):
             unit="TeV",
             description="energy min",
             format=str(len(energy_true_lo)) + "E",
+            )
         table_energy["ETRUE_HI"] = Column(
             energy_true_hi,
             unit="TeV",
@@ -476,6 +477,7 @@ class IrfMaker(object):
         # artificial offsets, like this the interpolation at theta0 in the high level analysis tools will
         # be correct. This will be remove when we use diffuse MC simulation that will allow to define IRF properly at
         # different offset in the FOV.
+
         theta_lo = [0.0, 1.0]
         theta_hi = [1.0, 2.0]
         table_theta = Table()
@@ -508,8 +510,9 @@ class IrfMaker(object):
         return hdu
 
     def make_energy_dispersion(self):
-        migra = np.linspace(0.0, 3.0, 300 + 1)
-        etrue = np.logspace(np.log10(0.01), np.log10(10000), 60 + 1)
+        migra_bin = self.config["analysis"]["emigra_binning"]['nbin']
+        migra = np.linspace(0.0, 3.0, migra_bin)
+        etrue = self.etrue
         counts = np.zeros([len(migra) - 1, len(etrue) - 1])
 
         # Select events
@@ -614,7 +617,7 @@ class IrfMaker(object):
         return hdu
 
     @classmethod
-     def _make_aeff_hdu(cls, table_energy, table_theta, aeff):
+    def _make_aeff_hdu(cls, table_energy, table_theta, aeff):
         """Create the Bintable HDU for the effective area describe here
         https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html#effective-area-vs-true-energy
         """
@@ -640,7 +643,8 @@ class IrfMaker(object):
         hdulist = fits.HDUList([primary_hdu, aeff_hdu])
 
         return hdulist
-        @classmethod
+
+    @classmethod
     def _make_edisp_hdu(cls, table_energy, table_migra, table_theta, matrix):
         """Create the Bintable HDU for the energy dispersion describe here
         https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
