@@ -3,7 +3,6 @@ import numpy as np
 import astropy.units as u
 from astropy.table import Table, Column
 from astropy.io import fits
-import pandas as pd
 
 from gammapy.utils.nddata import NDDataArray, BinnedDataAxis
 from gammapy.utils.energy import EnergyBounds
@@ -13,7 +12,7 @@ from gammapy.spectrum import SensitivityEstimator
 __all__ = ["IrfMaker", "SensitivityMaker", "BkgData", "Irf"]
 
 
-class BkgData(object):
+class BkgData:
     """
     Class storing background data in a NDDataArray object.
 
@@ -30,7 +29,7 @@ class BkgData(object):
         return self.data.axes[0]
 
 
-class Irf(object):
+class Irf:
     """
     Class storing IRF for sensitivity computation (emulating CTAPerf)
     """
@@ -41,7 +40,7 @@ class Irf(object):
         self.rmf = rmf
 
 
-class SensitivityMaker(object):
+class SensitivityMaker:
     """
     Class which estimate sensitivity with IRF
 
@@ -155,7 +154,7 @@ class SensitivityMaker(object):
         hdulist.flush()
 
 
-class IrfMaker(object):
+class IrfMaker:
     """
     Class building IRF for point-like analysis.
 
