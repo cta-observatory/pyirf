@@ -11,7 +11,7 @@ from .utils import save_obj, load_obj, plot_hist
 __all__ = ['CutsOptimisation', 'CutsDiagnostic', 'CutsApplicator']
 
 
-class CutsApplicator(object):
+class CutsApplicator:
     """
     Apply best cut and angular cut to events.
 
@@ -100,7 +100,7 @@ class CutsApplicator(object):
         return data
 
 
-class CutsDiagnostic(object):
+class CutsDiagnostic:
     """
     Class used to get some diagnostic related to the optimal working point.
 
@@ -270,7 +270,7 @@ class CutsDiagnostic(object):
         return text
 
 
-class CutsOptimisation(object):
+class CutsOptimisation:
     """
     Class used to find best cutoff to obtain minimal
     sensitivity in a given amount of time.
