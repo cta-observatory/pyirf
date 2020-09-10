@@ -3,7 +3,6 @@ import numpy as np
 import astropy.units as u
 from astropy.table import Table, Column
 from astropy.io import fits
-import pandas as pd
 
 from gammapy.utils.nddata import NDDataArray, BinnedDataAxis
 from gammapy.utils.energy import EnergyBounds
@@ -110,13 +109,6 @@ class SensitivityMaker(object):
         self.add_sensitivity_to_irf()
 
     def add_sensitivity_to_irf(self):
-        cfg_binning = self.config["analysis"]["ereco_binning"]
-        ereco = np.logspace(
-            np.log10(cfg_binning["emin"]),
-            np.log10(cfg_binning["emax"]),
-            cfg_binning["nbin"] + 1,
-        )
-
         t = Table()
         t["ENERG_LO"] = Column(
             self.irf.bkg.energy.lo.value,

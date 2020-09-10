@@ -3,8 +3,7 @@ import numpy as np
 from ctapipe.io import HDF5TableReader
 from ctapipe.io.containers import MCHeaderContainer
 import yaml
-import pkg_resources
-import os
+
 
 def load_config(name):
     """Load YAML configuration file."""
@@ -31,6 +30,7 @@ def read_simu_info_hdf5(filename):
         mc = next(mcheader)
 
     return mc
+
 
 def read_simu_info_merged_hdf5(filename):
     """
@@ -86,13 +86,3 @@ def get_simu_info(filepath, particle_name, config={}):
     print(cfg)
 
     return config
-
-
-
-# def get_resource(resource_name):
-#     """ get the filename for a resource """
-#     resource_path = os.path.join('resources', resource_name)
-#     if not pkg_resources.resource_exists(__name__, resource_path):
-#         raise FileNotFoundError(f"Couldn't find resource: {resource_name}")
-#     else:
-#         return pkg_resources.resource_filename(__name__, resource_path)
