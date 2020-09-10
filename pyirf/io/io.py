@@ -62,10 +62,12 @@ def read_simu_info_merged_hdf5(filename):
     return combined_mcheader
 
 
-def get_simu_info(filepath, particle_name, config={}):
+def get_simu_info(filepath, particle_name, config=None):
     """
     read simu info from file and return config
     """
+    if config is None:
+        config = {}
 
     if 'particle_information' not in config:
         config['particle_information'] = {}
@@ -81,9 +83,6 @@ def get_simu_info(filepath, particle_name, config={}):
     cfg['gen_radius'] = simu.max_scatter_range
     cfg['diff_cone'] = simu.max_viewcone_radius
     cfg['gen_gamma'] = -simu.spectral_index
-
-    print(particle_name)
-    print(cfg)
 
     return config
 
