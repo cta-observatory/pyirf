@@ -636,7 +636,9 @@ class IrfMaker(object):
         header['HDUCLAS2'] = 'EFF_AREA', ''
         header['HDUCLAS3'] = 'POINT-LIKE', ''
         header['HDUCLAS4'] = 'AEFF_2D', ''
-
+        header['TELESCOP'] = 'CTA', ''
+        header['INSTRUME'] = 'LST-1', ''
+        
         aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
 
         primary_hdu = fits.PrimaryHDU()
@@ -667,6 +669,8 @@ class IrfMaker(object):
         header['HDUCLAS2'] = 'EDISP', ''
         header['HDUCLAS3'] = 'POINT-LIKE', ''
         header['HDUCLAS4'] = 'EDISP_2D', ''
+        header['TELESCOP'] = 'CTA', ''
+        header['INSTRUME'] = 'LST-1', ''
 
         edisp_hdu = fits.BinTableHDU(table, header, name='ENERGY DISPERSION')
 
