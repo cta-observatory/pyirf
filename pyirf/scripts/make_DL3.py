@@ -59,7 +59,7 @@ def main():
         "--obs_time",
         type=str,
         required=True,
-        help="An observation time written as (value.unit), e.g. '50.h'",
+        help="An observation time given as a string in astropy format e.g. '50h' or '30min'",
     )
 
     parser.add_argument(
@@ -80,10 +80,10 @@ def main():
     cfg = load_config(args.config_file)
 
     # Add obs. time to the configuration file
-    str_obs_time = args.obs_time.split(".")
+    obs_time = u.Quantity(args.obs_time)
     cfg["analysis"]["obs_time"] = {
-        "value": float(str_obs_time[0]),
-        "unit": str(str_obs_time[-1]),
+        "value": obs_time.value,
+        "unit": obs_time.unit.to_string("fits"),
     }
 
     # Get input directory
@@ -95,17 +95,13 @@ def main():
     # Get output directory
     outdir = os.path.join(
         cfg["general"]["outdir"],
-        "irf_{}_Time{}{}".format(  # name could change in future
+        "irf_{}_Time{}{}".format(
             args.pipeline,
-            # cfg["analysis"]["thsq_opt"]["type"], # not needed now
-            # cfg["analysis"]["obs_time"]["value"],
-            # cfg["analysis"]["obs_time"]["unit"],
-            args.obs_time.split(".")[0],
-            args.obs_time.split(".")[-1],
+            cfg["analysis"]["obs_time"]["value"],
+            cfg["analysis"]["obs_time"]["unit"],
         ),
     )  # and create it if necessary
-    if not os.path.exists(outdir):
-        os.makedirs(outdir)
+    os.makedirs(outdir, exist_ok=True)
 
     # =========================================================================
     #                   READ DL2 DATA AND STORE IT ACCORDING TO GADF
@@ -132,7 +128,7 @@ def main():
 
     if args.pipeline == "EventDisplay":
 
-        # THETA IS SUPPOSED TO BE IN DL2 DATA ACCORDING TO GADF
+        # THETA IS OPTIONAL COLUMN IN GADF FORMAT
         # EventDisplay provides true and reconstructed directions, so we
         # calculate it here and we add it to the tables.
 
