@@ -130,7 +130,6 @@ def main():
                 # sys.exit()
 
             psf = np.percentile(data['offset'], radius)
-            psf_err = psf / np.sqrt(len(data))
 
             thsq_values.append(psf)
         thsq_values = np.array(thsq_values) * u.deg

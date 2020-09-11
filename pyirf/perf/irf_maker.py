@@ -109,13 +109,6 @@ class SensitivityMaker:
         self.add_sensitivity_to_irf()
 
     def add_sensitivity_to_irf(self):
-        cfg_binning = self.config["analysis"]["ereco_binning"]
-        ereco = np.logspace(
-            np.log10(cfg_binning["emin"]),
-            np.log10(cfg_binning["emax"]),
-            cfg_binning["nbin"] + 1,
-        )
-
         t = Table()
         t["ENERG_LO"] = Column(
             self.irf.bkg.energy.lo.value,
