@@ -1,6 +1,8 @@
 from setuptools import setup, find_packages
+import re
 
-exec(open("pyirf/version.py").read())
+with open("pyirf/version.py") as f:
+    __version__ = re.search("^__version__ = '(.*)'$", f.read()).group(1)
 
 setup(
     version=__version__,

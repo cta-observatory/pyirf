@@ -4,7 +4,6 @@ import os
 import argparse
 import pandas as pd
 import numpy as np
-import pkg_resources
 import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy.io import fits
@@ -157,7 +156,6 @@ def main(args):
                 continue
 
             psf = np.percentile(data['offset'], radius)
-            psf_err = psf / np.sqrt(len(data))
 
             thsq_values.append(psf)
         thsq_values = np.array(thsq_values) * u.deg
