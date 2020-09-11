@@ -83,48 +83,22 @@ particle_information:
 
 # =============================================================================
 # PLEASE, COMPILE THE FOLLOWING PART DEPENDING ON THE CONTENT OF YOUR DL2 FILES
-#
-#           some quantities are mandatory, some optional, some custom
-#
-#           Definitions for mandatory and optional quantities come from
-#           the latest version of GADF.
-#           Custom quantities are mainly useful for legacy and data formats
-#           under development.
-#
 # =============================================================================
 
 column_definition:
 
-  # MANDATORY COLUMNS
-
   # Event identification number
   EVENT_ID: 'EVENT_ID'
-  # Event time
-  TIME: 'TIME'
-  # Reconstructed event Right Ascension
-  RA: 'RA'
-  # Reconstructed event Declination
-  DEC: 'DEC'
   # Reconstructed event energy
   ENERGY: 'ENERGY'
-
-  # OPTIONAL COLUMNS
   # Event quality partition
   EVENT_TYPE: 'GH_MVA'
   # Telescope multiplicity. Number of telescopes that have seen the event.
   MULTIP: 'MULTIP'
-  # Reconstructed event Galactic longitude
-  GLON: 'GLON'
-  # Reconstructed event Galactic latitude
-  GLAT: 'GLAT'
   # Reconstructed altitude
   ALT: 'ALT'
   # Reconstructed azimuth
   AZ: 'AZ'
-  # ecc...to be integrated later
-
-
-  # COSTUM COLUMNS
   # Observation identification number
   OBS_ID: 'OBS_ID'
   # True energy
@@ -133,7 +107,7 @@ column_definition:
   TRUE_ALT: 'MC_ALT'
   # True azimuth
   TRUE_AZ: 'MC_AZ'
-  # Column name for classification output (protopipe)
+  # Column names for classification output (protopipe)
   classification_output:
     name: 'gammaness' # should be substituted by EVENT_TYPE
     range: [0, 1] # technically always true (some algorithms could have different domains?)

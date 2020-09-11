@@ -114,7 +114,9 @@ def main():
         if args.debug:
             print(f"Loading {particle} DL2 data...")
         infile = os.path.join(indir, template_input_file.format(particle))
-        evt_dict[particle] = read_FITS(config=cfg, infile=infile)
+        evt_dict[particle] = read_FITS(
+            config=cfg, infile=infile, pipeline=args.pipeline, debug=args.debug
+        )
 
     # =========================================================================
     #               PRELIMINARY OPERATIONS FOR SPECIFIC PIPELINES
