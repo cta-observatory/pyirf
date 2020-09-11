@@ -217,13 +217,13 @@ def main():
     # Handle theta square cut optimisation
     # (compute 68 % containment radius PSF if necessary)
     thsq_opt_type = cfg["analysis"]["thsq_opt"]["type"]
-    if thsq_opt_type in "fixed":
+    if thsq_opt_type == "fixed":
         thsq_values = np.array([cfg["analysis"]["thsq_opt"]["value"]]) * u.deg
         print("Using fixed theta cut: {}".format(thsq_values))
-    elif thsq_opt_type in "opti":
+    elif thsq_opt_type == "opti":
         thsq_values = np.arange(0.05, 0.40, 0.01) * u.deg
         print("Optimising theta cut for: {}".format(thsq_values))
-    elif thsq_opt_type in "r68":
+    elif thsq_opt_type == "r68":
         print("Using R68% theta cut")
         print("Computing...")
         cfg_binning = cfg["analysis"]["ereco_binning"]
