@@ -1,4 +1,5 @@
 numpy
+numpydoc
 pygments >= 2.5.1
 rinohtype
 sphinx
