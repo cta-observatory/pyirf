@@ -13,7 +13,7 @@
 import os
 import sys
 
-from pyirf import __version__
+# from pyirf import __version__
 
 sys.path.insert(0, os.path.abspath(".."))
 
@@ -25,7 +25,8 @@ copyright = "2020, Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
 author = "Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
 
 # The full version, including alpha/beta/rc tags
-version = __version__
+# version = __version__
+version = "0.1.0-dev"  # temporary solution until readthedocs build is fixed
 
 
 # -- General configuration ---------------------------------------------------
