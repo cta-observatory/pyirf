@@ -130,15 +130,8 @@ def main():
 
     if args.pipeline == "EventDisplay":
 
-        # THETA IS OPTIONAL COLUMN IN GADF FORMAT
         # EventDisplay provides true and reconstructed directions, so we
-        # calculate it here and we add it to the tables.
-
-        # WARNING:
-        # this is true only for point-source simulations!
-        # in the case of diffuse simulations we must distinguish between
-        # - distance between reconstructed direction and center of the FoV
-        # - distance between reconstructed and true direction
+        # calculate THETA here and we add it to the tables.
 
         for particle in particles:
 
@@ -152,8 +145,6 @@ def main():
             # Add THETA column
             evt_dict[particle]["THETA"] = THETA
 
-            # print(evt_dict[particle].head(n=5))
-
     # =========================================================================
     #                   REST OF THE OPERATIONS (TO BE REFACTORED)
     # =========================================================================
@@ -163,7 +154,6 @@ def main():
 
         # There seems to be a problem in using pandas from FITS data
         # ValueError: Big-endian buffer not supported on little-endian compiler
-
         # I convert to astropy table....
         # should we use only those?
 
