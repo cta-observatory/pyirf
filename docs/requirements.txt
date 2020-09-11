@@ -1,3 +1,4 @@
+ipython
 numpy
 numpydoc
 pygments >= 2.5.1
