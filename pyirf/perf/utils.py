@@ -27,8 +27,12 @@ def percentiles(values, bin_values, bin_edges, percentile):
     return percentiles_binned.T, err_percentiles_binned.T
 
 
-def plot_hist(ax, data, edges, norm=False, yerr=False, hist_kwargs={}, error_kw={}):
+def plot_hist(ax, data, edges, norm=False, yerr=False, hist_kwargs=None, error_kw=None):
     """Utility function to plot histogram"""
+
+    hist_kwargs = hist_kwargs or {}
+    error_kw = error_kw or {}
+
     weights = np.ones_like(data)
     if norm is True:
         weights = weights / float(np.sum(data))
