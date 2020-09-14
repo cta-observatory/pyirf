@@ -144,7 +144,7 @@ reconstructed energy in order to control the optimisation procedure
 with the angular cut, etc.).
 
 .. todo::
-  
+
   Move diagnostics to benchmarking.
 
 Description of the output
@@ -226,8 +226,8 @@ What could be improved?
 =======================
 
 .. todo::
-  
-  Move this to GitHub issues and update it 
+
+  Move this to GitHub issues and update it
 
  * `Data format for IRFs <https://gamma-astro-data-formats.readthedocs.io/>`_
  * Propagation and reading SIMTEL informations (meta-data, histograms)
