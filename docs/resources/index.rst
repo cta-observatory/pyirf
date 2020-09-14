@@ -4,17 +4,9 @@
 Resources
 =========
 
-For the moment this folder hosts only the configuration files:
+For the moment this folder hosts only one configuration file, ``config.yaml``.
 
-- config.yaml
-- performance.yaml (obsolete, to be removed)
-
-.. todo::
-  
-  Remove `performance.yaml`.
-  Add configuration file for LSTchain.
-
-The configuration file to be used with make_DL3.py is described here:
+In the following we report an example:
 
 .. code-block:: yaml
 

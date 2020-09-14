@@ -11,13 +11,8 @@ This module contains the scripts to produce DL3 data as explained in :ref:`usage
 
 At the moment there are 3 such scripts:
 
-- `make_performance.py`, the old script from protopipe,
-- `make_DL3.py`, the new version which is supposed to be final one at least for DL3 data based on simulations,
-- `lst_performance.py`, a script specific for LSTchain.
-
-.. todo::
-  
-  Remove `make_performance.py`.
+- ``make_DL3.py``, the new version which is supposed to be final one at least for DL3 data based on simulations,
+- ``lst_performance.py``, a script specific for LSTchain.
 
 Details
 =======
@@ -28,7 +23,7 @@ make_DL3
 The usage is the following,
 
 .. code-block::
-  
+
   >$ python $PYIRF/make_DL3.py -h
   usage: make_DL3.py [-h] --config_file CONFIG_FILE --obs_time OBS_TIME
                    --pipeline PIPELINE [--debug]
@@ -49,11 +44,11 @@ The configuration file to be used should be `config.yaml` (:ref:`resources`).
 
 lst_performance
 ---------------
-  
+
 The usage is the following,
 
 .. code-block::
-  
+
   >$ python $PYIRF/lst_performance.py -h
   usage: lst_performance.py [-h] [--obs_time OBS_TIME] --dl2_gamma
                           DL2_GAMMA_FILENAME --dl2_proton DL2_PROTON_FILENAME
@@ -76,10 +71,10 @@ The usage is the following,
     --conf CONFIG_FILE, -c CONFIG_FILE
                           Optional. Path to a config file. If none is given, the
                           standard performance config is used
-                          
+
 .. todo::
-  
-  Add further information.
+
+  Add any other further information missing.
 
 Reference/API
 -------------
