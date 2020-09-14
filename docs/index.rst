@@ -44,7 +44,7 @@ which this documentation is linked.
   install/index
   usage/index
   contribute/index
-  CHANGELOG
+  changelog
   AUTHORS
 
 .. _pyirf_structure:

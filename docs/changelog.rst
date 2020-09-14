@@ -38,7 +38,7 @@ Maintenance and cleanup changes are not of interest to users and are not listed 
 .. _pyirf_0p3_release:
 
 0.1.0 (Unreleased)
------------------
+------------------
 
 . . .
 
