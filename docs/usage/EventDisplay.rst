@@ -71,4 +71,4 @@ Your directory tree structure containing the output data should look like this,
 
 where the `diagnostic` folder contains some plots with further information.
 
-You can open the single files or check directly the results using the `Comparison with EventDisplay <./comparison_with_EventDisplay.ipynb>`__ notebook.
+You can open the single files or check directly the results using the `Comparison with EventDisplay <../contribute/comparison_with_EventDisplay.ipynb>`__ notebook.
