@@ -236,7 +236,7 @@ def write(cuts=None, irfs=None):
 
     This should be writer for the DL3 data.
     For the moment it is just a dummy function for reference.
-    Final format is still unclear, we are trying to follow the latest
+    The final format is under development, but we try to follow the latest
     version of GADF [1]_.
 
     Notes
