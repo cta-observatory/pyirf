@@ -22,7 +22,7 @@ make_DL3
 
 The usage is the following,
 
-.. code-block::
+.. code-block:: bash
 
   >$ python $PYIRF/make_DL3.py -h
   usage: make_DL3.py [-h] --config_file CONFIG_FILE --obs_time OBS_TIME
@@ -47,7 +47,7 @@ lst_performance
 
 The usage is the following,
 
-.. code-block::
+.. code-block:: bash
 
   >$ python $PYIRF/lst_performance.py -h
   usage: lst_performance.py [-h] [--obs_time OBS_TIME] --dl2_gamma
