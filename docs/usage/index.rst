@@ -11,7 +11,7 @@ Workflow and usage
     lstchain_irf
     protopipe
 
-You should have a working installation of pyirf (:ref:`install`).
+You should have a working installation of *pyirf* (:ref:`install`).
 
 For bugs and new features, please contribute to the project (:ref:`contribute`).
 
