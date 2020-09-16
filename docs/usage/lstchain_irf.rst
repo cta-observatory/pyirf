@@ -1,3 +1,5 @@
+.. _lstchain_irf:
+
 =====================================
 How to build IRFs from lstchain files
 =====================================

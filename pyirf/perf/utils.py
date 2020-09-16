@@ -5,8 +5,12 @@ import gzip
 
 def percentiles(values, bin_values, bin_edges, percentile):
     # Seems complicated for vector defined as [inf, inf, .., inf]
-    percentiles_binned = np.squeeze(np.full((len(bin_edges) - 1, len(values.shape)), np.inf))
-    err_percentiles_binned = np.squeeze(np.full((len(bin_edges) - 1, len(values.shape)), np.inf))
+    percentiles_binned = np.squeeze(
+        np.full((len(bin_edges) - 1, len(values.shape)), np.inf)
+    )
+    err_percentiles_binned = np.squeeze(
+        np.full((len(bin_edges) - 1, len(values.shape)), np.inf)
+    )
     for i, (bin_l, bin_h) in enumerate(zip(bin_edges[:-1], bin_edges[1:])):
         try:
             print(i)
@@ -15,7 +19,9 @@ def percentiles(values, bin_values, bin_edges, percentile):
             distribution = values[(bin_values > bin_l) & (bin_values < bin_h)]
             percentiles_binned[i] = np.percentile(distribution, percentile)
             print(percentiles_binned[i])
-            err_percentiles_binned[i] = percentiles_binned[i] / np.sqrt(len(distribution))
+            err_percentiles_binned[i] = percentiles_binned[i] / np.sqrt(
+                len(distribution)
+            )
         except IndexError:
             pass
     return percentiles_binned.T, err_percentiles_binned.T
@@ -37,18 +43,25 @@ def plot_hist(ax, data, edges, norm=False, yerr=False, hist_kwargs=None, error_k
 
     centers = 0.5 * (edges[1:] + edges[:-1])
     width = edges[1:] - edges[:-1]
-    ax.bar(centers, data * weights, width=width, yerr=yerr, error_kw=error_kw, **hist_kwargs)
+    ax.bar(
+        centers,
+        data * weights,
+        width=width,
+        yerr=yerr,
+        error_kw=error_kw,
+        **hist_kwargs
+    )
 
     return ax
 
 
 def save_obj(obj, name):
     """Save object in binary"""
-    with gzip.open(name, 'wb') as f:
+    with gzip.open(name, "wb") as f:
         pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
 
 
 def load_obj(name):
     """Load object in binary"""
-    with gzip.open(name, 'rb') as f:
+    with gzip.open(name, "rb") as f:
         return pickle.load(f)

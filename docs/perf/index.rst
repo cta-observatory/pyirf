@@ -1,11 +1,12 @@
 .. _perf:
 
-====
+****
 perf
-====
+****
 
 Introduction
 ============
+
 The perf module contains classes that are used to estimate the performance of the
 instrument. There are tools to handle the determination of the best-cutoffs
 to separate gamma and the background (protons + electrons), to produce the
@@ -22,116 +23,12 @@ The point-like source sensitivity is estimated with the gammapy_
 library. We describe below how to estimate the performance of the instruments
 and we describe in details how it is done.
 
-How to?
-=======
-In order to estimate performance, you need lists of events at the
-DL2 level, e.g. events with a minimal number of information:
-
- * Direction
- * True energy
- * Reconstructed energy
- * Score/gammaness
-
-Three different tables of events, in HDF5_ format, are needed in order to estimate
-the performance of the instruments:
-
- * Gamma-rays, considered as signal
- * Protons, considered as a source of diffuse background
- * Electrons, considered as a source of diffuse background
-
-A single script called `make_performance.py` is used to estimate the performance:
-
-.. code-block:: bash
-
-    >$ ./make_performance.py --help
-    usage: make_performance.py [-h] --config_file CONFIG_FILE [--wave | --tail]
-
-An example configuration file is shown below with some comments:
-
-.. code-block:: yaml
-
-    general:
-     # Directory with input data file
-     indir: '/Users/julien/Documents/WorkingDir/Tools/python/protopipe/ana/prod_full_array_north_zen20_az0_complete/output/dl2/'
-     # Template name for input file
-     template_input_file: 'dl2_{}_{}_merged.h5'  # will be filled with mode and particle type
-     # Directory for output files
-     outdir: '/Users/julien/Documents/WorkingDir/Tools/python/protopipe/ana/prod_full_array_north_zen20_az0_complete/output/perf_mult3/'
-     # Output table name
-     output_table_name: 'table_best_cutoff'
-
-    analysis:
-     # Additional cut on data
-     cut_on_data: 'NTels_reco >= 3'
-     # Theta square cut optimisation (opti, fixed, r68)
-     thsq_opt:
-      type: 'r68'
-      value: 0.2  # In degree, necessary for type fixed
-     # Normalisation between ON and OFF regions
-     alpha: 0.2
-     # Observation time to estimate best cuts corresponding to best sensitivity
-     obs_time:
-      value: 50
-      unit: 'h'
-     min_sigma: 5  # minimal number of sigma
-     min_excess: 10  # minimal number of excess events (nsig > min_excess)
-     bkg_syst: 0.05  # percentage of bkg sytematics (nsig > bkg_syst * n_bkg)
-     # Binning in reco energy (bkg rate, migration matrix)
-     ereco_binning:  # TeV
-      emin: 0.012589254
-      emax: 199.52623
-      nbin: 21
-     # Binning for true energy (eff area, migration matrix, PSF)
-     etrue_binning:  # TeV
-      emin: 0.019952623
-      emax: 199.52623
-      nbin: 42
-
-    # Information about simulation. In the future, everything should be store
-    # in the input files (as meta data and as histogram)
-    particle_information:
-     # Simulated gamma-rays
-     gamma:
-      n_events_per_file: 1000000  #  number of files, 10**5 * 10
-      e_min: 0.003  # energy min in TeV
-      e_max: 330  # energy max in TeV
-      gen_radius: 1400  # maximal impact parameter in meter
-      diff_cone: 0  # diffuse cone, 0 or point-like, in degree
-      gen_gamma: 2  # spectral index for input spectra
-     # Simulated protons
-     proton:
-      n_events_per_file: 4000000  #  number of files, 2 * 10**5 * 20
-      e_min: 0.004  # energy min in TeV
-      e_max: 600  # energy max in TeV
-      gen_radius: 1900  # maximal impact parameter in meter
-      diff_cone: 10  # diffuse cone, 0 or point-like, in degree
-      gen_gamma: 2  # spectral index for input spectra
-      offset_cut: 1.  # maximum offset to consider particles
-     # Simulated electrons
-     electron:
-      n_events_per_file: 2000000  #  number of files, 10**5 * 20
-      e_min: 0.003  # energy min in TeV
-      e_max: 330  # energy max in TeV
-      gen_radius: 1900  # maximal impact parameter in meter
-      diff_cone: 10  # diffuse cone, 0 or point-like, in degree
-      gen_gamma: 2  # spectral index for input spectra
-      offset_cut: 1.  # maximum offset to consider particles
-
-    column_definition:
-     # Column name for true energy
-     mc_energy: 'mc_energy'
-     # Column name for reconstructed energy
-     reco_energy: 'reco_energy'
-     # Column name for the angular distance in the camera between the true
-     # position and the reconstructed position
-     angular_distance_to_the_src: 'xi'
-     # Column name for classification output
-     classification_output:
-      name: 'gammaness'
-      range: [0, 1]  # needed to bin data and for diagnostic plots
+Operations performed on the input DL2 data
+==========================================
 
 Best cutoffs determination
-=================================
+--------------------------
+
 The criteria to determine the best cut off which has been use up to now
 is to obtain the minimal flux with a :math:`5\sigma` detection
 in a given observation time for a Crab-like source template.
@@ -145,6 +42,7 @@ classes.
 
 Weighting of events
 -------------------
+
 The simulations are generated with a given spectral index, typically of 2 to get
 high statistics at high energy. We thus need to flatten the spectral distribution
 of the particle and then correct it to match reality. This is done
@@ -176,6 +74,7 @@ measurements <https://arxiv.org/abs/astro-ph/0407118>`_.
 
 Best cutoffs
 ------------
+
 Since the gamma/hadron separation power vary a lot with energy, the
 best cutoffs to separate the gamma-rays and the background will be determined for
 different bins in reconstructed energy. Those energy intervals are typically
@@ -224,8 +123,9 @@ optimisation for each energy bin such as, the minimal and maximal energy range o
 the bin, the best cutoff, the best angular cut, with the corresponding excess,
 background, etc.
 
-Cutoffs application
--------------------
+Application of the cutoffs
+--------------------------
+
 A dedicated class, called `CutsApplicator`, is in charge to apply the cuts
 to the different event lists. Each event will be flagged according to the
 different cuts it will pass, e.g. score/gammaness and angular cuts.
@@ -233,6 +133,7 @@ The output tables will be further processed when the user will generate IRFs.
 
 Diagnostics
 -----------
+
 Several diagnostic plots are generated during the procedure.
 For each energy bin both the efficiencies and the rates as a function
 of the score/gammaness, as well as characteristics of the bin, are automatically
@@ -242,13 +143,21 @@ reconstructed energy in order to control the optimisation procedure
 (e.g. background free regions, evolution of background efficiencies
 with the angular cut, etc.).
 
-Responses of the instrument
-===========================
+.. todo::
+
+  Move diagnostics to benchmarking.
+
+Description of the output
+=========================
 
 The instrument response functions characterise the performance of the instrument.
-In addition, there are needed to estimate the sensitivity of the array.
+In addition it is needed to estimate the sensitivity of the array.
 A proposition for the CTA IRF data format is available
 `here <https://gamma-astro-data-formats.readthedocs.io/>`_.
+
+Instrument Response Functions (IRFs)
+------------------------------------
+
 The IRF are stored as an HDU (Header Data Unit) list in a FITS
 (Flexible Image Transport System) file.
 Up to now we only considered analyses built with ON-axis gamma-ray simulations
@@ -259,11 +168,9 @@ Except for the migration matrix for which we hacked a bit the generation of the
 EnergyDispersion object, since it expects offset axes, everything goes pretty
 much smoothly.
 
-Responses
----------
-
 Effective area
 ^^^^^^^^^^^^^^
+
 The collection area, which is proportional to the gamma-ray efficiency
 of detection, is computed as a function of the true energy. The events which
 are considered are the one passing the threshold of the best cutoff plus
@@ -271,6 +178,7 @@ the angular cuts.
 
 Energy migration matrix
 ^^^^^^^^^^^^^^^^^^^^^^^
+
 The migration matrix, ratio of the reconstructed energy over the true energy
 as a function of the true energy, is computed with the events passing the
 threshold of the best cutoff plus the angular cuts.
@@ -280,6 +188,7 @@ I guess that Gammapy_ should be able to reaf IRF with single offset.
 
 Background
 ^^^^^^^^^^
+
 The question to consider whether the bakground is an IRF or not. Since here it
 is needed to estimate the sensitivity of the instrument we consider it is included
 in the IRFs.
@@ -290,6 +199,7 @@ the best cutoff and the angular cuts.
 
 Point spread function
 ^^^^^^^^^^^^^^^^^^^^^
+
 Here we do not really need the PSF to compute the sensitivity, since the angular
 cuts are already applied to the effective area, the energy migration matrix
 and the background.
@@ -304,14 +214,21 @@ there are multiple solutions
 
 Angular cut values
 ^^^^^^^^^^^^^^^^^^
+
 To be implemented: `<https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/point_like/index.html>`_
 
 Sensitivity
 -----------
+
 The sensitivity is computed with the Gammapy software.
 
 What could be improved?
 =======================
+
+.. todo::
+
+  Move this to GitHub issues and update it
+
  * `Data format for IRFs <https://gamma-astro-data-formats.readthedocs.io/>`_
  * Propagation and reading SIMTEL informations (meta-data, histograms)
    directly in the DL2
@@ -321,7 +238,7 @@ What could be improved?
 Reference/API
 =============
 
-.. automodapi::
+.. automodapi:: pyirf.perf
    :no-inheritance-diagram:
 
 .. _HDF5: https://www.hdfgroup.org/solutions/hdf5/

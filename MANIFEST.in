@@ -1,5 +1,7 @@
 include README.rst
 
+include pyirf/resources/*.yml
+
 recursive-include pyirf/resources
 recursive-include pyirf/scripts/*.py
 

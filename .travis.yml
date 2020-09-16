@@ -36,8 +36,7 @@ install:
     - python setup.py install
 
 script:
-    # - pytest --cov=protopipe
-    # - travis-sphinx -v --outdir=docs/_build build -n --source=docs/
+    - pytest --cov=pyirf
 
 after_script:
     - if [[ "$CONDA" == "true" ]];then
@@ -45,5 +44,4 @@ after_script:
       fi
 
 after_success:
-    # - travis-sphinx -v --outdir=docs/_build deploy
-    # - codecov
+    - codecov
