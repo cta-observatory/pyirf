@@ -1,7 +1,7 @@
 from tables import open_file
 import numpy as np
 from ctapipe.io import HDF5TableReader
-from ctapipe.io.containers import MCHeaderContainer
+from ctapipe.containers import MCHeaderContainer
 import yaml
 import pkg_resources
 import os

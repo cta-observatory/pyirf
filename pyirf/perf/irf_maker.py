@@ -5,6 +5,7 @@ from astropy.table import Table, Column
 from astropy.io import fits
 import pandas as pd
 
+
 from gammapy.utils.nddata import NDDataArray #, BinnedDataAxis
 from gammapy.maps import MapAxis
 from gammapy.maps.utils import edges_from_lo_hi
@@ -603,6 +604,7 @@ class IrfMaker(object):
         matrix["MATRIX"].format = str(dim_matrix) + "E"
         hdu = IrfMaker._make_edisp_hdu(table_energy, table_migra, table_theta, matrix)
 
+#        import IPython;IPython.embed()
         return hdu
 
     @classmethod
@@ -638,7 +640,7 @@ class IrfMaker(object):
         header['HDUCLAS4'] = 'AEFF_2D', ''
         header['TELESCOP'] = 'CTA', ''
         header['INSTRUME'] = 'LST-1', ''
-        
+
         aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
 
         primary_hdu = fits.PrimaryHDU()
