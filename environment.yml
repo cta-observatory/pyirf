@@ -4,6 +4,7 @@ name: pyirf-dev
 channels:
   - default
 dependencies:
+  - python=3.7
   - astropy
   - numpy
   - ipython
@@ -12,6 +13,13 @@ dependencies:
   - pytest
   - scipy
   - setuptools
+  # docs
+  - numpydoc
   - sphinx
   - sphinx_rtd_theme
   - pip
+  - pip:
+      - rinohtype
+      - nbsphinx
+      - gammapy~=0.8.0
+      - sphinx_automodapi

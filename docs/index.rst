@@ -52,10 +52,19 @@ which this documentation is linked.
   :caption: Structure
   :maxdepth: 1
 
+  spectral
+  binning
   io/index
   resources/index
   perf/index
   scripts/index
+
+
+Reference/API
+-------------
+
+.. automodapi:: pyirf
+   :no-inheritance-diagram:
 
 Indices and tables
 ==================
@@ -63,3 +72,4 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+

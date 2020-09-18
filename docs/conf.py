@@ -40,10 +40,9 @@ master_doc = "index"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "rinoh.frontend.sphinx",
-    "sphinx_automodapi.automodapi",
-    "sphinx.ext.autodoc",
     "numpydoc",
+    "nbsphinx",
+    "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
@@ -55,8 +54,6 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
-    "nbsphinx",
-    "IPython.sphinxext.ipython_console_highlighting",
 ]
 
 # nbsphinx
@@ -79,7 +76,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
     "github_user": "cta-observatory",

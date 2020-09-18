@@ -15,5 +15,16 @@ setup(
         "pandas",
         "scipy",
         "tables",
+        "gammapy~=0.8.0",
     ],
+    extras_require={
+        'docs': [
+            'rinohtype',
+            'sphinx',
+            'sphinx_rtd_theme',
+            'sphinx_automodapi',
+            'numpydoc',
+            'nbsphinx'
+        ]
+    }
 )

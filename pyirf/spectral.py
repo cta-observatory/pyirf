@@ -135,8 +135,8 @@ PDG_ALL_PARTICLE = PowerLaw(
     e_ref=1 * u.GeV,
 )
 
-# From "Description of CTA Instrument Response Functions (Production 3b Simulation)"
-# section 4.3.1
+#: Proton spectrum definition defined in the CTA Prod3b IRF Document
+#: From "Description of CTA Instrument Response Functions (Production 3b Simulation), section 4.3.1
 IRFDOC_PROTON_SPECTRUM = PowerLaw(
     flux_normalization=9.8e-6 / (u.cm**2 * u.s * u.TeV * u.sr),
     spectral_index=-2.62,
