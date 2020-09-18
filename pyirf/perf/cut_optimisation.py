@@ -50,7 +50,7 @@ class CutsApplicator:
         for particle in self.evt_dict.keys():
             data = self.apply_cuts_on_data(self.evt_dict[particle].copy(), debug)
             data.to_hdf(
-                os.path.join(self.outdir, "{}_processed.h5".format(particle)),
+                os.path.join(self.outdir, f"{particle}_processed.h5"),
                 key="dl2",
                 mode="w",
             )
@@ -499,7 +499,7 @@ class CutsOptimisation:
         for ibin in range(len(energy_values) - 1):
             emin = energy_values[ibin]
             emax = energy_values[ibin + 1]
-            print(" ==> {}) Working in E=[{:.3f},{:.3f}]".format(ibin, emin, emax))
+            print(f" ==> {ibin}) Working in E=[{emin:.3f},{emax:.3f}]")
 
             # OLDER PANDAS EQUIVALENT FROM PROTOPIPE
 
@@ -552,7 +552,7 @@ class CutsOptimisation:
             # Loop on angular cut
             for th_cut in theta_to_loop_on:
                 if self.verbose_level > 0:
-                    print("- Theta={:.2f}".format(th_cut))
+                    print(f"- Theta={th_cut:.2f}")
 
                 # Select gamma-rays in ON region
 
@@ -626,8 +626,8 @@ class CutsOptimisation:
             key_list = []
             for key in results_th_cut_dict:
                 key_list.append(key)
-                flux_list.append((results_th_cut_dict[key]["result"]["min_flux"]))
-                eff_sig.append((results_th_cut_dict[key]["result"]["eff_sig"]))
+                flux_list.append(results_th_cut_dict[key]["result"]["min_flux"])
+                eff_sig.append(results_th_cut_dict[key]["result"]["eff_sig"])
                 th.append(results_th_cut_dict[key]["th_cut"])
 
             # In case of equal min fluxes, take the one with bigger sig efficiency
@@ -804,11 +804,11 @@ class CutsOptimisation:
 
     @classmethod
     def _get_energy_key(cls, emin, emax):
-        return "{:.3f}-{:.3f}TeV".format(emin, emax)
+        return f"{emin:.3f}-{emax:.3f}TeV"
 
     @classmethod
     def _get_angular_key(cls, ang):
-        return "{:.3f}deg".format(ang)
+        return f"{ang:.3f}deg"
 
     def get_binned_data(self, g, p, e, nbins=100, score_range=[-1, 1]):
         """Returns binned data as a dictionnary"""
