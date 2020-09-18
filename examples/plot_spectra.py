@@ -16,7 +16,7 @@ from pyirf.spectral import (
 cr_spectra = {
     'PDG All Particle Spectrum': PDG_ALL_PARTICLE,
     'ATIC Proton Fit (from IRF Document)': IRFDOC_PROTON_SPECTRUM,
-    'Electron Spectrum (from IRFall  Document)': IRFDOC_ELECTRON_SPECTRUM,
+    'Electron Spectrum (from IRF Document)': IRFDOC_ELECTRON_SPECTRUM,
 }
 
 

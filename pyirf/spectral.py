@@ -108,7 +108,7 @@ class PowerLawWithExponentialGaussian(PowerLaw):
         power = super().__call__(energy)
         log10_e = np.log10(energy / self.e_ref)
         gauss = norm.pdf(log10_e, self.mu, self.sigma)
-        return power * (1 + self.f * gauss)
+        return power * (1 + self.f * (np.exp(gauss) - 1))
 
 
 # From "The Crab Nebula and Pulsar between 500 GeV and 80 TeV: Observations with the HEGRA stereoscopic air Cherenkov telescopes",
