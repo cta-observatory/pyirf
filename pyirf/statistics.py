@@ -3,8 +3,7 @@ import numpy as np
 
 def li_ma_significance(n_on, n_off, alpha=0.2):
     '''
-    Calculate the Li & Ma significance for given
-    observations data.
+    Calculate the Li & Ma significance.
 
     Formula (17) doi.org/10.1086/161295
 
@@ -20,6 +19,11 @@ def li_ma_significance(n_on, n_off, alpha=0.2):
         Number of events for the off observations
     alpha: float
         Ratio between the on region and the off region size or obstime.
+
+    Returns
+    -------
+    s_lima: float or array
+        The calculated significance
     '''
 
     scalar = np.isscalar(n_on)
