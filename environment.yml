@@ -1,32 +1,17 @@
 # A conda environment with all useful package for ctapipe developers
-name: pyirf
+name: pyirf-dev
+
 channels:
   - default
-  - cta-observatory
 dependencies:
-  - ctapipe==0.7
   - astropy
-  - conda-forge::nbsphinx
-  - cython
+  - numpy
   - ipython
-  - joblib
   - jupyter
-  - gammapy=0.8
   - matplotlib
-  - nbsphinx
-  - numba
-  - numpy>=1.15.4
-  - numpydoc
-  - pandas
-  - pytables
   - pytest
-  - pyyaml
   - scipy
   - setuptools
   - sphinx
-  - sphinx-automodapi
   - sphinx_rtd_theme
   - pip
-  - pip:
-    - rinohtype
-    - ctaplot

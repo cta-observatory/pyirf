@@ -7,17 +7,13 @@ with open("pyirf/version.py") as f:
 setup(
     version=__version__,
     packages=find_packages(),
-    package_data={"pyirf": ["resources/config.yml"]},
     include_package_data=True,
     install_requires=[
-        "astropy",
-        "ctaplot~=0.5.0",
-        "gammapy==0.8",
+        "astropy~=4.0",
         "matplotlib",
-        "numpy",
+        "numpy>=1.18",
         "pandas",
         "scipy",
         "tables",
-        "ctapipe==0.7",
     ],
 )
