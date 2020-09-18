@@ -105,7 +105,7 @@ class PowerLawWithExponentialGaussian(PowerLaw):
 
     @u.quantity_input(energy=u.TeV)
     def __call__(self, energy):
-        power = super()(energy)
+        power = super().__call__(energy)
         log10_e = np.log10(energy / self.e_ref)
         gauss = norm.pdf(log10_e, self.mu, self.sigma)
         return power * (1 + self.f * gauss)
@@ -121,7 +121,7 @@ CRAB_HEGRA = PowerLaw(
 )
 
 # From "Measurement of the Crab Nebula spectrum over three decades in energy with the MAGIC telescopes",
-#Aleksìc et al., 2015, JHEAP
+# Aleksìc et al., 2015, JHEAP
 # https://doi.org/10.1016/j.jheap.2015.01.002
 CRAB_MAGIC_JHEAP2015 = LogParabola(
     flux_normalization=3.23e-11 / (u.TeV * u.cm**2 * u.s),
@@ -129,8 +129,11 @@ CRAB_MAGIC_JHEAP2015 = LogParabola(
     b=-0.24,
 )
 
+
+# (30.2) from "The Review of Particle Physics (2020)"
+# https://pdg.lbl.gov/2020/reviews/rpp2020-rev-cosmic-rays.pdf
 PDG_ALL_PARTICLE = PowerLaw(
-    flux_normalization=1.8e4 * FLUX_UNIT,
+    flux_normalization=1.8e4 / (u.GeV * u.m**2 * u.s * u.sr),
     spectral_index=-2.7,
     e_ref=1 * u.GeV,
 )
