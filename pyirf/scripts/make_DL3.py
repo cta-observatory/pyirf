@@ -211,10 +211,10 @@ def main():
     thsq_opt_type = cfg["analysis"]["thsq_opt"]["type"]
     if thsq_opt_type == "fixed":
         thsq_values = np.array([cfg["analysis"]["thsq_opt"]["value"]]) * u.deg
-        print("Using fixed theta cut: {}".format(thsq_values))
+        print(f"Using fixed theta cut: {thsq_values}")
     elif thsq_opt_type == "opti":
         thsq_values = np.arange(0.05, 0.40, 0.01) * u.deg
-        print("Optimising theta cut for: {}".format(thsq_values))
+        print(f"Optimising theta cut for: {thsq_values}")
     elif thsq_opt_type == "r68":
         print("Using R68% theta cut")
         print("Computing...")
@@ -275,7 +275,7 @@ def main():
         # Set 0.05 as a lower value
         idx = np.where(thsq_values.value < 0.05)
         thsq_values[idx] = 0.05 * u.deg
-        print("Using theta cut: {}".format(thsq_values))
+        print(f"Using theta cut: {thsq_values}")
 
     # Cuts optimisation
     print("### Finding best cuts...")

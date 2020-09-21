@@ -162,7 +162,7 @@ def main(args):
         # Set 0.05 as a lower value
         idx = np.where(thsq_values.value < 0.05)
         thsq_values[idx] = 0.05 * u.deg
-        print('Using theta cut: {}'.format(thsq_values))
+        print(f'Using theta cut: {thsq_values}')
 
     # Cuts optimisation
     print('### Finding best cuts...')
