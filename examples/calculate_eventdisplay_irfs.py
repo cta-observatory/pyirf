@@ -9,6 +9,7 @@ from astropy.coordinates.angle_utilities import angular_separation
 from pyirf.io.eventdisplay import read_eventdisplay_fits
 from pyirf.binning import create_bins_per_decade, add_overflow_bins, calculate_bin_indices, create_histogram_table
 from pyirf.sensitiviy import calculate_sensitivity
+from pyirf.cuts import is_selected
 import numpy as np
 from astropy import table
 
@@ -58,17 +59,21 @@ def main():
             tab['reco_energy'], bins_e_reco
         )
 
-    theta_cut = np.percentile(particles['gamma']['events']['theta'], 68)
-    print(f'Using theta cut: {theta_cut.to(u.deg):.2f}')
-    gh_cut = 0.0
+    cuts = {
+        'theta': {
+            'operator': 'le',
+            'cut_values': np.percentile(particles['gamma']['events']['theta'], 68),
+        },
+        'gh_score': {
+            'operator': 'ge',
+            'cut_values': 0.0,
+        }
+    }
+    print("Using the cuts:", cuts)
 
     for k, p in particles.items():
         tab = p['events']
-        tab['selected'] = (
-            (tab['gh_score'] > gh_cut)
-            & (tab['theta'] < theta_cut)
-        )
-
+        tab['selected'] = is_selected(tab, cuts, tab['bin_reco_energy'])
         print(f'Remaining {k}s: {np.count_nonzero(tab["selected"])} of {len(tab)}')
 
     gammas = particles['gamma']['events']
