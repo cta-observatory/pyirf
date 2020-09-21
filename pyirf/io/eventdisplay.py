@@ -30,9 +30,9 @@ def read_eventdisplay_fits(infile):
     simulated_events: ``~pyirf.simulations.SimulatedEventsInfo``
 
     """
-    events_table = QTable.read(infile, format='fits', hdu='EVENTS')
-    sim_events = QTable.read(infile, format='fits', hdu='SIMULATED EVENTS')
-    run_header = QTable.read(infile, format='fits', hdu='RUNHEADER')[0]
+    events_table = QTable.read(infile, hdu='EVENTS')
+    sim_events = QTable.read(infile, hdu='SIMULATED EVENTS')
+    run_header = QTable.read(infile, hdu='RUNHEADER')[0]
 
     events = QTable({
         new: events_table[old]
