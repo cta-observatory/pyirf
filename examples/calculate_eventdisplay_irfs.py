@@ -9,11 +9,13 @@ from pyirf.io.eventdisplay import read_eventdisplay_fits
 
 from pyirf.spectral import PowerLaw, CRAB_HEGRA, IRFDOC_PROTON_SPECTRUM, calculate_event_weights
 
+T_OBS = 50 * u.hour
+
 
 def main():
     # read gammas
     gammas, gamma_info = read_eventdisplay_fits('data/gamma_onSource.S.3HB9-FD_ID0.eff-0.fits')
-    simulated_spectrum = PowerLaw.from_simulation(gamma_info, 50 * u.hour)
+    simulated_spectrum = PowerLaw.from_simulation(gamma_info, T_OBS)
     gammas['weight'] = calculate_event_weights(
         true_energy=gammas['true_energy'],
         target_spectrum=CRAB_HEGRA,
@@ -22,7 +24,7 @@ def main():
 
     # read protons
     protons, proton_info = read_eventdisplay_fits('data/proton_onSource.S.3HB9-FD_ID0.eff-0.fits')
-    simulated_spectrum = PowerLaw.from_simulation(proton_info, 50 * u.hour)
+    simulated_spectrum = PowerLaw.from_simulation(proton_info, T_OBS)
     protons['weight'] = calculate_event_weights(
         true_energy=protons['true_energy'],
         target_spectrum=IRFDOC_PROTON_SPECTRUM,

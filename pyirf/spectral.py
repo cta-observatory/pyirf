@@ -107,7 +107,11 @@ class PowerLawWithExponentialGaussian(PowerLaw):
     def __call__(self, energy):
         power = super().__call__(energy)
         log10_e = np.log10(energy / self.e_ref)
-        gauss = norm.pdf(log10_e, self.mu, self.sigma)
+        # ROOT's TMath::Gauss does not add the normalization
+        # this is missing from the IRFDocs
+        # the code used for the plot can be found here:
+        # https://gitlab.cta-observatory.org/cta-consortium/aswg/irfs-macros/cosmic-rays-spectra/-/blob/master/electron_spectrum.C#L508
+        gauss = np.exp(-0.5 * ((log10_e - self.mu) / self.sigma)**2)
         return power * (1 + self.f * (np.exp(gauss) - 1))
 
 
