@@ -603,7 +603,7 @@ class IrfMaker(object):
         for i in np.arange(len(theta_lo)):
             for j in np.arange(len(etrue)-1):
                 extended_mig_matrix[i][:,j]/=extended_mig_matrix[i].sum(axis=0)[j]
-        
+
         matrix = Table([extended_mig_matrix], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
         matrix["MATRIX"].format = str(dim_matrix) + "E"
@@ -648,10 +648,7 @@ class IrfMaker(object):
 
         aeff_hdu = fits.BinTableHDU(table, header, name='EFFECTIVE AREA')
 
-        primary_hdu = fits.PrimaryHDU()
-        hdulist = fits.HDUList([primary_hdu, aeff_hdu])
-
-        return hdulist
+        return aeff_hdu
 
     @classmethod
     def _make_edisp_hdu(cls, table_energy, table_migra, table_theta, matrix):
@@ -681,7 +678,4 @@ class IrfMaker(object):
 
         edisp_hdu = fits.BinTableHDU(table, header, name='ENERGY DISPERSION')
 
-        primary_hdu = fits.PrimaryHDU()
-        hdulist = fits.HDUList([primary_hdu, edisp_hdu])
-
-        return hdulist
+        return edisp_hdu
