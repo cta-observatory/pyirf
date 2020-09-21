@@ -10,38 +10,46 @@ from pyirf.io.eventdisplay import read_eventdisplay_fits
 from pyirf.binning import create_bins_per_decade, add_overflow_bins, calculate_bin_indices, create_histogram_table
 from pyirf.sensitiviy import calculate_sensitivity
 import numpy as np
+from astropy import table
 
-from pyirf.spectral import PowerLaw, CRAB_HEGRA, IRFDOC_PROTON_SPECTRUM, calculate_event_weights
+from pyirf.spectral import PowerLaw, CRAB_HEGRA, IRFDOC_PROTON_SPECTRUM, calculate_event_weights, IRFDOC_ELECTRON_SPECTRUM
 
 T_OBS = 50 * u.hour
 
 
+particles = {
+    'gamma': {
+        'file': 'data/gamma_onSource.S.3HB9-FD_ID0.eff-0.fits',
+        'target_spectrum': CRAB_HEGRA,
+    },
+    'proton': {
+        'file': 'data/proton_onSource.S.3HB9-FD_ID0.eff-0.fits',
+        'target_spectrum': IRFDOC_PROTON_SPECTRUM,
+    },
+    'electron': {
+        'file': 'data/electron_onSource.S.3HB9-FD_ID0.eff-0.fits',
+        'target_spectrum': IRFDOC_ELECTRON_SPECTRUM,
+    },
+}
+
+
 def main():
-    # read gammas
-    gammas, gamma_info = read_eventdisplay_fits('data/gamma_onSource.S.3HB9-FD_ID0.eff-0.fits')
-    simulated_spectrum = PowerLaw.from_simulation(gamma_info, T_OBS)
-    gammas['weight'] = calculate_event_weights(
-        true_energy=gammas['true_energy'],
-        target_spectrum=CRAB_HEGRA,
-        simulated_spectrum=simulated_spectrum,
-    )
-
-
-    # read protons
-    protons, proton_info = read_eventdisplay_fits('data/proton_onSource.S.3HB9-FD_ID0.eff-0.fits')
-    simulated_spectrum = PowerLaw.from_simulation(proton_info, T_OBS)
-    protons['weight'] = calculate_event_weights(
-        true_energy=protons['true_energy'],
-        target_spectrum=IRFDOC_PROTON_SPECTRUM,
-        simulated_spectrum=simulated_spectrum,
-    )
+    for p in particles.values():
+        p['events'], p['simulation_info'] = read_eventdisplay_fits(p['file'])
+        p['simulated_spectrum'] = PowerLaw.from_simulation(p['simulation_info'], T_OBS)
+        p['events']['weight'] = calculate_event_weights(
+            p['events']['true_energy'], p['target_spectrum'], p['simulated_spectrum']
+        )
 
     # sensitivity binning
-    bins_e_reco = add_overflow_bins(create_bins_per_decade(1e-2 * u.TeV, 200 * u.TeV, 5))
+    bins_e_reco = add_overflow_bins(create_bins_per_decade(
+        10**-1.9 * u.TeV, 10**2.31 * u.TeV, bins_per_decade=5
+    ))
 
     # calculate theta (angular distance from source pos to reco pos)
 
-    for tab in (gammas, protons):
+    for p in particles.values():
+        tab = p['events']
         tab['theta'] = angular_separation(
             tab['true_az'], tab['true_alt'],
             tab['reco_az'], tab['reco_alt'],
@@ -50,23 +58,36 @@ def main():
             tab['reco_energy'], bins_e_reco
         )
 
-    theta_cut = np.percentile(gammas['theta'], 68)
+    theta_cut = np.percentile(particles['gamma']['events']['theta'], 68)
     print(f'Using theta cut: {theta_cut.to(u.deg):.2f}')
     gh_cut = 0.0
 
-    for tab in (gammas, protons):
-        tab['selected'] = (tab['gh_score'] > gh_cut) & (tab['theta'] < theta_cut)
+    for k, p in particles.items():
+        tab = p['events']
+        tab['selected'] = (
+            (tab['gh_score'] > gh_cut)
+            & (tab['theta'] < theta_cut)
+        )
 
-    print(f'Remaining gammas: {np.count_nonzero(gammas["selected"])} of {len(gammas)}')
-    print(f'Remaining protons: {np.count_nonzero(protons["selected"])} of {len(protons)}')
+        print(f'Remaining {k}s: {np.count_nonzero(tab["selected"])} of {len(tab)}')
 
-    signal = create_histogram_table(gammas[gammas['selected']], bins_e_reco, 'reco_energy')
-    background = create_histogram_table(protons[protons['selected']], bins_e_reco, 'reco_energy')
+    gammas = particles['gamma']['events']
+    signal = gammas[gammas['selected']]
+    signal_hist = create_histogram_table(signal, bins_e_reco, 'reco_energy')
 
-    sensitivity = calculate_sensitivity(signal, background, 1, T_OBS)
+    background = table.vstack([
+        particles['proton']['events'],
+        particles['electron']['events']
+    ])
+    background_hist = create_histogram_table(
+        background[background['selected']], bins_e_reco, 'reco_energy'
+    )
+
+    sensitivity = calculate_sensitivity(signal_hist, background_hist, 1, T_OBS)
     sensitivity['flux_sensitivity'] = sensitivity['relative_sensitivity'] * CRAB_HEGRA(sensitivity['reco_energy_center'])
 
-    print(sensitivity)
+    sensitivity.meta['EXTNAME'] = 'SENSITIVITY'
+    sensitivity.write('sensitivity.fits', overwrite=True)
 
     # calculate sensitivity for best cuts
 
