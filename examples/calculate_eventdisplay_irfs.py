@@ -62,9 +62,11 @@ def main():
 
     signal = create_histogram_table(gammas[gammas['selected']], bins_e_reco, 'reco_energy')
     background = create_histogram_table(protons[protons['selected']], bins_e_reco, 'reco_energy')
-    print(signal)
 
-    print(calculate_sensitivity(signal, background, 1, T_OBS))
+    sensitivity = calculate_sensitivity(signal, background, 1, T_OBS)
+    sensitivity['flux_sensitivity'] = sensitivity['relative_sensitivity'] * CRAB_HEGRA(sensitivity['reco_energy_center'])
+
+    print(sensitivity)
 
     # calculate sensitivity for best cuts
 
