@@ -8,7 +8,7 @@ import astropy.units as u
 from astropy.coordinates.angle_utilities import angular_separation
 from pyirf.io.eventdisplay import read_eventdisplay_fits
 from pyirf.binning import create_bins_per_decade, add_overflow_bins, calculate_bin_indices, create_histogram_table
-from pyirf.sensitiviy import calculate_sensitivity
+from pyirf.sensitivity import calculate_sensitivity
 from pyirf.cuts import is_selected
 import numpy as np
 from astropy import table
