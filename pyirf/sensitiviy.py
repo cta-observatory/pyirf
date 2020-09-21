@@ -107,11 +107,18 @@ def calculate_sensitivity(
     initial_guess=0.5,
 ):
     assert len(signal) == len(background)
-    assert np.all(signal['reco_energy_low'] == background['reco_energy_low'])
 
     sensitivity = QTable()
-    sensitivity['reco_energy_low'] = signal['reco_energy_low']
-    sensitivity['reco_energy_high'] = signal['reco_energy_high']
+
+    # check binning information and add to output
+    for k in ('low', 'center', 'high'):
+        k = 'reco_energy_' + k
+        if not np.all(signal[k] == background[k]):
+            raise ValueError('Binning for signal and background must be equal')
+
+        sensitivity[k] = signal[k]
+
+    # add event number information
     sensitivity['n_signal'] = signal['n']
     sensitivity['n_signal_weighted'] = signal['n_weighted']
     sensitivity['n_background'] = background['n']
