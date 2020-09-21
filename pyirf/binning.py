@@ -4,6 +4,7 @@ Utility functions for binning
 
 import numpy as np
 import astropy.units as u
+from astropy.table import QTable
 
 
 def add_overflow_bins(bins, positive=True):
@@ -92,3 +93,13 @@ def calculate_bin_indices(data, bins):
         bins = bins.to_value(unit)
 
     return np.digitize(data, bins) - 1
+
+
+def create_histogram_table(events, bins, key='reco_energy'):
+    hist = QTable()
+    hist[key + '_low'] = bins[:-1]
+    hist[key + '_high'] = bins[1:]
+    hist[key + '_center'] = 0.5 * (hist[key + '_low'] + hist[key + '_high'])
+    hist['n'], _ = np.histogram(events[key], bins)
+    hist['n_weighted'], _ = np.histogram(events[key], bins, weights=events['weight'])
+    return hist

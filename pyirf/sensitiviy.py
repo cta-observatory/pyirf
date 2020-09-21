@@ -2,6 +2,7 @@ import astropy.units as u
 import numpy as np
 from scipy.optimize import newton
 import warnings
+from astropy.table import QTable
 
 
 from .statistics import li_ma_significance
@@ -88,18 +89,42 @@ def relative_sensitivity(
         warnings.warn('Could not calculate relative significance, returning nan')
         return np.nan
 
+    if result.size == 1:
+        return result[0]
+
     return result
 
 
-# make the function accept numpy arrays for n_on, n_off, 
-# so we can provide all energy bins
-relative_sensitivity = np.vectorize(
-    relative_sensitivity,
-    excluded=[
-        't_obs',
-        't_ref',
-        'alpha',
-        'target_significance',
-        'significance_function',
+@u.quantity_input(t_obs=u.hour, t_ref=u.hour)
+def calculate_sensitivity(
+    signal,
+    background,
+    alpha,
+    t_obs,
+    t_ref=u.Quantity(50, u.hour),
+    target_significance=5,
+    significance_function=li_ma_significance,
+    initial_guess=0.5,
+):
+    assert len(signal) == len(background)
+    assert np.all(signal['reco_energy_low'] == background['reco_energy_low'])
+
+    sensitivity = QTable()
+    sensitivity['reco_energy_low'] = signal['reco_energy_low']
+    sensitivity['reco_energy_high'] = signal['reco_energy_high']
+    sensitivity['n_signal'] = signal['n']
+    sensitivity['n_signal_weighted'] = signal['n_weighted']
+    sensitivity['n_background'] = background['n']
+    sensitivity['n_background_weighted'] = background['n_weighted']
+
+    sensitivity['relative_sensitivity'] = [
+        relative_sensitivity(
+            n_on=n_signal + alpha * n_background,
+            n_off=n_background,
+            alpha=1.0,
+            t_obs=t_obs,
+        )
+        for n_signal, n_background in zip(signal['n_weighted'], background['n_weighted'])
     ]
-)
+
+    return sensitivity

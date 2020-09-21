@@ -60,7 +60,6 @@ if __name__ == '__main__':
     plt.xlabel(r'$E \,\,/\,\, \mathrm{TeV}$')
     plt.ylabel(rf'$E^2 \cdot \Phi \,\,/\,\,$ ({unit.to_string("latex")})')
 
-
     energy = np.geomspace(0.006, 10, 1000) * u.TeV
     plt.figure(constrained_layout=True)
     plt.title('Electron Flux')
@@ -74,7 +73,6 @@ if __name__ == '__main__':
 
     plt.legend()
     plt.xscale('log')
-    # plt.yscale('log')
     plt.xlim(5e-3, 10)
     plt.ylim(1e-5, 0.25e-3)
     plt.xlabel(r'$E \,\,/\,\, \mathrm{TeV}$')
