@@ -7,4 +7,5 @@ python:
       path: .
       extra_requirements:
         - docs
+        - tests
   system_packages: false
