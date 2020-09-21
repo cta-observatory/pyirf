@@ -599,6 +599,13 @@ class IrfMaker(object):
                     * len(table_migra["MIGRA_LO"])
                     * len(table_theta["THETA_LO"])
         )
+        #Normalize the matrix for each true energy bin
+
+        for i in np.arange(len(theta_lo)):
+            for j in np.arange(len(etrue)-1):
+                extended_mig_matrix[i][:,j]/=extended_mig_matrix[i].sum(axis=0)[j]
+        
+
         matrix = Table([extended_mig_matrix], names=["MATRIX"])
         matrix["MATRIX"].unit = u.Unit("")
         matrix["MATRIX"].format = str(dim_matrix) + "E"
