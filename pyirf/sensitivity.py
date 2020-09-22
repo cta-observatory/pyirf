@@ -1,11 +1,13 @@
 import astropy.units as u
 import numpy as np
-from scipy.optimize import newton
-import warnings
+from scipy.optimize import brentq
 from astropy.table import QTable
-
+import logging
 
 from .statistics import li_ma_significance
+
+
+log = logging.getLogger(__name__)
 
 
 @u.quantity_input(t_obs=u.hour, t_ref=u.hour)
@@ -59,7 +61,6 @@ def relative_sensitivity(
     initial_guess: float
         Initial guess for the root finder
     '''
-
     ratio = (t_ref / t_obs).to(u.one)
     n_on = n_on * ratio
     n_off = n_off * ratio
@@ -78,19 +79,26 @@ def relative_sensitivity(
 
     def equation(relative_flux):
         n_on = n_signal * relative_flux + n_background
-        return significance_function(n_on, n_off, alpha) - target_significance
+        s = significance_function(n_on, n_off, alpha)
+        return s - target_significance
 
     try:
-        result = newton(
+        # brentq needs a lower and an upper bound
+        # lower can be trivially set to zero, but the upper bound is more tricky
+        # we will use the simple, analytically  solvable significance formula and scale it
+        # with 10 to be sure it's above the Li and Ma solution
+        # so rel * n_signal / sqrt(n_background) = target_significance
+        upper_bound =  10 * target_significance * np.sqrt(n_background) / n_signal
+        result = brentq(
             equation,
-            x0=initial_guess,
+            0, upper_bound,
         )
-    except RuntimeError:
-        warnings.warn('Could not calculate relative significance, returning nan')
+    except (RuntimeError, ValueError):
+        log.warn(
+            'Could not calculate relative significance for'
+            f' n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan'
+        )
         return np.nan
-
-    if result.size == 1:
-        return result[0]
 
     return result
 
