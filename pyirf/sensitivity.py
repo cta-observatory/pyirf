@@ -17,7 +17,7 @@ def relative_sensitivity(
     t_ref=u.Quantity(50, u.hour),
     target_significance=5,
     significance_function=li_ma_significance,
-    initial_guess=0.5,
+    initial_guess=0.01,
 ):
     '''
     Calculate the relative sensitivity defined as the flux
@@ -60,7 +60,7 @@ def relative_sensitivity(
         Initial guess for the root finder
     '''
 
-    ratio = (t_ref / t_obs).si
+    ratio = (t_ref / t_obs).to(u.one)
     n_on = n_on * ratio
     n_off = n_off * ratio
 
