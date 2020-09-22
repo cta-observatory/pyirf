@@ -33,6 +33,11 @@ log = logging.getLogger('pyirf')
 
 T_OBS = 50 * u.hour
 
+# scaling between on and off region.
+# Make off region 5 times larger than on region for better
+# background statistics
+ALPHA = 0.2
+
 
 particles = {
     'gamma': {
@@ -48,6 +53,13 @@ particles = {
         'target_spectrum': IRFDOC_ELECTRON_SPECTRUM,
     },
 }
+
+
+def get_bg_cuts(cuts, alpha):
+    '''Rescale the cut values to enlarge the background region'''
+    cuts = cuts.copy()
+    cuts['cut'] /= np.sqrt(alpha)
+    return cuts
 
 
 def main():
@@ -75,6 +87,11 @@ def main():
         )
 
     gammas = particles['gamma']['events']
+    # background table composed of both electrons and protons
+    background = table.vstack([
+        particles['proton']['events'],
+        particles['electron']['events']
+    ])
 
     gh_cut = 0.0
     log.info(f'Using fixed G/H cut of {gh_cut} to calculate theta cuts')
@@ -100,20 +117,11 @@ def main():
     )
 
     # evaluate the theta cut
-    for p in particles.values():
-        tab = p['events']
-        tab['selected_theta'] = evaluate_binned_cut(
-            tab['theta'],
-            tab['reco_energy'],
-            theta_cuts,
-            operator.le,
-        )
-
-    # background table composed of both electrons and protons
-    background = table.vstack([
-        particles['proton']['events'],
-        particles['electron']['events']
-    ])
+    gammas['selected_theta'] = evaluate_binned_cut(gammas['theta'], gammas['reco_energy'], theta_cuts, operator.le)
+    # we make the background region larger by a factor of ALPHA,
+    # so the radius by sqrt(ALPHA) to get better statistics for the background
+    theta_cuts_bg = get_bg_cuts(theta_cuts, ALPHA)
+    background['selected_theta'] = evaluate_binned_cut(background['theta'], background['reco_energy'], theta_cuts_bg, operator.le)
 
     # same bins as event display uses
     sensitivity_bins = add_overflow_bins(create_bins_per_decade(
@@ -127,6 +135,7 @@ def main():
         bins=sensitivity_bins,
         cut_values=np.arange(-1.0, 1.005, 0.05),
         op=operator.ge,
+        alpha=ALPHA,
     )
 
     # now that we have the optimized gh cuts, we recalculate the theta
@@ -141,14 +150,16 @@ def main():
         min_value=0.05 * u.deg,
     )
 
-    for tab in (gammas, background):
-        tab['selected_theta'] = evaluate_binned_cut(tab['theta'], tab['reco_energy'], theta_cuts_opt, operator.le)
+    theta_cuts_opt_bg = get_bg_cuts(theta_cuts_opt, ALPHA)
+
+    for tab, cuts in zip([gammas, background], [theta_cuts_opt, theta_cuts_opt_bg]):
+        tab['selected_theta'] = evaluate_binned_cut(tab['theta'], tab['reco_energy'], cuts, operator.le)
         tab['selected'] = tab['selected_theta'] & tab['selected_gh']
 
     signal_hist = create_histogram_table(gammas[gammas['selected']], bins=sensitivity_bins)
     background_hist = create_histogram_table(background[background['selected']], bins=sensitivity_bins)
 
-    sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=1, t_obs=T_OBS)
+    sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=ALPHA, t_obs=T_OBS)
 
     # scale relative sensitivity by Crab flux to get the flux sensitivity
     for s in (sensitivity_step_2, sensitivity):
