@@ -86,6 +86,9 @@ class LogParabola:
         e = (energy / self.e_ref).to_value(u.one)
         return self.flux_normalization * e**(self.a + self.b * np.log10(e))
 
+    def __repr__(self):
+        return f'{self.__class__.__name__}({self.flux_normalization} * (E / {self.e_ref})**({self.a} + {self.b} * log10(E / {self.e_ref}))'
+
 
 class PowerLawWithExponentialGaussian(PowerLaw):
 
