@@ -16,7 +16,7 @@ COLUMN_MAP = {
     'true_energy': 'MC_ENERGY',
     'reco_energy': 'ENERGY',
     'true_alt': 'MC_ALT',
-    'true_az': 'AZ',
+    'true_az': 'MC_AZ',
     'reco_alt': 'ALT',
     'reco_az': 'AZ',
     'gh_score': 'GH_MVA',
