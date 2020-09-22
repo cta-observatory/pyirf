@@ -97,40 +97,40 @@ def relative_sensitivity(
 
 @u.quantity_input(t_obs=u.hour, t_ref=u.hour)
 def calculate_sensitivity(
-    signal,
-    background,
+    signal_hist,
+    background_hist,
     alpha,
     t_obs,
     t_ref=u.Quantity(50, u.hour),
     target_significance=5,
     significance_function=li_ma_significance,
 ):
-    assert len(signal) == len(background)
+    assert len(signal_hist) == len(background_hist)
 
     sensitivity = QTable()
 
     # check binning information and add to output
     for k in ('low', 'center', 'high'):
         k = 'reco_energy_' + k
-        if not np.all(signal[k] == background[k]):
-            raise ValueError('Binning for signal and background must be equal')
+        if not np.all(signal_hist[k] == background_hist[k]):
+            raise ValueError('Binning for signal_hist and background_hist must be equal')
 
-        sensitivity[k] = signal[k]
+        sensitivity[k] = signal_hist[k]
 
     # add event number information
-    sensitivity['n_signal'] = signal['n']
-    sensitivity['n_signal_weighted'] = signal['n_weighted']
-    sensitivity['n_background'] = background['n']
-    sensitivity['n_background_weighted'] = background['n_weighted']
+    sensitivity['n_signal'] = signal_hist['n']
+    sensitivity['n_signal_weighted'] = signal_hist['n_weighted']
+    sensitivity['n_background'] = background_hist['n']
+    sensitivity['n_background_weighted'] = background_hist['n_weighted']
 
     sensitivity['relative_sensitivity'] = [
         relative_sensitivity(
-            n_on=n_signal + alpha * n_background,
-            n_off=n_background,
+            n_on=n_signal_hist + alpha * n_background_hist,
+            n_off=n_background_hist,
             alpha=1.0,
             t_obs=t_obs,
         )
-        for n_signal, n_background in zip(signal['n_weighted'], background['n_weighted'])
+        for n_signal_hist, n_background_hist in zip(signal_hist['n_weighted'], background_hist['n_weighted'])
     ]
 
     # safety checks

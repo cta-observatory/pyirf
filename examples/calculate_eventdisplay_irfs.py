@@ -10,12 +10,13 @@ import operator
 import numpy as np
 from astropy import table
 import astropy.units as u
+from astropy.io import fits
 from astropy.coordinates.angle_utilities import angular_separation
 
 from pyirf.io.eventdisplay import read_eventdisplay_fits
-from pyirf.binning import create_bins_per_decade, add_overflow_bins
+from pyirf.binning import create_bins_per_decade, add_overflow_bins, create_histogram_table
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
-from astropy.io import fits
+from pyirf.sensitivity import calculate_sensitivity
 
 from pyirf.spectral import (
     calculate_event_weights,
@@ -83,7 +84,7 @@ def main():
     theta_bins = add_overflow_bins(create_bins_per_decade(
         10**(-1.9) * u.TeV,
         10**2.3005 * u.TeV,
-        100,
+        50,
     ))
 
     # theta cut is 68 percent containmente of the gammas
@@ -118,7 +119,9 @@ def main():
     sensitivity_bins = add_overflow_bins(create_bins_per_decade(
         10**-1.9 * u.TeV, 10**2.31 * u.TeV, bins_per_decade=5
     ))
-    sensitivity, gh_cuts = optimize_gh_cut(
+
+    log.info('Optimizing G/H separation cut for best sensitivity')
+    sensitivity_step_2, gh_cuts = optimize_gh_cut(
         gammas[gammas['selected_theta']],
         background[background['selected_theta']],
         bins=sensitivity_bins,
@@ -126,7 +129,30 @@ def main():
         op=operator.ge,
     )
 
-    sensitivity['flux_sensitivity'] = sensitivity['relative_sensitivity'] * CRAB_HEGRA(sensitivity['reco_energy_center'])
+    # now that we have the optimized gh cuts, we recalculate the theta
+    # cut as 68 percent containment on the events surviving these cuts.
+    for tab in (gammas, background):
+        tab['selected_gh'] = evaluate_binned_cut(tab['gh_score'], tab['reco_energy'], gh_cuts, operator.ge)
+
+    theta_cuts_opt = calculate_percentile_cut(
+        gammas['theta'], gammas['reco_energy'], theta_bins,
+        fill_value=np.nan * u.deg,
+        percentile=68,
+        min_value=0.05 * u.deg,
+    )
+
+    for tab in (gammas, background):
+        tab['selected_theta'] = evaluate_binned_cut(tab['theta'], tab['reco_energy'], theta_cuts_opt, operator.le)
+        tab['selected'] = tab['selected_theta'] & tab['selected_gh']
+
+    signal_hist = create_histogram_table(gammas[gammas['selected']], bins=sensitivity_bins)
+    background_hist = create_histogram_table(background[background['selected']], bins=sensitivity_bins)
+
+    sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=1, t_obs=T_OBS)
+
+    # scale relative sensitivity by Crab flux to get the flux sensitivity
+    for s in (sensitivity_step_2, sensitivity):
+        s['flux_sensitivity'] = s['relative_sensitivity'] * CRAB_HEGRA(s['reco_energy_center'])
 
     # calculate IRFs for the best cuts
 
@@ -134,7 +160,9 @@ def main():
     hdus = [
         fits.PrimaryHDU(),
         fits.BinTableHDU(sensitivity, name='SENSITIVITY'),
+        fits.BinTableHDU(sensitivity_step_2, name='SENSITIVITY_STEP_2'),
         fits.BinTableHDU(theta_cuts, name='THETA_CUTS'),
+        fits.BinTableHDU(theta_cuts_opt, name='THETA_CUTS_OPT'),
         fits.BinTableHDU(gh_cuts, name='GH_CUTS'),
     ]
     fits.HDUList(hdus).writeto('sensitivity.fits.gz', overwrite=True)
