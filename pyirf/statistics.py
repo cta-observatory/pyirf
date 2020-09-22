@@ -1,5 +1,7 @@
 import numpy as np
 
+from .utils import is_scalar
+
 
 def li_ma_significance(n_on, n_off, alpha=0.2):
     '''
@@ -26,7 +28,7 @@ def li_ma_significance(n_on, n_off, alpha=0.2):
         The calculated significance
     '''
 
-    scalar = np.isscalar(n_on)
+    scalar = is_scalar(n_on)
 
     n_on = np.array(n_on, copy=False, ndmin=1)
     n_off = np.array(n_off, copy=False, ndmin=1)
