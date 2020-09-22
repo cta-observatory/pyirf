@@ -104,7 +104,6 @@ def calculate_sensitivity(
     t_ref=u.Quantity(50, u.hour),
     target_significance=5,
     significance_function=li_ma_significance,
-    initial_guess=0.5,
 ):
     assert len(signal) == len(background)
 
@@ -133,5 +132,12 @@ def calculate_sensitivity(
         )
         for n_signal, n_background in zip(signal['n_weighted'], background['n_weighted'])
     ]
+
+    # safety checks
+    invalid = (
+        (sensitivity['n_signal_weighted'] < 10) |
+        (sensitivity['n_signal_weighted'] < 0.05 * sensitivity['n_background_weighted'])
+    )
+    sensitivity['relative_sensitivity'][invalid] = np.nan
 
     return sensitivity

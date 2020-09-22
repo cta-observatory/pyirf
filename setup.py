@@ -30,6 +30,7 @@ setup(
         "numpy>=1.18",
         "pandas",
         "scipy",
+        "tqdm",
         "tables",
         "gammapy~=0.8.0",
     ],

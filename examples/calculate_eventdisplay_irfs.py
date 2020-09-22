@@ -13,15 +13,24 @@ import astropy.units as u
 from astropy.coordinates.angle_utilities import angular_separation
 
 from pyirf.io.eventdisplay import read_eventdisplay_fits
-from pyirf.binning import create_bins_per_decade, add_overflow_bins, calculate_bin_indices, create_histogram_table
-from pyirf.sensitivity import calculate_sensitivity
+from pyirf.binning import create_bins_per_decade, add_overflow_bins
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
+from astropy.io import fits
 
-from pyirf.spectral import PowerLaw, CRAB_HEGRA, IRFDOC_PROTON_SPECTRUM, calculate_event_weights, IRFDOC_ELECTRON_SPECTRUM
+from pyirf.spectral import (
+    calculate_event_weights,
+    PowerLaw,
+    CRAB_HEGRA,
+    IRFDOC_PROTON_SPECTRUM,
+    IRFDOC_ELECTRON_SPECTRUM,
+)
+from pyirf.cut_optimization import optimize_gh_cut
+
+
+log = logging.getLogger('pyirf')
+
 
 T_OBS = 50 * u.hour
-
-
 
 
 particles = {
@@ -44,6 +53,7 @@ def main():
     logging.basicConfig(level=logging.DEBUG)
 
     for k, p in particles.items():
+        log.info(f'Simulated {k.title()} Events:')
 
         p['events'], p['simulation_info'] = read_eventdisplay_fits(p['file'])
         p['simulated_spectrum'] = PowerLaw.from_simulation(p['simulation_info'], T_OBS)
@@ -51,14 +61,8 @@ def main():
             p['events']['true_energy'], p['target_spectrum'], p['simulated_spectrum']
         )
 
-        print(f'Simulated {k.title()} Events:')
-        print(p['simulation_info'])
-        print()
-
-    # sensitivity binning
-    bins_e_reco = add_overflow_bins(create_bins_per_decade(
-        10**-1.9 * u.TeV, 10**2.31 * u.TeV, bins_per_decade=5
-    ))
+        log.info(p['simulation_info'])
+        log.info('')
 
     # calculate theta (angular distance from source pos to reco pos)
 
@@ -68,11 +72,11 @@ def main():
             tab['true_az'], tab['true_alt'],
             tab['reco_az'], tab['reco_alt'],
         )
-        tab['bin_reco_energy'] = calculate_bin_indices(
-            tab['reco_energy'], bins_e_reco
-        )
 
     gammas = particles['gamma']['events']
+
+    gh_cut = 0.0
+    log.info(f'Using fixed G/H cut of {gh_cut} to calculate theta cuts')
 
     # event display uses much finer bins for the theta cut than
     # for the sensitivity
@@ -82,21 +86,19 @@ def main():
         100,
     ))
 
+    # theta cut is 68 percent containmente of the gammas
+    # for now with a fixed global, unoptimized score cut
+    mask_theta_cuts = gammas['gh_score'] >= gh_cut
     theta_cuts = calculate_percentile_cut(
-        gammas['theta'],
-        gammas['reco_energy'],
+        gammas['theta'][mask_theta_cuts],
+        gammas['reco_energy'][mask_theta_cuts],
         bins=theta_bins,
         min_value=0.05 * u.deg,
         fill_value=np.nan * u.deg,
         percentile=68,
     )
-    theta_cuts.meta['EXTNAME'] = 'THETACUTS'
-    theta_cuts.write('theta_cuts.fits', overwrite=True)
 
-    # get cut with fixed efficiency of 40% events left
-    gh_cut = np.percentile(gammas['gh_score'], 60)
-    print(f'Using fixed G/H cut of {gh_cut}')
-
+    # evaluate the theta cut
     for p in particles.values():
         tab = p['events']
         tab['selected_theta'] = evaluate_binned_cut(
@@ -106,32 +108,36 @@ def main():
             operator.le,
         )
 
-        tab['selected_gh'] = tab['gh_score'] > gh_cut
-
-        tab['selected'] = tab['selected_gh'] & tab['selected_theta']
-
-    signal = gammas[gammas['selected']]
+    # background table composed of both electrons and protons
     background = table.vstack([
         particles['proton']['events'],
         particles['electron']['events']
     ])
 
-    signal_hist = create_histogram_table(signal, bins_e_reco, 'reco_energy')
-    background_hist = create_histogram_table(
-        background[background['selected']], bins_e_reco, 'reco_energy'
+    # same bins as event display uses
+    sensitivity_bins = add_overflow_bins(create_bins_per_decade(
+        10**-1.9 * u.TeV, 10**2.31 * u.TeV, bins_per_decade=5
+    ))
+    sensitivity, gh_cuts = optimize_gh_cut(
+        gammas[gammas['selected_theta']],
+        background[background['selected_theta']],
+        bins=sensitivity_bins,
+        cut_values=np.arange(-1.0, 1.005, 0.05),
+        op=operator.ge,
     )
 
-    sensitivity = calculate_sensitivity(signal_hist, background_hist, 1, T_OBS)
     sensitivity['flux_sensitivity'] = sensitivity['relative_sensitivity'] * CRAB_HEGRA(sensitivity['reco_energy_center'])
-
-    sensitivity.meta['EXTNAME'] = 'SENSITIVITY'
-    sensitivity.write('sensitivity.fits', overwrite=True)
-
-    # calculate sensitivity for best cuts
 
     # calculate IRFs for the best cuts
 
     # write OGADF output file
+    hdus = [
+        fits.PrimaryHDU(),
+        fits.BinTableHDU(sensitivity, name='SENSITIVITY'),
+        fits.BinTableHDU(theta_cuts, name='THETA_CUTS'),
+        fits.BinTableHDU(gh_cuts, name='GH_CUTS'),
+    ]
+    fits.HDUList(hdus).writeto('sensitivity.fits.gz', overwrite=True)
 
 
 if __name__ == '__main__':
