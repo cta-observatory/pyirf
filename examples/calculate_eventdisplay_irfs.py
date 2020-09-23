@@ -17,8 +17,7 @@ from pyirf.binning import create_bins_per_decade, add_overflow_bins, create_hist
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
 from pyirf.sensitivity import calculate_sensitivity
 from pyirf.utils import calculate_theta
-from pyirf.irf import point_like_effective_area, point_like_energy_dispersion
-from pyirf.benchmarks import energy_bias_resolution
+from pyirf.benchmarks import energy_bias_resolution, angular_resolution
 
 from pyirf.spectral import (
     calculate_event_weights,
@@ -28,6 +27,12 @@ from pyirf.spectral import (
     IRFDOC_ELECTRON_SPECTRUM,
 )
 from pyirf.cut_optimization import optimize_gh_cut
+
+from pyirf.irf import (
+    point_like_effective_area,
+    point_like_energy_dispersion,
+    psf_table,
+)
 
 
 log = logging.getLogger('pyirf')
@@ -203,7 +208,20 @@ def main():
         gammas[gammas['selected']],
         true_energy_bins,
     )
+    ang_res = angular_resolution(
+        gammas[gammas['selected_gh']],
+        true_energy_bins,
+    )
 
+    psf = psf_table(
+        gammas[gammas['selected']],
+        true_energy_bins,
+        np.arange(0, 1, 5e-4) * u.deg,
+        [0, 0.1] * u.deg,
+    )
+
+    hdus.append(fits.BinTableHDU(psf, name='PSF'))
+    hdus.append(fits.BinTableHDU(ang_res, name='ANGULAR_RESOLUTION'))
     hdus.append(fits.BinTableHDU(bias_resolution, name='ENERGY_BIAS_RESOLUTION'))
     fits.HDUList(hdus).writeto('pyirf_eventdisplay.fits.gz', overwrite=True)
 
