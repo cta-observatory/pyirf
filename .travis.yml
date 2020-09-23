@@ -36,12 +36,14 @@ install:
   - conda env create -f environment.yml
   - conda activate pyirf-dev
   - pip install travis-sphinx codecov pytest-cov
-  - pip install .
+  - pip install .[all]
   - python --version
 
 script:
   - pytest --cov=pyirf
   - python examples/calculate_eventdisplay_irfs.py
+  - cd notebooks
+  - jupyter nbconvert --to notebook --execute comparison_with_EventDisplay.ipynb
 
 after_script:
   - if [[ "$CONDA" == "true" ]];then

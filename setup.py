@@ -15,6 +15,7 @@ extras_require = {
     ],
     'tests': [
         'pytest',
+        'uproot',
     ],
 }
 
