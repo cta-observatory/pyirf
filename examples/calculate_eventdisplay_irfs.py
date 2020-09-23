@@ -17,6 +17,7 @@ from pyirf.binning import create_bins_per_decade, add_overflow_bins, create_hist
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
 from pyirf.sensitivity import calculate_sensitivity
 from pyirf.utils import calculate_theta
+from pyirf.irf import point_like_effective_area
 
 from pyirf.spectral import (
     calculate_event_weights,
@@ -129,7 +130,7 @@ def main():
         gammas[gammas['selected_theta']],
         background[background['selected_theta']],
         bins=sensitivity_bins,
-        cut_values=np.arange(-1.0, 1.005, 0.05),
+        cut_values=np.arange(-1.0, 1.005, 0.2),
         op=operator.ge,
         alpha=ALPHA,
     )
@@ -162,6 +163,9 @@ def main():
         s['flux_sensitivity'] = s['relative_sensitivity'] * CRAB_HEGRA(s['reco_energy_center'])
 
     # calculate IRFs for the best cuts
+    true_e_bins_eff_area = add_overflow_bins(create_bins_per_decade(
+        10**-1.9 * u.TeV, 10**2.31 * u.TeV, 10,
+    ))
 
     # write OGADF output file
     hdus = [
@@ -172,6 +176,21 @@ def main():
         fits.BinTableHDU(theta_cuts_opt, name='THETA_CUTS_OPT'),
         fits.BinTableHDU(gh_cuts, name='GH_CUTS'),
     ]
+
+    masks = {
+        'EFFECTIVE_AREA_NO_CUTS': slice(None),
+        'EFFECTIVE_AREA_ONLY_GH': gammas['selected_gh'],
+        'EFFECTIVE_AREA_ONLY_THETA': gammas['selected_theta'],
+        'EFFECTIVE_AREA': gammas['selected']
+    }
+    for extname, mask in masks.items():
+        effective_area = point_like_effective_area(
+            gammas[mask],
+            particles['gamma']['simulation_info'],
+            true_energy_bins=true_e_bins_eff_area,
+        )
+        hdus.append(fits.BinTableHDU(effective_area, name=extname))
+
     fits.HDUList(hdus).writeto('sensitivity.fits.gz', overwrite=True)
 
 

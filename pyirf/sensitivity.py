@@ -5,6 +5,7 @@ from astropy.table import QTable
 import logging
 
 from .statistics import li_ma_significance
+from .utils import check_histograms
 
 
 log = logging.getLogger(__name__)
@@ -115,14 +116,10 @@ def calculate_sensitivity(
 ):
     assert len(signal_hist) == len(background_hist)
 
+    check_histograms(signal_hist, background_hist)
     sensitivity = QTable()
-
-    # check binning information and add to output
-    for k in ('low', 'center', 'high'):
-        k = 'reco_energy_' + k
-        if not np.all(signal_hist[k] == background_hist[k]):
-            raise ValueError('Binning for signal_hist and background_hist must be equal')
-
+    for key in ('low', 'high', 'center'):
+        k = 'reco_energy_' + key
         sensitivity[k] = signal_hist[k]
 
     # add event number information

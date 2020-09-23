@@ -15,3 +15,24 @@ def calculate_theta(events):
     )
 
     return theta.to(u.deg)
+
+
+def check_histograms(hist1, hist2, key='reco_energy'):
+    '''
+    Check if two histogram tables have the same binning
+
+    Parameters
+    ----------
+    hist1: ``~astropy.table.Table``
+        First histogram table, as created by ``~pyirf.binning.create_histogram_table``
+    hist2: ``~astropy.table.Table``
+        Second histogram table
+    '''
+
+    # check binning information and add to output
+    for k in ('low', 'center', 'high'):
+        k = key + '_' + k
+        if not np.all(hist1[k] == hist2[k]):
+            raise ValueError(
+                'Binning for signal_hist and background_hist must be equal'
+            )
