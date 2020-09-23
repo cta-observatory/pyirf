@@ -20,6 +20,9 @@ matrix:
         - CONDA=true
 
 before_install:
+  - curl -Lo data.zip https://nextcloud.e5.physik.tu-dortmund.de/index.php/s/Cstsf8MWZjnz92L/download
+  - unzip data.zip
+  - mv eventdisplay_dl2 data
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - . $HOME/miniconda/etc/profile.d/conda.sh
@@ -38,6 +41,7 @@ install:
 
 script:
   - pytest --cov=pyirf
+  - python examples/calculate_eventdisplay_irfs.py
 
 after_script:
   - if [[ "$CONDA" == "true" ]];then
