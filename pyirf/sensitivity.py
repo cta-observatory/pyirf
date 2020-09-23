@@ -135,7 +135,7 @@ def calculate_sensitivity(
         relative_sensitivity(
             n_on=n_signal_hist + alpha * n_background_hist,
             n_off=n_background_hist,
-            alpha=1.0,
+            alpha=alpha,
             t_obs=t_obs,
         )
         for n_signal_hist, n_background_hist in zip(signal_hist['n_weighted'], background_hist['n_weighted'])
