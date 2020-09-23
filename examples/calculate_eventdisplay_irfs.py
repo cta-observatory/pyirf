@@ -18,6 +18,7 @@ from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
 from pyirf.sensitivity import calculate_sensitivity
 from pyirf.utils import calculate_theta
 from pyirf.irf import point_like_effective_area, point_like_energy_dispersion
+from pyirf.benchmarks import energy_bias_resolution
 
 from pyirf.spectral import (
     calculate_event_weights,
@@ -198,7 +199,13 @@ def main():
         hdus.append(fits.BinTableHDU(effective_area, name='EFFECTIVE_AREA' + extname))
         hdus.append(fits.BinTableHDU(edisp, name='EDISP' + extname))
 
-    fits.HDUList(hdus).writeto('sensitivity.fits.gz', overwrite=True)
+    bias_resolution = energy_bias_resolution(
+        gammas[gammas['selected']],
+        true_energy_bins,
+    )
+
+    hdus.append(fits.BinTableHDU(bias_resolution, name='ENERGY_BIAS_RESOLUTION'))
+    fits.HDUList(hdus).writeto('pyirf_eventdisplay.fits.gz', overwrite=True)
 
 
 if __name__ == '__main__':
