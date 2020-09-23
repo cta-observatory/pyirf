@@ -11,12 +11,12 @@ import numpy as np
 from astropy import table
 import astropy.units as u
 from astropy.io import fits
-from astropy.coordinates.angle_utilities import angular_separation
 
 from pyirf.io.eventdisplay import read_eventdisplay_fits
 from pyirf.binning import create_bins_per_decade, add_overflow_bins, create_histogram_table
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
 from pyirf.sensitivity import calculate_sensitivity
+from pyirf.utils import calculate_theta
 
 from pyirf.spectral import (
     calculate_event_weights,
@@ -36,7 +36,10 @@ T_OBS = 50 * u.hour
 # scaling between on and off region.
 # Make off region 5 times larger than on region for better
 # background statistics
-ALPHA = 0.2
+ALPHA = 0.1
+
+# gh cut used for first calculation of the binned theta cuts
+INITIAL_GH_CUT = 0.0
 
 
 particles = {
@@ -74,17 +77,11 @@ def main():
             p['events']['true_energy'], p['target_spectrum'], p['simulated_spectrum']
         )
 
+        # calculate theta / distance between reco and true source pos
+        p['events']['theta'] = calculate_theta(p['events'])
+
         log.info(p['simulation_info'])
         log.info('')
-
-    # calculate theta (angular distance from source pos to reco pos)
-
-    for p in particles.values():
-        tab = p['events']
-        tab['theta'] = angular_separation(
-            tab['true_az'], tab['true_alt'],
-            tab['reco_az'], tab['reco_alt'],
-        )
 
     gammas = particles['gamma']['events']
     # background table composed of both electrons and protons
@@ -93,8 +90,7 @@ def main():
         particles['electron']['events']
     ])
 
-    gh_cut = 0.0
-    log.info(f'Using fixed G/H cut of {gh_cut} to calculate theta cuts')
+    log.info(f'Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts')
 
     # event display uses much finer bins for the theta cut than
     # for the sensitivity
@@ -106,7 +102,7 @@ def main():
 
     # theta cut is 68 percent containmente of the gammas
     # for now with a fixed global, unoptimized score cut
-    mask_theta_cuts = gammas['gh_score'] >= gh_cut
+    mask_theta_cuts = gammas['gh_score'] >= INITIAL_GH_CUT
     theta_cuts = calculate_percentile_cut(
         gammas['theta'][mask_theta_cuts],
         gammas['reco_energy'][mask_theta_cuts],
