@@ -17,7 +17,7 @@ from pyirf.binning import create_bins_per_decade, add_overflow_bins, create_hist
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
 from pyirf.sensitivity import calculate_sensitivity
 from pyirf.utils import calculate_theta
-from pyirf.irf import point_like_effective_area
+from pyirf.irf import point_like_effective_area, point_like_energy_dispersion
 
 from pyirf.spectral import (
     calculate_event_weights,
@@ -162,10 +162,6 @@ def main():
     for s in (sensitivity_step_2, sensitivity):
         s['flux_sensitivity'] = s['relative_sensitivity'] * CRAB_HEGRA(s['reco_energy_center'])
 
-    # calculate IRFs for the best cuts
-    true_e_bins_eff_area = add_overflow_bins(create_bins_per_decade(
-        10**-1.9 * u.TeV, 10**2.31 * u.TeV, 10,
-    ))
 
     # write OGADF output file
     hdus = [
@@ -178,18 +174,29 @@ def main():
     ]
 
     masks = {
-        'EFFECTIVE_AREA_NO_CUTS': slice(None),
-        'EFFECTIVE_AREA_ONLY_GH': gammas['selected_gh'],
-        'EFFECTIVE_AREA_ONLY_THETA': gammas['selected_theta'],
-        'EFFECTIVE_AREA': gammas['selected']
+        '_NO_CUTS': slice(None),
+        '_ONLY_GH': gammas['selected_gh'],
+        '_ONLY_THETA': gammas['selected_theta'],
+        '': gammas['selected']
     }
+    # calculate IRFs for the best cuts
+    true_energy_bins = add_overflow_bins(create_bins_per_decade(
+        10**-1.9 * u.TeV, 10**2.31 * u.TeV, 10,
+    ))
     for extname, mask in masks.items():
         effective_area = point_like_effective_area(
             gammas[mask],
             particles['gamma']['simulation_info'],
-            true_energy_bins=true_e_bins_eff_area,
+            true_energy_bins=true_energy_bins,
         )
-        hdus.append(fits.BinTableHDU(effective_area, name=extname))
+        edisp = point_like_energy_dispersion(
+            gammas[mask],
+            true_energy_bins=true_energy_bins,
+            migration_bins=np.geomspace(0.2, 5, 200),
+            max_theta=np.nanmax(theta_cuts_opt['cut'].max()),
+        )
+        hdus.append(fits.BinTableHDU(effective_area, name='EFFECTIVE_AREA' + extname))
+        hdus.append(fits.BinTableHDU(edisp, name='EDISP' + extname))
 
     fits.HDUList(hdus).writeto('sensitivity.fits.gz', overwrite=True)
 
