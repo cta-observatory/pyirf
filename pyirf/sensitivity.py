@@ -143,8 +143,10 @@ def calculate_sensitivity(
 
     # safety checks
     invalid = (
-        (sensitivity['n_signal_weighted'] < 10) |
-        (sensitivity['n_signal_weighted'] < 0.05 * sensitivity['n_background_weighted'])
+        (sensitivity['n_signal_weighted'] < 10)
+        | (sensitivity['n_signal_weighted'] < (0.05 * alpha * sensitivity['n_background_weighted']))
+        | (sensitivity['n_background'] < 5)
+        | (sensitivity['n_background_weighted'] < 10)
     )
     sensitivity['relative_sensitivity'][invalid] = np.nan
 
