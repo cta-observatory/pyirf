@@ -105,5 +105,10 @@ def create_histogram_table(events, bins, key='reco_energy'):
     hist[key + '_high'] = bins[1:]
     hist[key + '_center'] = 0.5 * (hist[key + '_low'] + hist[key + '_high'])
     hist['n'], _ = np.histogram(events[key], bins)
-    hist['n_weighted'], _ = np.histogram(events[key], bins, weights=events['weight'])
+
+    # also calculate weighted number of events
+    if 'weight' in events.colnames:
+        hist['n_weighted'], _ = np.histogram(
+            events[key], bins, weights=events['weight']
+        )
     return hist

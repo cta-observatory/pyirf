@@ -4,7 +4,7 @@ from ..binning import create_histogram_table
 
 
 @u.quantity_input(area=u.m**2)
-def effective_area(selected_n, simulated_n, area):
+def effective_area(n_selected, n_simulated, area):
     '''
     Calculate effective area for histograms of selected and total simulated events
 
@@ -17,7 +17,7 @@ def effective_area(selected_n, simulated_n, area):
     area: ``~astropy.units.Quantity``[area]
         Area in which particle's core position was simulated
     '''
-    return (selected_n / simulated_n) * area
+    return (n_selected / n_simulated) * area
 
 
 def point_like_effective_area(selected_events, simulation_info, true_energy_bins):

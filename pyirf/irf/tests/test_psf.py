@@ -7,9 +7,10 @@ def test_psf():
     from pyirf.irf import psf_table
     from pyirf.utils import cone_solid_angle
 
+    np.random.seed(0)
+
     N = 1000
 
-    np.random.seed()
     TRUE_SIGMA_1 = 0.2
     TRUE_SIGMA_2 = 0.1
     TRUE_SIGMA = np.append(np.full(N, TRUE_SIGMA_1), np.full(N, TRUE_SIGMA_2))
