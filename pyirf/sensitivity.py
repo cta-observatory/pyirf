@@ -8,6 +8,12 @@ from .statistics import li_ma_significance
 from .utils import check_histograms
 
 
+__all__ = [
+    'relative_sensitivity',
+    'calculate_sensitivity'
+]
+
+
 log = logging.getLogger(__name__)
 
 

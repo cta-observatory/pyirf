@@ -34,7 +34,7 @@ setup(
         "scipy",
         "tqdm",
         "tables",
-        "gammapy~=0.8.0",
+        "gammapy~=0.17",
     ],
     extras_require=extras_require,
 )

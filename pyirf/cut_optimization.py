@@ -8,14 +8,19 @@ from .sensitivity import calculate_sensitivity
 from .binning import create_histogram_table
 
 
+__all__ = [
+    'optimize_gh_cut',
+]
+
+
 def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progress=True):
     '''
     Optimize the gh-score in every energy bin.
     Theta Squared Cut  should already be applied on the input tables.
     '''
 
-    # we apply each cut for all bins globally, calculate the 
-    # sensitivity and then lookup the best sensitivity for each 
+    # we apply each cut for all bins globally, calculate the
+    # sensitivity and then lookup the best sensitivity for each
     # bin independently
 
     sensitivities = []

@@ -42,15 +42,10 @@ are related to the DL2 data above and replicated for different observing times i
 Launch *pyirf*
 --------------
 
-To create the DL3 data you will need to
+To create the sensitivity and IRFs you will need to
 
-- copy the configuration file in your working directory,
-- modify it according to your setup,
-- launch the ``pyirf.scripts.make_DL3`` script.
+- launch the ``examples/calculate_eventdisplay_irfs.py`` script.
 
-To produce e.g. DL3 data for 50 hours,
-
-``python $PYIRF/pyirf/scripts/make_DL3.py --config_file config.yml --pipeline EventDisplay --obs_time 50.h``
 
 Results
 -------

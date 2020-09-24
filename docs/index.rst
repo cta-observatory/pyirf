@@ -18,10 +18,10 @@ Its main features are currently to,
   * find the best cutoff in gammaness/score, to discriminate between signal
     and background, as well as the angular cut to obtain the best sensitivity
     for a given amount of observation time and a given template for the
-    source of interest (:ref:`perf`)
+    source of interest (:ref:`cut_optimization`)
   * compute the instrument response functions, effective area,
-    point spread function and energy resolution (:ref:`perf`)
-  * estimate the sensitivity of the array (:ref:`perf`),
+    point spread function and energy resolution (:ref:`irf`)
+  * estimate the sensitivity of the array (:ref:`sensitivity`),
 
 with plans to extend its capabilities to reach the requirements of the
 future observatory.
@@ -53,12 +53,14 @@ which this documentation is linked.
   :caption: Structure
   :maxdepth: 1
 
+  irf/index
+  sensitivity
+  benchmarks/index
+  cut_optimization
   spectral
   binning
   io/index
   resources/index
-  perf/index
-  scripts/index
 
 
 Reference/API
