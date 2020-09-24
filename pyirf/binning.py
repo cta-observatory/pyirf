@@ -87,7 +87,11 @@ def calculate_bin_indices(data, bins):
         Indices of the histogram bin the values in data belong to
     '''
 
-    if hasattr(data, 'unit') or hasattr(bins, 'unit'):
+    if hasattr(data, 'unit'):
+        if not hasattr(bins, 'unit'):
+            raise TypeError(
+                f'If ``data`` is a Quantity, so must ``bin``, got {bins}'
+            )
         unit = data.unit
         data = data.to_value(unit)
         bins = bins.to_value(unit)

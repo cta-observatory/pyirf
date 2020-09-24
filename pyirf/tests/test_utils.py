@@ -3,7 +3,7 @@ import astropy.units as u
 
 
 def test_is_scalar():
-    from pyirf.cuts import is_scalar
+    from pyirf.utils import is_scalar
 
     assert is_scalar(1.0)
     assert is_scalar(5 * u.m)

@@ -40,7 +40,7 @@ install:
   - python --version
 
 script:
-  - pytest --cov=pyirf
+  - pytest --cov=pyirf --cov-report=xml
   - python examples/calculate_eventdisplay_irfs.py
   - cd notebooks
   - jupyter nbconvert --to notebook --execute comparison_with_EventDisplay.ipynb

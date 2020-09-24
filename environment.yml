@@ -10,9 +10,11 @@ dependencies:
   - ipython
   - jupyter
   - matplotlib
-  - pytest
   - scipy
   - setuptools
+  # tests
+  - pytest
+  - pytest-cov
   # docs
   - numpydoc
   - sphinx
