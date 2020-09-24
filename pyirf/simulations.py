@@ -43,6 +43,37 @@ class SimulatedEventsInfo:
         if spectral_index > -1:
             raise ValueError('spectral index must be <= -1')
 
+    @u.quantity_input(energy_bins=u.TeV)
+    def calculate_n_showers(self, energy_bins):
+        '''
+        Calculate number of showers that were simulated in the given interval
+
+        Parameters
+        ----------
+        energy_bins: ``~astropy.units.Quantity``[energy]
+            The interval edges for which to calculate the number of simulated showers
+
+        Returns
+        -------
+        n_showers: ``~numpy.ndarray``
+            The expected number of events inside each of the ``energy_bins``.
+            This is a floating point number.
+            The actual numbers will follow a poissionian distribution around this
+            expected value.
+        '''
+        bins = energy_bins.to_value(u.TeV)
+        e_low = bins[:-1]
+        e_high = bins[1:]
+
+        int_index = self.spectral_index + 1
+        e_min = self.energy_min.to_value(u.TeV)
+        e_max = self.energy_max.to_value(u.TeV)
+
+        e_term = e_low**int_index - e_high**int_index
+        normalization = int_index / (e_max**int_index - e_min**int_index)
+
+        return self.n_showers * normalization * e_term
+
     def __repr__(self):
         return (
             f'{self.__class__.__name__}('
