@@ -13,3 +13,16 @@ def test_is_scalar():
     assert not is_scalar([1, 2, 3] * u.m)
     assert not is_scalar(np.ones(5))
     assert not is_scalar(np.ones((3, 4)))
+
+
+def test_cone_solid_angle():
+    from pyirf.utils import cone_solid_angle
+
+    # whole sphere
+    assert u.isclose(cone_solid_angle(np.pi * u.rad), 4 * np.pi * u.sr)
+
+    # half the sphere
+    assert u.isclose(cone_solid_angle(90 * u.deg), 2 * np.pi * u.sr)
+
+    # zero
+    assert u.isclose(cone_solid_angle(0 * u.deg), 0 * u.sr)

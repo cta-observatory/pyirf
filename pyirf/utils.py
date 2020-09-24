@@ -36,3 +36,8 @@ def check_histograms(hist1, hist2, key='reco_energy'):
             raise ValueError(
                 'Binning for signal_hist and background_hist must be equal'
             )
+
+
+def cone_solid_angle(angle):
+    '''Calculate the solid angle of a view cone with opening angle ``angle``.'''
+    return 2 * np.pi * (1 - np.cos(angle)) * u.sr

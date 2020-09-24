@@ -5,6 +5,9 @@ from astropy.table import QTable
 from astropy.coordinates.angle_utilities import angular_separation
 
 
+from ..utils import cone_solid_angle
+
+
 def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
     '''
     Calculate the table based PSF (radially symmetrical bins around the true source)
@@ -47,10 +50,7 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
 
 def _normalize_psf(hist, source_offset_bins):
     '''Normalize the psf histogram to a probability densitity over solid angle'''
-    solid_angle = np.diff(
-        2 * np.pi
-        * (1 - np.cos(source_offset_bins.to_value(u.rad))),
-    ) * u.sr
+    solid_angle = np.diff(cone_solid_angle(source_offset_bins))
 
     # ignore numpy zero division warning
     with np.errstate(invalid='ignore'):
