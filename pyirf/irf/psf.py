@@ -30,6 +30,23 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
         ]
     )
 
+    psf = _normalize_psf(hist, source_offset_bins)
+
+    result = QTable({
+        'true_energy_low': u.Quantity(true_energy_bins[:-1], ndmin=2),
+        'true_energy_high': u.Quantity(true_energy_bins[1:], ndmin=2),
+        'source_offset_low': u.Quantity(source_offset_bins[:-1], ndmin=2),
+        'source_offset_high': u.Quantity(source_offset_bins[1:], ndmin=2),
+        'fov_offset_low': u.Quantity(fov_offset_bins[:-1], ndmin=2),
+        'fov_offset_high': u.Quantity(fov_offset_bins[1:], ndmin=2),
+        'psf': [psf],
+    })
+
+    return result
+
+
+def _normalize_psf(hist, source_offset_bins):
+    '''Normalize the psf histogram to a probability densitity over solid angle'''
     solid_angle = np.diff(
         2 * np.pi
         * (1 - np.cos(source_offset_bins.to_value(u.rad))),
@@ -37,17 +54,16 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
 
     # ignore numpy zero division warning
     with np.errstate(invalid='ignore'):
+
+        # to correctly divide by using broadcasting here,
+        # we need to swap the axis order
+        n_events = hist.sum(axis=2).T
+        hist = np.swapaxes(hist, 0, 2)
+
         # normalize and replace nans with 0
-        psf = np.nan_to_num(hist / hist.sum(axis=2) / solid_angle)
+        psf = np.nan_to_num(hist / n_events)
 
-    result = QTable({
-        'true_energy_low': [true_energy_bins[:-1]],
-        'true_energy_high': [true_energy_bins[1:]],
-        'source_offset_low': [source_offset_bins[:-1]],
-        'source_offset_high': [source_offset_bins[1:]],
-        'fov_offset_low': [fov_offset_bins[:-1]],
-        'fov_offset_high': [fov_offset_bins[1:]],
-        'psf': [psf],
-    })
+        # swap axes back to order required by GADF
+        psf = np.swapaxes(psf, 0, 2)
 
-    return result
+    return psf / solid_angle

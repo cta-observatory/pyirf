@@ -216,7 +216,7 @@ def main():
     psf = psf_table(
         gammas[gammas['selected']],
         true_energy_bins,
-        np.arange(0, 1, 5e-4) * u.deg,
+        np.arange(0, 1 + 1e-4, 1e-3) * u.deg,
         [0, 0.1] * u.deg,
     )
 
