@@ -11,8 +11,8 @@ def add_overflow_bins(bins, positive=True):
     '''
     Add under and overflow bins to a bin array.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     bins: np.array or u.Quantity
         Bin edges array
     positive: bool
@@ -40,8 +40,8 @@ def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
     Create a bin array with bins equally spaced in logarithmic energy
     with ``bins_per_decade`` bins per decade.
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     e_min: u.Quantity[energy]
         Minimum energy, inclusive
     e_max: u.Quantity[energy]
@@ -72,8 +72,8 @@ def calculate_bin_indices(data, bins):
     function will always be a valid index into the resultung histogram.
 
 
-    Arguments
-    ---------
+    Parameters
+    ----------
     data: ``~np.ndarray`` or ``~astropy.units.Quantity``
         Array with the data
 

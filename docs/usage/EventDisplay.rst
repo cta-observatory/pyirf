@@ -7,7 +7,7 @@ How to build DL3 data from EventDisplay files
 .. toctree::
    :hidden:
 
-   ../contribute/comparison_with_EventDisplay.ipynb
+   ../notebooks/comparison_with_EventDisplay.ipynb
 
 Retrieve EventDisplay data
 --------------------------
