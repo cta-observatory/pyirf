@@ -42,6 +42,10 @@ pip-delete-this-directory.txt
 docs/api
 docs/_build
 
+# Results and plots
+*.fits.gz
+*.png
+
 # Unit test / coverage reports
 htmlcov/
 .tox/

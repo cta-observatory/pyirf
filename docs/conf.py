@@ -57,7 +57,7 @@ extensions = [
 ]
 
 # nbsphinx
-nbsphinx_execute = "never"
+# nbsphinx_execute = "never"
 
 numpydoc_show_class_members = False
 autosummary_generate = True

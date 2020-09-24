@@ -42,13 +42,13 @@ install:
 script:
   - pytest --cov=pyirf --cov-report=xml
   - python examples/calculate_eventdisplay_irfs.py
-  - cd notebooks
-  - jupyter nbconvert --to notebook --execute comparison_with_EventDisplay.ipynb
 
 after_script:
   - if [[ "$CONDA" == "true" ]];then
         conda deactivate
     fi
+  - python setup.py build_sphinx
 
 after_success:
   - codecov
+  - travis-sphinx -v --outdir=docbuild deploy
