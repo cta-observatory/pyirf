@@ -25,6 +25,5 @@ Steps for installation:
 
 Next steps:
 
- * get accustomed to the basics (:ref:`perf`),
  * start using *pyirf* (:ref:`usage`),
  * for bugs and new features, please contribute to the project (:ref:`contribute`).

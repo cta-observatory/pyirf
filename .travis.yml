@@ -35,7 +35,8 @@ install:
   - sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
   - conda env create -f environment.yml
   - conda activate pyirf-dev
-  - pip install travis-sphinx codecov pytest-cov
+  # cython needed for building gammapy
+  - pip install travis-sphinx codecov pytest-cov Cython
   - pip install .[all]
   - python --version
 
