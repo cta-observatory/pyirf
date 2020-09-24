@@ -7,7 +7,6 @@ How to contribute
    :hidden:
 
    repo.rst
-   ./notebooks/comparison_with_EventDisplay.ipynb
 
 Development procedure
 ---------------------
@@ -58,4 +57,4 @@ Further details
 Benchmarks
 -----------
 
-- `Comparison with EventDisplay <./notebooks/comparison_with_EventDisplay.ipynb>`__ | *comparison_with_EventDisplay.ipynb*
+- `Comparison with EventDisplay <../notebooks/comparison_with_EventDisplay.ipynb>`__ | *comparison_with_EventDisplay.ipynb*

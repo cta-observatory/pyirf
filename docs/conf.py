@@ -58,6 +58,10 @@ extensions = [
 
 # nbsphinx
 # nbsphinx_execute = "never"
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
 
 numpydoc_show_class_members = False
 autosummary_generate = True
@@ -78,16 +82,16 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 #
 html_theme = "sphinx_rtd_theme"
 
-html_theme_options = {
-    "github_user": "cta-observatory",
-    "github_repo": "pyirf",
-    "badge_branch": "master",
-    "codecov_button": "true",
-    "github_button": "true",
-    "travis_button": "true",
-    "sidebar_collapse": "false",
-    "sidebar_includehidden": "true",
-}
+# html_theme_options = {
+#     "github_user": "cta-observatory",
+#     "github_repo": "pyirf",
+#     "badge_branch": "master",
+#     "codecov_button": "true",
+#     "github_button": "true",
+#     "travis_button": "true",
+#     "sidebar_collapse": "false",
+#     "sidebar_includehidden": "true",
+# }
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

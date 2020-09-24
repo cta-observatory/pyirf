@@ -43,6 +43,7 @@ which this documentation is linked.
 
   install/index
   usage/index
+  notebooks/index
   contribute/index
   changelog
   AUTHORS
