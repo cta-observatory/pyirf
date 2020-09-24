@@ -16,7 +16,7 @@ from pyirf.io.eventdisplay import read_eventdisplay_fits
 from pyirf.binning import create_bins_per_decade, add_overflow_bins, create_histogram_table
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
 from pyirf.sensitivity import calculate_sensitivity
-from pyirf.utils import calculate_theta
+from pyirf.utils import calculate_theta, calculate_source_fov_offset
 from pyirf.benchmarks import energy_bias_resolution, angular_resolution
 
 from pyirf.spectral import (
@@ -30,8 +30,15 @@ from pyirf.cut_optimization import optimize_gh_cut
 
 from pyirf.irf import (
     point_like_effective_area,
-    point_like_energy_dispersion,
+    energy_dispersion,
     psf_table,
+)
+
+from pyirf.io import (
+    create_aeff2d_hdu,
+    create_psf_table_hdu,
+    create_energy_dispersion_hdu,
+    create_rad_max_hdu,
 )
 
 
@@ -86,6 +93,7 @@ def main():
 
         # calculate theta / distance between reco and true source pos
         p['events']['theta'] = calculate_theta(p['events'])
+        p['events']['source_fov_offset'] = calculate_source_fov_offset(p['events'])
 
         log.info(p['simulation_info'])
         log.info('')
@@ -180,29 +188,45 @@ def main():
     ]
 
     masks = {
+        '': gammas['selected'],
         '_NO_CUTS': slice(None),
         '_ONLY_GH': gammas['selected_gh'],
         '_ONLY_THETA': gammas['selected_theta'],
-        '': gammas['selected']
     }
-    # calculate IRFs for the best cuts
+
+    # binnings for the irfs
     true_energy_bins = add_overflow_bins(create_bins_per_decade(
         10**-1.9 * u.TeV, 10**2.31 * u.TeV, 10,
     ))
-    for extname, mask in masks.items():
+    fov_offset_bins = [0, 0.5] * u.deg
+    source_offset_bins = np.arange(0, 1 + 1e-4, 1e-3) * u.deg
+    energy_migration_bins = np.geomspace(0.2, 5, 200)
+
+    for label, mask in masks.items():
         effective_area = point_like_effective_area(
             gammas[mask],
             particles['gamma']['simulation_info'],
             true_energy_bins=true_energy_bins,
         )
-        edisp = point_like_energy_dispersion(
+        hdus.append(create_aeff2d_hdu(
+            effective_area[..., np.newaxis], # add one dimension for FOV offset
+            true_energy_bins,
+            fov_offset_bins,
+            extname='EFFECTIVE_AREA' + label,
+        ))
+        edisp = energy_dispersion(
             gammas[mask],
             true_energy_bins=true_energy_bins,
-            migration_bins=np.geomspace(0.2, 5, 200),
-            max_theta=np.nanmax(theta_cuts_opt['cut'].max()),
+            fov_offset_bins=fov_offset_bins,
+            migration_bins=energy_migration_bins,
         )
-        hdus.append(fits.BinTableHDU(effective_area, name='EFFECTIVE_AREA' + extname))
-        hdus.append(fits.BinTableHDU(edisp, name='EDISP' + extname))
+        hdus.append(create_energy_dispersion_hdu(
+            edisp,
+            true_energy_bins=true_energy_bins,
+            migration_bins=energy_migration_bins,
+            fov_offset_bins=fov_offset_bins,
+            extname='ENERGY_DISPERSION' + label,
+        ))
 
     bias_resolution = energy_bias_resolution(
         gammas[gammas['selected']],
@@ -216,11 +240,13 @@ def main():
     psf = psf_table(
         gammas[gammas['selected']],
         true_energy_bins,
-        np.arange(0, 1 + 1e-4, 1e-3) * u.deg,
-        [0, 0.1] * u.deg,
+        fov_offset_bins=fov_offset_bins,
+        source_offset_bins=source_offset_bins,
     )
 
-    hdus.append(fits.BinTableHDU(psf, name='PSF'))
+    hdus.append(create_psf_table_hdu(
+        psf, true_energy_bins, source_offset_bins, fov_offset_bins,
+    ))
     hdus.append(fits.BinTableHDU(ang_res, name='ANGULAR_RESOLUTION'))
     hdus.append(fits.BinTableHDU(bias_resolution, name='ENERGY_BIAS_RESOLUTION'))
     fits.HDUList(hdus).writeto('pyirf_eventdisplay.fits.gz', overwrite=True)

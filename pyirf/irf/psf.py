@@ -1,9 +1,5 @@
 import numpy as np
 import astropy.units as u
-from astropy.table import QTable
-
-from astropy.coordinates.angle_utilities import angular_separation
-
 
 from ..utils import cone_solid_angle
 
@@ -13,14 +9,9 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
     Calculate the table based PSF (radially symmetrical bins around the true source)
     '''
 
-    source_fov_offset = angular_separation(
-        events['true_az'], events['true_alt'],
-        events['pointing_az'], events['pointing_alt'],
-    )
-
     array = np.column_stack([
         events['true_energy'].to_value(u.TeV),
-        source_fov_offset.to_value(u.deg),
+        events['source_fov_offset'].to_value(u.deg),
         events['theta'].to_value(u.deg)
     ])
 
@@ -34,18 +25,7 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
     )
 
     psf = _normalize_psf(hist, source_offset_bins)
-
-    result = QTable({
-        'true_energy_low': u.Quantity(true_energy_bins[:-1], ndmin=2),
-        'true_energy_high': u.Quantity(true_energy_bins[1:], ndmin=2),
-        'source_offset_low': u.Quantity(source_offset_bins[:-1], ndmin=2),
-        'source_offset_high': u.Quantity(source_offset_bins[1:], ndmin=2),
-        'fov_offset_low': u.Quantity(fov_offset_bins[:-1], ndmin=2),
-        'fov_offset_high': u.Quantity(fov_offset_bins[1:], ndmin=2),
-        'psf': [psf],
-    })
-
-    return result
+    return psf
 
 
 def _normalize_psf(hist, source_offset_bins):

@@ -1,6 +1,5 @@
 import numpy as np
 import astropy.units as u
-from astropy.table import QTable
 from ..binning import create_histogram_table
 
 
@@ -30,9 +29,4 @@ def point_like_effective_area(selected_events, simulation_info, true_energy_bins
     hist_selected = create_histogram_table(selected_events, true_energy_bins, 'true_energy')
     hist_simulated = calculate_simulated_events(simulation_info, true_energy_bins)
 
-    area_table = QTable(hist_selected[['true_energy_' + k for k in ('low', 'high')]])
-    area_table['effective_area'] = effective_area(
-        hist_selected['n'], hist_simulated, area
-    )
-
-    return area_table
+    return effective_area(hist_selected['n'], hist_simulated, area)

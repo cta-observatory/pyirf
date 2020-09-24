@@ -18,10 +18,7 @@ def test_psf():
     # and a psf per energy bin, point-like
     events = QTable({
         'true_energy': np.append(np.full(N, 1), np.full(N, 2)) * u.TeV,
-        'pointing_az': np.zeros(2 * N) * u.deg,
-        'pointing_alt': np.full(2 * N, 70) * u.deg,
-        'true_az': np.zeros(2 * N) * u.deg,
-        'true_alt': np.full(2 * N, 70) * u.deg,
+        'source_fov_offset': np.zeros(2 * N) * u.deg,
         'theta': np.random.normal(0, TRUE_SIGMA) * u.deg,
     })
 
@@ -30,17 +27,17 @@ def test_psf():
     source_bins = np.linspace(0, 1, 201) * u.deg
 
     # We return a table with one row as needed for gadf
-    psf = psf_table(events, energy_bins, source_bins, fov_bins)[0]
+    psf = psf_table(events, energy_bins, source_bins, fov_bins)
 
     # 2 energy bins, 1 fov bin, 200 source distance bins
-    assert psf['psf'].shape == (2, 1, 200)
-    assert psf['psf'].unit == u.Unit('sr-1')
+    assert psf.shape == (2, 1, 200)
+    assert psf.unit == u.Unit('sr-1')
 
     # check that psf is normalized
     bin_solid_angle = np.diff(cone_solid_angle(source_bins))
-    assert np.allclose(np.sum(psf['psf'] * bin_solid_angle, axis=2), 1.0)
+    assert np.allclose(np.sum(psf * bin_solid_angle, axis=2), 1.0)
 
-    cumulated = np.cumsum(psf['psf'] * bin_solid_angle, axis=2)
+    cumulated = np.cumsum(psf * bin_solid_angle, axis=2)
 
     # first energy and only fov bin
     bin_centers = 0.5 * (source_bins[1:] + source_bins[:-1])

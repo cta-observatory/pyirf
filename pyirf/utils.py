@@ -17,6 +17,15 @@ def calculate_theta(events):
     return theta.to(u.deg)
 
 
+def calculate_source_fov_offset(events):
+    theta = angular_separation(
+        events['true_az'], events['true_alt'],
+        events['pointing_az'], events['pointing_alt'],
+    )
+
+    return theta.to(u.deg)
+
+
 def check_histograms(hist1, hist2, key='reco_energy'):
     '''
     Check if two histogram tables have the same binning

@@ -1,29 +1,39 @@
 import numpy as np
 import astropy.units as u
-from astropy.table import QTable
 
 
 def _normalize_hist(hist):
+    # (N_E, N_MIGRA, N_FOV)
+    # (N_E, N_FOV)
+
+    norm = hist.sum(axis=1)
+    h = np.swapaxes(hist, 0, 1)
+
     with np.errstate(invalid='ignore'):
-        h = hist.T
-        h = h / h.sum(axis=0)
-        return np.nan_to_num(h).T
+        h /= norm
+
+    h = np.swapaxes(h, 0, 1)
+    return np.nan_to_num(h)
 
 
-def point_like_energy_dispersion(
+def energy_dispersion(
     selected_events,
     true_energy_bins,
+    fov_offset_bins,
     migration_bins,
-    max_theta,
 ):
     mu = (selected_events['reco_energy'] / selected_events['true_energy']).to_value(u.one)
 
-    energy_dispersion, _, _ = np.histogram2d(
-        selected_events['true_energy'].to_value(u.TeV),
-        mu,
+    energy_dispersion, _ = np.histogramdd(
+        np.column_stack([
+            selected_events['true_energy'].to_value(u.TeV),
+            mu,
+            selected_events['source_fov_offset'].to_value(u.deg),
+        ]),
         bins=[
             true_energy_bins.to_value(u.TeV),
             migration_bins,
+            fov_offset_bins.to_value(u.deg),
         ]
     )
 
@@ -31,14 +41,4 @@ def point_like_energy_dispersion(
     assert len(n_events_per_energy) == len(true_energy_bins) - 1
     energy_dispersion = _normalize_hist(energy_dispersion)
 
-    edisp = QTable({
-        'true_energy_low': [true_energy_bins[:-1]],
-        'true_energy_high': [true_energy_bins[1:]],
-        'migration_low': [migration_bins[:-1]],
-        'migration_high': [migration_bins[1:]],
-        'theta_low': [0 * u.deg],
-        'theta_high': [max_theta],
-        'energy_dispersion': [energy_dispersion[:, :, np.newaxis]],
-    })
-
-    return edisp
+    return energy_dispersion
