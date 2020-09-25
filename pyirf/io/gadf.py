@@ -68,7 +68,7 @@ def create_aeff2d_hdu(
     header['HDUCLAS2'] = 'EFF_AREA'
     header['HDUCLAS3'] = 'POINT-LIKE' if point_like else 'FULL-ENCLOSURE'
     header['HDUCLAS4'] = 'AEFF_2D'
-    header['DATE'] = Time.now(scale='utc').iso
+    header['DATE'] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(aeff, header=header, name=extname)
@@ -126,7 +126,7 @@ def create_psf_table_hdu(
     header['HDUCLAS2'] = 'PSF'
     header['HDUCLAS3'] = 'POINT-LIKE' if point_like else 'FULL-ENCLOSURE'
     header['HDUCLAS4'] = 'PSF_TABLE'
-    header['DATE'] = Time.now(scale='utc').iso
+    header['DATE'] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(psf, header=header, name=extname)
@@ -187,7 +187,7 @@ def create_energy_dispersion_hdu(
     header['HDUCLAS2'] = 'EDISP'
     header['HDUCLAS3'] = 'POINT-LIKE' if point_like else 'FULL-ENCLOSURE'
     header['HDUCLAS4'] = 'EDISP_2D'
-    header['DATE'] = Time.now(scale='utc').iso
+    header['DATE'] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(psf, header=header, name=extname)
@@ -237,7 +237,7 @@ def create_rad_max_hdu(
     header['HDUCLAS2'] = 'RAD_MAX'
     header['HDUCLAS3'] = 'POINT-LIKE'
     header['HDUCLAS4'] = 'RAD_MAX_2D'
-    header['DATE'] = Time.now(scale='utc').iso
+    header['DATE'] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(rad_max_table, header=header, name=extname)
