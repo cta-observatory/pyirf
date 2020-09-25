@@ -14,7 +14,7 @@ def angular_resolution(
     true_energy_bins,
 ):
     """
-    Calculate the angular resolutionself.
+    Calculate the angular resolution.
 
     This implementation corresponds to the 68% containment of the angular
     distance distribution.
