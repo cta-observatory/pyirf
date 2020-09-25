@@ -1,3 +1,6 @@
+'''
+Functions to calculate sensitivity
+'''
 import astropy.units as u
 import numpy as np
 from scipy.optimize import brentq
@@ -17,13 +20,10 @@ __all__ = [
 log = logging.getLogger(__name__)
 
 
-@u.quantity_input(t_obs=u.hour, t_ref=u.hour)
 def relative_sensitivity(
     n_on,
     n_off,
     alpha,
-    t_obs,
-    t_ref=u.Quantity(50, u.hour),
     target_significance=5,
     significance_function=li_ma_significance,
     initial_guess=0.01,
@@ -31,9 +31,9 @@ def relative_sensitivity(
     '''
     Calculate the relative sensitivity defined as the flux
     relative to the reference source that is detectable with
-    significance ``target_significance`` in time ``t_ref``.
+    significance ``target_significance``.
 
-    Given measured ``n_on`` and ``n_off`` during a time period ``t_obs``,
+    Given measured ``n_on`` and ``n_off``,
     we estimate the number of gamma events ``n_signal`` as ``n_on - alpha * n_off``.
 
     The number of background events ``n_background` is estimated as ``n_off * alpha``.
@@ -41,6 +41,8 @@ def relative_sensitivity(
     In the end, we find the relative sensitivity as the scaling factor for ``n_signal``
     that yields a significance of ``target_significance``.
 
+    The reference time should be incorporated by appropriately weighting the events
+    before calculating ``n_on`` and ``n_off``
 
     Parameters
     ----------
@@ -51,10 +53,6 @@ def relative_sensitivity(
     alpha: float
         Scaling factor between on and off observations.
         1 / number of off regions for wobble observations.
-    t_obs: astropy.units.Quantity of type time
-        Total observation time
-    t_ref: astropy.units.Quantity of type time
-        Reference time for the detection
     significance: float
         Significance necessary for a detection
     significance_function: function
@@ -68,10 +66,6 @@ def relative_sensitivity(
     initial_guess: float
         Initial guess for the root finder
     '''
-    ratio = (t_ref / t_obs).to(u.one)
-    n_on = n_on * ratio
-    n_off = n_off * ratio
-
     n_background = n_off * alpha
     n_signal = n_on - n_background
 
@@ -110,16 +104,48 @@ def relative_sensitivity(
     return result
 
 
-@u.quantity_input(t_obs=u.hour, t_ref=u.hour)
 def calculate_sensitivity(
     signal_hist,
     background_hist,
     alpha,
-    t_obs,
-    t_ref=u.Quantity(50, u.hour),
     target_significance=5,
     significance_function=li_ma_significance,
 ):
+    '''
+    Calculate sensitivity for DL2 event lists in bins of reconstructed energy.
+
+    Sensitivity is defined as the minimum flux detectable with ``target_significance``
+    sigma significance in a certain time.
+
+    This time must be incorporated into the event weights.
+
+    Parameters
+    ----------
+    signal_hist: astropy.table.QTable
+        Histogram of detected signal events as a table.
+        Required columns: n and n_weighted.
+        See ``pyirf.binning.create_histogram_table``
+    background_hist: astropy.table.QTable
+        Histogram of detected events as a table.
+        Required columns: n and n_weighted.
+        See ``pyirf.binning.create_histogram_table``
+    alpha: float
+        Size ratio of signal region to background region
+    target_significance: float
+        Required significance
+    significance_function: callable
+        A function with signature (n_on, n_off, alpha) -> significance.
+        Default is the Li & Ma likelihood ratio test.
+
+    Returns
+    -------
+    sensitivity_table: astropy.table.QTable
+        Table with sensitivity information.
+        Contains weighted and unweighted number of signal and background events
+        and the ``relative_sensitivity``, the scaling applied to the signal events
+        that yields ``target_significance`` sigma of significance according to
+        the ``significance_function``
+    '''
     assert len(signal_hist) == len(background_hist)
 
     check_histograms(signal_hist, background_hist)
@@ -139,7 +165,6 @@ def calculate_sensitivity(
             n_on=n_signal_hist + alpha * n_background_hist,
             n_off=n_background_hist,
             alpha=alpha,
-            t_obs=t_obs,
         )
         for n_signal_hist, n_background_hist in zip(signal_hist['n_weighted'], background_hist['n_weighted'])
     ]

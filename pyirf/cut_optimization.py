@@ -59,7 +59,6 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
             signal_hist,
             background_hist,
             alpha=alpha,
-            t_obs=50 * u.hour,
         )
         sensitivities.append(sensitivity)
 

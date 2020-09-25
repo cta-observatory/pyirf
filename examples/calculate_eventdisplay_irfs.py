@@ -174,7 +174,7 @@ def main():
     signal_hist = create_histogram_table(gammas[gammas['selected']], bins=sensitivity_bins)
     background_hist = create_histogram_table(background[background['selected']], bins=sensitivity_bins)
 
-    sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=ALPHA, t_obs=T_OBS)
+    sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=ALPHA)
 
     # scale relative sensitivity by Crab flux to get the flux sensitivity
     for s in (sensitivity_step_2, sensitivity):
