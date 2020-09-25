@@ -5,29 +5,36 @@ from astropy.table import QTable
 
 def test_energy_dispersion():
     from pyirf.irf import energy_dispersion
+
+    N = 1000
+    TRUE_SIGMA_1 = 0.20
+    TRUE_SIGMA_2 = 0.10
+    TRUE_SIGMA_3 = 0.05
+
     selected_events = QTable({
         'reco_energy': np.concatenate([
-            np.random.uniform(0.081, 0.099, size=3),
-            np.random.uniform(0.1, 0.119, size=7),
-            np.random.uniform(0.81, 0.99, size=5),
-            np.random.uniform(1.0, 1.19, size=5),
-            np.random.uniform(8.1, 9.9, size=8),
-            np.random.uniform(10.0, 10.9, size=2),
+            np.random.normal(1.0, TRUE_SIGMA_1, size=N)*0.5,
+            np.random.normal(1.0, TRUE_SIGMA_2, size=N)*5,
+            np.random.normal(1.0, TRUE_SIGMA_3, size=N)*50,
         ])*u.TeV,
         'true_energy': np.concatenate([
-            np.full(10, 0.1),
-            np.full(10, 1.0),
-            np.full(10, 10.0)
+            np.full(N, 0.5),
+            np.full(N, 5.0),
+            np.full(N, 50.0)
         ])*u.TeV,
         'source_fov_offset': np.concatenate([
-            np.full(20, 0.2),
-            np.full(10, 1.5)
+            np.full(500, 0.2),
+            np.full(500, 1.5),
+            np.full(500, 0.2),
+            np.full(500, 1.5),
+            np.full(500, 0.2),
+            np.full(500, 1.5),
         ])*u.deg
     })
 
-    true_energy_bins = np.array([0.1, 1.0, 10.0]) * u.TeV
+    true_energy_bins = np.array([0.1, 1.0, 10.0, 100]) * u.TeV
     fov_offset_bins = np.array([0, 1, 2]) * u.deg
-    migration_bins = np.array([0.8, 1.0, 1.2])
+    migration_bins = np.linspace(0, 2, 1001)
 
     result = energy_dispersion(
             selected_events,
@@ -35,8 +42,26 @@ def test_energy_dispersion():
             fov_offset_bins,
             migration_bins)
 
-    assert result.sum() == 3.0
-    assert (result == np.array([
-        [[0.3, 0.0], [0.7, 0.0]],
-        [[0.5, 0.8], [0.5, 0.2]]
-    ])).all()
+    assert result.shape == (3, 1000, 2)
+    assert np.isclose(result.sum(),  6.0)
+
+    cumulated = np.cumsum(result, axis=1)
+    bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
+    assert np.isclose(
+        TRUE_SIGMA_1,
+        (bin_centers[np.where(cumulated[0, :, :] >= 0.84)[0][0]]
+         - bin_centers[np.where(cumulated[0, :, :] >= 0.16)[0][0]])/2,
+        rtol=0.1
+    )
+    assert np.isclose(
+        TRUE_SIGMA_2,
+        (bin_centers[np.where(cumulated[1, :, :] >= 0.84)[0][0]]
+         - bin_centers[np.where(cumulated[1, :, :] >= 0.16)[0][0]])/2,
+        rtol=0.1
+    )
+    assert np.isclose(
+        TRUE_SIGMA_3,
+        (bin_centers[np.where(cumulated[2, :, :] >= 0.84)[0][0]]
+         - bin_centers[np.where(cumulated[2, :, :] >= 0.16)[0][0]])/2,
+        rtol=0.1
+    )
