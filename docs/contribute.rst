@@ -57,6 +57,8 @@ Please also have a look at the
   which also describe the IRF formats and their definitions.
 - `CTA IRF working group wiki (internal) <https://forge.in2p3.fr/projects/instrument-response-functions/wiki>`__
 
+- `CTA IRF Description Document for Prod3b (internal) <https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description>`__
+
 Benchmarks
 ----------
 
