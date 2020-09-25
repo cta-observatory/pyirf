@@ -4,7 +4,7 @@ Installation
 ============
 
 
-``pyirf`` requires Python >= 3.6 and the packages as defined in the ``setup.py``.
+``pyirf`` requires Python ≥3.6 and the packages as defined in the ``setup.py``.
 Core dependencies are
 
 * ``numpy``
@@ -14,7 +14,7 @@ Core dependencies are
 Dependencies for development, like unit tests and building the documentation
 are defined in ``extras``.
 
-Installing a released Version
+Installing a released version
 -----------------------------
 
 
