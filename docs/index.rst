@@ -61,7 +61,7 @@ which this documentation is linked.
   spectral
   binning
   io/index
-  resources/index
+  utils/index
 
 
 Indices and tables
