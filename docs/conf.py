@@ -59,7 +59,7 @@ extensions = [
 # nbsphinx
 # nbsphinx_execute = "never"
 nbsphinx_execute_arguments = [
-    "--InlineBackend.figure_formats={'svg', 'pdf'}",
+    "--InlineBackend.figure_formats={'svg', }",
     "--InlineBackend.rc={'figure.dpi': 96}",
 ]
 
