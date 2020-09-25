@@ -39,11 +39,11 @@ def create_aeff2d_hdu(
 
     Parameters
     ----------
-    effective_area: ``astropy.units.Quantity``[area]
+    effective_area: astropy.units.Quantity[area]
         Effective area array, must have shape (n_energy_bins, n_fov_offset_bins)
-    true_energy_bins: ``astropy.units.Quantity``[energy]
+    true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
-    fov_offset_bins: ``astropy.units.Quantity``[angle]
+    fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
     point_like: bool
@@ -90,14 +90,14 @@ def create_psf_table_hdu(
 
     Parameters
     ----------
-    psf: ``astropy.units.Quantity``[(solid angle)^-1]
+    psf: astropy.units.Quantity[(solid angle)^-1]
         Point spread function array, must have shape
         (n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
-    true_energy_bins: ``astropy.units.Quantity``[energy]
+    true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
-    source_offset_bins: ``astropy.units.Quantity``[angle]
+    source_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the source offset.
-    fov_offset_bins: ``astropy.units.Quantity``[angle]
+    fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
     point_like: bool
@@ -151,14 +151,14 @@ def create_energy_dispersion_hdu(
 
     Parameters
     ----------
-    energy_dispersion: ``numpy.ndarray``
+    energy_dispersion: numpy.ndarray
         Energy dispersion array, must have shape
         (n_energy_bins, n_migra_bins, n_source_offset_bins)
-    true_energy_bins: ``astropy.units.Quantity``[energy]
+    true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
-    migration_bins: ``numpy.ndarray``
+    migration_bins: numpy.ndarray
         Bin edges for the relative energy migration (``reco_energy / true_energy``)
-    fov_offset_bins: ``astropy.units.Quantity``[angle]
+    fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
     point_like: bool
@@ -209,12 +209,12 @@ def create_rad_max_hdu(
 
     Parameters
     ----------
-    reco_energy_bins: ``astropy.units.Quantity``[energy]
+    reco_energy_bins: astropy.units.Quantity[energy]
         Bin edges in reconstructed energy
-    fov_offset_bins: ``astropy.units.Quantity``[angle]
+    fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
-    rad_max: ``astropy.units.Quantity``[angle]
+    rad_max: astropy.units.Quantity[angle]
         Array of the directional (theta) cut.
         Must have shape (n_reco_energy_bins, n_fov_offset_bins)
     extname: str
