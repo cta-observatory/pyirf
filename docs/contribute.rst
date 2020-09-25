@@ -7,7 +7,8 @@ How to contribute
 Issue Tracker
 -------------
 
-We use the `GitHub issue tracker <https://github.com/cta-observatory/pyirf>`__.
+We use the `GitHub issue tracker <https://github.com/cta-observatory/pyirf>`__
+for individual issues and the `GitHub Projects page <https://github.com/cta-observatory/pyirf/projects>`_ can give you a quick overview.
 
 If you found a bug or you are missing a feature, please check the existing
 issues and then open a new one or contribute to the existing issue.
