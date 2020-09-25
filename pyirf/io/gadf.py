@@ -16,7 +16,7 @@ __all__ = [
 
 DEFAULT_HEADER = Header()
 DEFAULT_HEADER['CREATOR'] = f'pyirf v{__version__}'
-DEFAULT_HEADER['HDUDOC'] = 'https://github.com/open-gamma-ray-astro/gamma-astro-data-formats'
+DEFAULT_HEADER['HDUDOC'] = 'https://gamma-astro-data-formats.readthedocs.io'
 DEFAULT_HEADER['HDUVERS'] = '0.2'
 DEFAULT_HEADER['HDUCLASS'] = 'GADF'
 
