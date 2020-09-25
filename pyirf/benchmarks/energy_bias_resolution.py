@@ -61,13 +61,13 @@ def energy_bias_resolution(
 
     Parameters
     ----------
-    events : astropy.table.QTable
+    events: astropy.table.QTable
         Astropy Table object containing the reconstructed events information.
-    true_energy_bins : numpy.ndarray(dtype=float, ndim=1)
+    true_energy_bins: numpy.ndarray(dtype=float, ndim=1)
         Bin edges in true energy.
-    bias_function : callable
+    bias_function: callable
         Function used to calculate the energy bias
-    resolution_function : callable
+    resolution_function: callable
         Function used to calculate the energy resolution
 
     Returns

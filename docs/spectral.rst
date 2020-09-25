@@ -7,5 +7,7 @@ Event Weighting and Spectrum Definitions
 Reference/API
 -------------
 
+
 .. automodapi:: pyirf.spectral
-   :no-inheritance-diagram:
+    :no-inheritance-diagram:
+    :include-all-objects:

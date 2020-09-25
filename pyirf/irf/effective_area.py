@@ -3,6 +3,12 @@ import astropy.units as u
 from ..binning import create_histogram_table
 
 
+__all__ = [
+    'effective_area',
+    'point_like_effective_area',
+]
+
+
 @u.quantity_input(area=u.m**2)
 def effective_area(n_selected, n_simulated, area):
     '''
