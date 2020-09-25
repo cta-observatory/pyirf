@@ -41,7 +41,7 @@ which this documentation is linked.
   :caption: Overview
   :maxdepth: 1
 
-  install/index
+  install
   usage/index
   notebooks/index
   contribute
