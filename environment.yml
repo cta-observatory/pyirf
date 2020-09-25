@@ -23,6 +23,5 @@ dependencies:
   - pip:
       - rinohtype
       - nbsphinx
-      - gammapy~=0.8.0
       - sphinx_automodapi
       - uproot

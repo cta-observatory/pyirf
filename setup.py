@@ -6,7 +6,6 @@ with open("pyirf/version.py") as f:
 
 extras_require = {
     'docs': [
-        'rinohtype',
         'sphinx',
         'sphinx_rtd_theme',
         'sphinx_automodapi',
@@ -34,7 +33,6 @@ setup(
         "scipy",
         "tqdm",
         "tables",
-        "gammapy~=0.17",
     ],
     extras_require=extras_require,
 )
