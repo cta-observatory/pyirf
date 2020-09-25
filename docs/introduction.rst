@@ -11,7 +11,7 @@ To support a wide range of use cases, ``pyirf`` opts for a library approach of
 composable building blocks with well-defined inputs and outputs.
 
 For more information on IRFs, have a look at the documentation for the
-`Data Formats for Gamma-Ray Astronomy Specification <https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/index.html>`_
+`gadf_irfs`_
 or the `ctools documentation on IRFs <http://cta.irap.omp.eu/ctools/users/user_manual/irf_cta.html>`.
 
 
@@ -41,7 +41,7 @@ All functions take ``numpy`` arrays, astropy quantities or astropy tables for th
 required data and also return the results as these objects.
 
 ``~pyirf.io`` provides functions to export the internal IRF representation
-to FITS files following the `Data Formats for Gamma-Ray Astronomy Specification <https://gamma-astro-data-formats.readthedocs.io/>`_
+to FITS files following the `gadf_irfs`_
 
 
 DL2 event lists
@@ -84,3 +84,6 @@ Most functions only need a small subgroup of these columns.
     +----------------+--------+---------------------------------------------------------+
     | multiplicity   |        | Number of telescopes used in the reconstruction         |
     +----------------+--------+---------------------------------------------------------+
+
+
+.. _gadf_irfs: https://indico.e5.physik.tu-dortmund.de/rooms/rooms
