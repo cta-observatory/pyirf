@@ -78,7 +78,7 @@ def relative_sensitivity(
     if np.isnan(n_on) or np.isnan(n_off):
         return np.nan
 
-    if n_on == 0 or n_off == 0:
+    if n_on < 1 or n_off < 1:
         return np.nan
 
     if n_signal <= 0:
