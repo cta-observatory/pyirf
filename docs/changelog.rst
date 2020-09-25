@@ -33,8 +33,8 @@ We use a one-line description of every pull request.
 
 .. _pyirf_0p3_release:
 
-`0.1.0-alpha <https://github.com/cta-observatory/pyirf/releases/tag/v0.1.0>`__ (2020-09-16)
------
+`0.1.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.1.0>`__ (2020-09-16)
+-------------------------------------------------------------------------------------
 
 This is a pre-release.
 
