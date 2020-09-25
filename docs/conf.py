@@ -19,8 +19,8 @@ from pyirf import __version__
 # -- Project information -----------------------------------------------------
 
 project = "pyirf"
-copyright = "2020, Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
-author = "Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
+copyright = "2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume"
+author = "Maximilian Nöthe, Michele Peresano, Thomas Vuillaume"
 
 # The full version, including alpha/beta/rc tags
 version = __version__
