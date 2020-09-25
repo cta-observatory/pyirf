@@ -100,6 +100,24 @@ def calculate_bin_indices(data, bins):
 
 
 def create_histogram_table(events, bins, key='reco_energy'):
+    '''
+    Histogram a variable from events data into an astropy table.
+
+    Parameters
+    ----------
+    events : ``astropy.QTable``
+        Astropy Table object containing the reconstructed events information.
+    bins: ``~np.ndarray`` or ``~astropy.units.Quantity``
+        Array or Quantity of bin edges.
+        It must have the same units as ``data`` if a Quantity.
+    key : ``string``
+        Variable to histogram from the events table.
+
+    Returns
+    -------
+    hist: ``astropy.QTable``
+        Astropy table containg the histogram.
+    '''
     hist = QTable()
     hist[key + '_low'] = bins[:-1]
     hist[key + '_high'] = bins[1:]
