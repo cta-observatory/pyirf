@@ -2,10 +2,29 @@ import numpy as np
 import astropy.units as u
 from astropy.coordinates.angle_utilities import angular_separation
 
+__all__ = [
+    'is_scalar',
+    'calculate_theta',
+    'calculate_source_fov_offset',
+    'check_histograms',
+    'cone_solid_angle',
+]
 
 def is_scalar(val):
-    '''Workaround that also supports astropy quantities'''
-    return np.array(val, copy=False).shape == tuple()
+    '''Workaround that also supports astropy quantities
+
+    Parameters
+    ----------
+    val : object
+        Any object (value, list, etc...)
+
+    Returns
+    -------
+    result: bool
+        True is if input object is a scalar, False otherwise.
+    '''
+    result = np.array(val, copy=False).shape == tuple()
+    return result
 
 
 @u.quantity_input(assumed_source_az=u.deg, assumed_source_alt=u.deg)
