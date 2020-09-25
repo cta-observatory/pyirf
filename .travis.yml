@@ -20,9 +20,7 @@ matrix:
         - CONDA=true
 
 before_install:
-  - travis_wait 15 curl -sSfL -o data.zip https://nextcloud.e5.physik.tu-dortmund.de/index.php/s/Cstsf8MWZjnz92L/download
-  - unzip data.zip
-  - mv eventdisplay_dl2 data
+  - travis_wait 15 ./download_test_data.sh
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
   - bash miniconda.sh -b -p $HOME/miniconda
   - . $HOME/miniconda/etc/profile.d/conda.sh
