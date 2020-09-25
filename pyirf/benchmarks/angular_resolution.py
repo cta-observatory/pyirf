@@ -13,6 +13,25 @@ def angular_resolution(
     events,
     true_energy_bins,
 ):
+    """
+    Calculate the angular resolutionself.
+
+    This implementation corresponds to the 68% containment of the angular
+    distance distribution.
+
+    Parameters
+    ----------
+    events : astropy.table.QTable
+        Astropy Table object containing the reconstructed events information.
+    true_energy_bins: numpy.ndarray(dtype=float, ndim=1)
+        Bin edges in true energy.
+
+    Returns
+    -------
+    result : astropy.table.Table
+        Table containing the 68% containment of the angular
+        distance distribution per each true energy bin.
+    """
 
     # create a table to make use of groupby operations
     table = Table(events[['true_energy', 'theta']])
