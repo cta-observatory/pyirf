@@ -8,9 +8,9 @@ def is_scalar(val):
     return np.array(val, copy=False).shape == tuple()
 
 
-def calculate_theta(events):
+def calculate_theta(events, assumed_source_az, assumed_source_alt):
     theta = angular_separation(
-        events['true_az'], events['true_alt'],
+        assumed_source_az, assumed_source_alt,
         events['reco_az'], events['reco_alt'],
     )
 

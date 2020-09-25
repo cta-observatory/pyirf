@@ -35,7 +35,6 @@ def calculate_percentile_cut(
     max_value: float or quantity or None
         If given, cuts larger than this value are replaced with ``max_value``
     '''
-
     # create a table to make use of groupby operations
     table = Table({'values': values, 'bin_values': bin_values}, copy=False)
 

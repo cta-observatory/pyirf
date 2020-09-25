@@ -50,23 +50,22 @@ T_OBS = 50 * u.hour
 # scaling between on and off region.
 # Make off region 5 times larger than on region for better
 # background statistics
-ALPHA = 0.1
+ALPHA = 0.05
 
 # gh cut used for first calculation of the binned theta cuts
 INITIAL_GH_CUT = 0.0
 
-
 particles = {
     'gamma': {
-        'file': 'data/gamma_onSource.S.3HB9-FD_ID0.eff-0.fits',
+        'file': 'data/gamma_onSource.S.3HB9-FD_ID0.eff-0.fits.gz',
         'target_spectrum': CRAB_HEGRA,
     },
     'proton': {
-        'file': 'data/proton_onSource.S.3HB9-FD_ID0.eff-0.fits',
+        'file': 'data/proton_onSource.S.3HB9-FD_ID0.eff-0.fits.gz',
         'target_spectrum': IRFDOC_PROTON_SPECTRUM,
     },
     'electron': {
-        'file': 'data/electron_onSource.S.3HB9-FD_ID0.eff-0.fits',
+        'file': 'data/electron_onSource.S.3HB9-FD_ID0.eff-0.fits.gz',
         'target_spectrum': IRFDOC_ELECTRON_SPECTRUM,
     },
 }
@@ -80,21 +79,26 @@ def get_bg_cuts(cuts, alpha):
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger('pyirf').setLevel(logging.DEBUG)
 
     for k, p in particles.items():
         log.info(f'Simulated {k.title()} Events:')
-
         p['events'], p['simulation_info'] = read_eventdisplay_fits(p['file'])
+
         p['simulated_spectrum'] = PowerLaw.from_simulation(p['simulation_info'], T_OBS)
         p['events']['weight'] = calculate_event_weights(
             p['events']['true_energy'], p['target_spectrum'], p['simulated_spectrum']
         )
-
-        # calculate theta / distance between reco and true source pos
-        p['events']['theta'] = calculate_theta(p['events'])
         p['events']['source_fov_offset'] = calculate_source_fov_offset(p['events'])
-
+        # calculate theta / distance between reco and assuemd source positoin
+        # we handle only ON observations here, so the assumed source pos
+        # is the pointing position
+        p['events']['theta'] = calculate_theta(
+            p['events'],
+            assumed_source_az=p['events']['pointing_az'],
+            assumed_source_alt=p['events']['pointing_alt'],
+        )
         log.info(p['simulation_info'])
         log.info('')
 
@@ -144,7 +148,7 @@ def main():
         gammas[gammas['selected_theta']],
         background[background['selected_theta']],
         bins=sensitivity_bins,
-        cut_values=np.arange(-1.0, 1.005, 0.2),
+        cut_values=np.arange(-1.0, 1.005, 0.05),
         op=operator.ge,
         alpha=ALPHA,
     )

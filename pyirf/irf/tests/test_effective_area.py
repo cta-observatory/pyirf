@@ -17,14 +17,13 @@ def test_effective_area():
     )
 
 
-
 def test_pointlike_effective_area():
     from pyirf.irf import point_like_effective_area
     from pyirf.simulations import SimulatedEventsInfo
 
     true_energy_bins = [0.1, 1.0, 10.0] * u.TeV
     selected_events = QTable({
-        'true_energy': np.append(np.full(1000, 0.5), np.full(100, 5)),
+        'true_energy': np.append(np.full(1000, 0.5), np.full(10, 5)),
     })
 
     # this should give 100000 events in the first bin and 10000 in the second
@@ -41,4 +40,4 @@ def test_pointlike_effective_area():
 
     assert area.shape == (len(true_energy_bins) - 1, )
     assert area.unit == u.m**2
-    assert u.allclose(area, [100, 100] * u.m**2)
+    assert u.allclose(area, [100, 10] * u.m**2)
