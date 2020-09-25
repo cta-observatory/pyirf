@@ -2,6 +2,11 @@ import numpy as np
 import astropy.units as u
 
 
+__all__ = [
+    'energy_dispersion',
+]
+
+
 def _normalize_hist(hist):
     # (N_E, N_MIGRA, N_FOV)
     # (N_E, N_FOV)
@@ -22,6 +27,31 @@ def energy_dispersion(
     fov_offset_bins,
     migration_bins,
 ):
+    '''
+    Calculate energy dispersion for the given DL2 event list.
+    Energy dispersion is defined as the probability of finding an event
+    at a given relative deviation ``(reco_energy / true_energy)`` for a given
+    true energy.
+
+    Parameters
+    ----------
+    selected_events: astropy.table.QTable
+        Table of the DL2 events.
+        Required columns: ``reco_energy``, ``true_energy``, ``source_fov_offset``.
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    migration_bins: astropy.units.Quantity[energy]
+        Bin edges in relative deviation, recommended range: [0.2, 5]
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+
+    Returns
+    -------
+    energy_dispersion: numpy.ndarray
+        Energy dispersion matrix
+        with shape (n_true_energy_bins, n_migration_bins, n_fov_ofset_bins)
+    '''
     mu = (selected_events['reco_energy'] / selected_events['true_energy']).to_value(u.one)
 
     energy_dispersion, _ = np.histogramdd(

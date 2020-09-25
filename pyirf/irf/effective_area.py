@@ -10,11 +10,11 @@ def effective_area(n_selected, n_simulated, area):
 
     Parameters
     ----------
-    n_selected: int or ``~numpy.ndarray``[int]
+    n_selected: int or numpy.ndarray[int]
         The number of surviving (e.g. triggered, analysed, after cuts)
-    n_simulated: int or ``~numpy.ndarray``[int]
+    n_simulated: int or numpy.ndarray[int]
         The total number of events simulated
-    area: ``~astropy.units.Quantity``[area]
+    area: astropy.units.Quantity[area]
         Area in which particle's core position was simulated
     '''
     return (n_selected / n_simulated) * area
@@ -27,11 +27,11 @@ def point_like_effective_area(selected_events, simulation_info, true_energy_bins
 
     Parameters
     ----------
-    selected_events: ``~astropy.table.QTable``
+    selected_events: astropy.table.QTable
         DL2 events table, required columns for this function: `true_energy`.
-    simulation_info: ``~pyirf.simulations.SimulatedEventsInfo``
+    simulation_info: pyirf.simulations.SimulatedEventsInfo
         The overall statistics of the simulated events
-    true_energy_bins: ``astropy.units.Quantity``[energy]
+    true_energy_bins: astropy.units.Quantity[energy]
         The bin edges in which to calculate effective area.
     '''
     area = np.pi * simulation_info.max_impact**2
