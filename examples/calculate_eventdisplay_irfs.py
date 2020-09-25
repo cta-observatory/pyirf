@@ -251,6 +251,10 @@ def main():
     hdus.append(create_psf_table_hdu(
         psf, true_energy_bins, source_offset_bins, fov_offset_bins,
     ))
+    hdus.append(create_rad_max_hdu(
+        theta_bins, fov_offset_bins,
+        rad_max=theta_cuts_opt['cut'][:, np.newaxis]
+    ))
     hdus.append(fits.BinTableHDU(ang_res, name='ANGULAR_RESOLUTION'))
     hdus.append(fits.BinTableHDU(bias_resolution, name='ENERGY_BIAS_RESOLUTION'))
     fits.HDUList(hdus).writeto('pyirf_eventdisplay.fits.gz', overwrite=True)
