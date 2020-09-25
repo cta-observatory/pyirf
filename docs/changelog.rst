@@ -3,11 +3,7 @@
 Changelog
 =========
 
-This is the changelog for *pyirf*.
-
-We use a one-line description of every pull request, roughly in chronological order.
-We don't list every pull request.
-Maintenance and cleanup changes are not of interest to users and are not listed here.
+We use a one-line description of every pull request.
 
 .. RELEASE TEMPLATE
 ..
@@ -37,22 +33,24 @@ Maintenance and cleanup changes are not of interest to users and are not listed 
 
 .. _pyirf_0p3_release:
 
-0.1.0 (Unreleased)
-------------------
+`0.1.0-alpha <https://github.com/cta-observatory/pyirf/releases/tag/v0.1.0>`__ (2020-09-16)
+-----
 
-. . .
+This is a pre-release.
+
+- Released September 16th, 2020
+
 
 .. _pyirf_0p1p0alpha_prerelease:
 
-`0.1.0-alpha <https://github.com/cta-observatory/pyirf/releases/tag/v0.1.0-alpha>`__ (May 27th, 2020)
------------------------------------------------------------------------------------------------------
+`0.1.0-alpha <https://github.com/cta-observatory/pyirf/releases/tag/v0.1.0-alpha>`__ (2020-05-27)
+-------------------------------------------------------------------------------------------------
 
 Summary
 +++++++
 
 This is a pre-release.
 
-- This is a pre-release
 - Released May 27th, 2020
 - 3 contributors
 

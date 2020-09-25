@@ -44,13 +44,13 @@ which this documentation is linked.
   install/index
   usage/index
   notebooks/index
-  contribute/index
+  contribute
   changelog
   AUTHORS
 
-.. _pyirf_structure:
+.. _pyirf_api_docs:
 .. toctree::
-  :caption: Structure
+  :caption: API Documentation
   :maxdepth: 1
 
   irf/index

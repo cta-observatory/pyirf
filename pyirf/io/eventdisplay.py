@@ -28,8 +28,14 @@ COLUMN_MAP = {
 
 def read_eventdisplay_fits(infile):
     """
-    Read an DL2 Fits file as produced by the DL2 converter from root
-    here: https://github.com/Eventdisplay/Converters/blob/master/DL2/generate_DL2_file.py
+    Read a DL2 FITS file as produced by the EventDisplay DL2 converter
+    from ROOT files:
+    https://github.com/Eventdisplay/Converters/blob/master/DL2/generate_DL2_file.py
+
+    Parameters
+    ----------
+    infile: str or pathlib.Path
+        Path to the input fits file
 
     Returns
     -------

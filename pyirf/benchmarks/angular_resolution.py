@@ -7,7 +7,6 @@ from ..binning import calculate_bin_indices
 
 
 ONE_SIGMA_PERCENTILE = norm.cdf(1) - norm.cdf(-1)
-print(f'{ONE_SIGMA_PERCENTILE:.2%}')
 
 
 def angular_resolution(
