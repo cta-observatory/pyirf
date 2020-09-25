@@ -36,22 +36,23 @@ which this documentation is linked.
 .. warning::
   This is not yet stable code, so expect large and rapid changes.
 
-.. _pyirf_intro:
 .. toctree::
-  :caption: Overview
   :maxdepth: 1
+  :caption: Overview
+  :name: _pyirf_intro
 
   install
-  usage/index
+  introduction
   notebooks/index
   contribute
   changelog
   AUTHORS
 
-.. _pyirf_api_docs:
+
 .. toctree::
-  :caption: API Documentation
   :maxdepth: 1
+  :caption: API Documentation
+  :name: _pyirf_api_docs
 
   irf/index
   sensitivity
@@ -63,16 +64,9 @@ which this documentation is linked.
   resources/index
 
 
-Reference/API
--------------
-
-.. automodapi:: pyirf
-   :no-inheritance-diagram:
-
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

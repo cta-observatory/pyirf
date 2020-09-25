@@ -55,9 +55,11 @@ Please also have a look at the
 - ``ctapipe`` `development guidelines <https://cta-observatory.github.io/ctapipe/development/index.html>`__
 - The `Open Gamma-Ray Astronomy data formats <https://gamma-astro-data-formats.readthedocs.io/en/latest/>`__
   which also describe the IRF formats and their definitions.
+- ``ctools`` `documentation page on IRFs <http://cta.irap.omp.eu/ctools/users/user_manual/irf_cta.html>`__
 - `CTA IRF working group wiki (internal) <https://forge.in2p3.fr/projects/instrument-response-functions/wiki>`__
 
 - `CTA IRF Description Document for Prod3b (internal) <https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description>`__
+
 
 Benchmarks
 ----------
