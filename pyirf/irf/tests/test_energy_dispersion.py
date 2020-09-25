@@ -6,7 +6,9 @@ from astropy.table import QTable
 def test_energy_dispersion():
     from pyirf.irf import energy_dispersion
 
-    N = 1000
+    np.random.seed(0)
+
+    N = 10000
     TRUE_SIGMA_1 = 0.20
     TRUE_SIGMA_2 = 0.10
     TRUE_SIGMA_3 = 0.05
@@ -23,12 +25,12 @@ def test_energy_dispersion():
             np.full(N, 50.0)
         ])*u.TeV,
         'source_fov_offset': np.concatenate([
-            np.full(500, 0.2),
-            np.full(500, 1.5),
-            np.full(500, 0.2),
-            np.full(500, 1.5),
-            np.full(500, 0.2),
-            np.full(500, 1.5),
+            np.full(N // 2, 0.2),
+            np.full(N // 2, 1.5),
+            np.full(N // 2, 0.2),
+            np.full(N // 2, 1.5),
+            np.full(N // 2, 0.2),
+            np.full(N // 2, 1.5),
         ])*u.deg
     })
 
