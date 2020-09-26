@@ -260,7 +260,7 @@ def main():
     ang_res = angular_resolution(gammas[gammas["selected_gh"]], true_energy_bins,)
 
     psf = psf_table(
-        gammas[gammas["selected"]],
+        gammas[gammas["selected_gh"]],
         true_energy_bins,
         fov_offset_bins=fov_offset_bins,
         source_offset_bins=source_offset_bins,
