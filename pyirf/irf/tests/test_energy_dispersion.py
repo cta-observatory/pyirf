@@ -47,23 +47,23 @@ def test_energy_dispersion():
     assert result.shape == (3, 1000, 2)
     assert np.isclose(result.sum(),  6.0)
 
-    cumulated = np.cumsum(result, axis=1)
+    cumulative_sum = np.cumsum(result, axis=1)
     bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
     assert np.isclose(
         TRUE_SIGMA_1,
-        (bin_centers[np.where(cumulated[0, :, :] >= 0.84)[0][0]]
-         - bin_centers[np.where(cumulated[0, :, :] >= 0.16)[0][0]])/2,
+        (bin_centers[np.where(cumulative_sum[0, :, :] >= 0.84)[0][0]]
+         - bin_centers[np.where(cumulative_sum[0, :, :] >= 0.16)[0][0]])/2,
         rtol=0.1
     )
     assert np.isclose(
         TRUE_SIGMA_2,
-        (bin_centers[np.where(cumulated[1, :, :] >= 0.84)[0][0]]
-         - bin_centers[np.where(cumulated[1, :, :] >= 0.16)[0][0]])/2,
+        (bin_centers[np.where(cumulative_sum[1, :, :] >= 0.84)[0][0]]
+         - bin_centers[np.where(cumulative_sum[1, :, :] >= 0.16)[0][0]])/2,
         rtol=0.1
     )
     assert np.isclose(
         TRUE_SIGMA_3,
-        (bin_centers[np.where(cumulated[2, :, :] >= 0.84)[0][0]]
-         - bin_centers[np.where(cumulated[2, :, :] >= 0.16)[0][0]])/2,
+        (bin_centers[np.where(cumulative_sum[2, :, :] >= 0.84)[0][0]]
+         - bin_centers[np.where(cumulative_sum[2, :, :] >= 0.16)[0][0]])/2,
         rtol=0.1
     )
