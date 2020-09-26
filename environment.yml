@@ -21,7 +21,6 @@ dependencies:
   - sphinx_rtd_theme
   - pip
   - pip:
-      - rinohtype
       - nbsphinx
       - sphinx_automodapi
-      - uproot
+      - uproot~=3.0

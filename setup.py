@@ -5,8 +5,15 @@ with open("pyirf/version.py") as f:
     __version__ = re.search('^__version__ = "(.*)"$', f.read()).group(1)
 
 extras_require = {
-    "docs": ["sphinx", "sphinx_rtd_theme", "sphinx_automodapi", "numpydoc", "nbsphinx"],
-    "tests": ["pytest", "pytest-cov", "uproot",],
+    "docs": [
+        "sphinx",
+        "sphinx_rtd_theme",
+        "sphinx_automodapi",
+        "numpydoc",
+        "nbsphinx",
+        "uproot~=3.0",
+    ],
+    "tests": ["pytest", "pytest-cov"],
 }
 
 extras_require["all"] = extras_require["tests"] + extras_require["docs"]

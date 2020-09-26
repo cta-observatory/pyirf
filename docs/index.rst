@@ -16,7 +16,7 @@ The package is being developed and tested by members of the CTA consortium and
 is a spin-off of the analog sub-process of the
 `pipeline protopype <https://cta-observatory.github.io/protopipe/>`_.
 
-Its main features are currently to,
+Its main features are currently to
 
   * find the best cutoff in gammaness/score, to discriminate between signal
     and background, as well as the angular cut to obtain the best sensitivity
