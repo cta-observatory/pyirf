@@ -66,7 +66,8 @@ def create_aeff2d_hdu(
     aeff["ENERG_HI"] = u.Quantity(true_energy_bins[1:], ndmin=2).to(u.TeV)
     aeff["THETA_LO"] = u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg)
     aeff["THETA_HI"] = u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg)
-    aeff["EFFAREA"] = effective_area[np.newaxis, ...].to(u.m ** 2)
+    # transpose because FITS uses opposite dimension order than numpy
+    aeff["EFFAREA"] = effective_area.T[np.newaxis, ...].to(u.m ** 2)
 
     # required header keywords
     header = DEFAULT_HEADER.copy()
@@ -130,7 +131,8 @@ def create_psf_table_hdu(
             "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
             "RAD_LO": u.Quantity(source_offset_bins[:-1], ndmin=2).to(u.deg),
             "RAD_HI": u.Quantity(source_offset_bins[1:], ndmin=2).to(u.deg),
-            "RPSF": psf[np.newaxis, ...].to(1 / u.sr),
+            # transpose as FITS uses opposite dimension order
+            "RPSF": psf.T[np.newaxis, ...].to(1 / u.sr),
         }
     )
 
@@ -193,7 +195,8 @@ def create_energy_dispersion_hdu(
             "MIGRA_HI": u.Quantity(migration_bins[1:], ndmin=2).to(u.one),
             "THETA_LO": u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg),
             "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
-            "MATRIX": u.Quantity(energy_dispersion[np.newaxis, ...]).to(u.one),
+            # transpose as FITS uses opposite dimension order
+            "MATRIX": u.Quantity(energy_dispersion.T[np.newaxis, ...]).to(u.one),
         }
     )
 
@@ -250,7 +253,8 @@ def create_rad_max_hdu(
             "ENERG_HI": u.Quantity(reco_energy_bins[1:], ndmin=2).to(u.TeV),
             "THETA_LO": u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg),
             "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
-            "RAD_MAX": rad_max[np.newaxis, ...].to(u.deg),
+            # transpose as FITS uses opposite dimension order
+            "RAD_MAX": rad_max.T[np.newaxis, ...].to(u.deg),
         }
     )
 
