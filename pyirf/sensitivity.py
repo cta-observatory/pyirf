@@ -1,6 +1,6 @@
-'''
+"""
 Functions to calculate sensitivity
-'''
+"""
 import astropy.units as u
 import numpy as np
 from scipy.optimize import brentq
@@ -11,10 +11,7 @@ from .statistics import li_ma_significance
 from .utils import check_histograms
 
 
-__all__ = [
-    'relative_sensitivity',
-    'calculate_sensitivity'
-]
+__all__ = ["relative_sensitivity", "calculate_sensitivity"]
 
 
 log = logging.getLogger(__name__)
@@ -28,7 +25,7 @@ def relative_sensitivity(
     significance_function=li_ma_significance,
     initial_guess=0.01,
 ):
-    '''
+    """
     Calculate the relative sensitivity defined as the flux
     relative to the reference source that is detectable with
     significance ``target_significance``.
@@ -65,7 +62,7 @@ def relative_sensitivity(
         Formula (17)
     initial_guess: float
         Initial guess for the root finder
-    '''
+    """
     n_background = n_off * alpha
     n_signal = n_on - n_background
 
@@ -89,15 +86,12 @@ def relative_sensitivity(
         # we will use the simple, analytically  solvable significance formula and scale it
         # with 10 to be sure it's above the Li and Ma solution
         # so rel * n_signal / sqrt(n_background) = target_significance
-        upper_bound =  10 * target_significance * np.sqrt(n_background) / n_signal
-        result = brentq(
-            equation,
-            0, upper_bound,
-        )
+        upper_bound = 10 * target_significance * np.sqrt(n_background) / n_signal
+        result = brentq(equation, 0, upper_bound,)
     except (RuntimeError, ValueError):
         log.warn(
-            'Could not calculate relative significance for'
-            f' n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan'
+            "Could not calculate relative significance for"
+            f" n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan"
         )
         return np.nan
 
@@ -111,7 +105,7 @@ def calculate_sensitivity(
     target_significance=5,
     significance_function=li_ma_significance,
 ):
-    '''
+    """
     Calculate sensitivity for DL2 event lists in bins of reconstructed energy.
 
     Sensitivity is defined as the minimum flux detectable with ``target_significance``
@@ -145,37 +139,42 @@ def calculate_sensitivity(
         and the ``relative_sensitivity``, the scaling applied to the signal events
         that yields ``target_significance`` sigma of significance according to
         the ``significance_function``
-    '''
+    """
     assert len(signal_hist) == len(background_hist)
 
     check_histograms(signal_hist, background_hist)
     sensitivity = QTable()
-    for key in ('low', 'high', 'center'):
-        k = 'reco_energy_' + key
+    for key in ("low", "high", "center"):
+        k = "reco_energy_" + key
         sensitivity[k] = signal_hist[k]
 
     # add event number information
-    sensitivity['n_signal'] = signal_hist['n']
-    sensitivity['n_signal_weighted'] = signal_hist['n_weighted']
-    sensitivity['n_background'] = background_hist['n']
-    sensitivity['n_background_weighted'] = background_hist['n_weighted']
+    sensitivity["n_signal"] = signal_hist["n"]
+    sensitivity["n_signal_weighted"] = signal_hist["n_weighted"]
+    sensitivity["n_background"] = background_hist["n"]
+    sensitivity["n_background_weighted"] = background_hist["n_weighted"]
 
-    sensitivity['relative_sensitivity'] = [
+    sensitivity["relative_sensitivity"] = [
         relative_sensitivity(
             n_on=n_signal_hist + alpha * n_background_hist,
             n_off=n_background_hist,
             alpha=alpha,
         )
-        for n_signal_hist, n_background_hist in zip(signal_hist['n_weighted'], background_hist['n_weighted'])
+        for n_signal_hist, n_background_hist in zip(
+            signal_hist["n_weighted"], background_hist["n_weighted"]
+        )
     ]
 
     # safety checks
     invalid = (
-        (sensitivity['n_signal_weighted'] < 10)
-        | (sensitivity['n_signal_weighted'] < (0.05 * alpha * sensitivity['n_background_weighted']))
-        | (sensitivity['n_background'] < 5)
-        | (sensitivity['n_background_weighted'] < 10)
+        (sensitivity["n_signal_weighted"] < 10)
+        | (
+            sensitivity["n_signal_weighted"]
+            < (0.05 * alpha * sensitivity["n_background_weighted"])
+        )
+        | (sensitivity["n_background"] < 5)
+        | (sensitivity["n_background_weighted"] < 10)
     )
-    sensitivity['relative_sensitivity'][invalid] = np.nan
+    sensitivity["relative_sensitivity"][invalid] = np.nan
 
     return sensitivity

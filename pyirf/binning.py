@@ -1,6 +1,6 @@
-'''
+"""
 Utility functions for binning
-'''
+"""
 
 import numpy as np
 import astropy.units as u
@@ -8,7 +8,7 @@ from astropy.table import QTable
 
 
 def add_overflow_bins(bins, positive=True):
-    '''
+    """
     Add under and overflow bins to a bin array.
 
     Parameters
@@ -17,11 +17,11 @@ def add_overflow_bins(bins, positive=True):
         Bin edges array
     positive: bool
         If True, the underflow array will start at 0, if not at ``-np.inf``
-    '''
+    """
     lower = 0 if positive else -np.inf
     upper = np.inf
 
-    if hasattr(bins, 'unit'):
+    if hasattr(bins, "unit"):
         lower *= bins.unit
         upper *= bins.unit
 
@@ -36,7 +36,7 @@ def add_overflow_bins(bins, positive=True):
 
 @u.quantity_input(e_min=u.TeV, e_max=u.TeV)
 def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
-    '''
+    """
     Create a bin array with bins equally spaced in logarithmic energy
     with ``bins_per_decade`` bins per decade.
 
@@ -54,17 +54,17 @@ def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
     bins: u.Quantity[energy]
         The created bin array, will have units of e_min
 
-    '''
+    """
     unit = e_min.unit
     log_lower = np.log10(e_min.to_value(unit))
     log_upper = np.log10(e_max.to_value(unit))
 
-    bins = 10**np.arange(log_lower, log_upper, 1 / bins_per_decade)
+    bins = 10 ** np.arange(log_lower, log_upper, 1 / bins_per_decade)
     return u.Quantity(bins, e_min.unit, copy=False)
 
 
 def calculate_bin_indices(data, bins):
-    '''
+    """
     Calculate bin indices for given data array and bins.
     Underflow will be -1 and overflow len(bins) - 1.
     If the bis already include underflow / overflow bins, e.g.
@@ -85,13 +85,11 @@ def calculate_bin_indices(data, bins):
     -------
     bin_index: np.ndarray[int]
         Indices of the histogram bin the values in data belong to
-    '''
+    """
 
-    if hasattr(data, 'unit'):
-        if not hasattr(bins, 'unit'):
-            raise TypeError(
-                f'If ``data`` is a Quantity, so must ``bin``, got {bins}'
-            )
+    if hasattr(data, "unit"):
+        if not hasattr(bins, "unit"):
+            raise TypeError(f"If ``data`` is a Quantity, so must ``bin``, got {bins}")
         unit = data.unit
         data = data.to_value(unit)
         bins = bins.to_value(unit)
@@ -99,8 +97,8 @@ def calculate_bin_indices(data, bins):
     return np.digitize(data, bins) - 1
 
 
-def create_histogram_table(events, bins, key='reco_energy'):
-    '''
+def create_histogram_table(events, bins, key="reco_energy"):
+    """
     Histogram a variable from events data into an astropy table.
 
     Parameters
@@ -117,16 +115,16 @@ def create_histogram_table(events, bins, key='reco_energy'):
     -------
     hist: ``astropy.QTable``
         Astropy table containg the histogram.
-    '''
+    """
     hist = QTable()
-    hist[key + '_low'] = bins[:-1]
-    hist[key + '_high'] = bins[1:]
-    hist[key + '_center'] = 0.5 * (hist[key + '_low'] + hist[key + '_high'])
-    hist['n'], _ = np.histogram(events[key], bins)
+    hist[key + "_low"] = bins[:-1]
+    hist[key + "_high"] = bins[1:]
+    hist[key + "_center"] = 0.5 * (hist[key + "_low"] + hist[key + "_high"])
+    hist["n"], _ = np.histogram(events[key], bins)
 
     # also calculate weighted number of events
-    if 'weight' in events.colnames:
-        hist['n_weighted'], _ = np.histogram(
-            events[key], bins, weights=events['weight']
+    if "weight" in events.colnames:
+        hist["n_weighted"], _ = np.histogram(
+            events[key], bins, weights=events["weight"]
         )
     return hist

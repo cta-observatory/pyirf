@@ -8,15 +8,18 @@ from scipy.stats import norm
 
 @pytest.fixture
 def events():
-    return QTable({
-        'bin_reco_energy': [0, 0, 1, 1, 2, 2],
-        'theta': [0.1, 0.02, 0.3, 0.15, 0.01, 0.1] * u.deg,
-        'gh_score': [1.0, -0.2, 0.5, 0.05, 1.0, 0.3],
-    })
+    return QTable(
+        {
+            "bin_reco_energy": [0, 0, 1, 1, 2, 2],
+            "theta": [0.1, 0.02, 0.3, 0.15, 0.01, 0.1] * u.deg,
+            "gh_score": [1.0, -0.2, 0.5, 0.05, 1.0, 0.3],
+        }
+    )
 
 
 def test_calculate_percentile_cuts():
     from pyirf.cuts import calculate_percentile_cut
+
     np.random.seed(0)
 
     dist1 = norm(0, 1)
@@ -28,32 +31,27 @@ def test_calculate_percentile_cuts():
     bins = [-0.5, 0.5, 1.5] * u.m
 
     cuts = calculate_percentile_cut(values, bin_values, bins, fill_value=np.nan * u.deg)
-    assert np.all(cuts['low'] == bins[:-1])
-    assert np.all(cuts['high'] == bins[1:])
+    assert np.all(cuts["low"] == bins[:-1])
+    assert np.all(cuts["high"] == bins[1:])
 
-    assert np.allclose(
-        cuts['cut'],
-        [dist1.ppf(0.68), dist2.ppf(0.68)],
-        rtol=0.1,
-    )
+    assert np.allclose(cuts["cut"], [dist1.ppf(0.68), dist2.ppf(0.68)], rtol=0.1,)
 
     # test with min/max value
     cuts = calculate_percentile_cut(
-        values, bin_values, bins, fill_value=np.nan * u.deg,
+        values,
+        bin_values,
+        bins,
+        fill_value=np.nan * u.deg,
         min_value=1 * u.deg,
         max_value=5 * u.deg,
     )
-    assert np.all(cuts['cut'].quantity == [1.0, 5.0] * u.deg)
+    assert np.all(cuts["cut"].quantity == [1.0, 5.0] * u.deg)
 
 
 def test_evaluate_binned_cut():
     from pyirf.cuts import evaluate_binned_cut
 
-    cuts = Table({
-        'low': [0, 1],
-        'high': [1, 2],
-        'cut': [100, 1000],
-    })
+    cuts = Table({"low": [0, 1], "high": [1, 2], "cut": [100, 1000],})
 
     survived = evaluate_binned_cut(
         np.array([500, 1500, 50, 2000, 25, 800]),
@@ -64,11 +62,9 @@ def test_evaluate_binned_cut():
     assert np.all(survived == [True, True, False, True, False, False])
 
     # test with quantity
-    cuts = Table({
-        'low': [0, 1] * u.TeV,
-        'high': [1, 2] * u.TeV,
-        'cut': [100, 1000] * u.m,
-    })
+    cuts = Table(
+        {"low": [0, 1] * u.TeV, "high": [1, 2] * u.TeV, "cut": [100, 1000] * u.m,}
+    )
 
     survived = evaluate_binned_cut(
         [500, 1500, 50, 2000, 25, 800] * u.m,

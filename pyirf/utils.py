@@ -3,15 +3,16 @@ import astropy.units as u
 from astropy.coordinates.angle_utilities import angular_separation
 
 __all__ = [
-    'is_scalar',
-    'calculate_theta',
-    'calculate_source_fov_offset',
-    'check_histograms',
-    'cone_solid_angle',
+    "is_scalar",
+    "calculate_theta",
+    "calculate_source_fov_offset",
+    "check_histograms",
+    "cone_solid_angle",
 ]
 
+
 def is_scalar(val):
-    '''Workaround that also supports astropy quantities
+    """Workaround that also supports astropy quantities
 
     Parameters
     ----------
@@ -22,7 +23,7 @@ def is_scalar(val):
     -------
     result: bool
         True is if input object is a scalar, False otherwise.
-    '''
+    """
     result = np.array(val, copy=False).shape == tuple()
     return result
 
@@ -47,8 +48,7 @@ def calculate_theta(events, assumed_source_az, assumed_source_alt):
         in the sky.
     """
     theta = angular_separation(
-        assumed_source_az, assumed_source_alt,
-        events['reco_az'], events['reco_alt'],
+        assumed_source_az, assumed_source_alt, events["reco_az"], events["reco_alt"],
     )
 
     return theta.to(u.deg)
@@ -69,15 +69,17 @@ def calculate_source_fov_offset(events):
         in the sky.
     """
     theta = angular_separation(
-        events['true_az'], events['true_alt'],
-        events['pointing_az'], events['pointing_alt'],
+        events["true_az"],
+        events["true_alt"],
+        events["pointing_az"],
+        events["pointing_alt"],
     )
 
     return theta.to(u.deg)
 
 
-def check_histograms(hist1, hist2, key='reco_energy'):
-    '''
+def check_histograms(hist1, hist2, key="reco_energy"):
+    """
     Check if two histogram tables have the same binning
 
     Parameters
@@ -87,19 +89,19 @@ def check_histograms(hist1, hist2, key='reco_energy'):
         ``~pyirf.binning.create_histogram_table``
     hist2: ``~astropy.table.Table``
         Second histogram table
-    '''
+    """
 
     # check binning information and add to output
-    for k in ('low', 'center', 'high'):
-        k = key + '_' + k
+    for k in ("low", "center", "high"):
+        k = key + "_" + k
         if not np.all(hist1[k] == hist2[k]):
             raise ValueError(
-                'Binning for signal_hist and background_hist must be equal'
+                "Binning for signal_hist and background_hist must be equal"
             )
 
 
 def cone_solid_angle(angle):
-    '''Calculate the solid angle of a view cone.
+    """Calculate the solid angle of a view cone.
 
     Parameters
     ----------
@@ -111,6 +113,6 @@ def cone_solid_angle(angle):
     solid_angle: astropy.units.Quantity
         Solid angle of a view cone with opening angle ``angle``.
 
-    '''
+    """
     solid_angle = 2 * np.pi * (1 - np.cos(angle)) * u.sr
     return solid_angle

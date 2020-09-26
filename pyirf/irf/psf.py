@@ -5,15 +5,17 @@ from ..utils import cone_solid_angle
 
 
 def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
-    '''
+    """
     Calculate the table based PSF (radially symmetrical bins around the true source)
-    '''
+    """
 
-    array = np.column_stack([
-        events['true_energy'].to_value(u.TeV),
-        events['source_fov_offset'].to_value(u.deg),
-        events['theta'].to_value(u.deg)
-    ])
+    array = np.column_stack(
+        [
+            events["true_energy"].to_value(u.TeV),
+            events["source_fov_offset"].to_value(u.deg),
+            events["theta"].to_value(u.deg),
+        ]
+    )
 
     hist, edges = np.histogramdd(
         array,
@@ -21,7 +23,7 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
             true_energy_bins.to_value(u.TeV),
             fov_offset_bins.to_value(u.deg),
             source_offset_bins.to_value(u.deg),
-        ]
+        ],
     )
 
     psf = _normalize_psf(hist, source_offset_bins)
@@ -29,11 +31,11 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
 
 
 def _normalize_psf(hist, source_offset_bins):
-    '''Normalize the psf histogram to a probability densitity over solid angle'''
+    """Normalize the psf histogram to a probability densitity over solid angle"""
     solid_angle = np.diff(cone_solid_angle(source_offset_bins))
 
     # ignore numpy zero division warning
-    with np.errstate(invalid='ignore'):
+    with np.errstate(invalid="ignore"):
 
         # to correctly divide by using broadcasting here,
         # we need to swap the axis order

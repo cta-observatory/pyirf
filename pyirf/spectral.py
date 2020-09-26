@@ -1,6 +1,6 @@
-'''
+"""
 Functions and classes for calculating spectral weights
-'''
+"""
 import astropy.units as u
 import numpy as np
 
@@ -8,7 +8,7 @@ import numpy as np
 #: Unit of a point source flux
 #:
 #: Number of particles per Energy, time and area
-POINT_SOURCE_FLUX_UNIT = (1 / u.TeV / u.s / u.m**2).unit
+POINT_SOURCE_FLUX_UNIT = (1 / u.TeV / u.s / u.m ** 2).unit
 
 #: Unit of a diffuse flux
 #:
@@ -17,23 +17,23 @@ DIFFUSE_FLUX_UNIT = POINT_SOURCE_FLUX_UNIT / u.sr
 
 
 __all__ = [
-    'POINT_SOURCE_FLUX_UNIT',
-    'DIFFUSE_FLUX_UNIT',
-    'calculate_event_weights',
-    'PowerLaw',
-    'LogParabola',
-    'PowerLawWithExponentialGaussian',
-    'CRAB_HEGRA',
-    'CRAB_MAGIC_JHEAP2015',
-    'PDG_ALL_PARTICLE',
-    'IRFDOC_PROTON_SPECTRUM',
-    'IRFDOC_ELECTRON_SPECTRUM'
+    "POINT_SOURCE_FLUX_UNIT",
+    "DIFFUSE_FLUX_UNIT",
+    "calculate_event_weights",
+    "PowerLaw",
+    "LogParabola",
+    "PowerLawWithExponentialGaussian",
+    "CRAB_HEGRA",
+    "CRAB_MAGIC_JHEAP2015",
+    "PDG_ALL_PARTICLE",
+    "IRFDOC_PROTON_SPECTRUM",
+    "IRFDOC_ELECTRON_SPECTRUM",
 ]
 
 
 @u.quantity_input(true_energy=u.TeV)
 def calculate_event_weights(true_energy, target_spectrum, simulated_spectrum):
-    r'''
+    r"""
     Calculate event weights
 
     Events with a certain ``simulated_spectrum`` are reweighted to ``target_spectrum``.
@@ -54,14 +54,14 @@ def calculate_event_weights(true_energy, target_spectrum, simulated_spectrum):
     -------
     weights: numpy.ndarray
         Weights for each event
-    '''
-    return (
-        target_spectrum(true_energy) / simulated_spectrum(true_energy)
-    ).to_value(u.one)
+    """
+    return (target_spectrum(true_energy) / simulated_spectrum(true_energy)).to_value(
+        u.one
+    )
 
 
 class PowerLaw:
-    r'''
+    r"""
     A power law with normalization, reference energy and index.
     Index includes the sign:
 
@@ -78,10 +78,10 @@ class PowerLaw:
         :math:`\gamma`
     e_ref: astropy.units.Quantity[energy]
         :math:`E_\text{ref}`
-    '''
+    """
+
     @u.quantity_input(
-        normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT],
-        e_ref=u.TeV
+        normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, index, e_ref=1 * u.TeV):
         self.normalization = normalization
@@ -90,20 +90,15 @@ class PowerLaw:
 
     @u.quantity_input(energy=u.TeV)
     def __call__(self, energy):
-        return (
-            self.normalization
-            * (energy / self.e_ref) ** self.index
-        )
+        return self.normalization * (energy / self.e_ref) ** self.index
 
     @classmethod
     @u.quantity_input(obstime=u.hour, e_ref=u.TeV)
-    def from_simulation(
-        cls, simulated_event_info, obstime, e_ref=1 * u.TeV
-    ):
-        '''
+    def from_simulation(cls, simulated_event_info, obstime, e_ref=1 * u.TeV):
+        """
         Calculate the flux normalization for simulated events drawn
         from a power law for a certain observation time.
-        '''
+        """
         e_min = simulated_event_info.energy_min
         e_max = simulated_event_info.energy_max
         index = simulated_event_info.spectral_index
@@ -115,24 +110,20 @@ class PowerLaw:
         else:
             solid_angle = 1
 
-        A = np.pi * simulated_event_info.max_impact**2
+        A = np.pi * simulated_event_info.max_impact ** 2
 
-        delta = e_max**(index + 1) - e_min**(index + 1)
-        nom = (index + 1) * e_ref**index * n_showers
+        delta = e_max ** (index + 1) - e_min ** (index + 1)
+        nom = (index + 1) * e_ref ** index * n_showers
         denom = (A * obstime * solid_angle) * delta
 
-        return cls(
-            normalization=nom / denom,
-            index=index,
-            e_ref=e_ref,
-        )
+        return cls(normalization=nom / denom, index=index, e_ref=e_ref,)
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**{self.index}'
+        return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**{self.index}"
 
 
 class LogParabola:
-    r'''
+    r"""
     A log parabola flux parameterization.
 
     .. math::
@@ -152,11 +143,10 @@ class LogParabola:
         :math:`\beta`
     e_ref: astropy.units.Quantity[energy]
         :math:`E_\text{ref}`
-    '''
+    """
 
     @u.quantity_input(
-        normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT],
-        e_ref=u.TeV
+        normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, a, b, e_ref=1 * u.TeV):
         self.normalization = normalization
@@ -167,14 +157,14 @@ class LogParabola:
     @u.quantity_input(energy=u.TeV)
     def __call__(self, energy):
         e = (energy / self.e_ref).to_value(u.one)
-        return self.normalization * e**(self.a + self.b * np.log10(e))
+        return self.normalization * e ** (self.a + self.b * np.log10(e))
 
     def __repr__(self):
-        return f'{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**({self.a} + {self.b} * log10(E / {self.e_ref}))'
+        return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**({self.a} + {self.b} * log10(E / {self.e_ref}))"
 
 
 class PowerLawWithExponentialGaussian(PowerLaw):
-    r'''
+    r"""
     A power law with an additional Gaussian bump.
     Beware that the Gaussian is not normalized!
 
@@ -210,18 +200,13 @@ class PowerLawWithExponentialGaussian(PowerLaw):
         :math:`\beta`
     e_ref: astropy.units.Quantity[energy]
         :math:`E_\text{ref}`
-    '''
+    """
 
     @u.quantity_input(
-        normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT],
-        e_ref=u.TeV
+        normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, index, e_ref, f, mu, sigma):
-        super().__init__(
-            normalization=normalization,
-            index=index,
-            e_ref=e_ref
-        )
+        super().__init__(normalization=normalization, index=index, e_ref=e_ref)
         self.f = f
         self.mu = mu
         self.sigma = sigma
@@ -234,8 +219,9 @@ class PowerLawWithExponentialGaussian(PowerLaw):
         # this is missing from the IRFDocs
         # the code used for the plot can be found here:
         # https://gitlab.cta-observatory.org/cta-consortium/aswg/irfs-macros/cosmic-rays-spectra/-/blob/master/electron_spectrum.C#L508
-        gauss = np.exp(-0.5 * ((log10_e - self.mu) / self.sigma)**2)
+        gauss = np.exp(-0.5 * ((log10_e - self.mu) / self.sigma) ** 2)
         return power * (1 + self.f * (np.exp(gauss) - 1))
+
 
 #: Power Law parametrization of the Crab Nebula spectrum as published by HEGRA
 #:
@@ -243,9 +229,7 @@ class PowerLawWithExponentialGaussian(PowerLaw):
 #: Aharonian et al, 2004, ApJ 614.2
 #: doi.org/10.1086/423931
 CRAB_HEGRA = PowerLaw(
-    normalization=2.83e-11 / (u.TeV * u.cm**2 * u.s),
-    index=-2.62,
-    e_ref=1 * u.TeV,
+    normalization=2.83e-11 / (u.TeV * u.cm ** 2 * u.s), index=-2.62, e_ref=1 * u.TeV,
 )
 
 #: Log-Parabola parametrization of the Crab Nebula spectrum as published by MAGIC
@@ -254,9 +238,7 @@ CRAB_HEGRA = PowerLaw(
 #: Aleksìc et al., 2015, JHEAP
 #: https://doi.org/10.1016/j.jheap.2015.01.002
 CRAB_MAGIC_JHEAP2015 = LogParabola(
-    normalization=3.23e-11 / (u.TeV * u.cm**2 * u.s),
-    a=-2.47,
-    b=-0.24,
+    normalization=3.23e-11 / (u.TeV * u.cm ** 2 * u.s), a=-2.47, b=-0.24,
 )
 
 
@@ -265,9 +247,7 @@ CRAB_MAGIC_JHEAP2015 = LogParabola(
 #: (30.2) from "The Review of Particle Physics (2020)"
 #: https://pdg.lbl.gov/2020/reviews/rpp2020-rev-cosmic-rays.pdf
 PDG_ALL_PARTICLE = PowerLaw(
-    normalization=1.8e4 / (u.GeV * u.m**2 * u.s * u.sr),
-    index=-2.7,
-    e_ref=1 * u.GeV,
+    normalization=1.8e4 / (u.GeV * u.m ** 2 * u.s * u.sr), index=-2.7, e_ref=1 * u.GeV,
 )
 
 #: Proton spectrum definition defined in the CTA Prod3b IRF Document
@@ -275,7 +255,7 @@ PDG_ALL_PARTICLE = PowerLaw(
 #: From "Description of CTA Instrument Response Functions
 #: (Production 3b Simulation), section 4.3.1
 IRFDOC_PROTON_SPECTRUM = PowerLaw(
-    normalization=9.8e-6 / (u.cm**2 * u.s * u.TeV * u.sr),
+    normalization=9.8e-6 / (u.cm ** 2 * u.s * u.TeV * u.sr),
     index=-2.62,
     e_ref=1 * u.TeV,
 )
@@ -285,7 +265,7 @@ IRFDOC_PROTON_SPECTRUM = PowerLaw(
 #: From "Description of CTA Instrument Response Functions
 #: (Production 3b Simulation), section 4.3.1
 IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
-    normalization=2.385e-9 / (u.TeV * u.cm**2 * u.s * u.sr),
+    normalization=2.385e-9 / (u.TeV * u.cm ** 2 * u.s * u.sr),
     index=-3.43,
     e_ref=1 * u.TeV,
     mu=-0.101,

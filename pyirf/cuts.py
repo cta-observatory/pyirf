@@ -5,15 +5,9 @@ from .binning import calculate_bin_indices
 
 
 def calculate_percentile_cut(
-    values,
-    bin_values,
-    bins,
-    fill_value,
-    percentile=68,
-    min_value=None,
-    max_value=None,
+    values, bin_values, bins, fill_value, percentile=68, min_value=None, max_value=None,
 ):
-    '''
+    """
     Calculate cuts as the percentile of a given quantity in bins of another
     quantity.
 
@@ -34,42 +28,40 @@ def calculate_percentile_cut(
         If given, cuts smaller than this value are replaced with ``min_value``
     max_value: float or quantity or None
         If given, cuts larger than this value are replaced with ``max_value``
-    '''
+    """
     # create a table to make use of groupby operations
-    table = Table({'values': values, 'bin_values': bin_values}, copy=False)
+    table = Table({"values": values, "bin_values": bin_values}, copy=False)
 
-    table['bin_index'] = calculate_bin_indices(
-        table['bin_values'].quantity, bins
-    )
+    table["bin_index"] = calculate_bin_indices(table["bin_values"].quantity, bins)
 
     cut_table = Table()
-    cut_table['low'] = bins[:-1]
-    cut_table['high'] = bins[1:]
-    cut_table['cut'] = fill_value
+    cut_table["low"] = bins[:-1]
+    cut_table["high"] = bins[1:]
+    cut_table["cut"] = fill_value
 
     # use groupby operations to calculate the percentile in each bin
-    by_bin = table.group_by('bin_index')
+    by_bin = table.group_by("bin_index")
 
     # fill only the non-empty bins
-    cut_table['cut'][by_bin.groups.keys['bin_index']] = (
-        by_bin['values']
+    cut_table["cut"][by_bin.groups.keys["bin_index"]] = (
+        by_bin["values"]
         .groups.aggregate(lambda g: np.percentile(g, percentile))
-        .quantity.to_value(cut_table['cut'].unit)
+        .quantity.to_value(cut_table["cut"].unit)
     )
 
     if min_value is not None:
-        invalid = cut_table['cut'] < min_value
-        cut_table['cut'] = np.where(invalid, min_value, cut_table['cut'])
+        invalid = cut_table["cut"] < min_value
+        cut_table["cut"] = np.where(invalid, min_value, cut_table["cut"])
 
     if max_value is not None:
-        invalid = cut_table['cut'] > max_value
-        cut_table['cut'] = np.where(invalid, max_value, cut_table['cut'])
+        invalid = cut_table["cut"] > max_value
+        cut_table["cut"] = np.where(invalid, max_value, cut_table["cut"])
 
     return cut_table
 
 
 def evaluate_binned_cut(values, bin_values, cut_table, op):
-    '''
+    """
     Evaluate a binned cut as defined in cut_table on given events
 
     Parameters
@@ -88,7 +80,7 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
     op: binary operator function
         A function taking two arguments, comparing element-wise and
         returning an array of booleans.
-    '''
-    bins = np.append(cut_table['low'].quantity, cut_table['high'].quantity[-1])
+    """
+    bins = np.append(cut_table["low"].quantity, cut_table["high"].quantity[-1])
     bin_index = calculate_bin_indices(bin_values, bins)
-    return op(values, cut_table['cut'][bin_index].quantity)
+    return op(values, cut_table["cut"][bin_index].quantity)
