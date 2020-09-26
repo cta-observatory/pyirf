@@ -10,7 +10,7 @@ from pyirf.spectral import (
     CRAB_HEGRA,
     CRAB_MAGIC_JHEAP2015,
     POINT_SOURCE_FLUX_UNIT,
-    FLUX_UNIT,
+    DIFFUSE_FLUX_UNIT,
 )
 
 
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     plt.title("Cosmic Ray Flux")
 
     for label, spectrum in cr_spectra.items():
-        unit = energy.unit ** 2 * FLUX_UNIT
+        unit = energy.unit ** 2 * DIFFUSE_FLUX_UNIT
         plt.plot(
             energy.to_value(u.TeV),
             (spectrum(energy) * energy ** 2).to_value(unit),
