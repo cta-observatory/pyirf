@@ -3,6 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. meta::
+    :github_url: https://github.com/cta-observatory/pyirf
+
 Welcome to pyirf's documentation!
 =================================
 
@@ -43,6 +46,7 @@ which this documentation is linked.
 
   install
   introduction
+  examples
   notebooks/index
   contribute
   changelog
