@@ -13,7 +13,7 @@ extras_require = {
         "nbsphinx",
         "uproot~=3.0",
     ],
-    "tests": ["pytest", "pytest-cov", "cython", "gammapy~=0.17"],
+    "tests": ["pytest", "pytest-cov", "gammapy~=0.17"],
 }
 
 extras_require["all"] = extras_require["tests"] + extras_require["docs"]
