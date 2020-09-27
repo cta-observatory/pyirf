@@ -3,6 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+.. meta::
+    :github_url: https://github.com/cta-observatory/pyirf
+
 Welcome to pyirf's documentation!
 =================================
 
@@ -13,15 +16,15 @@ The package is being developed and tested by members of the CTA consortium and
 is a spin-off of the analog sub-process of the
 `pipeline protopype <https://cta-observatory.github.io/protopipe/>`_.
 
-Its main features are currently to,
+Its main features are currently to
 
   * find the best cutoff in gammaness/score, to discriminate between signal
     and background, as well as the angular cut to obtain the best sensitivity
     for a given amount of observation time and a given template for the
-    source of interest (:ref:`perf`)
+    source of interest (:ref:`cut_optimization`)
   * compute the instrument response functions, effective area,
-    point spread function and energy resolution (:ref:`perf`)
-  * estimate the sensitivity of the array (:ref:`perf`),
+    point spread function and energy resolution (:ref:`irf`)
+  * estimate the sensitivity of the array (:ref:`sensitivity`),
 
 with plans to extend its capabilities to reach the requirements of the
 future observatory.
@@ -36,26 +39,34 @@ which this documentation is linked.
 .. warning::
   This is not yet stable code, so expect large and rapid changes.
 
-.. _pyirf_intro:
 .. toctree::
-  :caption: Overview
   :maxdepth: 1
+  :caption: Overview
+  :name: _pyirf_intro
 
-  install/index
-  usage/index
-  contribute/index
+  install
+  introduction
+  examples
+  notebooks/index
+  contribute
   changelog
   AUTHORS
 
-.. _pyirf_structure:
-.. toctree::
-  :caption: Structure
-  :maxdepth: 1
 
+.. toctree::
+  :maxdepth: 1
+  :caption: API Documentation
+  :name: _pyirf_api_docs
+
+  irf/index
+  sensitivity
+  benchmarks/index
+  cut_optimization
+  spectral
+  binning
   io/index
-  resources/index
-  perf/index
-  scripts/index
+  utils
+
 
 Indices and tables
 ==================

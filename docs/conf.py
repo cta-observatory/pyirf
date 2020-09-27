@@ -19,8 +19,8 @@ from pyirf import __version__
 # -- Project information -----------------------------------------------------
 
 project = "pyirf"
-copyright = "2020, Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
-author = "Julien Lefaucheur, Michele Peresano, Thomas Vuillaume"
+copyright = "2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume"
+author = "Maximilian Nöthe, Michele Peresano, Thomas Vuillaume"
 
 # The full version, including alpha/beta/rc tags
 version = __version__
@@ -40,10 +40,9 @@ master_doc = "index"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "rinoh.frontend.sphinx",
-    "sphinx_automodapi.automodapi",
-    "sphinx.ext.autodoc",
     "numpydoc",
+    "nbsphinx",
+    "sphinx.ext.autodoc",
     "sphinx.ext.doctest",
     "sphinx.ext.intersphinx",
     "sphinx.ext.todo",
@@ -55,12 +54,14 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
-    "nbsphinx",
-    "IPython.sphinxext.ipython_console_highlighting",
 ]
 
 # nbsphinx
-nbsphinx_execute = "never"
+# nbsphinx_execute = "never"
+nbsphinx_execute_arguments = [
+    "--InlineBackend.figure_formats={'svg', }",
+    "--InlineBackend.rc={'figure.dpi': 96}",
+]
 
 numpydoc_show_class_members = False
 autosummary_generate = True
@@ -79,17 +80,11 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "alabaster"
+html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
-    "github_user": "cta-observatory",
-    "github_repo": "pyirf",
-    "badge_branch": "master",
-    "codecov_button": "true",
-    "github_button": "true",
-    "travis_button": "true",
-    "sidebar_collapse": "false",
-    "sidebar_includehidden": "true",
+    'canonical_url': 'https://cta-observatory.github.io/pyirf',
+    'display_version': True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

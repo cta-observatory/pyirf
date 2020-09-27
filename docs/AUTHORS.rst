@@ -3,14 +3,16 @@
 Authors
 =======
 
-The following is a complete list of all contributors in alphabetical order by last name:
+To see who contributed to ``pyirf``, please visit the
+`GitHub contributors page <https://github.com/cta-observatory/pyirf/graphs/contributors>`__
+or run
 
-- Lea Jouvin
-- Julien Lefacheur (left)
-- Maximilian Nöthe <maximilian.noethe@tu-dortmund.de>
-- Michele Peresano <michele.peresano@cea.fr>
-- Thomas Vuillaume <thomas.vuillaume@lapp.in2p3.fr>
+.. code-block:: bash
 
-*pyirf* has been developed starting from part a previous project authored by Julien Lefacheur.  
+    git shortlog -sne
 
-For more details go to the `GitHub contributors page <https://github.com/cta-observatory/pyirf/graphs/contributors>`__.
+
+``pyirf`` started as part of `protopipe <https://github.com/cta-observatory/protopipe/>`__ by Julien Lefaucher,
+but was largely rewritten in September 2020, making use of code from the
+previous version, the `pyfact <http://github.com/fact-project/pyfact>`__ module and the
+`FACT irf <http://github.com/fact-project/irf>`__ package.

@@ -4,20 +4,32 @@ import re
 with open("pyirf/version.py") as f:
     __version__ = re.search('^__version__ = "(.*)"$', f.read()).group(1)
 
+extras_require = {
+    "docs": [
+        "sphinx",
+        "sphinx_rtd_theme",
+        "sphinx_automodapi",
+        "numpydoc",
+        "nbsphinx",
+        "uproot~=3.0",
+    ],
+    "tests": ["pytest", "pytest-cov", "gammapy~=0.17"],
+}
+
+extras_require["all"] = extras_require["tests"] + extras_require["docs"]
+
 setup(
     version=__version__,
     packages=find_packages(),
-    package_data={"pyirf": ["resources/config.yml"]},
     include_package_data=True,
     install_requires=[
-        "astropy",
-        "ctaplot~=0.5.0",
-        "gammapy==0.8",
+        "astropy~=4.0",
         "matplotlib",
-        "numpy",
+        "numpy>=1.18",
         "pandas",
         "scipy",
+        "tqdm",
         "tables",
-        "ctapipe==0.7",
     ],
+    extras_require=extras_require,
 )

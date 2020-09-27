@@ -1,4 +1,5 @@
 # Byte-compiled / optimized / DLL files
+data
 __pycache__/
 *.py[cod]
 *$py.class
@@ -40,6 +41,10 @@ pip-delete-this-directory.txt
 # Sphinx
 docs/api
 docs/_build
+
+# Results and plots
+*.fits.gz
+*.png
 
 # Unit test / coverage reports
 htmlcov/
