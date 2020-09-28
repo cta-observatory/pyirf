@@ -79,6 +79,40 @@ which you can serve locally using
 After this, you can view the report in your browser by visiting the url printed
 to the terminal.
 
+Make sure the docs are built without warnings from sphinx, as these
+will be treated as errors in the build in the CI system as they most often
+result in broken styling.
+
+To look at the docs, use
+
+.. code:: bash
+
+    $ python -m http.server _build/html
+
+and visit the printed URL in your browser.
+
+
+Building the documentation
+--------------------------
+
+This documentation uses sphinx and restructured text.
+For an Introduction, see the `Sphinx documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_.
+
+To build the docs locally, enter the ``docs`` directory and call:
+
+.. code:: bash
+
+    make html
+
+Some changes require a full remake of the documentation, for that call
+
+.. code:: bash
+
+    make clean html
+
+If you created or deleted file or submodule, you also need to remove the
+``api`` directory, it will be regenerated automatically.
+
 
 Further details
 ---------------
