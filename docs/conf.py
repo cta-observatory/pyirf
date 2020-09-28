@@ -59,8 +59,8 @@ extensions = [
 # nbsphinx
 # nbsphinx_execute = "never"
 nbsphinx_execute_arguments = [
-    "--InlineBackend.figure_formats={'svg', }",
-    "--InlineBackend.rc={'figure.dpi': 96}",
+    "--InlineBackend.figure_formats={'png', }",
+    "--InlineBackend.rc={'figure.dpi': 300}",
 ]
 
 numpydoc_show_class_members = False
