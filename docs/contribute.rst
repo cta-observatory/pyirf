@@ -48,6 +48,73 @@ We use `Travis CI <https://travis-ci.com/github/cta-observatory/pyirf>`__ to
 run the unit tests and documentation building automatically for every pull request.
 Passing unit tests and coverage of the changed code are required for all pull requests.
 
+
+Running the tests and looking at coverage
+-----------------------------------------
+
+For more immediate feedback, you should run the tests locally before pushing,
+as builds on travis take quite long.
+
+To run the tests locally, make sure you have the `tests` extras installed and then
+run
+
+.. code:: bash
+
+    $ pytest -v
+
+
+To also inspect the coverage, run
+
+.. code:: bash
+
+    $ pytest --cov=pyirf --cov-report=html -v
+
+This will create a coverage report in html form in the ``htmlcov`` directory,
+which you can serve locally using
+
+.. code:: bash
+
+    $ python -m http.server -d htmlcov
+
+After this, you can view the report in your browser by visiting the url printed
+to the terminal.
+
+
+Building the documentation
+--------------------------
+
+This documentation uses sphinx and restructured text.
+For an Introduction, see the `Sphinx documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_.
+
+To build the docs locally, enter the ``docs`` directory and call:
+
+.. code:: bash
+
+    make html
+
+Some changes require a full remake of the documentation, for that call
+
+.. code:: bash
+
+    make clean html
+
+If you created or deleted file or submodule, you also need to remove the
+``api`` directory, it will be regenerated automatically.
+
+Make sure the docs are built without warnings from sphinx, as these
+will be treated as errors in the build in the CI system as they most often
+result in broken styling.
+
+To look at the docs, use
+
+.. code:: bash
+
+    $ python -m http.server _build/html
+
+and visit the printed URL in your browser.
+
+
+
 Further details
 ---------------
 
@@ -65,4 +132,4 @@ Please also have a look at the
 Benchmarks
 ----------
 
-- `Comparison with EventDisplay <../notebooks/comparison_with_EventDisplay.ipynb>`__ | *comparison_with_EventDisplay.ipynb*
+- :doc:`notebooks/comparison_with_EventDisplay`
