@@ -105,7 +105,7 @@ def test_effective_area2d_schema(aeff2d_hdus):
     '''Test our effective area is readable by gammapy'''
     from ogadf_schema.irfs import AEFF_2D
 
-    area, hdus = aeff2d_hdus
+    _, hdus = aeff2d_hdus
 
     for hdu in hdus:
         AEFF_2D.validate_hdu(hdu)
@@ -130,7 +130,7 @@ def test_energy_dispersion_gammapy(edisp_hdus):
 def test_energy_dispersion_schema(edisp_hdus):
     from ogadf_schema.irfs import EDISP_2D
 
-    edisp, hdus = edisp_hdus
+    _, hdus = edisp_hdus
 
     for hdu in hdus:
         EDISP_2D.validate_hdu(hdu)
@@ -158,7 +158,7 @@ def test_psf_table_gammapy(psf_hdu):
 def test_psf_schema(psf_hdu):
     from ogadf_schema.irfs import PSF_TABLE
 
-    psf, hdu = psf_hdu
+    _, hdu = psf_hdu
     PSF_TABLE.validate_hdu(hdu)
 
 
@@ -185,12 +185,12 @@ def test_background_2d_gammapy(bg_hdu):
 def test_background_2d_schema(bg_hdu):
     from ogadf_schema.irfs import BKG_2D
 
-    bg, hdu = bg_hdu
+    _, hdu = bg_hdu
     BKG_2D.validate_hdu(hdu)
 
 
 def test_rad_max_schema(rad_max_hdu):
     from ogadf_schema.irfs import RAD_MAX
 
-    bg, hdu = rad_max_hdu
+    _, hdu = rad_max_hdu
     RAD_MAX.validate_hdu(hdu)
