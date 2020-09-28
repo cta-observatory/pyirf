@@ -1,5 +1,6 @@
 import numpy as np
 import astropy.units as u
+from scipy import interpolate
 
 
 __all__ = [
@@ -76,41 +77,87 @@ def energy_dispersion(
     return energy_dispersion
 
 
-def energy_dispersion_to_migration(dispersion_matrix):
+def _interp_dispersion(old_bins, new_bins, values, axis=0):
     """
-    Construct a sparse energy migration matrix from an energy
+    Interpolate one row of the energy dispersion table
+    to a new migration binning.
+    Copied from:
+    https://github.com/gammapy/gammapy/blob/f12ae6acece0ff5a6f269ca4f409f38c0714e23a/gammapy/irf/energy_dispersion.py#L281
+    This version keep the fov_offset dimension intact.
+
+    new_bins should be the bin edges here, because the np.diff
+    handles this already
+    """
+
+    cumsum = np.cumsum(values, axis=axis)
+    with np.errstate(invalid="ignore"):
+        cumsum = np.nan_to_num(cumsum / cumsum[-1])
+
+    f = interpolate.interp1d(
+        old_bins,
+        cumsum,
+        kind="linear",
+        bounds_error=False,
+        fill_value=(0, 1),
+        axis=axis,
+    )
+
+    return np.diff(np.clip(f(new_bins), a_min=0, a_max=1), axis=0)
+
+
+def energy_dispersion_to_migration(
+    dispersion_matrix,
+    disp_true_energy_edges,
+    disp_migration_edges,
+    new_true_energy_edges,
+    new_reco_energy_edges,
+):
+    """
+    Construct a sparse energy migration matrix from a dense energy
     dispersion matrix.
+    Depending on the new energy ranges, the sum over the first axis
+    can be smaller than 1.
 
     Parameters
     ----------
     dispersion_matrix: numpy.ndarray
-        Energy dispersion_matrix of shape
-        (n_true_energy_bins, n_migration_bins, n_offset_bins)
+        Energy dispersion_matrix
+    disp_true_energy_edges: astropy.units.Quantity[energy]
+        True energy edges matching the first dimension of the dispersion matrix
+    disp_migration_edges: numpy.ndarray
+        Migration edges matching the second dimension of the dispersion matrix
+    new_true_energy_edges: astropy.units.Quantity[energy]
+        True energy edges matching the first dimension of the output
+    new_reco_energy_edges: astropy.units.Quantity[energy]
+        Reco energy edges matching the second dimension of the output
 
     Returns:
     --------
     migration_matrix: numpy.ndarray
-        Energy migration matrix of shape
-        (n_true_energy_bins, n_true_energy_bins * n_migration_bins, n_offset_bins)
+        Three-dimensional energy migration matrix. The third dimension
+        equals the fov offset dimension of the energy dispersion matrix.
     """
 
-    n_true_energy_bins = dispersion_matrix.shape[0]
-    n_dispersion_bins = dispersion_matrix.shape[1]
-    n_offset_bins = dispersion_matrix.shape[2]
-
     migration_matrix = np.zeros((
-        n_true_energy_bins,
-        n_true_energy_bins * n_dispersion_bins,
-        n_offset_bins,
+        len(new_true_energy_edges)-1,
+        len(new_reco_energy_edges)-1,
+        dispersion_matrix.shape[2],
     ))
 
-    # Might be a spot for scipy sparse matrices
-    # Maybe there is a more efficient way in numpy than this:
-    for idx in range(n_true_energy_bins):
-        migration_matrix[
-            idx,
-            idx * n_dispersion_bins + np.arange(n_dispersion_bins),
-            :,
-        ] = dispersion_matrix[idx, :, :]
+    true_energy_interpolation = interpolate.interp1d(
+        (disp_true_energy_edges[1:] + disp_true_energy_edges[:-1])/2,
+        dispersion_matrix,
+        axis=0,
+    )
+    for idx, e_true in enumerate(
+            (new_true_energy_edges[1:] + new_true_energy_edges[:-1])/2
+    ):
+        e_true_dispersion = true_energy_interpolation(e_true)
+
+        migration_matrix[idx, :, :] = _interp_dispersion(
+            (disp_migration_edges[1:] + disp_migration_edges[:-1])/2,
+            new_reco_energy_edges / e_true,
+            e_true_dispersion
+        )
 
     return migration_matrix

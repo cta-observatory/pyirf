@@ -89,7 +89,8 @@ def test_energy_dispersion_to_migration():
 
     np.random.seed(0)
     N = 10000
-    true_energy_bins = np.array([0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100]) * u.TeV
+    true_energy_bins = 10**np.arange(np.log10(0.2), np.log10(200), 1/10) * u.TeV
+
     fov_offset_bins = np.array([0, 1, 2]) * u.deg
     migration_bins = np.linspace(0, 2, 101)
 
@@ -118,24 +119,29 @@ def test_energy_dispersion_to_migration():
         selected_events, true_energy_bins, fov_offset_bins, migration_bins
     )
 
+    # migration matrix selecting a limited energy band with different binsizes
+    new_true_energy_bins = 10**np.arange(np.log10(2), np.log10(20), 1/5) * u.TeV
+    new_reco_energy_bins = 10**np.arange(np.log10(2), np.log10(20), 1/5) * u.TeV
     migration_matrix = energy_dispersion_to_migration(
         dispersion_matrix,
+        true_energy_bins,
+        migration_bins,
+        new_true_energy_bins,
+        new_reco_energy_bins,
+
     )
 
-    # first axis (true_energy) should not change
-    assert migration_matrix.shape[0] == dispersion_matrix.shape[0]
-
-    # second axis (reconstructed energy) contains more bins now
-    assert migration_matrix.shape[1] == (
-        dispersion_matrix.shape[0] * dispersion_matrix.shape[1]
-    )
-
-    # third axis (fov offset) should not change
+    # test dimension
+    assert migration_matrix.shape[0] == len(new_true_energy_bins) - 1
+    assert migration_matrix.shape[1] == len(new_reco_energy_bins) - 1
     assert migration_matrix.shape[2] == dispersion_matrix.shape[2]
 
-    # PDF should sum to one for each true energy and fov offset bin
-    # (by construction of the example)
-    assert np.isclose(
-        migration_matrix.sum(axis=1),
-        np.ones((migration_matrix.shape[0], migration_matrix.shape[2]))
-    ).all()
+    # test that all migrations are included for central energies
+    assert np.isclose(migration_matrix.sum(axis=1).max(), 1)
+
+    # test that migrations dont always sum to 1 (since some energies are
+    # not included in the matrix)
+    assert migration_matrix.sum() < (
+        (len(new_true_energy_bins) - 1)
+        * len(fov_offset_bins) - 1
+    )
