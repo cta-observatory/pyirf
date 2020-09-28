@@ -92,7 +92,7 @@ def create_psf_table_hdu(
     true_energy_bins,
     source_offset_bins,
     fov_offset_bins,
-    point_like=True,
+    point_like=False,
     extname="PSF",
     **header_cards,
 ):
