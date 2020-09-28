@@ -46,7 +46,7 @@ def edisp_hdus():
 
 
 @pytest.fixture
-def psf_hdus():
+def psf_hdu():
     from pyirf.io import create_psf_table_hdu
     from pyirf.utils import cone_solid_angle
 
@@ -54,13 +54,10 @@ def psf_hdus():
     psf[:, 0, :] = 1
     psf = psf / cone_solid_angle(source_bins[1])
 
-    hdus = [
-        create_psf_table_hdu(
-            psf, e_bins, source_bins, fov_bins, point_like=point_like
-        )
-        for point_like in [True, False]
-    ]
-    return psf, hdus
+    hdu = create_psf_table_hdu(
+        psf, e_bins, source_bins, fov_bins, point_like=False
+    )
+    return psf, hdu
 
 
 @pytest.fixture
@@ -93,6 +90,16 @@ def test_effective_area2d_gammapy(aeff2d_hdus):
             assert u.allclose(area, aeff2d.data.data, atol=1e-16 * u.m**2)
 
 
+def test_effective_area2d_schema(aeff2d_hdus):
+    '''Test our effective area is readable by gammapy'''
+    from ogadf_schema.irfs import AEFF_2D
+
+    area, hdus = aeff2d_hdus
+
+    for hdu in hdus:
+        AEFF_2D.validate_hdu(hdu)
+
+
 def test_energy_dispersion_gammapy(edisp_hdus):
     '''Test our energy dispersion is readable by gammapy'''
     pytest.importorskip('gammapy')
@@ -109,24 +116,39 @@ def test_energy_dispersion_gammapy(edisp_hdus):
             assert u.allclose(edisp, edisp2d.data.data, atol=1e-16)
 
 
-def test_psf_table_gammapy(psf_hdus):
+def test_energy_dispersion_schema(edisp_hdus):
+    from ogadf_schema.irfs import EDISP_2D
+
+    edisp, hdus = edisp_hdus
+
+    for hdu in hdus:
+        EDISP_2D.validate_hdu(hdu)
+
+
+def test_psf_table_gammapy(psf_hdu):
     '''Test our psf is readable by gammapy'''
     pytest.importorskip('gammapy')
     from gammapy.irf import PSF3D
 
-    psf, hdus = psf_hdus
+    psf, hdu = psf_hdu
 
-    for hdu in hdus:
-        with tempfile.NamedTemporaryFile(suffix='.fits') as f:
-            fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
 
-            # test reading with gammapy works
-            psf3d = PSF3D.read(f.name, 'PSF')
+        # test reading with gammapy works
+        psf3d = PSF3D.read(f.name, 'PSF')
 
-            # gammapy does not transpose psf when reading from fits,
-            # unlike how it handles effective area and edisp
-            # see https://github.com/gammapy/gammapy/issues/3025
-            assert u.allclose(psf, psf3d.psf_value.T, atol=1e-16 / u.sr)
+        # gammapy does not transpose psf when reading from fits,
+        # unlike how it handles effective area and edisp
+        # see https://github.com/gammapy/gammapy/issues/3025
+        assert u.allclose(psf, psf3d.psf_value.T, atol=1e-16 / u.sr)
+
+
+def test_psf_schema(psf_hdu):
+    from ogadf_schema.irfs import PSF_TABLE
+
+    psf, hdu = psf_hdu
+    PSF_TABLE.validate_hdu(hdu)
 
 
 # gammapy uses inconsistent axis order, should be fixed before gammapy 1.0
@@ -147,3 +169,10 @@ def test_background_2d_gammapy(bg_hdu):
         bg2d = Background2D.read(f.name, 'BACKGROUND')
 
         assert u.allclose(background, bg2d.data.data, atol=1e-16 * u.Unit('TeV-1 s-1 sr-1'))
+
+
+def test_background_2d_schema(bg_hdu):
+    from ogadf_schema.irfs import BKG_2D
+
+    bg, hdu = bg_hdu
+    BKG_2D.validate_hdu(hdu)
