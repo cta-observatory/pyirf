@@ -40,7 +40,6 @@ install:
 
 script:
   - pytest --cov=pyirf --cov-report=xml
-  - python examples/calculate_eventdisplay_irfs.py
   - travis-sphinx -v --outdir=docbuild build --source=docs/
 
 after_script:
