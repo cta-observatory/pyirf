@@ -69,7 +69,6 @@ def test_psf_table():
     psf[:, 0, :] = 1
     psf = psf / cone_solid_angle(source_bins[1])
 
-
     for point_like in [True, False]:
         with tempfile.NamedTemporaryFile(suffix='.fits') as f:
             hdu = create_psf_table_hdu(
@@ -85,3 +84,33 @@ def test_psf_table():
             # unlike how it handles effective area and edisp
             # see https://github.com/gammapy/gammapy/issues/3025
             assert u.allclose(psf, psf3d.psf_value.T, atol=1e-16 / u.sr)
+
+
+# gammapy uses inconsistent axis order, should be fixed before gammapy 1.0
+# see https://github.com/gammapy/gammapy/issues/2067
+# TODO: remove xfail when this is fixed in gammapy and bump the required gammapy version
+@pytest.mark.xfail
+def test_background_2d():
+    '''Test our background hdu is readable by gammapy'''
+
+    pytest.importorskip('gammapy')
+    from pyirf.io import create_background_2d_hdu
+    from gammapy.irf import Background2D
+
+    e_bins = np.geomspace(0.1, 100, 31) * u.TeV
+    fov_bins = [0, 1, 2, 3] * u.deg
+    background = np.column_stack([
+        np.geomspace(1e9, 1e3, 3),
+        np.geomspace(0.5e9, 0.5e3, 3),
+        np.geomspace(1e8, 1e2, 3),
+    ]) * u.Unit('TeV-1 s-1 sr-1')
+
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        hdu = create_background_2d_hdu(background, e_bins, fov_bins)
+
+        fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+
+        # test reading with gammapy works
+        bg2d = Background2D.read(f.name, 'BACKGROUND')
+
+        assert u.allclose(background, bg2d.data.data, atol=1e-16 * u.Unit('TeV-1 s-1 sr-1'))
