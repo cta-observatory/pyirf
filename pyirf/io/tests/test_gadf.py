@@ -75,6 +75,17 @@ def bg_hdu():
     return background, hdu
 
 
+@pytest.fixture
+def rad_max_hdu():
+    from pyirf.io import create_rad_max_hdu
+
+    rad_max = np.full((len(e_bins) - 1, len(fov_bins) - 1), 0.1) * u.deg
+    print(rad_max.shape)
+    hdu = create_rad_max_hdu(e_bins, fov_bins, rad_max)
+
+    return rad_max, hdu
+
+
 def test_effective_area2d_gammapy(aeff2d_hdus):
     '''Test our effective area is readable by gammapy'''
     pytest.importorskip('gammapy')
@@ -176,3 +187,10 @@ def test_background_2d_schema(bg_hdu):
 
     bg, hdu = bg_hdu
     BKG_2D.validate_hdu(hdu)
+
+
+def test_rad_max_schema(rad_max_hdu):
+    from ogadf_schema.irfs import RAD_MAX
+
+    bg, hdu = rad_max_hdu
+    RAD_MAX.validate_hdu(hdu)
