@@ -92,6 +92,7 @@ def test_psf_table():
 @pytest.mark.xfail
 def test_background_2d():
     '''Test our background hdu is readable by gammapy'''
+
     pytest.importorskip('gammapy')
     from pyirf.io import create_background_2d_hdu
     from gammapy.irf import Background2D
@@ -104,13 +105,12 @@ def test_background_2d():
         np.geomspace(1e8, 1e2, 3),
     ]) * u.Unit('TeV-1 s-1 sr-1')
 
-    for point_like in [True, False]:
-        with tempfile.NamedTemporaryFile(suffix='.fits') as f:
-            hdu = create_background_2d_hdu(background, e_bins, fov_bins)
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        hdu = create_background_2d_hdu(background, e_bins, fov_bins)
 
-            fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+        fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
 
-            # test reading with gammapy works
-            bg2d = Background2D.read(f.name, 'BACKGROUND')
+        # test reading with gammapy works
+        bg2d = Background2D.read(f.name, 'BACKGROUND')
 
-            assert u.allclose(background, bg2d.data.data, atol=1e-16 * u.Unit('TeV-1 s-1 sr-1'))
+        assert u.allclose(background, bg2d.data.data, atol=1e-16 * u.Unit('TeV-1 s-1 sr-1'))
