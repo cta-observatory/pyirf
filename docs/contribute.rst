@@ -132,4 +132,4 @@ Please also have a look at the
 Benchmarks
 ----------
 
-- `Comparison with EventDisplay <../notebooks/comparison_with_EventDisplay.ipynb>`__ | *comparison_with_EventDisplay.ipynb*
+- :doc:`notebooks/comparison_with_EventDisplay`
