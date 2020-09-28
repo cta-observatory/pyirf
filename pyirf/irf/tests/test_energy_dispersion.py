@@ -81,3 +81,62 @@ def test_energy_dispersion():
         / 2,
         rtol=0.1,
     )
+
+
+def test_energy_dispersion_to_migration():
+    from pyirf.irf import energy_dispersion
+    from pyirf.irf.energy_dispersion import energy_dispersion_to_migration
+
+    np.random.seed(0)
+    N = 10000
+    true_energy_bins = np.array([0.1, 0.5, 1.0, 5.0, 10.0, 50.0, 100]) * u.TeV
+    fov_offset_bins = np.array([0, 1, 2]) * u.deg
+    migration_bins = np.linspace(0, 2, 101)
+
+    true_energy = np.random.uniform(
+        true_energy_bins[0].value,
+        true_energy_bins[-1].value,
+        size=N
+    ) * u.TeV
+    reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
+
+    selected_events = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "source_fov_offset": np.concatenate(
+                [
+                    np.full(N // 2, 0.2),
+                    np.full(N // 2, 1.5),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    dispersion_matrix = energy_dispersion(
+        selected_events, true_energy_bins, fov_offset_bins, migration_bins
+    )
+
+    migration_matrix = energy_dispersion_to_migration(
+        dispersion_matrix,
+        true_energy_bins,
+    )
+
+    # first axis (true_energy) should not change
+    assert migration_matrix.shape[0] == dispersion_matrix.shape[0]
+
+    # second axis (reconstructed energy) contains more bins now
+    assert migration_matrix.shape[1] == (
+        dispersion_matrix.shape[0] * dispersion_matrix.shape[1]
+    )
+
+    # third axis (fov offset) should not change
+    assert migration_matrix.shape[2] == dispersion_matrix.shape[2]
+
+    # PDF should sum to one for each true energy and fov offset bin
+    # (by construction of the example)
+    assert np.isclose(
+        migration_matrix.sum(axis=1),
+        np.ones((migration_matrix.shape[0], migration_matrix.shape[2]))
+    ).all()

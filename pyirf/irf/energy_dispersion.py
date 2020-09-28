@@ -4,6 +4,7 @@ import astropy.units as u
 
 __all__ = [
     "energy_dispersion",
+    "energy_dispersion_to_migration"
 ]
 
 
@@ -73,3 +74,25 @@ def energy_dispersion(
     energy_dispersion = _normalize_hist(energy_dispersion)
 
     return energy_dispersion
+
+
+def energy_dispersion_to_migration(dispersion_matrix, true_energy_bins):
+    assert len(true_energy_bins) - 1 == dispersion_matrix.shape[0]
+    n_true_energy_bins = dispersion_matrix.shape[0]
+    n_dispersion_bins = dispersion_matrix.shape[1]
+    n_offset_bins = dispersion_matrix.shape[2]
+
+    # additional true energy bins?
+    migration_matrix = np.zeros((
+        n_true_energy_bins,
+        n_true_energy_bins * n_dispersion_bins,
+        n_offset_bins,
+    ))
+
+    # probably can be done with numpy sparse matrices, but lets start like this
+    for idx in range(n_true_energy_bins):
+        migration_matrix[idx, idx*n_dispersion_bins + np.arange(n_dispersion_bins), :] = dispersion_matrix[idx, :, :]
+
+
+    return migration_matrix
+
