@@ -4,6 +4,7 @@ from .gadf import (
     create_energy_dispersion_hdu,
     create_psf_table_hdu,
     create_rad_max_hdu,
+    create_background_2d_hdu,
 )
 
 
@@ -14,4 +15,5 @@ __all__ = [
     "create_energy_dispersion_hdu",
     "create_psf_table_hdu",
     "create_rad_max_hdu",
+    "create_background_2d_hdu",
 ]

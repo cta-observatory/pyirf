@@ -36,6 +36,7 @@ from pyirf.irf import (
     point_like_effective_area,
     energy_dispersion,
     psf_table,
+    background_2d,
 )
 
 from pyirf.io import (
@@ -43,6 +44,7 @@ from pyirf.io import (
     create_psf_table_hdu,
     create_energy_dispersion_hdu,
     create_rad_max_hdu,
+    create_background_2d_hdu,
 )
 
 
@@ -220,6 +222,9 @@ def main():
     true_energy_bins = add_overflow_bins(
         create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 10,)
     )
+    reco_energy_bins = add_overflow_bins(
+        create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 10,)
+    )
     fov_offset_bins = [0, 0.5] * u.deg
     source_offset_bins = np.arange(0, 1 + 1e-4, 1e-3) * u.deg
     energy_migration_bins = np.geomspace(0.2, 5, 200)
@@ -258,7 +263,6 @@ def main():
         gammas[gammas["selected"]], true_energy_bins,
     )
     ang_res = angular_resolution(gammas[gammas["selected_gh"]], true_energy_bins,)
-
     psf = psf_table(
         gammas[gammas["selected_gh"]],
         true_energy_bins,
@@ -266,16 +270,24 @@ def main():
         source_offset_bins=source_offset_bins,
     )
 
-    hdus.append(
-        create_psf_table_hdu(
+    background_rate = background_2d(
+        background[background['selected_gh']],
+        reco_energy_bins,
+        fov_offset_bins=np.arange(0, 11) * u.deg,
+        t_obs=T_OBS,
+    )
+
+    hdus.append(create_background_2d_hdu(
+        background_rate,
+        reco_energy_bins,
+        fov_offset_bins=np.arange(0, 11) * u.deg,
+    ))
+    hdus.append(create_psf_table_hdu(
             psf, true_energy_bins, source_offset_bins, fov_offset_bins,
-        )
-    )
-    hdus.append(
-        create_rad_max_hdu(
+    ))
+    hdus.append(create_rad_max_hdu(
             theta_bins, fov_offset_bins, rad_max=theta_cuts_opt["cut"][:, np.newaxis]
-        )
-    )
+    ))
     hdus.append(fits.BinTableHDU(ang_res, name="ANGULAR_RESOLUTION"))
     hdus.append(fits.BinTableHDU(bias_resolution, name="ENERGY_BIAS_RESOLUTION"))
     fits.HDUList(hdus).writeto("pyirf_eventdisplay.fits.gz", overwrite=True)

@@ -212,10 +212,73 @@ def create_energy_dispersion_hdu(
     return BinTableHDU(psf, header=header, name=extname)
 
 
+#: Unit to store background rate in GADF format
+#:
+#: see https://github.com/open-gamma-ray-astro/gamma-astro-data-formats/issues/153
+#: for a discussion on why this is MeV not TeV as everywhere else
+GADF_BACKGROUND_UNIT = u.Unit('MeV-1 s-1 sr-1')
+
+
 @u.quantity_input(
-    psf=u.sr ** -1,
-    true_energy_bins=u.TeV,
+    background=GADF_BACKGROUND_UNIT,
+    reco_energy_bins=u.TeV,
     fov_offset_bins=u.deg,
+)
+def create_background_2d_hdu(
+    background_2d,
+    reco_energy_bins,
+    fov_offset_bins,
+    extname="BACKGROUND",
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for the background 2d table.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/bkg/index.html#bkg-2d
+
+    Parameters
+    ----------
+    background_2d: astropy.units.Quantity[(MeV s sr)^-1]
+        Background rate, must have shape
+        (n_energy_bins, n_fov_offset_bins)
+    reco_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in reconstructed energy
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+
+    bkg = QTable(
+        {
+            "ENERG_LO": u.Quantity(reco_energy_bins[:-1], ndmin=2).to(u.TeV),
+            "ENERG_HI": u.Quantity(reco_energy_bins[1:], ndmin=2).to(u.TeV),
+            "THETA_LO": u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg),
+            "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
+            # transpose as FITS uses opposite dimension order
+            "BKG": background_2d.T[np.newaxis, ...].to(GADF_BACKGROUND_UNIT),
+        }
+    )
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "BKG"
+    header["HDUCLAS3"] = "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "BKG_2D"
+    header["DATE"] = Time.now().utc.iso
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(bkg, header=header, name=extname)
+
+
+@u.quantity_input(
+    reco_energy_bins=u.TeV,
+    fov_offset_bins=u.deg,
+    rad_max=u.deg,
     source_offset_bins=u.deg,
 )
 def create_rad_max_hdu(
