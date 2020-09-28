@@ -232,9 +232,9 @@ def create_background_2d_hdu(
     **header_cards,
 ):
     """
-    Create a fits binary table HDU in GADF format for the PSF table.
+    Create a fits binary table HDU in GADF format for the background 2d table.
     See the specification at
-    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/psf/psf_table/index.html
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/bkg/index.html#bkg-2d
 
     Parameters
     ----------
@@ -266,7 +266,7 @@ def create_background_2d_hdu(
     # required header keywords
     header = DEFAULT_HEADER.copy()
     header["HDUCLAS1"] = "RESPONSE"
-    header["HDUCLAS2"] = "PSF"
+    header["HDUCLAS2"] = "BKG"
     header["HDUCLAS3"] = "FULL-ENCLOSURE"
     header["HDUCLAS4"] = "BKG_2D"
     header["DATE"] = Time.now().utc.iso
