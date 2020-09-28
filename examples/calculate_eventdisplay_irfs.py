@@ -278,6 +278,9 @@ def main():
     )
 
     hdus.append(create_background_2d_hdu(
+        background_rate,
+        reco_energy_bins,
+        fov_offset_bins=np.arange(0, 11) * u.deg,
     ))
     hdus.append(create_psf_table_hdu(
             psf, true_energy_bins, source_offset_bins, fov_offset_bins,
