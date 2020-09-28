@@ -120,7 +120,6 @@ def test_energy_dispersion_to_migration():
 
     migration_matrix = energy_dispersion_to_migration(
         dispersion_matrix,
-        true_energy_bins,
     )
 
     # first axis (true_energy) should not change

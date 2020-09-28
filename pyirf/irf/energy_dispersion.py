@@ -76,23 +76,41 @@ def energy_dispersion(
     return energy_dispersion
 
 
-def energy_dispersion_to_migration(dispersion_matrix, true_energy_bins):
-    assert len(true_energy_bins) - 1 == dispersion_matrix.shape[0]
+def energy_dispersion_to_migration(dispersion_matrix):
+    """
+    Construct a sparse energy migration matrix from an energy
+    dispersion matrix.
+
+    Parameters
+    ----------
+    dispersion_matrix: numpy.ndarray
+        Energy dispersion_matrix of shape
+        (n_true_energy_bins, n_migration_bins, n_offset_bins)
+
+    Returns:
+    --------
+    migration_matrix: numpy.ndarray
+        Energy migration matrix of shape
+        (n_true_energy_bins, n_true_energy_bins * n_migration_bins, n_offset_bins)
+    """
+
     n_true_energy_bins = dispersion_matrix.shape[0]
     n_dispersion_bins = dispersion_matrix.shape[1]
     n_offset_bins = dispersion_matrix.shape[2]
 
-    # additional true energy bins?
     migration_matrix = np.zeros((
         n_true_energy_bins,
         n_true_energy_bins * n_dispersion_bins,
         n_offset_bins,
     ))
 
-    # probably can be done with numpy sparse matrices, but lets start like this
+    # Might be a spot for scipy sparse matrices
+    # Maybe there is a more efficient way in numpy than this:
     for idx in range(n_true_energy_bins):
-        migration_matrix[idx, idx*n_dispersion_bins + np.arange(n_dispersion_bins), :] = dispersion_matrix[idx, :, :]
-
+        migration_matrix[
+            idx,
+            idx * n_dispersion_bins + np.arange(n_dispersion_bins),
+            :,
+        ] = dispersion_matrix[idx, :, :]
 
     return migration_matrix
-
