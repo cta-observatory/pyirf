@@ -8,46 +8,100 @@ import pytest
 import tempfile
 
 
-def test_effective_area2d():
+e_bins = np.geomspace(0.1, 100, 31) * u.TeV
+migra_bins = np.linspace(0.2, 5, 101)
+fov_bins = [0, 1, 2, 3] * u.deg
+source_bins = np.linspace(0, 1, 101) * u.deg
+
+
+@pytest.fixture
+def aeff2d_hdus():
+    from pyirf.io import create_aeff2d_hdu
+
+    area = np.full((len(e_bins) - 1, len(fov_bins) - 1), 1e6) * u.m**2
+
+    hdus = [
+        create_aeff2d_hdu(area, e_bins, fov_bins, point_like=point_like)
+        for point_like in [True, False]
+    ]
+
+    return area, hdus
+
+
+@pytest.fixture
+def edisp_hdus():
+    from pyirf.io import create_energy_dispersion_hdu
+
+    edisp = np.zeros((len(e_bins) - 1, len(migra_bins) - 1, len(fov_bins) - 1))
+    edisp[:, 50, :] = 1.0
+
+    hdus = [
+        create_energy_dispersion_hdu(
+            edisp, e_bins, migra_bins, fov_bins, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+
+    return edisp, hdus
+
+
+@pytest.fixture
+def psf_hdus():
+    from pyirf.io import create_psf_table_hdu
+    from pyirf.utils import cone_solid_angle
+
+    psf = np.zeros((len(e_bins) - 1, len(source_bins) - 1, len(fov_bins) - 1))
+    psf[:, 0, :] = 1
+    psf = psf / cone_solid_angle(source_bins[1])
+
+    hdus = [
+        create_psf_table_hdu(
+            psf, e_bins, source_bins, fov_bins, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+    return psf, hdus
+
+
+@pytest.fixture
+def bg_hdu():
+    from pyirf.io import create_background_2d_hdu
+
+    background = np.column_stack([
+        np.geomspace(1e9, 1e3, 3),
+        np.geomspace(0.5e9, 0.5e3, 3),
+        np.geomspace(1e8, 1e2, 3),
+    ]) * u.Unit('TeV-1 s-1 sr-1')
+
+    hdu = create_background_2d_hdu(background, e_bins, fov_bins)
+
+    return background, hdu
+
+
+def test_effective_area2d_gammapy(aeff2d_hdus):
     '''Test our effective area is readable by gammapy'''
     pytest.importorskip('gammapy')
-    from pyirf.io import create_aeff2d_hdu
     from gammapy.irf import EffectiveAreaTable2D
 
-    e_bins = np.geomspace(0.1, 100, 31) * u.TeV
-    fov_bins = [0, 1, 2, 3] * u.deg
-    area = np.full((30, 3), 1e6) * u.m**2
+    area, hdus = aeff2d_hdus
 
-    for point_like in [True, False]:
+    for hdu in hdus:
         with tempfile.NamedTemporaryFile(suffix='.fits') as f:
-            hdu = create_aeff2d_hdu(area, e_bins, fov_bins, point_like=point_like)
-
             fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
-
             # test reading with gammapy works
             aeff2d = EffectiveAreaTable2D.read(f.name)
             assert u.allclose(area, aeff2d.data.data, atol=1e-16 * u.m**2)
 
 
-def test_energy_dispersion():
+def test_energy_dispersion_gammapy(edisp_hdus):
     '''Test our energy dispersion is readable by gammapy'''
     pytest.importorskip('gammapy')
-    from pyirf.io import create_energy_dispersion_hdu
     from gammapy.irf import EnergyDispersion2D
 
-    e_bins = np.geomspace(0.1, 100, 31) * u.TeV
-    migra_bins = np.linspace(0.2, 5, 101)
-    fov_bins = [0, 1, 2, 3] * u.deg
-    edisp = np.zeros((30, 100, 3))
-    edisp[:, 50, :] = 1.0
+    edisp, hdus = edisp_hdus
 
-
-    for point_like in [True, False]:
+    for hdu in hdus:
         with tempfile.NamedTemporaryFile(suffix='.fits') as f:
-            hdu = create_energy_dispersion_hdu(
-                edisp, e_bins, migra_bins, fov_bins, point_like=point_like
-            )
-
             fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
 
             # test reading with gammapy works
@@ -55,26 +109,15 @@ def test_energy_dispersion():
             assert u.allclose(edisp, edisp2d.data.data, atol=1e-16)
 
 
-def test_psf_table():
+def test_psf_table_gammapy(psf_hdus):
     '''Test our psf is readable by gammapy'''
     pytest.importorskip('gammapy')
-    from pyirf.io import create_psf_table_hdu
-    from pyirf.utils import cone_solid_angle
     from gammapy.irf import PSF3D
 
-    e_bins = np.geomspace(0.1, 100, 31) * u.TeV
-    source_bins = np.linspace(0, 1, 101) * u.deg
-    fov_bins = [0, 1, 2, 3] * u.deg
-    psf = np.zeros((30, 100, 3))
-    psf[:, 0, :] = 1
-    psf = psf / cone_solid_angle(source_bins[1])
+    psf, hdus = psf_hdus
 
-    for point_like in [True, False]:
+    for hdu in hdus:
         with tempfile.NamedTemporaryFile(suffix='.fits') as f:
-            hdu = create_psf_table_hdu(
-                psf, e_bins, source_bins, fov_bins, point_like=point_like
-            )
-
             fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
 
             # test reading with gammapy works
@@ -90,24 +133,14 @@ def test_psf_table():
 # see https://github.com/gammapy/gammapy/issues/2067
 # TODO: remove xfail when this is fixed in gammapy and bump the required gammapy version
 @pytest.mark.xfail
-def test_background_2d():
+def test_background_2d_gammapy(bg_hdu):
     '''Test our background hdu is readable by gammapy'''
-
     pytest.importorskip('gammapy')
-    from pyirf.io import create_background_2d_hdu
     from gammapy.irf import Background2D
 
-    e_bins = np.geomspace(0.1, 100, 31) * u.TeV
-    fov_bins = [0, 1, 2, 3] * u.deg
-    background = np.column_stack([
-        np.geomspace(1e9, 1e3, 3),
-        np.geomspace(0.5e9, 0.5e3, 3),
-        np.geomspace(1e8, 1e2, 3),
-    ]) * u.Unit('TeV-1 s-1 sr-1')
+    background, hdu = bg_hdu
 
     with tempfile.NamedTemporaryFile(suffix='.fits') as f:
-        hdu = create_background_2d_hdu(background, e_bins, fov_bins)
-
         fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
 
         # test reading with gammapy works
