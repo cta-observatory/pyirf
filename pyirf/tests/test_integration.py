@@ -1,15 +1,14 @@
 import glob
-import sys
 import subprocess
-import pytest
+import logging
 import os
-from pathlib import Path
-
-# from ogadf_schema import AEFF_2D, EDISP_2D, PSF_TABLE, BKG_2D, RAD_MAX
 from astropy.io import fits
+from ogadf_schema.irfs import AEFF_2D, EDISP_2D, PSF_TABLE, BKG_2D, RAD_MAX
 
 
-def test_integration_test():
+def test_integration_test(caplog):
+
+    caplog.set_level(logging.INFO)
 
     ROOT_DIR = os.path.dirname(os.path.abspath("setup.py"))
 
@@ -18,19 +17,34 @@ def test_integration_test():
         # run script and check that it doesn't crash
         subprocess.check_output(f"python {example_script}", shell=True)
 
-        print("DEBUG")
-
         # check that the output file exists and it's not empty
-        output_file_name = f"{ROOT_DIR}/pyirf_eventdisplay.fits.gz"
-        output_file_fits = fits.open(output_file_name)
+        outname = f"{ROOT_DIR}/pyirf_eventdisplay.fits.gz"
+        outfile = fits.open(outname)
 
-        print(*[repr(hdu.header["EXTNAME"]) for hdu in output_file_fits[1:]])
-
-        assert os.path.isfile(output_file_name) and os.path.getsize(output_file_name)
+        assert os.path.isfile(outname) and os.path.getsize(outname)
 
         # check that the output file respects the OGADF schema
-        # assert AEFF_2D.validate_hdu(f['EFFECTIVE AREA'], onerror='raise')
-        # assert EDISP_2D.validate_hdu(f['ENERGY DISPERSION'], onerror='raise')
-        # assert PSF_TABLE.validate_hdu(f['EFFECTIVE AREA'], onerror='raise')
-        # assert BKG_2D.validate_hdu(f['EFFECTIVE AREA'], onerror='raise')
-        # assert RAD_MAX.validate_hdu(f['EFFECTIVE AREA'], onerror='raise')
+
+        # known errors
+        dimensionality_error = "Dimensionality of rows is 0, should be 1"
+
+        AEFF_2D.validate_hdu(outfile["EFFECTIVE_AREA"], onerror="log")
+        assert str([rec.message for rec in caplog.records]) == str(
+            [dimensionality_error] * 2
+        )
+        EDISP_2D.validate_hdu(outfile["ENERGY_DISPERSION"], onerror="log")
+        assert str([rec.message for rec in caplog.records]) == str(
+            [dimensionality_error] * 4
+        )
+        PSF_TABLE.validate_hdu(outfile["PSF"], onerror="log")
+        assert str([rec.message for rec in caplog.records]) == str(
+            [dimensionality_error] * 6
+        )
+        BKG_2D.validate_hdu(outfile["BACKGROUND"], onerror="log")
+        assert str([rec.message for rec in caplog.records]) == str(
+            [dimensionality_error] * 6
+        )
+        RAD_MAX.validate_hdu(outfile["RAD_MAX"], onerror="log")
+        assert str([rec.message for rec in caplog.records]) == str(
+            [dimensionality_error] * 8
+        )
