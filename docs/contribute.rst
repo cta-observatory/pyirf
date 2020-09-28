@@ -79,18 +79,6 @@ which you can serve locally using
 After this, you can view the report in your browser by visiting the url printed
 to the terminal.
 
-Make sure the docs are built without warnings from sphinx, as these
-will be treated as errors in the build in the CI system as they most often
-result in broken styling.
-
-To look at the docs, use
-
-.. code:: bash
-
-    $ python -m http.server _build/html
-
-and visit the printed URL in your browser.
-
 
 Building the documentation
 --------------------------
@@ -112,6 +100,19 @@ Some changes require a full remake of the documentation, for that call
 
 If you created or deleted file or submodule, you also need to remove the
 ``api`` directory, it will be regenerated automatically.
+
+Make sure the docs are built without warnings from sphinx, as these
+will be treated as errors in the build in the CI system as they most often
+result in broken styling.
+
+To look at the docs, use
+
+.. code:: bash
+
+    $ python -m http.server _build/html
+
+and visit the printed URL in your browser.
+
 
 
 Further details
