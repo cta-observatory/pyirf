@@ -1,5 +1,4 @@
 import numpy as np
-from pyirf.io import read_eventdisplay_fits
 import astropy.units as u
 
 
