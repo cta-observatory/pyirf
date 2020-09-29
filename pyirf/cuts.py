@@ -3,6 +3,11 @@ from astropy.table import Table
 
 from .binning import calculate_bin_indices
 
+__all__ = [
+    'calculate_percentile_cut',
+    'evaluate_binned_cut',
+]
+
 
 def calculate_percentile_cut(
     values, bin_values, bins, fill_value, percentile=68, min_value=None, max_value=None,
@@ -74,12 +79,13 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
         A table describing the binned cuts, e.g. as created by
         ``~pyirf.cuts.calculate_percentile_cut``.
         Required columns:
-            `low`: lower edges of the bins
-            `high`: upper edges of the bins,
-            `cut`: cut value
-    op: binary operator function
+        - `low`: lower edges of the bins
+        - `high`: upper edges of the bins,
+        - `cut`: cut value
+    op: callable(a, b) -> bool
         A function taking two arguments, comparing element-wise and
         returning an array of booleans.
+        Must support vectorized application.
     """
     bins = np.append(cut_table["low"].quantity, cut_table["high"].quantity[-1])
     bin_index = calculate_bin_indices(bin_values, bins)
