@@ -1,5 +1,5 @@
 import numpy as np
-from astropy.table import Table
+from astropy.table import QTable
 import astropy.units as u
 from tqdm import tqdm
 
@@ -19,7 +19,7 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
     Theta Squared Cut  should already be applied on the input tables.
     """
 
-    # we apply each cut for all bins globally, calculate the
+    # we apply each cut for all reco_energy_bins globally, calculate the
     # sensitivity and then lookup the best sensitivity for each
     # bin independently
 
@@ -27,9 +27,9 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
     for cut_value in tqdm(cut_values, disable=not progress):
 
         # create appropriate table for ``evaluate_binned_cut``
-        cut_table = Table()
-        cut_table["low"] = bins[0:-1]
-        cut_table["high"] = bins[1:]
+        cut_table = QTable()
+        cut_table["low"] = reco_energy_bins[0:-1]
+        cut_table["high"] = reco_energy_bins[1:]
         cut_table["cut"] = cut_value
 
         # apply the current cut
@@ -52,9 +52,9 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
         sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=alpha,)
         sensitivities.append(sensitivity)
 
-    best_cut_table = Table()
-    best_cut_table["low"] = bins[0:-1]
-    best_cut_table["high"] = bins[1:]
+    best_cut_table = QTable()
+    best_cut_table["low"] = reco_energy_bins[0:-1]
+    best_cut_table["high"] = reco_energy_bins[1:]
     best_cut_table["cut"] = np.nan
 
     best_sensitivity = sensitivities[0].copy()
