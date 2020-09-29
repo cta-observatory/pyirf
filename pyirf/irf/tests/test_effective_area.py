@@ -16,8 +16,8 @@ def test_effective_area():
     )
 
 
-def test_effective_area_energy():
-    from pyirf.irf import effective_area_energy
+def test_effective_area_per_energy():
+    from pyirf.irf import effective_area_per_energy
     from pyirf.simulations import SimulatedEventsInfo
 
     true_energy_bins = [0.1, 1.0, 10.0] * u.TeV
@@ -37,7 +37,7 @@ def test_effective_area_energy():
         viewcone=0 * u.deg,
     )
 
-    area = effective_area_energy(selected_events, simulation_info, true_energy_bins)
+    area = effective_area_per_energy(selected_events, simulation_info, true_energy_bins)
 
     assert area.shape == (len(true_energy_bins) - 1,)
     assert area.unit == u.m ** 2
@@ -45,7 +45,7 @@ def test_effective_area_energy():
 
 
 def test_effective_area_energy_fov():
-    from pyirf.irf import effective_area_energy_fov
+    from pyirf.irf import effective_area_per_energy_and_fov
     from pyirf.simulations import SimulatedEventsInfo
 
     true_energy_bins = [0.1, 1.0, 10.0] * u.TeV
@@ -83,7 +83,7 @@ def test_effective_area_energy_fov():
         viewcone=fov_offset_bins[-1],
     )
 
-    area = effective_area_energy_fov(
+    area = effective_area_per_energy_and_fov(
         selected_events, simulation_info, true_energy_bins, fov_offset_bins
     )
 

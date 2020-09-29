@@ -5,8 +5,8 @@ from ..binning import create_histogram_table
 
 __all__ = [
     "effective_area",
-    "effective_area_energy",
-    "effective_area_energy_fov",
+    "effective_area_per_energy",
+    "effective_area_per_energy_and_fov",
 ]
 
 
@@ -27,7 +27,7 @@ def effective_area(n_selected, n_simulated, area):
     return (n_selected / n_simulated) * area
 
 
-def effective_area_energy(selected_events, simulation_info, true_energy_bins):
+def effective_area_per_energy(selected_events, simulation_info, true_energy_bins):
     """
     Calculate effective area in bins of true energy.
 
@@ -50,7 +50,7 @@ def effective_area_energy(selected_events, simulation_info, true_energy_bins):
     return effective_area(hist_selected["n"], hist_simulated, area)
 
 
-def effective_area_energy_fov(
+def effective_area_per_energy_and_fov(
     selected_events, simulation_info, true_energy_bins, fov_offset_bins
 ):
     """
@@ -59,7 +59,9 @@ def effective_area_energy_fov(
     Parameters
     ----------
     selected_events: astropy.table.QTable
-        DL2 events table, required columns for this function: `true_energy`.
+        DL2 events table, required columns for this function:
+        - `true_energy`
+        - `source_fov_offset`
     simulation_info: pyirf.simulations.SimulatedEventsInfo
         The overall statistics of the simulated events
     true_energy_bins: astropy.units.Quantity[energy]

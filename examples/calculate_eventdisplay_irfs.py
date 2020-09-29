@@ -33,7 +33,7 @@ from pyirf.spectral import (
 from pyirf.cut_optimization import optimize_gh_cut
 
 from pyirf.irf import (
-    effective_area_energy,
+    effective_area_per_energy,
     energy_dispersion,
     psf_table,
     background_2d,
@@ -230,7 +230,7 @@ def main():
     energy_migration_bins = np.geomspace(0.2, 5, 200)
 
     for label, mask in masks.items():
-        effective_area = effective_area_energy(
+        effective_area = effective_area_per_energy(
             gammas[mask],
             particles["gamma"]["simulation_info"],
             true_energy_bins=true_energy_bins,
