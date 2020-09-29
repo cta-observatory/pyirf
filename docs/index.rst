@@ -61,6 +61,7 @@ which this documentation is linked.
   irf/index
   sensitivity
   benchmarks/index
+  cuts
   cut_optimization
   spectral
   binning
