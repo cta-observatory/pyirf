@@ -8,7 +8,8 @@ from astropy.table import QTable
 import logging
 
 from .statistics import li_ma_significance
-from .utils import check_histograms
+from .utils import check_histograms, cone_solid_angle
+from .binning import create_histogram_table, bin_center
 
 
 __all__ = ["relative_sensitivity", "calculate_sensitivity"]
@@ -172,9 +173,41 @@ def calculate_sensitivity(
             sensitivity["n_signal_weighted"]
             < (0.05 * alpha * sensitivity["n_background_weighted"])
         )
-        | (sensitivity["n_background"] < 5)
         | (sensitivity["n_background_weighted"] < 10)
     )
     sensitivity["relative_sensitivity"][invalid] = np.nan
 
     return sensitivity
+
+
+def estimate_background(
+    events, reco_energy_bins, theta_cuts, alpha, background_radius
+):
+    '''
+    Estimate the number of background events for a point-like sensitivity.
+    '''
+    bg = create_histogram_table(
+        events,
+        reco_energy_bins,
+        key='reco_energy',
+    )
+
+    # scale number of background events according to the on region size
+    # background radius and alpha
+    center = bin_center(reco_energy_bins)
+    # interpolate the theta cut to the bins used here
+    theta_cuts_bg_bins = np.interp(
+        center,
+        theta_cuts['center'],
+        theta_cuts['cut']
+    )
+    size_ratio = (
+        cone_solid_angle(theta_cuts_bg_bins)
+        / cone_solid_angle(background_radius)
+    ).to_value(u.one)
+
+    for key in ['n', 'n_weighted']:
+        # *= not possible due to upcast from int to float
+        bg[key] = bg[key] * size_ratio / alpha
+
+    return bg

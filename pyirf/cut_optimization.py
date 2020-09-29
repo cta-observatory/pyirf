@@ -4,7 +4,7 @@ import astropy.units as u
 from tqdm import tqdm
 
 from .cuts import evaluate_binned_cut
-from .sensitivity import calculate_sensitivity
+from .sensitivity import calculate_sensitivity, estimate_background
 from .binning import create_histogram_table
 
 
@@ -13,7 +13,17 @@ __all__ = [
 ]
 
 
-def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progress=True):
+def optimize_gh_cut(
+    signal,
+    background,
+    reco_energy_bins,
+    gh_cut_values,
+    theta_cuts,
+    op,
+    background_radius=1 * u.deg,
+    alpha=1.0,
+    progress=True,
+):
     """
     Optimize the gh-score in every energy bin.
     Theta Squared Cut  should already be applied on the input tables.
@@ -24,7 +34,7 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
     # bin independently
 
     sensitivities = []
-    for cut_value in tqdm(cut_values, disable=not progress):
+    for cut_value in tqdm(gh_cut_values, disable=not progress):
 
         # create appropriate table for ``evaluate_binned_cut``
         cut_table = QTable()
@@ -43,13 +53,20 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
 
         # create the histograms
         signal_hist = create_histogram_table(
-            signal[signal_selected], bins, "reco_energy"
-        )
-        background_hist = create_histogram_table(
-            background[background_selected], bins, "reco_energy"
+            signal[signal_selected], reco_energy_bins, "reco_energy"
         )
 
-        sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=alpha,)
+        background_hist = estimate_background(
+            events=background[background_selected],
+            reco_energy_bins=reco_energy_bins,
+            theta_cuts=theta_cuts,
+            alpha=alpha,
+            background_radius=background_radius
+        )
+
+        sensitivity = calculate_sensitivity(
+            signal_hist, background_hist, alpha=alpha,
+        )
         sensitivities.append(sensitivity)
 
     best_cut_table = QTable()
@@ -58,7 +75,7 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
     best_cut_table["cut"] = np.nan
 
     best_sensitivity = sensitivities[0].copy()
-    for bin_id in range(len(bins) - 1):
+    for bin_id in range(len(reco_energy_bins) - 1):
         sensitivities_bin = [s["relative_sensitivity"][bin_id] for s in sensitivities]
 
         if not np.all(np.isnan(sensitivities_bin)):
@@ -69,6 +86,6 @@ def optimize_gh_cut(signal, background, bins, cut_values, op, alpha=1.0, progres
             best = 0
 
         best_sensitivity[bin_id] = sensitivities[best][bin_id]
-        best_cut_table["cut"][bin_id] = cut_values[best]
+        best_cut_table["cut"][bin_id] = gh_cut_values[best]
 
     return best_sensitivity, best_cut_table
