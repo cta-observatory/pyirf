@@ -185,9 +185,39 @@ def estimate_background(
 ):
     '''
     Estimate the number of background events for a point-like sensitivity.
+
+    Due to limited statistics, it is often not possible to just apply the same
+    theta cut to the background events as to the signal events around an assumed
+    source position.
+
+    Here we calculate the expected number of background events for the off
+    regions by taking all background events up to `background_radius` away from
+    the camera center and then scale these to the size of the off region,
+    which is scaled by 1 / alpha from the size of the on region given by the
+    theta cuts.
+
+
+    Parameters
+    ----------
+    events: astropy.table.QTable
+        DL2 event list of background surviving event selection
+        and inside ``background_radius`` from the center of the FOV
+        Required columns for this function:
+        - `reco_energy`,
+        - `source_fov_offset`.
+    reco_energy_bins: astropy.units.Quantity[energy]
+        Desired bin edges in reconstructed energy for the background rate
+    theta_cuts: astropy.table.QTable
+        The cuts table for the theta cut,
+        e.g. as returned by ``~pyirf.cuts.calculate_percentile_cut``.
+        Columns `center` and `cut` are required for this function.
+    alpha: float
+        size of the on region divided by the size of the off region.
+    background_radius: astropy.units.Quantity[angle]
+        Maximum distance from the fov center for background events to be taken into account
     '''
     bg = create_histogram_table(
-        events,
+        events[events['source_fov_offset'] < background_radius],
         reco_energy_bins,
         key='reco_energy',
     )

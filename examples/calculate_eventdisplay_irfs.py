@@ -110,8 +110,6 @@ def main():
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
     background = background
-    # use only events inside the MAX_BG_RADIUS for sensitivity
-    bg_mask = background["source_fov_offset"] < MAX_BG_RADIUS
 
     log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
 
@@ -148,7 +146,7 @@ def main():
     log.info("Optimizing G/H separation cut for best sensitivity")
     sensitivity_step_2, gh_cuts = optimize_gh_cut(
         gammas[gammas["selected_theta"]],
-        background[bg_mask],
+        background,
         reco_energy_bins=sensitivity_bins,
         gh_cut_values=np.arange(-1.0, 1.005, 0.05),
         theta_cuts=theta_cuts,
@@ -183,7 +181,7 @@ def main():
         gammas[gammas["selected"]], bins=sensitivity_bins
     )
     background_hist = estimate_background(
-        background[background["selected_gh"] & bg_mask],
+        background[background["selected_gh"]],
         reco_energy_bins=sensitivity_bins,
         theta_cuts=theta_cuts_opt,
         alpha=ALPHA,
