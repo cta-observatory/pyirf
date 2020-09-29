@@ -77,34 +77,6 @@ def energy_dispersion(
     return energy_dispersion
 
 
-def _interp_dispersion(old_bins, new_bins, values, axis=0):
-    """
-    Interpolate one row of the energy dispersion table
-    to a new migration binning.
-    Copied from:
-    https://github.com/gammapy/gammapy/blob/f12ae6acece0ff5a6f269ca4f409f38c0714e23a/gammapy/irf/energy_dispersion.py#L281
-    This version keep the fov_offset dimension intact.
-
-    new_bins should be the bin edges here, because the np.diff
-    handles this already
-    """
-
-    cumsum = np.cumsum(values, axis=axis)
-    with np.errstate(invalid="ignore"):
-        cumsum = np.nan_to_num(cumsum / cumsum[-1])
-
-    f = interpolate.interp1d(
-        old_bins,
-        cumsum,
-        kind="linear",
-        bounds_error=False,
-        fill_value=(0, 1),
-        axis=axis,
-    )
-
-    return np.diff(np.clip(f(new_bins), a_min=0, a_max=1), axis=0)
-
-
 def energy_dispersion_to_migration(
     dispersion_matrix,
     disp_true_energy_edges,
@@ -117,6 +89,10 @@ def energy_dispersion_to_migration(
     dispersion matrix.
     Depending on the new energy ranges, the sum over the first axis
     can be smaller than 1.
+    The new true energy bins need to be a subset of the old range,
+    extrapolation is not supported.
+    New reconstruction bins outside of the old migration range are filled with
+    zeros.
 
     Parameters
     ----------
@@ -152,12 +128,33 @@ def energy_dispersion_to_migration(
     for idx, e_true in enumerate(
             (new_true_energy_edges[1:] + new_true_energy_edges[:-1])/2
     ):
+
+        # get migration for the new true energy bin
         e_true_dispersion = true_energy_interpolation(e_true)
 
-        migration_matrix[idx, :, :] = _interp_dispersion(
+        # for details of the interpolation see
+        # https://github.com/gammapy/gammapy/blob/f12ae6acece0ff5a6f269ca4f409f38c0714e23a/gammapy/irf/energy_dispersion.py#L242
+
+        # interpolate the cumsum of the dispersion values along the migration axis
+        cumsum = np.cumsum(e_true_dispersion, axis=0)
+        with np.errstate(invalid="ignore"):
+            cumsum = np.nan_to_num(cumsum / cumsum[-1])
+        f = interpolate.interp1d(
             (disp_migration_edges[1:] + disp_migration_edges[:-1])/2,
-            new_reco_energy_edges / e_true,
-            e_true_dispersion
+            cumsum,
+            kind="linear",
+            bounds_error=False,
+            fill_value=(0, 1),
+            axis=0,
+        )
+
+        # get new bin values as the diff of the interpolated cumsums
+        migration_matrix[idx, :, :] = np.diff(
+            np.clip(
+                f(new_reco_energy_edges / e_true),
+                a_min=0,
+                a_max=1),
+            axis=0
         )
 
     return migration_matrix
