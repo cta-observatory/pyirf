@@ -45,6 +45,6 @@ def point_like_effective_area(selected_events, simulation_info, true_energy_bins
     hist_selected = create_histogram_table(
         selected_events, true_energy_bins, "true_energy"
     )
-    hist_simulated = simulation_info.calculate_n_showers(true_energy_bins)
+    hist_simulated = simulation_info.calculate_n_showers_per_energy(true_energy_bins)
 
     return effective_area(hist_selected["n"], hist_simulated, area)
