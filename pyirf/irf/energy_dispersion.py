@@ -1,9 +1,11 @@
 import numpy as np
 import astropy.units as u
+from ..binning import resample_histogram
 
 
 __all__ = [
     "energy_dispersion",
+    "energy_dispersion_to_migration"
 ]
 
 
@@ -73,3 +75,76 @@ def energy_dispersion(
     energy_dispersion = _normalize_hist(energy_dispersion)
 
     return energy_dispersion
+
+
+def energy_dispersion_to_migration(
+    dispersion_matrix,
+    disp_true_energy_edges,
+    disp_migration_edges,
+    new_true_energy_edges,
+    new_reco_energy_edges,
+):
+    """
+    Construct a sparse energy migration matrix from a dense energy
+    dispersion matrix.
+    Depending on the new energy ranges, the sum over the first axis
+    can be smaller than 1.
+    The new true energy bins need to be a subset of the old range,
+    extrapolation is not supported.
+    New reconstruction bins outside of the old migration range are filled with
+    zeros.
+
+    Parameters
+    ----------
+    dispersion_matrix: numpy.ndarray
+        Energy dispersion_matrix
+    disp_true_energy_edges: astropy.units.Quantity[energy]
+        True energy edges matching the first dimension of the dispersion matrix
+    disp_migration_edges: numpy.ndarray
+        Migration edges matching the second dimension of the dispersion matrix
+    new_true_energy_edges: astropy.units.Quantity[energy]
+        True energy edges matching the first dimension of the output
+    new_reco_energy_edges: astropy.units.Quantity[energy]
+        Reco energy edges matching the second dimension of the output
+
+    Returns:
+    --------
+    migration_matrix: numpy.ndarray
+        Three-dimensional energy migration matrix. The third dimension
+        equals the fov offset dimension of the energy dispersion matrix.
+    """
+
+    migration_matrix = np.zeros((
+        len(new_true_energy_edges) - 1,
+        len(new_reco_energy_edges) - 1,
+        dispersion_matrix.shape[2],
+    ))
+
+    true_energy_interpolation = resample_histogram(
+        dispersion_matrix,
+        disp_true_energy_edges,
+        new_true_energy_edges,
+        axis=0,
+    )
+
+    norm = np.sum(true_energy_interpolation, axis=1, keepdims=True)
+    norm[norm == 0] = 1
+    true_energy_interpolation /= norm
+
+    for idx, e_true in enumerate(
+        (new_true_energy_edges[1:] + new_true_energy_edges[:-1]) / 2
+    ):
+
+        # get migration for the new true energy bin
+        e_true_dispersion = true_energy_interpolation[idx]
+
+        y = resample_histogram(
+            e_true_dispersion,
+            disp_migration_edges,
+            new_reco_energy_edges / e_true,
+            axis=0,
+        )
+
+        migration_matrix[idx, :, :] = y
+
+    return migration_matrix

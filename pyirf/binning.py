@@ -3,6 +3,7 @@ Utility functions for binning
 """
 
 import numpy as np
+from scipy.interpolate import interp1d
 import astropy.units as u
 from astropy.table import QTable
 
@@ -128,3 +129,58 @@ def create_histogram_table(events, bins, key="reco_energy"):
             events[key], bins, weights=events["weight"]
         )
     return hist
+
+
+def resample_histogram(data, old_edges, new_edges, axis=0):
+    """
+    Rebinning of a histogram by interpolation along a given axis.
+
+    Parameters
+    ----------
+    data : ``numpy.ndarray`` or ``astropy.units.Quantity``
+        Histogram.
+    old_edges : ``numpy.array`` or ``astropy.units.Quantity``
+        Binning used to calculate ``data``.
+        ``len(old_edges) - 1`` needs to equal the length of ``data``
+        along interpolation axis (``axis``).
+        If quantity, needs to be compatible to ``new_edges``.
+    new_edges : ``numpy.array`` or ``astropy.units.Quantity``
+        Binning of new histogram.
+        If quantity, needs to be compatible to ``old_edges``.
+    axis : int
+        Interpolation axis.
+
+    Returns
+    -------
+    ``numpy.ndarray`` or ``astropy.units.Quantity``
+        Interpolated histogram with dimension according to ``data`` and ``new_edges``.
+        If ``data`` is a quantity, this has the same unit.
+    """
+
+    data_unit = None
+    if isinstance(data, u.Quantity):
+        data_unit = data.unit
+        data = data.to_value(data_unit)
+
+    old_edges = u.Quantity(old_edges)
+    new_edges = u.Quantity(new_edges)
+
+    old_edges = old_edges.to(new_edges.unit)
+
+    cumsum = np.insert(data.cumsum(axis=axis), 0, 0, axis=axis)
+
+    norm = data.sum(axis=axis, keepdims=True)
+    norm[norm == 0] = 1
+    cumsum /= norm
+
+    f_integral = interp1d(
+        old_edges, cumsum, bounds_error=False,
+        fill_value=(0, 1), kind="quadratic",
+        axis=axis,
+    )
+
+    values = np.diff(f_integral(new_edges), axis=axis) * norm
+    if data_unit:
+        values = u.Quantity(values, unit=data_unit)
+
+    return values
