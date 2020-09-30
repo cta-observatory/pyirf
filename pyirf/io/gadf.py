@@ -279,7 +279,6 @@ def create_background_2d_hdu(
     rad_max=u.deg,
     reco_energy_bins=u.TeV,
     fov_offset_bins=u.deg,
-    source_offset_bins=u.deg,
 )
 def create_rad_max_hdu(
     rad_max,
