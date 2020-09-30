@@ -1,7 +1,6 @@
 """
 Functions to calculate sensitivity
 """
-import astropy.units as u
 import numpy as np
 from scipy.optimize import brentq
 from astropy.table import QTable
@@ -141,9 +140,8 @@ def calculate_sensitivity(
         that yields ``target_significance`` sigma of significance according to
         the ``significance_function``
     """
-    assert len(signal_hist) == len(background_hist)
-
     check_histograms(signal_hist, background_hist)
+
     sensitivity = QTable()
     for key in ("low", "high", "center"):
         k = "reco_energy_" + key

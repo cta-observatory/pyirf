@@ -2,6 +2,9 @@ import numpy as np
 import astropy.units as u
 from astropy.coordinates.angle_utilities import angular_separation
 
+from .exceptions import MissingColumns, WrongColumnUnit
+
+
 __all__ = [
     "is_scalar",
     "calculate_theta",
@@ -116,3 +119,38 @@ def cone_solid_angle(angle):
     """
     solid_angle = 2 * np.pi * (1 - np.cos(angle)) * u.sr
     return solid_angle
+
+
+def check_table(table, required_columns=None, required_units=None):
+    '''
+    Check a table for required columns and units
+
+    Parameters
+    ----------
+    table: astropy.table.QTable
+        Table to check
+    required_columns: iterable[str]
+        Column names that are required to be present
+    required_units: Mapping[str->astropy.units.Unit]
+        Required units for columns as a Mapping from column names to units.
+        Checks if the units are convertible, not if they are identical
+
+    Raises
+    ------
+    MissingColumns: If any of the columns specified in ``required_columns`` or
+        as keys in ``required_units are`` not present in the table.
+    WrongColumnUnit: if any column has the wrong unit
+    '''
+    if required_columns is not None:
+        missing = set(required_columns) - set(table.colnames)
+        if missing:
+            raise MissingColumns(missing)
+
+    if required_units is not None:
+        for col, expected in required_units.items():
+            if col not in table.colnames:
+                raise MissingColumns(col)
+
+            unit = table[col].unit
+            if not expected.is_equivalent(unit):
+                raise WrongColumnUnit(col, unit, expected)
