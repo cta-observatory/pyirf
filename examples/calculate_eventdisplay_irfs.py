@@ -162,8 +162,8 @@ def main():
         )
 
     theta_cuts_opt = calculate_percentile_cut(
-        gammas["theta"],
-        gammas["reco_energy"],
+        gammas[gammas['selected_gh']]["theta"],
+        gammas[gammas['selected_gh']]["reco_energy"],
         theta_bins,
         fill_value=np.nan * u.deg,
         percentile=68,
