@@ -51,7 +51,10 @@ def calculate_theta(events, assumed_source_az, assumed_source_alt):
         in the sky.
     """
     theta = angular_separation(
-        assumed_source_az, assumed_source_alt, events["reco_az"], events["reco_alt"],
+        assumed_source_az,
+        assumed_source_alt,
+        events["reco_az"],
+        events["reco_alt"],
     )
 
     return theta.to(u.deg)
@@ -122,8 +125,7 @@ def cone_solid_angle(angle):
 
 
 def check_table(table, required_columns=None, required_units=None):
-    '''
-    Check a table for required columns and units
+    """Check a table for required columns and units
 
     Parameters
     ----------
@@ -140,7 +142,7 @@ def check_table(table, required_columns=None, required_units=None):
     MissingColumns: If any of the columns specified in ``required_columns`` or
         as keys in ``required_units are`` not present in the table.
     WrongColumnUnit: if any column has the wrong unit
-    '''
+    """
     if required_columns is not None:
         missing = set(required_columns) - set(table.colnames)
         if missing:
