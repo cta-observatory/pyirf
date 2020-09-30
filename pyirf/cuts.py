@@ -1,7 +1,7 @@
 import numpy as np
-from astropy.table import Table
+from astropy.table import Table, QTable
 
-from .binning import calculate_bin_indices
+from .binning import calculate_bin_indices, bin_center
 
 __all__ = [
     'calculate_percentile_cut',
@@ -39,9 +39,10 @@ def calculate_percentile_cut(
 
     table["bin_index"] = calculate_bin_indices(table["bin_values"].quantity, bins)
 
-    cut_table = Table()
+    cut_table = QTable()
     cut_table["low"] = bins[:-1]
     cut_table["high"] = bins[1:]
+    cut_table["center"] = bin_center(bins)
     cut_table["cut"] = fill_value
 
     # use groupby operations to calculate the percentile in each bin
@@ -51,7 +52,7 @@ def calculate_percentile_cut(
     cut_table["cut"][by_bin.groups.keys["bin_index"]] = (
         by_bin["values"]
         .groups.aggregate(lambda g: np.percentile(g, percentile))
-        .quantity.to_value(cut_table["cut"].unit)
+        .quantity.to(cut_table["cut"].unit)
     )
 
     if min_value is not None:
@@ -87,6 +88,9 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
         returning an array of booleans.
         Must support vectorized application.
     """
-    bins = np.append(cut_table["low"].quantity, cut_table["high"].quantity[-1])
+    if not isinstance(cut_table, QTable):
+        raise ValueError('cut_table needs to be an astropy.table.QTable')
+
+    bins = np.append(cut_table["low"], cut_table["high"][-1])
     bin_index = calculate_bin_indices(bin_values, bins)
-    return op(values, cut_table["cut"][bin_index].quantity)
+    return op(values, cut_table["cut"][bin_index])
