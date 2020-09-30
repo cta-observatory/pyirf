@@ -1,6 +1,6 @@
 import numpy as np
 import astropy.units as u
-from ..binning import resample_histogram
+from ..binning import resample_histogram1d
 
 
 __all__ = [
@@ -120,7 +120,7 @@ def energy_dispersion_to_migration(
         dispersion_matrix.shape[2],
     ))
 
-    true_energy_interpolation = resample_histogram(
+    true_energy_interpolation = resample_histogram1d(
         dispersion_matrix,
         disp_true_energy_edges,
         new_true_energy_edges,
@@ -138,7 +138,7 @@ def energy_dispersion_to_migration(
         # get migration for the new true energy bin
         e_true_dispersion = true_energy_interpolation[idx]
 
-        y = resample_histogram(
+        y = resample_histogram1d(
             e_true_dispersion,
             disp_migration_edges,
             new_reco_energy_edges / e_true,

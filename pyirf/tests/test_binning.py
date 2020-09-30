@@ -73,37 +73,37 @@ def test_calculate_bin_indices():
 
 
 def test_resample_bins_1d():
-    from pyirf.binning import resample_histogram
+    from pyirf.binning import resample_histogram1d
 
     n = 10
     data = np.ones(n)
     edges = np.arange(n + 1)
 
     # no resampling
-    new_data = resample_histogram(data, edges, edges)
+    new_data = resample_histogram1d(data, edges, edges)
     np.testing.assert_array_almost_equal(new_data, data)
 
     # resampling, less bins
     new_edges = np.arange(n + 1, step=2)
     true_new_data = np.ones(n // 2) * 2
-    new_data = resample_histogram(data, edges, new_edges)
+    new_data = resample_histogram1d(data, edges, new_edges)
     np.testing.assert_array_almost_equal(new_data, true_new_data)
 
     # resampling, smaller range (lose normalization)
     new_edges = np.arange(n // 2 + 1)
     true_new_data = np.ones(n // 2)
-    new_data = resample_histogram(data, edges, new_edges)
+    new_data = resample_histogram1d(data, edges, new_edges)
     np.testing.assert_array_almost_equal(new_data, true_new_data)
 
     # resampling, larger range (fill with zeros)
     new_edges = np.arange(-n, 2 * n + 1)
     true_new_data = np.concatenate([np.zeros(n), np.ones(n), np.zeros(n)])
-    new_data = resample_histogram(data, edges, new_edges)
+    new_data = resample_histogram1d(data, edges, new_edges)
     np.testing.assert_array_almost_equal(new_data, true_new_data)
 
 
 def test_resample_bins_nd():
-    from pyirf.binning import resample_histogram
+    from pyirf.binning import resample_histogram1d
     n = 10
 
     # shape 2x3x10
@@ -121,16 +121,16 @@ def test_resample_bins_nd():
     ])
 
     edges = np.arange(n + 1)
-    new_data = resample_histogram(data, edges, edges, axis=2)
+    new_data = resample_histogram1d(data, edges, edges, axis=2)
     np.testing.assert_array_almost_equal(new_data, data)
 
     edges = np.arange(3 + 1)
-    new_data = resample_histogram(data, edges, edges, axis=1)
+    new_data = resample_histogram1d(data, edges, edges, axis=1)
     np.testing.assert_array_almost_equal(new_data, data)
 
 
 def test_resample_bins_units():
-    from pyirf.binning import resample_histogram
+    from pyirf.binning import resample_histogram1d
     import pytest
 
     n = 10
@@ -139,14 +139,14 @@ def test_resample_bins_units():
     old_edges = np.arange(n + 1) * u.TeV
     new_edges = old_edges.copy().to(u.GeV)
 
-    new_data = resample_histogram(data, old_edges, new_edges)
+    new_data = resample_histogram1d(data, old_edges, new_edges)
 
     np.testing.assert_array_almost_equal(
         new_data.to_value(data.unit), data.to_value(data.unit),
     )
 
     with pytest.raises(ValueError):
-        new_data = resample_histogram(data, old_edges, new_edges.value)
+        new_data = resample_histogram1d(data, old_edges, new_edges.value)
 
     with pytest.raises(u.core.UnitConversionError):
-        new_data = resample_histogram(data, old_edges, u.Quantity(new_edges.value, unit=u.m))
+        new_data = resample_histogram1d(data, old_edges, u.Quantity(new_edges.value, unit=u.m))

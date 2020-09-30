@@ -131,7 +131,7 @@ def create_histogram_table(events, bins, key="reco_energy"):
     return hist
 
 
-def resample_histogram(data, old_edges, new_edges, axis=0):
+def resample_histogram1d(data, old_edges, new_edges, axis=0):
     """
     Rebinning of a histogram by interpolation along a given axis.
 
