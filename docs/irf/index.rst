@@ -19,7 +19,7 @@ The energy dispersion matrix, ratio of the reconstructed energy over the true en
 as a function of the true energy, is computed with the events passing the
 threshold of the best cutoff plus the angular cuts.
 
-The corresponding, sparse energy migration matrix can be build from the dispersion matrix.
+The corresponding energy migration matrix can be build from the dispersion matrix.
 
 
 Point Spread Function

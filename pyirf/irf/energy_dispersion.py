@@ -85,7 +85,7 @@ def energy_dispersion_to_migration(
     new_reco_energy_edges,
 ):
     """
-    Construct a sparse energy migration matrix from a dense energy
+    Construct a energy migration matrix from a energy
     dispersion matrix.
     Depending on the new energy ranges, the sum over the first axis
     can be smaller than 1.
