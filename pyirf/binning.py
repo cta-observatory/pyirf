@@ -162,8 +162,16 @@ def resample_histogram1d(data, old_edges, new_edges, axis=0):
         data_unit = data.unit
         data = data.to_value(data_unit)
 
-    old_edges = u.Quantity(old_edges)
-    new_edges = u.Quantity(new_edges)
+    over_underflow_bin_width = old_edges[-2] - old_edges[1]
+    old_edges = u.Quantity(
+        np.nan_to_num(
+            old_edges,
+            posinf=old_edges[-2] + over_underflow_bin_width,
+            neginf=old_edges[1] - over_underflow_bin_width,
+        )
+    )
+
+    new_edges = u.Quantity(np.nan_to_num(new_edges))
 
     old_edges = old_edges.to(new_edges.unit)
 

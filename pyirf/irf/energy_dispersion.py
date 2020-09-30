@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import astropy.units as u
 from ..binning import resample_histogram1d
@@ -138,10 +139,15 @@ def energy_dispersion_to_migration(
         # get migration for the new true energy bin
         e_true_dispersion = true_energy_interpolation[idx]
 
+        with warnings.catch_warnings():
+            # silence inf/inf division warning
+            warnings.filterwarnings('ignore', 'invalid value encountered in true_divide')
+            interpolation_edges = new_reco_energy_edges / e_true
+
         y = resample_histogram1d(
             e_true_dispersion,
             disp_migration_edges,
-            new_reco_energy_edges / e_true,
+            interpolation_edges,
             axis=0,
         )
 

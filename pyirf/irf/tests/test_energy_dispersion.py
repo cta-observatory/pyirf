@@ -142,3 +142,64 @@ def test_energy_dispersion_to_migration():
     # test that migrations dont always sum to 1 (since some energies are
     # not included in the matrix)
     assert migration_matrix.sum() < (len(new_true_energy_bins) - 1) * (len(fov_offset_bins) - 1)
+    assert np.all(np.isfinite(migration_matrix))
+
+
+def test_overflow_bins_migration_matrix():
+    from pyirf.irf import energy_dispersion
+    from pyirf.irf.energy_dispersion import energy_dispersion_to_migration
+    from pyirf.binning import add_overflow_bins
+
+    np.random.seed(0)
+    N = 10000
+
+    # add under/overflow bins
+    bins = 10 ** np.arange(
+        np.log10(0.2),
+        np.log10(200),
+        1 / 10,
+    ) * u.TeV
+    true_energy_bins = add_overflow_bins(bins, positive=False)
+
+    fov_offset_bins = np.array([0, 1, 2]) * u.deg
+    migration_bins = np.linspace(0, 2, 101)
+
+    true_energy = np.random.uniform(
+        true_energy_bins[1].value,
+        true_energy_bins[-2].value,
+        size=N
+    ) * u.TeV
+    reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
+
+    selected_events = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "source_fov_offset": np.concatenate(
+                [
+                    np.full(N // 2, 0.2),
+                    np.full(N // 2, 1.5),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    dispersion_matrix = energy_dispersion(
+        selected_events, true_energy_bins, fov_offset_bins, migration_bins
+    )
+
+    migration_matrix = energy_dispersion_to_migration(
+        dispersion_matrix,
+        true_energy_bins,
+        migration_bins,
+        true_energy_bins,
+        true_energy_bins,
+    )
+
+    # migration into underflow bin is not empty
+    assert np.sum(migration_matrix[:, 0, :]) > 0
+    # migration from underflow bin is empty
+    assert np.sum(migration_matrix[0, :, :]) == 0
+
+    assert np.all(np.isfinite(migration_matrix))
