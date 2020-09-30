@@ -80,8 +80,7 @@ def rad_max_hdu():
     from pyirf.io import create_rad_max_hdu
 
     rad_max = np.full((len(e_bins) - 1, len(fov_bins) - 1), 0.1) * u.deg
-    print(rad_max.shape)
-    hdu = create_rad_max_hdu(e_bins, fov_bins, rad_max)
+    hdu = create_rad_max_hdu(rad_max, e_bins, fov_bins)
 
     return rad_max, hdu
 
