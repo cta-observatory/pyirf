@@ -8,6 +8,10 @@ import astropy.units as u
 from astropy.table import QTable
 
 
+def bin_center(edges):
+    return 0.5 * (edges[:-1] + edges[1:])
+
+
 def add_overflow_bins(bins, positive=True):
     """
     Add under and overflow bins to a bin array.
