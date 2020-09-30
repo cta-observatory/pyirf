@@ -38,7 +38,7 @@ def optimize_gh_cut(
 
         # create appropriate table for ``evaluate_binned_cut``
         cut_table = QTable()
-        cut_table["low"] = reco_energy_bins[0:-1]
+        cut_table["low"] = reco_energy_bins[:-1]
         cut_table["high"] = reco_energy_bins[1:]
         cut_table["cut"] = cut_value
 
