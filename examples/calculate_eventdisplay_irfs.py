@@ -19,7 +19,7 @@ from pyirf.binning import (
     create_histogram_table,
 )
 from pyirf.cuts import calculate_percentile_cut, evaluate_binned_cut
-from pyirf.sensitivity import calculate_sensitivity
+from pyirf.sensitivity import calculate_sensitivity, estimate_background
 from pyirf.utils import calculate_theta, calculate_source_fov_offset
 from pyirf.benchmarks import energy_bias_resolution, angular_resolution
 
@@ -56,7 +56,10 @@ T_OBS = 50 * u.hour
 # scaling between on and off region.
 # Make off region 5 times larger than on region for better
 # background statistics
-ALPHA = 0.05
+ALPHA = 0.2
+
+# Radius to use for calculating bg rate
+MAX_BG_RADIUS = 1 * u.deg
 
 # gh cut used for first calculation of the binned theta cuts
 INITIAL_GH_CUT = 0.0
@@ -75,13 +78,6 @@ particles = {
         "target_spectrum": IRFDOC_ELECTRON_SPECTRUM,
     },
 }
-
-
-def get_bg_cuts(cuts, alpha):
-    """Rescale the cut values to enlarge the background region"""
-    cuts = cuts.copy()
-    cuts["cut"] /= np.sqrt(alpha)
-    return cuts
 
 
 def main():
@@ -113,7 +109,6 @@ def main():
     background = table.vstack(
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
-
     log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
 
     # event display uses much finer bins for the theta cut than
@@ -138,12 +133,6 @@ def main():
     gammas["selected_theta"] = evaluate_binned_cut(
         gammas["theta"], gammas["reco_energy"], theta_cuts, operator.le
     )
-    # we make the background region larger by a factor of ALPHA,
-    # so the radius by sqrt(ALPHA) to get better statistics for the background
-    theta_cuts_bg = get_bg_cuts(theta_cuts, ALPHA)
-    background["selected_theta"] = evaluate_binned_cut(
-        background["theta"], background["reco_energy"], theta_cuts_bg, operator.le
-    )
 
     # same bins as event display uses
     sensitivity_bins = add_overflow_bins(
@@ -155,15 +144,18 @@ def main():
     log.info("Optimizing G/H separation cut for best sensitivity")
     sensitivity_step_2, gh_cuts = optimize_gh_cut(
         gammas[gammas["selected_theta"]],
-        background[background["selected_theta"]],
-        bins=sensitivity_bins,
-        cut_values=np.arange(-1.0, 1.005, 0.05),
+        background,
+        reco_energy_bins=sensitivity_bins,
+        gh_cut_values=np.arange(-1.0, 1.005, 0.05),
+        theta_cuts=theta_cuts,
         op=operator.ge,
         alpha=ALPHA,
+        background_radius=MAX_BG_RADIUS,
     )
 
     # now that we have the optimized gh cuts, we recalculate the theta
     # cut as 68 percent containment on the events surviving these cuts.
+    log.info('Recalculating theta cut for optimized GH Cuts')
     for tab in (gammas, background):
         tab["selected_gh"] = evaluate_binned_cut(
             tab["gh_score"], tab["reco_energy"], gh_cuts, operator.ge
@@ -178,21 +170,21 @@ def main():
         min_value=0.05 * u.deg,
     )
 
-    theta_cuts_opt_bg = get_bg_cuts(theta_cuts_opt, ALPHA)
-
-    for tab, cuts in zip([gammas, background], [theta_cuts_opt, theta_cuts_opt_bg]):
-        tab["selected_theta"] = evaluate_binned_cut(
-            tab["theta"], tab["reco_energy"], cuts, operator.le
-        )
-        tab["selected"] = tab["selected_theta"] & tab["selected_gh"]
+    gammas["selected_theta"] = evaluate_binned_cut(
+        gammas["theta"], gammas["reco_energy"], theta_cuts_opt, operator.le
+    )
+    gammas["selected"] = gammas["selected_theta"] & gammas["selected_gh"]
 
     signal_hist = create_histogram_table(
         gammas[gammas["selected"]], bins=sensitivity_bins
     )
-    background_hist = create_histogram_table(
-        background[background["selected"]], bins=sensitivity_bins
+    background_hist = estimate_background(
+        background[background["selected_gh"]],
+        reco_energy_bins=sensitivity_bins,
+        theta_cuts=theta_cuts_opt,
+        alpha=ALPHA,
+        background_radius=MAX_BG_RADIUS,
     )
-
     sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=ALPHA)
 
     # scale relative sensitivity by Crab flux to get the flux sensitivity
@@ -201,7 +193,7 @@ def main():
             s["reco_energy_center"]
         )
 
-    # write OGADF output file
+    log.info('Calculating IRFs')
     hdus = [
         fits.PrimaryHDU(),
         fits.BinTableHDU(sensitivity, name="SENSITIVITY"),
@@ -286,10 +278,12 @@ def main():
             psf, true_energy_bins, source_offset_bins, fov_offset_bins,
     ))
     hdus.append(create_rad_max_hdu(
-            theta_cuts_opt["cut"][:, np.newaxis], theta_bins, fov_offset_bins
+        theta_cuts_opt["cut"][:, np.newaxis], theta_bins, fov_offset_bins
     ))
     hdus.append(fits.BinTableHDU(ang_res, name="ANGULAR_RESOLUTION"))
     hdus.append(fits.BinTableHDU(bias_resolution, name="ENERGY_BIAS_RESOLUTION"))
+
+    log.info('Writing outputfile')
     fits.HDUList(hdus).writeto("pyirf_eventdisplay.fits.gz", overwrite=True)
 
 

@@ -8,7 +8,8 @@ from astropy.table import QTable
 import logging
 
 from .statistics import li_ma_significance
-from .utils import check_histograms
+from .utils import check_histograms, cone_solid_angle
+from .binning import create_histogram_table, bin_center
 
 
 __all__ = ["relative_sensitivity", "calculate_sensitivity"]
@@ -172,9 +173,71 @@ def calculate_sensitivity(
             sensitivity["n_signal_weighted"]
             < (0.05 * alpha * sensitivity["n_background_weighted"])
         )
-        | (sensitivity["n_background"] < 5)
         | (sensitivity["n_background_weighted"] < 10)
     )
     sensitivity["relative_sensitivity"][invalid] = np.nan
 
     return sensitivity
+
+
+def estimate_background(
+    events, reco_energy_bins, theta_cuts, alpha, background_radius
+):
+    '''
+    Estimate the number of background events for a point-like sensitivity.
+
+    Due to limited statistics, it is often not possible to just apply the same
+    theta cut to the background events as to the signal events around an assumed
+    source position.
+
+    Here we calculate the expected number of background events for the off
+    regions by taking all background events up to `background_radius` away from
+    the camera center and then scale these to the size of the off region,
+    which is scaled by 1 / alpha from the size of the on region given by the
+    theta cuts.
+
+
+    Parameters
+    ----------
+    events: astropy.table.QTable
+        DL2 event list of background surviving event selection
+        and inside ``background_radius`` from the center of the FOV
+        Required columns for this function:
+        - `reco_energy`,
+        - `source_fov_offset`.
+    reco_energy_bins: astropy.units.Quantity[energy]
+        Desired bin edges in reconstructed energy for the background rate
+    theta_cuts: astropy.table.QTable
+        The cuts table for the theta cut,
+        e.g. as returned by ``~pyirf.cuts.calculate_percentile_cut``.
+        Columns `center` and `cut` are required for this function.
+    alpha: float
+        size of the on region divided by the size of the off region.
+    background_radius: astropy.units.Quantity[angle]
+        Maximum distance from the fov center for background events to be taken into account
+    '''
+    bg = create_histogram_table(
+        events[events['source_fov_offset'] < background_radius],
+        reco_energy_bins,
+        key='reco_energy',
+    )
+
+    # scale number of background events according to the on region size
+    # background radius and alpha
+    center = bin_center(reco_energy_bins)
+    # interpolate the theta cut to the bins used here
+    theta_cuts_bg_bins = np.interp(
+        center,
+        theta_cuts['center'],
+        theta_cuts['cut']
+    )
+    size_ratio = (
+        cone_solid_angle(theta_cuts_bg_bins)
+        / cone_solid_angle(background_radius)
+    ).to_value(u.one)
+
+    for key in ['n', 'n_weighted']:
+        # *= not possible due to upcast from int to float
+        bg[key] = bg[key] * size_ratio / alpha
+
+    return bg
