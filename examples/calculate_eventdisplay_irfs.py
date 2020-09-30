@@ -109,8 +109,6 @@ def main():
     background = table.vstack(
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
-    background = background
-
     log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
 
     # event display uses much finer bins for the theta cut than
