@@ -276,15 +276,15 @@ def create_background_2d_hdu(
 
 
 @u.quantity_input(
+    rad_max=u.deg,
     reco_energy_bins=u.TeV,
     fov_offset_bins=u.deg,
-    rad_max=u.deg,
     source_offset_bins=u.deg,
 )
 def create_rad_max_hdu(
+    rad_max,
     reco_energy_bins,
     fov_offset_bins,
-    rad_max,
     point_like=True,
     extname="RAD_MAX",
     **header_cards,
@@ -296,14 +296,14 @@ def create_rad_max_hdu(
 
     Parameters
     ----------
+    rad_max: astropy.units.Quantity[angle]
+        Array of the directional (theta) cut.
+        Must have shape (n_reco_energy_bins, n_fov_offset_bins)
     reco_energy_bins: astropy.units.Quantity[energy]
         Bin edges in reconstructed energy
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
-    rad_max: astropy.units.Quantity[angle]
-        Array of the directional (theta) cut.
-        Must have shape (n_reco_energy_bins, n_fov_offset_bins)
     extname: str
         Name for BinTableHDU
     **header_cards
