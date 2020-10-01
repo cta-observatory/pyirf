@@ -1,4 +1,5 @@
 import astropy.units as u
+import numpy as np
 
 
 class SimulatedEventsInfo:
@@ -48,9 +49,12 @@ class SimulatedEventsInfo:
             raise ValueError("spectral index must be <= -1")
 
     @u.quantity_input(energy_bins=u.TeV)
-    def calculate_n_showers(self, energy_bins):
+    def calculate_n_showers_per_energy(self, energy_bins):
         """
-        Calculate number of showers that were simulated in the given interval
+        Calculate number of showers that were simulated in the given energy intervals
+
+        This assumes the events were generated and from a powerlaw
+        like CORSIKA simulates events.
 
         Parameters
         ----------
@@ -65,18 +69,97 @@ class SimulatedEventsInfo:
             The actual numbers will follow a poissionian distribution around this
             expected value.
         """
-        bins = energy_bins.to_value(u.TeV)
+        bins = energy_bins
         e_low = bins[:-1]
         e_high = bins[1:]
+        e_min = self.energy_min
+        e_max = self.energy_max
 
-        int_index = self.spectral_index + 1
-        e_min = self.energy_min.to_value(u.TeV)
-        e_max = self.energy_max.to_value(u.TeV)
+        integral = _powerlaw_pdf_integral(
+            self.spectral_index, e_low, e_high, e_min, e_max
+        )
 
-        e_term = e_low ** int_index - e_high ** int_index
-        normalization = int_index / (e_max ** int_index - e_min ** int_index)
+        integral[e_high <= e_min] = 0
+        integral[e_low >= e_max] = 0
 
-        return self.n_showers * normalization * e_term
+        mask = (e_high > e_max) & (e_low < e_max)
+        integral[mask] = _powerlaw_pdf_integral(
+            self.spectral_index, e_low[mask], e_max, e_min, e_max
+        )
+
+        mask = (e_high > e_min) & (e_low < e_min)
+        integral[mask] = _powerlaw_pdf_integral(
+            self.spectral_index, e_min, e_high[mask], e_min, e_max
+        )
+
+        return self.n_showers * integral
+
+    def calculate_n_showers_per_fov(self, fov_bins):
+        """
+        Calculate number of showers that were simulated in the given fov bins.
+
+        This assumes the events were generated uniformly distributed per solid angle,
+        like CORSIKA simulates events with the VIEWCONE option.
+
+        Parameters
+        ----------
+        fov_bins: astropy.units.Quantity[angle]
+            The FOV bin edges for which to calculate the number of simulated showers
+
+        Returns
+        -------
+        n_showers: numpy.ndarray(ndim=2)
+            The expected number of events inside each of the ``fov_bins``.
+            This is a floating point number.
+            The actual numbers will follow a poissionian distribution around this
+            expected value.
+        """
+        fov_bins = fov_bins
+        fov_low = fov_bins[:-1]
+        fov_high = fov_bins[1:]
+
+        fov_integral = _viewcone_pdf_integral(self.viewcone, fov_low, fov_high)
+        viewcone = self.viewcone
+        # check if any of the bins are outside the max viewcone
+        fov_integral = np.where(fov_high <= viewcone, fov_integral, 0)
+
+        # identify the bin with the maximum viewcone inside
+        mask = (viewcone > fov_low) & (viewcone < fov_high)
+        fov_integral[mask] = _viewcone_pdf_integral(viewcone, fov_low[mask], viewcone)
+
+        return self.n_showers * fov_integral
+
+    @u.quantity_input(energy_bins=u.TeV, fov_bins=u.deg)
+    def calculate_n_showers_per_energy_and_fov(self, energy_bins, fov_bins):
+        """
+        Calculate number of showers that were simulated in the given
+        energy and fov bins.
+
+        This assumes the events were generated uniformly distributed per solid angle,
+        and from a powerlaw in energy like CORSIKA simulates events.
+
+        Parameters
+        ----------
+        energy_bins: astropy.units.Quantity[energy]
+            The energy bin edges for which to calculate the number of simulated showers
+        fov_bins: astropy.units.Quantity[angle]
+            The FOV bin edges for which to calculate the number of simulated showers
+
+        Returns
+        -------
+        n_showers: numpy.ndarray(ndim=2)
+            The expected number of events inside each of the
+            ``energy_bins`` and ``fov_bins``.
+            Dimension (n_energy_bins, n_fov_bins)
+            This is a floating point number.
+            The actual numbers will follow a poissionian distribution around this
+            expected value.
+        """
+        # energy distribution and fov distribution are independent in CORSIKA,
+        # so just multiply both distributions.
+        e_integral = self.calculate_n_showers_per_energy(energy_bins)
+        fov_integral = self.calculate_n_showers_per_fov(fov_bins)
+        return e_integral[:, np.newaxis] * fov_integral / self.n_showers
 
     def __repr__(self):
         return (
@@ -89,3 +172,27 @@ class SimulatedEventsInfo:
             f"viewcone={self.viewcone}"
             ")"
         )
+
+
+def _powerlaw_pdf_integral(index, e_low, e_high, e_min, e_max):
+    # strip units, make sure all in the same unit
+    e_low = e_low.to_value(u.TeV)
+    e_high = e_high.to_value(u.TeV)
+    e_min = e_min.to_value(u.TeV)
+    e_max = e_max.to_value(u.TeV)
+
+    int_index = index + 1
+    e_term = e_low ** int_index - e_high ** int_index
+    normalization = int_index / (e_max ** int_index - e_min ** int_index)
+    return e_term * normalization
+
+
+def _viewcone_pdf_integral(viewcone, fov_low, fov_high):
+    if viewcone.value == 0:
+        raise ValueError("Only supported for diffuse simulations")
+    else:
+        norm = 1 / (1 - np.cos(viewcone))
+
+    integral = np.cos(fov_low) - np.cos(fov_high)
+
+    return norm * integral

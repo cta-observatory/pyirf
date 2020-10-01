@@ -1,6 +1,15 @@
 #!/bin/bash
 
-curl -sSfL -o data.zip https://nextcloud.e5.physik.tu-dortmund.de/index.php/s/Cstsf8MWZjnz92L/download
+set -eo pipefail
+
+if [ -z "$DATA_PASSWORD" ]; then
+	echo -n "Password: "
+	read -s DATA_PASSWORD
+	echo
+fi
+
+URL=https://nextcloud.e5.physik.tu-dortmund.de/public.php/webdav/
+
+curl -sSfL -o data.zip -u "pffcqqxsLbZPCc7:$DATA_PASSWORD" "$URL"
 unzip data.zip
 rm data.zip
-mv eventdisplay_dl2 data

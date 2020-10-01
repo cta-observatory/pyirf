@@ -19,6 +19,8 @@ The resulting FITS files are the input to the example and can be downloaded usin
     ./download_test_data.sh
 
 This requires ``curl`` and ``unzip`` to be installed.
+The download is password protected, please ask one of the maintainers for the
+password.
 
 The example can then be run from the root of the repository after installing pyirf
 by running:
