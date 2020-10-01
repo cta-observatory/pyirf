@@ -11,5 +11,5 @@ fi
 URL=https://nextcloud.e5.physik.tu-dortmund.de/public.php/webdav/
 
 curl -sSfL -o data.zip -u "gFdJZDyz8mBD2AH:$DATA_PASSWORD" "$URL"
-unzip -of data.zip
+unzip -o data.zip
 rm data.zip
