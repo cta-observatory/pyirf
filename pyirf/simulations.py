@@ -182,8 +182,8 @@ def _powerlaw_pdf_integral(index, e_low, e_high, e_min, e_max):
     e_max = e_max.to_value(u.TeV)
 
     int_index = index + 1
-    e_term = e_low ** int_index - e_high ** int_index
-    normalization = int_index / (e_max ** int_index - e_min ** int_index)
+    normalization = 1 / (e_max ** int_index - e_min ** int_index)
+    e_term = e_high ** int_index - e_low ** int_index
     return e_term * normalization
 
 
