@@ -22,6 +22,9 @@ This requires ``curl`` and ``unzip`` to be installed.
 The download is password protected, please ask one of the maintainers for the
 password.
 
+A detailed explanation of the contents of such DL2 files can be found
+`here (internal) <https://forge.in2p3.fr/login?back_url=https%3A%2F%2Fforge.in2p3.fr%2Fprojects%2Fcta_analysis-and-simulations%2Fwiki%2FEventdisplay_Prod3b_DL2_Lists>`_.
+
 The example can then be run from the root of the repository after installing pyirf
 by running:
 
