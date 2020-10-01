@@ -46,7 +46,7 @@ def li_ma_significance(n_on, n_off, alpha=0.2):
 
         significance = np.sqrt(ts * 2)
 
-    significance[n_on < alpha * n_off] = 0
+    significance[n_on < (alpha * n_off)] = 0
 
     if scalar:
         return significance[0]
