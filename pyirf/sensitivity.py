@@ -157,16 +157,18 @@ def calculate_sensitivity(
 
     sensitivity["relative_sensitivity"] = [
         relative_sensitivity(
-            n_on=n_signal_hist + alpha * n_background_hist,
-            n_off=n_background_hist,
+            n_on=n_signal + alpha * n_background,
+            n_off=n_background,
             alpha=alpha,
         )
-        for n_signal_hist, n_background_hist in zip(
+        for n_signal, n_background in zip(
             signal_hist["n_weighted"], background_hist["n_weighted"]
         )
     ]
 
-    # safety checks
+    # safety checks according to the IRF document
+    # at least ten signal events and the number of signal events
+    # must be larger then five percent of the remaining background
     invalid = (
         (sensitivity["n_signal_weighted"] < 10)
         | (
