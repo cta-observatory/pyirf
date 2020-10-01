@@ -3,6 +3,30 @@ import numpy as np
 import astropy.units as u
 
 
+def test_relative_sensitivity():
+    from pyirf.sensitivity import relative_sensitivity
+
+    # some general case
+    n_on = 100
+    n_off = 200
+    alpha = 0.2
+    assert 0.1 < relative_sensitivity(n_on, n_off, alpha) < 1.0
+
+    # numbers yield lima = 5 relatively precisely, so sensitivity should be 1
+    assert np.isclose(relative_sensitivity(81, 202, 0.2), 1, rtol=0.01)
+
+    # test different target significance
+    # numbers yield lima = 8 relatively precisely, so sensitivity should be 1
+    result = relative_sensitivity(93, 151, 0.2, target_significance=8)
+    assert np.isclose(result, 1, rtol=0.01)
+
+    # no signal => inf
+    assert np.isinf(relative_sensitivity(10, 100, 0.2))
+
+    # no background, should work
+    assert relative_sensitivity(10, 0, 0.2) > 0
+
+
 def test_estimate_background():
     from pyirf.sensitivity import estimate_background
     N = 1000
