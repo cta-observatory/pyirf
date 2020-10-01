@@ -176,15 +176,16 @@ def calculate_sensitivity(
         )
     ]
 
+    # perform safety checks
+    # we use the number of signal events at the flux level that yields 
+    # the target significance
+    n_signal = sensitivity['relative_sensitivity'] * sensitivity['n_signal_weighted']
     # safety checks according to the IRF document
     # at least ten signal events and the number of signal events
     # must be larger then five percent of the remaining background
     invalid = (
-        (sensitivity["n_signal_weighted"] < 10)
-        | (
-            sensitivity["n_signal_weighted"]
-            < (0.05 * alpha * sensitivity["n_background_weighted"])
-        )
+        (n_signal < 10)
+        | (n_signal < (0.05 * alpha * sensitivity["n_background_weighted"]))
     )
     sensitivity["relative_sensitivity"][invalid] = np.nan
 
