@@ -61,10 +61,8 @@ ALPHA = 0.2
 # Radius to use for calculating bg rate
 MAX_BG_RADIUS = 1 * u.deg
 
-# gh cut used for first calculation of the binned theta cuts
-INITIAL_GH_CUT = 0.0
 
-particles = {
+INPUT_FILES = {
     "gamma": {
         "file": "data/gamma_onSource.S.3HB9-FD_ID0.eff-0.fits.gz",
         "target_spectrum": CRAB_HEGRA,
@@ -80,9 +78,8 @@ particles = {
 }
 
 
-def main():
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger("pyirf").setLevel(logging.DEBUG)
+def read_data(particles):
+    particles = particles.copy()
 
     for k, p in particles.items():
         log.info(f"Simulated {k.title()} Events:")
@@ -104,12 +101,26 @@ def main():
         log.info(p["simulation_info"])
         log.info("")
 
+    return particles
+
+
+def main():
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger("pyirf").setLevel(logging.DEBUG)
+
+    particles = read_data(INPUT_FILES)
     gammas = particles["gamma"]["events"]
     # background table composed of both electrons and protons
     background = table.vstack(
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
-    log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
+
+    # Gernot uses an initial GH/Cut with 40 % signal efficiency to compute
+    # the first set of θ² cuts
+    log.info('Computing initial set of θ² cuts')
+    initial_gh_cut = np.percentile(gammas['gh_score'], 60)
+    log.info(f"Using fixed G/H cut of {initial_gh_cut} to calculate theta cuts")
+    log.debug(f'Surviving events ratio: {np.count_nonzero(gammas["gh_score"] > initial_gh_cut) / len(gammas)}')
 
     # event display uses much finer bins for the theta cut than
     # for the sensitivity
@@ -119,7 +130,7 @@ def main():
 
     # theta cut is 68 percent containmente of the gammas
     # for now with a fixed global, unoptimized score cut
-    mask_theta_cuts = gammas["gh_score"] >= INITIAL_GH_CUT
+    mask_theta_cuts = gammas["gh_score"] >= initial_gh_cut
     theta_cuts = calculate_percentile_cut(
         gammas["theta"][mask_theta_cuts],
         gammas["reco_energy"][mask_theta_cuts],
@@ -127,11 +138,6 @@ def main():
         min_value=0.05 * u.deg,
         fill_value=np.nan * u.deg,
         percentile=68,
-    )
-
-    # evaluate the theta cut
-    gammas["selected_theta"] = evaluate_binned_cut(
-        gammas["theta"], gammas["reco_energy"], theta_cuts, operator.le
     )
 
     # same bins as event display uses
@@ -143,10 +149,10 @@ def main():
 
     log.info("Optimizing G/H separation cut for best sensitivity")
     sensitivity_step_2, gh_cuts = optimize_gh_cut(
-        gammas[gammas["selected_theta"]],
+        gammas,
         background,
         reco_energy_bins=sensitivity_bins,
-        gh_cut_values=np.arange(-1.0, 1.005, 0.05),
+        gh_efficiency_values=np.arange(0.05, 0.801, 0.05),
         theta_cuts=theta_cuts,
         op=operator.ge,
         alpha=ALPHA,
@@ -178,6 +184,7 @@ def main():
     signal_hist = create_histogram_table(
         gammas[gammas["selected"]], bins=sensitivity_bins
     )
+    log.info(f'Number of signal events: {np.count_nonzero(gammas["selected"])}')
     background_hist = estimate_background(
         background[background["selected_gh"]],
         reco_energy_bins=sensitivity_bins,
@@ -188,7 +195,7 @@ def main():
     sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=ALPHA)
 
     # scale relative sensitivity by Crab flux to get the flux sensitivity
-    for s in (sensitivity_step_2, sensitivity):
+    for s in (sensitivity, ):
         s["flux_sensitivity"] = s["relative_sensitivity"] * CRAB_HEGRA(
             s["reco_energy_center"]
         )
@@ -197,7 +204,7 @@ def main():
     hdus = [
         fits.PrimaryHDU(),
         fits.BinTableHDU(sensitivity, name="SENSITIVITY"),
-        fits.BinTableHDU(sensitivity_step_2, name="SENSITIVITY_STEP_2"),
+        # fits.BinTableHDU(sensitivity_step_2, name="SENSITIVITY_STEP_2"),
         fits.BinTableHDU(theta_cuts, name="THETA_CUTS"),
         fits.BinTableHDU(theta_cuts_opt, name="THETA_CUTS_OPT"),
         fits.BinTableHDU(gh_cuts, name="GH_CUTS"),
@@ -215,7 +222,7 @@ def main():
         create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 10,)
     )
     reco_energy_bins = add_overflow_bins(
-        create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 10,)
+        create_bins_per_decade(10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, 5,)
     )
     fov_offset_bins = [0, 0.5] * u.deg
     source_offset_bins = np.arange(0, 1 + 1e-4, 1e-3) * u.deg

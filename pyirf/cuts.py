@@ -44,11 +44,14 @@ def calculate_percentile_cut(
     by_bin = table.group_by("bin_index")
 
     # fill only the non-empty bins
-    cut_table["cut"][by_bin.groups.keys["bin_index"]] = (
+    cut_values = (
         by_bin["values"]
         .groups.aggregate(lambda g: np.percentile(g, percentile))
-        .quantity.to(cut_table["cut"].unit)
     )
+    if cut_table["cut"].unit is not None:
+        cut_values = cut_values.quantity.to(cut_table['cut'].unit)
+
+    cut_table["cut"][by_bin.groups.keys["bin_index"]] = cut_values
 
     if min_value is not None:
         invalid = cut_table["cut"] < min_value

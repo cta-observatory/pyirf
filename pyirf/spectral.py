@@ -3,6 +3,7 @@ Functions and classes for calculating spectral weights
 """
 import astropy.units as u
 import numpy as np
+from .utils import cone_solid_angle
 
 
 #: Unit of a point source flux
@@ -106,7 +107,7 @@ class PowerLaw:
         viewcone = simulated_event_info.viewcone
 
         if viewcone.value > 0:
-            solid_angle = 2 * np.pi * (1 - np.cos(viewcone)) * u.sr
+            solid_angle = cone_solid_angle(viewcone)
         else:
             solid_angle = 1
 
@@ -116,10 +117,15 @@ class PowerLaw:
         nom = (index + 1) * e_ref ** index * n_showers
         denom = (A * obstime * solid_angle) * delta
 
-        return cls(normalization=nom / denom, index=index, e_ref=e_ref,)
+        return cls(normalization=nom / denom, index=index, e_ref=e_ref)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**{self.index}"
+        unit = self.normalization.unit.to_string('vounit')
+        return (
+            f"{self.__class__.__name__}"
+            f"({self.normalization.value} {unit} "
+            f"* (E / {self.e_ref})**{self.index}"
+        )
 
 
 class LogParabola:
