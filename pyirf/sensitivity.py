@@ -40,7 +40,7 @@ def relative_sensitivity(
     that yields a significance of ``target_significance``.
 
     The reference time should be incorporated by appropriately weighting the events
-    before calculating ``n_on`` and ``n_off``
+    before calculating ``n_on`` and ``n_off``.
 
     Parameters
     ----------
