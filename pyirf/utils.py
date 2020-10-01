@@ -125,7 +125,7 @@ def cone_solid_angle(angle):
 
 
 def check_table(table, required_columns=None, required_units=None):
-    """Check a table for required columns and units
+    """Check a table for required columns and units.
 
     Parameters
     ----------
