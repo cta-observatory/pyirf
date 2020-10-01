@@ -25,7 +25,6 @@ def relative_sensitivity(
     alpha,
     target_significance=5,
     significance_function=li_ma_significance,
-    initial_guess=0.01,
 ):
     """
     Calculate the relative sensitivity defined as the flux
@@ -62,8 +61,6 @@ def relative_sensitivity(
         "Analysis methods for results in gamma-ray astronomy."
         The Astrophysical Journal 272 (1983): 317-324.
         Formula (17)
-    initial_guess: float
-        Initial guess for the root finder
     """
     if np.isnan(n_on) or np.isnan(n_off):
         return np.nan
