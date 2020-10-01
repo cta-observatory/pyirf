@@ -114,9 +114,11 @@ def calculate_sensitivity(
 
     This time must be incorporated into the event weights.
 
-    If the resulting sensitivity does not meet the requirements
-    of at least 10 weighted signal events and that the number of weighted
-    signal events must exceed the background by at least 5 percent.
+    Two conditions are required for the sensitivity:
+    - At least ten weighted signal events
+    - the weighted signal events must be larger than 5 % of the weighted background
+
+    If the conditions are not met, the sensitivity will be set to nan.
 
     Parameters
     ----------
