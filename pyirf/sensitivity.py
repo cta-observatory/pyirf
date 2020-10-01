@@ -3,8 +3,10 @@ Functions to calculate sensitivity
 """
 import numpy as np
 from scipy.optimize import brentq
-from astropy.table import QTable
 import logging
+
+from astropy.table import QTable
+import astropy.units as u
 
 from .statistics import li_ma_significance
 from .utils import check_histograms, cone_solid_angle
