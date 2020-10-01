@@ -41,7 +41,9 @@ def li_ma_significance(n_on, n_off, alpha=0.2):
         t2 = n_off * np.log((1 + alpha) * p_off)
 
         # lim x+->0  (x log(x)) = 0
+        t1[n_on == 0] = 0
         t2[n_off == 0] = 0
+
         ts = t1 + t2
 
         significance = np.sqrt(ts * 2)
