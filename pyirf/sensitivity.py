@@ -187,7 +187,7 @@ def calculate_sensitivity(
     invalid = (
         (n_signal < 10)
         | (n_signal < (0.05 * alpha * sensitivity["n_background_weighted"]))
-        | sensitivity['relative_sensitivity'] < 1
+        | (sensitivity['relative_sensitivity'] < 1)
     )
     sensitivity["relative_sensitivity"][invalid] = np.nan
 
