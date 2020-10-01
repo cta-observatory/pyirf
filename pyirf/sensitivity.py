@@ -68,14 +68,14 @@ def relative_sensitivity(
     if np.isnan(n_on) or np.isnan(n_off):
         return np.nan
 
-    if n_on <= 0 or n_off < 0:
-        return np.nan
+    if n_on < 0 or n_off < 0:
+        raise ValueError(f'n_on and n_off must be positive, got {n_on}, {n_off}')
 
     n_background = n_off * alpha
     n_signal = n_on - n_background
 
     if n_signal <= 0:
-        return np.nan
+        return np.inf
 
     def equation(relative_flux):
         n_on = n_signal * relative_flux + n_background
@@ -84,20 +84,27 @@ def relative_sensitivity(
 
     try:
         # brentq needs a lower and an upper bound
-        # lower can be trivially set to zero, but the upper bound is more tricky
         # we will use the simple, analytically  solvable significance formula and scale it
         # with 10 to be sure it's above the Li and Ma solution
         # so rel * n_signal / sqrt(n_background) = target_significance
-        upper_bound = 10 * target_significance * np.sqrt(n_background) / n_signal
-        result = brentq(equation, 0, upper_bound,)
-    except (RuntimeError, ValueError):
+        if n_off > 1:
+            relative_flux_naive = target_significance * np.sqrt(n_background) / n_signal
+            upper_bound = 10 * relative_flux_naive
+            lower_bound = 0.01 * relative_flux_naive
+        else:
+            upper_bound = 100
+            lower_bound = 1e-4
+
+        relative_flux = brentq(equation, lower_bound, upper_bound)
+
+    except (RuntimeError, ValueError) as e:
         log.warn(
             "Could not calculate relative significance for"
-            f" n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan"
+            f" n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan {e}"
         )
         return np.nan
 
-    return result
+    return relative_flux
 
 
 def calculate_sensitivity(
