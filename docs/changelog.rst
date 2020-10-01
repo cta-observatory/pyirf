@@ -5,6 +5,11 @@ Changelog
 
 We use a one-line description of every pull request.
 
+.. to obtain the merged PRs since a specific release, e.g. v0.2.0 use
+.. `$ git log --merges --first-parent master --oneline  master...v0.2.0`
+.. to obtain the contributor, use
+.. `$ git shortlog -sne master...v0.2.0
+
 .. RELEASE TEMPLATE
 ..
 .. `X.Y.Z < github link >`__ (Month Day, YEAR)
