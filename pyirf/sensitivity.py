@@ -114,6 +114,10 @@ def calculate_sensitivity(
 
     This time must be incorporated into the event weights.
 
+    If the resulting sensitivity does not meet the requirements
+    of at least 10 weighted signal events and that the number of weighted
+    signal events must exceed the background by at least 5 percent.
+
     Parameters
     ----------
     signal_hist: astropy.table.QTable
@@ -173,7 +177,7 @@ def calculate_sensitivity(
         (sensitivity["n_signal_weighted"] < 10)
         | (
             sensitivity["n_signal_weighted"]
-            < (0.05 * alpha * sensitivity["n_background_weighted"])
+            < (1.05 * alpha * sensitivity["n_background_weighted"])
         )
     )
     sensitivity["relative_sensitivity"][invalid] = np.nan
