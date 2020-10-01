@@ -41,7 +41,7 @@ def relative_sensitivity(
     that yields a significance of ``target_significance``.
 
     The reference time should be incorporated by appropriately weighting the events
-    before calculating ``n_on`` and ``n_off``
+    before calculating ``n_on`` and ``n_off``.
 
     Parameters
     ----------
@@ -115,6 +115,12 @@ def calculate_sensitivity(
 
     This time must be incorporated into the event weights.
 
+    Two conditions are required for the sensitivity:
+    - At least ten weighted signal events
+    - The weighted signal must be larger than 5 % of the weighted background
+
+    If the conditions are not met, the sensitivity will be set to nan.
+
     Parameters
     ----------
     signal_hist: astropy.table.QTable
@@ -157,23 +163,24 @@ def calculate_sensitivity(
 
     sensitivity["relative_sensitivity"] = [
         relative_sensitivity(
-            n_on=n_signal_hist + alpha * n_background_hist,
-            n_off=n_background_hist,
+            n_on=n_signal + alpha * n_background,
+            n_off=n_background,
             alpha=alpha,
         )
-        for n_signal_hist, n_background_hist in zip(
+        for n_signal, n_background in zip(
             signal_hist["n_weighted"], background_hist["n_weighted"]
         )
     ]
 
-    # safety checks
+    # safety checks according to the IRF document
+    # at least ten signal events and the number of signal events
+    # must be larger then five percent of the remaining background
     invalid = (
         (sensitivity["n_signal_weighted"] < 10)
         | (
             sensitivity["n_signal_weighted"]
             < (0.05 * alpha * sensitivity["n_background_weighted"])
         )
-        | (sensitivity["n_background_weighted"] < 10)
     )
     sensitivity["relative_sensitivity"][invalid] = np.nan
 
