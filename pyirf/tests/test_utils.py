@@ -47,5 +47,5 @@ def test_check_table():
     with pytest.raises(MissingColumns):
         check_table(t, required_units={'foo': u.m})
 
-    # GeV is convertible
-    check_table(t, required_units={'bar': u.GeV})
+    # m is convertible
+    check_table(t, required_units={'bar': u.cm})
