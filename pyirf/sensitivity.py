@@ -65,14 +65,14 @@ def relative_sensitivity(
     initial_guess: float
         Initial guess for the root finder
     """
-    n_background = n_off * alpha
-    n_signal = n_on - n_background
-
     if np.isnan(n_on) or np.isnan(n_off):
         return np.nan
 
-    if n_on < 1 or n_off < 1:
+    if n_on <= 0 or n_off < 0:
         return np.nan
+
+    n_background = n_off * alpha
+    n_signal = n_on - n_background
 
     if n_signal <= 0:
         return np.nan
