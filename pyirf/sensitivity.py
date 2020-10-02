@@ -154,19 +154,18 @@ def calculate_sensitivity(
         the ``significance_function``
     """
     check_histograms(signal_hist, background_hist)
+    key = 'relative_sensitivity'
 
-    sensitivity = QTable()
+    s = QTable()
     for key in ("low", "high", "center"):
         k = "reco_energy_" + key
-        sensitivity[k] = signal_hist[k]
+        s[k] = signal_hist[k]
 
     # add event number information
-    sensitivity["n_signal"] = signal_hist["n"]
-    sensitivity["n_signal_weighted"] = signal_hist["n_weighted"]
-    sensitivity["n_background"] = background_hist["n"]
-    sensitivity["n_background_weighted"] = background_hist["n_weighted"]
+    s["n_background"] = background_hist["n"]
+    s["n_background_weighted"] = background_hist["n_weighted"]
 
-    sensitivity["relative_sensitivity"] = [
+    s[key] = [
         relative_sensitivity(
             n_on=n_signal + alpha * n_background,
             n_off=n_background,
@@ -180,18 +179,23 @@ def calculate_sensitivity(
     # perform safety checks
     # we use the number of signal events at the flux level that yields
     # the target significance
-    n_signal = sensitivity['relative_sensitivity'] * sensitivity['n_signal_weighted']
+    s["n_signal"] = signal_hist["n"] * s[key]
+    s["n_signal_weighted"] = signal_hist["n_weighted"] * s[key]
+
     # safety checks according to the IRF document
     # at least ten signal events and the number of signal events
     # must be larger then five percent of the remaining background
-    invalid = (
-        (n_signal < 10)
-        | (n_signal < (0.05 * alpha * sensitivity["n_background_weighted"]))
-        | (sensitivity['relative_sensitivity'] > 1)
-    )
-    sensitivity["relative_sensitivity"][invalid] = np.nan
+    min_excess = 0.05 * alpha * s["n_background_weighted"]
 
-    return sensitivity
+    s['failed_checks'] = (
+        (s['n_signal_weighted'] < 10)
+        | ((s['n_signal_weighted'] < min_excess) << 1)
+        | ((s[key] > 1) << 2)
+    )
+
+    s[key][s['failed_checks'] > 0] = np.nan
+
+    return s
 
 
 def estimate_background(
