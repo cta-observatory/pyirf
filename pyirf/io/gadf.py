@@ -17,6 +17,7 @@ __all__ = [
 
 DEFAULT_HEADER = Header()
 DEFAULT_HEADER["CREATOR"] = f"pyirf v{__version__}"
+# fmt: off
 DEFAULT_HEADER["HDUDOC"] = "https://github.com/open-gamma-ray-astro/gamma-astro-data-formats"
 DEFAULT_HEADER["HDUVERS"] = "0.2"
 DEFAULT_HEADER["HDUCLASS"] = "GADF"
@@ -212,13 +213,11 @@ def create_energy_dispersion_hdu(
 #:
 #: see https://github.com/open-gamma-ray-astro/gamma-astro-data-formats/issues/153
 #: for a discussion on why this is MeV not TeV as everywhere else
-GADF_BACKGROUND_UNIT = u.Unit('MeV-1 s-1 sr-1')
+GADF_BACKGROUND_UNIT = u.Unit("MeV-1 s-1 sr-1")
 
 
 @u.quantity_input(
-    background=GADF_BACKGROUND_UNIT,
-    reco_energy_bins=u.TeV,
-    fov_offset_bins=u.deg,
+    background=GADF_BACKGROUND_UNIT, reco_energy_bins=u.TeV, fov_offset_bins=u.deg,
 )
 def create_background_2d_hdu(
     background_2d,

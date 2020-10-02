@@ -18,10 +18,11 @@ extras_require = {
         "pytest-cov",
         "gammapy~=0.17",
         "ogadf-schema~=0.2.3",
+        "uproot~=3.0",
     ],
 }
 
-extras_require["all"] = extras_require["tests"] + extras_require["docs"]
+extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"]))
 
 setup(
     version=__version__,

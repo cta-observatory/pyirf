@@ -87,7 +87,6 @@ def rad_max_hdu():
 
 def test_effective_area2d_gammapy(aeff2d_hdus):
     '''Test our effective area is readable by gammapy'''
-    pytest.importorskip('gammapy')
     from gammapy.irf import EffectiveAreaTable2D
 
     area, hdus = aeff2d_hdus
@@ -112,7 +111,6 @@ def test_effective_area2d_schema(aeff2d_hdus):
 
 def test_energy_dispersion_gammapy(edisp_hdus):
     '''Test our energy dispersion is readable by gammapy'''
-    pytest.importorskip('gammapy')
     from gammapy.irf import EnergyDispersion2D
 
     edisp, hdus = edisp_hdus
@@ -137,7 +135,6 @@ def test_energy_dispersion_schema(edisp_hdus):
 
 def test_psf_table_gammapy(psf_hdu):
     '''Test our psf is readable by gammapy'''
-    pytest.importorskip('gammapy')
     from gammapy.irf import PSF3D
 
     psf, hdu = psf_hdu
@@ -167,7 +164,6 @@ def test_psf_schema(psf_hdu):
 @pytest.mark.xfail
 def test_background_2d_gammapy(bg_hdu):
     '''Test our background hdu is readable by gammapy'''
-    pytest.importorskip('gammapy')
     from gammapy.irf import Background2D
 
     background, hdu = bg_hdu
