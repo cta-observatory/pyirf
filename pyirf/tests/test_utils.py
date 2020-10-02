@@ -1,5 +1,7 @@
 import numpy as np
 import astropy.units as u
+from astropy.table import QTable
+import pytest
 
 
 def test_is_scalar():
@@ -26,3 +28,24 @@ def test_cone_solid_angle():
 
     # zero
     assert u.isclose(cone_solid_angle(0 * u.deg), 0 * u.sr)
+
+
+def test_check_table():
+    from pyirf.exceptions import MissingColumns, WrongColumnUnit
+    from pyirf.utils import check_table
+
+    t = QTable({'bar': [0, 1, 2] * u.TeV})
+
+    with pytest.raises(MissingColumns):
+        check_table(t, required_columns=['foo'])
+
+    t = QTable({'bar': [0, 1, 2] * u.TeV})
+    with pytest.raises(WrongColumnUnit):
+        check_table(t, required_units={'bar': u.m})
+
+    t = QTable({'bar': [0, 1, 2] * u.m})
+    with pytest.raises(MissingColumns):
+        check_table(t, required_units={'foo': u.m})
+
+    # m is convertible
+    check_table(t, required_units={'bar': u.cm})

@@ -40,11 +40,15 @@ def li_ma_significance(n_on, n_off, alpha=0.2):
         t1 = n_on * np.log(((1 + alpha) / alpha) * p_on)
         t2 = n_off * np.log((1 + alpha) * p_off)
 
+        # lim x+->0  (x log(x)) = 0
+        t1[n_on == 0] = 0
+        t2[n_off == 0] = 0
+
         ts = t1 + t2
+
         significance = np.sqrt(ts * 2)
 
-    significance[np.isnan(significance)] = 0
-    significance[n_on < alpha * n_off] = 0
+    significance[n_on < (alpha * n_off)] = 0
 
     if scalar:
         return significance[0]

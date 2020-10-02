@@ -1,11 +1,12 @@
 """
 Functions to calculate sensitivity
 """
-import astropy.units as u
 import numpy as np
 from scipy.optimize import brentq
-from astropy.table import QTable
 import logging
+
+from astropy.table import QTable
+import astropy.units as u
 
 from .statistics import li_ma_significance
 from .utils import check_histograms, cone_solid_angle
@@ -24,7 +25,6 @@ def relative_sensitivity(
     alpha,
     target_significance=5,
     significance_function=li_ma_significance,
-    initial_guess=0.01,
 ):
     """
     Calculate the relative sensitivity defined as the flux
@@ -40,7 +40,7 @@ def relative_sensitivity(
     that yields a significance of ``target_significance``.
 
     The reference time should be incorporated by appropriately weighting the events
-    before calculating ``n_on`` and ``n_off``
+    before calculating ``n_on`` and ``n_off``.
 
     Parameters
     ----------
@@ -61,20 +61,18 @@ def relative_sensitivity(
         "Analysis methods for results in gamma-ray astronomy."
         The Astrophysical Journal 272 (1983): 317-324.
         Formula (17)
-    initial_guess: float
-        Initial guess for the root finder
     """
-    n_background = n_off * alpha
-    n_signal = n_on - n_background
-
     if np.isnan(n_on) or np.isnan(n_off):
         return np.nan
 
-    if n_on < 1 or n_off < 1:
-        return np.nan
+    if n_on < 0 or n_off < 0:
+        raise ValueError(f'n_on and n_off must be positive, got {n_on}, {n_off}')
+
+    n_background = n_off * alpha
+    n_signal = n_on - n_background
 
     if n_signal <= 0:
-        return np.nan
+        return np.inf
 
     def equation(relative_flux):
         n_on = n_signal * relative_flux + n_background
@@ -83,20 +81,27 @@ def relative_sensitivity(
 
     try:
         # brentq needs a lower and an upper bound
-        # lower can be trivially set to zero, but the upper bound is more tricky
         # we will use the simple, analytically  solvable significance formula and scale it
         # with 10 to be sure it's above the Li and Ma solution
         # so rel * n_signal / sqrt(n_background) = target_significance
-        upper_bound = 10 * target_significance * np.sqrt(n_background) / n_signal
-        result = brentq(equation, 0, upper_bound,)
-    except (RuntimeError, ValueError):
+        if n_off > 1:
+            relative_flux_naive = target_significance * np.sqrt(n_background) / n_signal
+            upper_bound = 10 * relative_flux_naive
+            lower_bound = 0.01 * relative_flux_naive
+        else:
+            upper_bound = 100
+            lower_bound = 1e-4
+
+        relative_flux = brentq(equation, lower_bound, upper_bound)
+
+    except (RuntimeError, ValueError) as e:
         log.warn(
             "Could not calculate relative significance for"
-            f" n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan"
+            f" n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan {e}"
         )
         return np.nan
 
-    return result
+    return relative_flux
 
 
 def calculate_sensitivity(
@@ -113,6 +118,13 @@ def calculate_sensitivity(
     sigma significance in a certain time.
 
     This time must be incorporated into the event weights.
+
+    Two conditions are required for the sensitivity:
+    - At least ten weighted signal events
+    - The weighted signal must be larger than 5 % of the weighted background
+    - At least 5 sigma (so relative_sensitivity > 1)
+
+    If the conditions are not met, the sensitivity will be set to nan.
 
     Parameters
     ----------
@@ -141,9 +153,8 @@ def calculate_sensitivity(
         that yields ``target_significance`` sigma of significance according to
         the ``significance_function``
     """
-    assert len(signal_hist) == len(background_hist)
-
     check_histograms(signal_hist, background_hist)
+
     sensitivity = QTable()
     for key in ("low", "high", "center"):
         k = "reco_energy_" + key
@@ -157,23 +168,26 @@ def calculate_sensitivity(
 
     sensitivity["relative_sensitivity"] = [
         relative_sensitivity(
-            n_on=n_signal_hist + alpha * n_background_hist,
-            n_off=n_background_hist,
+            n_on=n_signal + alpha * n_background,
+            n_off=n_background,
             alpha=alpha,
         )
-        for n_signal_hist, n_background_hist in zip(
+        for n_signal, n_background in zip(
             signal_hist["n_weighted"], background_hist["n_weighted"]
         )
     ]
 
-    # safety checks
+    # perform safety checks
+    # we use the number of signal events at the flux level that yields
+    # the target significance
+    n_signal = sensitivity['relative_sensitivity'] * sensitivity['n_signal_weighted']
+    # safety checks according to the IRF document
+    # at least ten signal events and the number of signal events
+    # must be larger then five percent of the remaining background
     invalid = (
-        (sensitivity["n_signal_weighted"] < 10)
-        | (
-            sensitivity["n_signal_weighted"]
-            < (0.05 * alpha * sensitivity["n_background_weighted"])
-        )
-        | (sensitivity["n_background_weighted"] < 10)
+        (n_signal < 10)
+        | (n_signal < (0.05 * alpha * sensitivity["n_background_weighted"]))
+        | (sensitivity['relative_sensitivity'] > 1)
     )
     sensitivity["relative_sensitivity"][invalid] = np.nan
 
