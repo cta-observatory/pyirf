@@ -110,7 +110,7 @@ def main():
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
 
-    INITIAL_GH_CUT = np.percentile(gammas['gh_score'], 100 * (1 - INITIAL_GH_CUT_EFFICENCY))
+    INITIAL_GH_CUT = np.quantile(gammas['gh_score'], (1 - INITIAL_GH_CUT_EFFICENCY))
     log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
 
     # event display uses much finer bins for the theta cut than
