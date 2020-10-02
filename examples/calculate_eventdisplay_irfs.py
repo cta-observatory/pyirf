@@ -62,7 +62,7 @@ ALPHA = 0.2
 MAX_BG_RADIUS = 1 * u.deg
 
 # gh cut used for first calculation of the binned theta cuts
-INITIAL_GH_CUT = 0.0
+INITIAL_GH_CUT_EFFICENCY = 0.4
 
 particles = {
     "gamma": {
@@ -109,6 +109,8 @@ def main():
     background = table.vstack(
         [particles["proton"]["events"], particles["electron"]["events"]]
     )
+
+    INITIAL_GH_CUT = np.percentile(gammas['gh_score'], 100 * (1 - INITIAL_GH_CUT_EFFICENCY))
     log.info(f"Using fixed G/H cut of {INITIAL_GH_CUT} to calculate theta cuts")
 
     # event display uses much finer bins for the theta cut than
