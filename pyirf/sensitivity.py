@@ -154,13 +154,13 @@ def calculate_sensitivity(
         the ``significance_function``
     """
     check_histograms(signal_hist, background_hist)
-    key = 'relative_sensitivity'
 
     s = QTable()
     for key in ("low", "high", "center"):
         k = "reco_energy_" + key
         s[k] = signal_hist[k]
 
+    key = 'relative_sensitivity'
     # add event number information
     s["n_background"] = background_hist["n"]
     s["n_background_weighted"] = background_hist["n_weighted"]
