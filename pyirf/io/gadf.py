@@ -93,7 +93,6 @@ def create_psf_table_hdu(
     true_energy_bins,
     source_offset_bins,
     fov_offset_bins,
-    point_like=False,
     extname="PSF",
     **header_cards,
 ):
@@ -114,9 +113,6 @@ def create_psf_table_hdu(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
-    point_like: bool
-        If the provided effective area was calculated after applying a direction cut,
-        pass ``True``, else ``False`` for a full-enclosure effective area.
     extname: str
         Name for BinTableHDU
     **header_cards
@@ -141,7 +137,7 @@ def create_psf_table_hdu(
     header = DEFAULT_HEADER.copy()
     header["HDUCLAS1"] = "RESPONSE"
     header["HDUCLAS2"] = "PSF"
-    header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
+    header["HDUCLAS3"] = "FULL-ENCLOSURE"
     header["HDUCLAS4"] = "PSF_TABLE"
     header["DATE"] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
@@ -188,7 +184,7 @@ def create_energy_dispersion_hdu(
         INSTRUME.
     """
 
-    psf = QTable(
+    edisp = QTable(
         {
             "ENERG_LO": u.Quantity(true_energy_bins[:-1], ndmin=2).to(u.TeV),
             "ENERG_HI": u.Quantity(true_energy_bins[1:], ndmin=2).to(u.TeV),
@@ -210,7 +206,7 @@ def create_energy_dispersion_hdu(
     header["DATE"] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 
-    return BinTableHDU(psf, header=header, name=extname)
+    return BinTableHDU(edisp, header=header, name=extname)
 
 
 #: Unit to store background rate in GADF format
