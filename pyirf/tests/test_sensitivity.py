@@ -44,9 +44,31 @@ def test_calculate_sensitivity():
 
     sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
 
+    # too small sensitivity
+    signal_hist['n_weighted'] = [10, 10]
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+
     assert len(sensitivity) == len(signal_hist)
-    assert np.all(sensitivity['relative_sensitivity'] > 0)
-    assert np.all(sensitivity['relative_sensitivity'] < 1)
+    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
+    assert np.all(sensitivity['failed_checks'] == 0b100)
+
+    # not above 5 percent of remaining background
+    signal_hist['n_weighted'] = 699
+    bg_hist['n_weighted'] = 70_000
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+    assert len(sensitivity) == len(signal_hist)
+    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
+    # too few signal
+    assert np.all(sensitivity['failed_checks'] == 0b010)
+
+    # less then 10 events
+    signal_hist['n_weighted'] = [9, 9]
+    bg_hist['n_weighted'] = [1, 1]
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+    assert len(sensitivity) == len(signal_hist)
+    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
+    # too few signal
+    assert np.all(sensitivity['failed_checks'] == 0b001)
 
 
 def test_estimate_background():
