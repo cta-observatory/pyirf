@@ -179,6 +179,7 @@ def main():
     )
     gammas["selected"] = gammas["selected_theta"] & gammas["selected_gh"]
 
+    # calculate sensitivity
     signal_hist = create_histogram_table(
         gammas[gammas["selected"]], bins=sensitivity_bins
     )
@@ -189,12 +190,15 @@ def main():
         alpha=ALPHA,
         background_radius=MAX_BG_RADIUS,
     )
-    sensitivity = calculate_sensitivity(signal_hist, background_hist, alpha=ALPHA)
+    sensitivity = calculate_sensitivity(
+        signal_hist, background_hist, alpha=ALPHA
+    )
 
     # scale relative sensitivity by Crab flux to get the flux sensitivity
+    spectrum = particles['gamma']['target_spectrum']
     for s in (sensitivity_step_2, sensitivity):
-        s["flux_sensitivity"] = s["relative_sensitivity"] * CRAB_HEGRA(
-            s["reco_energy_center"]
+        s["flux_sensitivity"] = (
+            s["relative_sensitivity"] * spectrum(s['reco_energy_center'])
         )
 
     log.info('Calculating IRFs')

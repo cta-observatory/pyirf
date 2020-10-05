@@ -27,6 +27,50 @@ def test_relative_sensitivity():
     assert relative_sensitivity(10, 0, 0.2) > 0
 
 
+def test_calculate_sensitivity():
+    from pyirf.sensitivity import calculate_sensitivity
+    from pyirf.binning import bin_center
+    bins = [0.1, 1.0, 10] * u.TeV
+    signal_hist = QTable({
+        'reco_energy_low': bins[:-1],
+        'reco_energy_high': bins[1:],
+        'reco_energy_center': bin_center(bins),
+        'n': [100, 100],
+        'n_weighted': [100, 100],
+    })
+    bg_hist = signal_hist.copy()
+    bg_hist['n'] = 20
+    bg_hist['n_weighted'] = 50
+
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+
+    # too small sensitivity
+    signal_hist['n_weighted'] = [10, 10]
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+
+    assert len(sensitivity) == len(signal_hist)
+    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
+    assert np.all(sensitivity['failed_checks'] == 0b100)
+
+    # not above 5 percent of remaining background
+    signal_hist['n_weighted'] = 699
+    bg_hist['n_weighted'] = 70_000
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+    assert len(sensitivity) == len(signal_hist)
+    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
+    # too few signal
+    assert np.all(sensitivity['failed_checks'] == 0b010)
+
+    # less then 10 events
+    signal_hist['n_weighted'] = [9, 9]
+    bg_hist['n_weighted'] = [1, 1]
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+    assert len(sensitivity) == len(signal_hist)
+    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
+    # too few signal
+    assert np.all(sensitivity['failed_checks'] == 0b001)
+
+
 def test_estimate_background():
     from pyirf.sensitivity import estimate_background
     N = 1000
