@@ -155,17 +155,8 @@ def calculate_sensitivity(
     """
     check_histograms(signal_hist, background_hist)
 
-    s = QTable()
-    for key in ("low", "high", "center"):
-        k = "reco_energy_" + key
-        s[k] = signal_hist[k]
-
-    key = 'relative_sensitivity'
-    # add event number information
-    s["n_background"] = background_hist["n"]
-    s["n_background_weighted"] = background_hist["n_weighted"]
-
-    s[key] = [
+    # calculate sensitivity in each bin
+    rel_sens = np.array([
         relative_sensitivity(
             n_on=n_signal + alpha * n_background,
             n_off=n_background,
@@ -174,14 +165,22 @@ def calculate_sensitivity(
         for n_signal, n_background in zip(
             signal_hist["n_weighted"], background_hist["n_weighted"]
         )
-    ]
+    ])
+
+    # fill output table
+    s = QTable()
+    for key in ("low", "high", "center"):
+        k = "reco_energy_" + key
+        s[k] = signal_hist[k]
+
+    s["n_signal"] = signal_hist["n"] * rel_sens
+    s["n_background"] = background_hist["n"]
+    s["n_signal_weighted"] = signal_hist["n_weighted"] * rel_sens
+    s["n_background_weighted"] = background_hist["n_weighted"]
 
     # perform safety checks
     # we use the number of signal events at the flux level that yields
     # the target significance
-    s["n_signal"] = signal_hist["n"] * s[key]
-    s["n_signal_weighted"] = signal_hist["n_weighted"] * s[key]
-
     # safety checks according to the IRF document
     # at least ten signal events and the number of signal events
     # must be larger then five percent of the remaining background
@@ -190,10 +189,12 @@ def calculate_sensitivity(
     s['failed_checks'] = (
         (s['n_signal_weighted'] < 10)
         | ((s['n_signal_weighted'] < min_excess) << 1)
-        | ((s[key] > 1) << 2)
+        | ((rel_sens > 1) << 2)
     )
 
-    s[key][s['failed_checks'] > 0] = np.nan
+    rel_sens[s['failed_checks'] > 0] = np.nan
+
+    s["relative_sensitivity"] = rel_sens
 
     return s
 
