@@ -64,15 +64,19 @@ Description
 +++++++++++
 
 This release is the result of the IRF sprint week in September 2020.
-
 Many bug fixes and improvements were made to the code.
+
+As the target for the sprint week was to reproduce the approach of ``EventDisplay`` and
+the resulting IRFs, one scheme of cut optimization is implemented.
+The ``examples/calculate_eventdisplay_irfs.py`` should follow the approach
+of ``EventDisplay`` closely and shows what is currently implemented in ``pyirf``.
 In the central and upper energy range, ``pyirf`` now reproduces the ``EventDisplay`` sensitivity
 exactly, the lower energy bins still show some disagreement.
-
 The cut optimization seems not yet to be the same as EventDisplay's and will be further investigated.
+This example could be used as a starting point if you also want to do cut optimization for best sensitivity.
+
 
 At least one version of each IRF is now implemented and can be stored in the GADF format.
-
 Computation of full-enclosure IRFs should be possible but is of now not yet tested
 on a reference dataset.
 
