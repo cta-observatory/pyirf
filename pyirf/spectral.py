@@ -252,8 +252,8 @@ PDG_ALL_PARTICLE = PowerLaw(
 
 #: Proton spectrum definition defined in the CTA Prod3b IRF Document
 #:
-#: From "Description of CTA Instrument Response Functions
-#: (Production 3b Simulation), section 4.3.1
+#: From "Description of CTA Instrument Response Functions (Production 3b Simulation)", section 4.3.1
+#: https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description
 IRFDOC_PROTON_SPECTRUM = PowerLaw(
     normalization=9.8e-6 / (u.cm ** 2 * u.s * u.TeV * u.sr),
     index=-2.62,
@@ -262,8 +262,8 @@ IRFDOC_PROTON_SPECTRUM = PowerLaw(
 
 #: Electron spectrum definition defined in the CTA Prod3b IRF Document
 #:
-#: From "Description of CTA Instrument Response Functions
-#: (Production 3b Simulation), section 4.3.1
+#: From "Description of CTA Instrument Response Functions (Production 3b Simulation)", section 4.3.1
+#: https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description
 IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
     normalization=2.385e-9 / (u.TeV * u.cm ** 2 * u.s * u.sr),
     index=-3.43,
