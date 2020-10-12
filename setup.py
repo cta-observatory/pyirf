@@ -29,7 +29,7 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        "astropy~=4.0",
+        "astropy~=4.0,>=4.0.2",
         "matplotlib",
         "numpy>=1.18",
         "pandas",

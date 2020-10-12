@@ -36,21 +36,11 @@ def test_eventdisplay_example(caplog):
     caplog.set_level(logging.WARNING, logger="fits_schema")
 
     # check that each HDU respects the OGADF schema
-    AEFF_2D.validate_hdu(output_hdul["EFFECTIVE_AREA"], onerror="log")
-    EDISP_2D.validate_hdu(output_hdul["ENERGY_DISPERSION"], onerror="log")
-    PSF_TABLE.validate_hdu(output_hdul["PSF"], onerror="log")
-    BKG_2D.validate_hdu(output_hdul["BACKGROUND"], onerror="log")
-    RAD_MAX.validate_hdu(output_hdul["RAD_MAX"], onerror="log")
-
-    errors_to_ignore = {
-        # error due to astropy bug, which should be fixed in 4.0.2.
-        # TODO: remove when we require astropy >= 4.0.2
-        "Dimensionality of rows is 0, should be 1",
-    }
-
-    assert all(rec.message in errors_to_ignore for rec in caplog.records)
-
-    # compare to reference
+    AEFF_2D.validate_hdu(output_hdul["EFFECTIVE_AREA"], onerror="raise")
+    EDISP_2D.validate_hdu(output_hdul["ENERGY_DISPERSION"], onerror="raise")
+    PSF_TABLE.validate_hdu(output_hdul["PSF"], onerror="raise")
+    BKG_2D.validate_hdu(output_hdul["BACKGROUND"], onerror="raise")
+    RAD_MAX.validate_hdu(output_hdul["RAD_MAX"], onerror="raise")
 
     f = uproot.open(ROOT_DIR / "data" / IRF_FILE)
     sensitivity_ed = f['DiffSens'] * u.Unit('erg s-1 cm-2')

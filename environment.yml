@@ -5,7 +5,6 @@ channels:
   - default
 dependencies:
   - python=3.7
-  - astropy
   - numpy
   - ipython
   - jupyter
@@ -21,6 +20,7 @@ dependencies:
   - sphinx_rtd_theme
   - pip
   - pip:
-      - nbsphinx
-      - sphinx_automodapi
-      - uproot~=3.0
+    - astropy>=4.0.2,<5
+    - nbsphinx
+    - sphinx_automodapi
+    - uproot~=3.0
