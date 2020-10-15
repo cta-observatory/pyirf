@@ -17,7 +17,7 @@ def test_relative_sensitivity():
 
     # test different target significance
     # numbers yield lima = 8 relatively precisely, so sensitivity should be 1
-    result = relative_sensitivity(93, 151, 0.2, target_significance=8)
+    result = relative_sensitivity(93, 151, 0.2, min_significance=8)
     assert np.isclose(result, 1, rtol=0.01)
 
     # no signal => inf
@@ -57,25 +57,23 @@ def test_calculate_sensitivity():
 
     assert len(sensitivity) == len(signal_hist)
     assert np.all(np.isnan(sensitivity['relative_sensitivity']))
-    assert np.all(sensitivity['failed_checks'] == 0b100)
 
     # not above 5 percent of remaining background
     signal_hist['n_weighted'] = 699
     bg_hist['n_weighted'] = 70_000
     sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
     assert len(sensitivity) == len(signal_hist)
-    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
-    # too few signal
-    assert np.all(sensitivity['failed_checks'] == 0b010)
+    # we scale up the signal until we meet the requirement, so
+    # we must have more than 5 sigma
+    assert np.all(sensitivity['significance'] >= 5)
 
     # less then 10 events
     signal_hist['n_weighted'] = [9, 9]
     bg_hist['n_weighted'] = [1, 1]
     sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
-    assert len(sensitivity) == len(signal_hist)
-    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
-    # too few signal
-    assert np.all(sensitivity['failed_checks'] == 0b001)
+    # we scale up the signal until we meet the requirement, so
+    # we must have more than 5 sigma
+    assert np.all(sensitivity['significance'] >= 5)
 
 
 def test_estimate_background():

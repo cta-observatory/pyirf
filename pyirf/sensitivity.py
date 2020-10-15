@@ -44,8 +44,8 @@ def _relative_sensitivity(
     The reference time should be incorporated by appropriately weighting the events
     before calculating ``n_on`` and ``n_off``.
 
-    ``n_on``, ``n_off``, ``alpha`` and ``target_significance`` must be broadcastable
-    to a common shape.
+    All input values with the exception of ``significance_function``
+    must be broadcastable to a single, common shape.
 
     Parameters
     ----------
@@ -56,8 +56,19 @@ def _relative_sensitivity(
     alpha: float or array-like
         Scaling factor between on and off observations.
         1 / number of off regions for wobble observations.
-    significance: float or array-like
+    min_significance: float or array-like
         Significance necessary for a detection
+    min_signal_events: int or array-like
+        Minimum number of signal events required.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
+    min_excess_over_background: float or array-like
+        Minimum number of signal events expressed as the proportion of the
+        background.
+        So the required number of signal events will be
+        ``min_excess_over_background * alpha * n_off``.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
     significance_function: function
         A function f(n_on, n_off, alpha) -> significance in sigma
         Used to calculate the significance, default is the Li&Ma
@@ -135,7 +146,9 @@ def calculate_sensitivity(
     signal_hist,
     background_hist,
     alpha,
-    target_significance=5,
+    min_significance=5,
+    min_signal_events=10,
+    min_excess_over_background=0.05,
     significance_function=li_ma_significance,
 ):
     """
@@ -165,8 +178,19 @@ def calculate_sensitivity(
         See ``pyirf.binning.create_histogram_table``
     alpha: float
         Size ratio of signal region to background region
-    target_significance: float
-        Required significance
+    min_significance: float
+        Significance necessary for a detection
+    min_signal_events: int
+        Minimum number of signal events required.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
+    min_excess_over_background: float
+        Minimum number of signal events expressed as the proportion of the
+        background.
+        So the required number of signal events will be
+        ``min_excess_over_background * alpha * n_off``.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
     significance_function: callable
         A function with signature (n_on, n_off, alpha) -> significance.
         Default is the Li & Ma likelihood ratio test.
@@ -190,7 +214,35 @@ def calculate_sensitivity(
     n_off = u.Quantity(background_hist["n_weighted"], copy=False).to_value(u.one)
 
     # calculate sensitivity in each bin
+<<<<<<< HEAD
     rel_sens = relative_sensitivity(n_on=n_on, n_off=n_off, alpha=alpha)
+||||||| parent of ba40314 (Fix docstrings and tests)
+    rel_sens = np.array([
+        relative_sensitivity(
+            n_on=n_signal + alpha * n_background,
+            n_off=n_background,
+            alpha=alpha,
+        )
+        for n_signal, n_background in zip(
+            signal_hist["n_weighted"], background_hist["n_weighted"]
+        )
+    ])
+=======
+    rel_sens = np.array([
+        relative_sensitivity(
+            n_on=n_signal + alpha * n_background,
+            n_off=n_background,
+            alpha=alpha,
+            min_significance=min_significance,
+            min_signal_events=min_signal_events,
+            min_excess_over_background=min_excess_over_background,
+            significance_function=significance_function,
+        )
+        for n_signal, n_background in zip(
+            signal_hist["n_weighted"], background_hist["n_weighted"]
+        )
+    ])
+>>>>>>> ba40314 (Fix docstrings and tests)
 
     # fill output table
     s = QTable()
