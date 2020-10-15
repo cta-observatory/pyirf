@@ -150,7 +150,7 @@ def main():
         gammas[gammas["selected_theta"]],
         background,
         reco_energy_bins=sensitivity_bins,
-        gh_cut_values=np.arange(-1.0, 1.005, 0.05),
+        gh_cut_values=np.arange(-0.5, 1.005, 0.01),
         theta_cuts=theta_cuts,
         op=operator.ge,
         alpha=ALPHA,
