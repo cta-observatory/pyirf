@@ -112,9 +112,7 @@ def _relative_sensitivity(
 
     # scale to achieved flux level
     n_signal = n_signal * relative_flux
-
     min_excess = min_excess_over_background * n_background
-
     min_signal = max(min_signal_events, min_excess)
 
     # if we violate the min signal events condition,
@@ -123,8 +121,6 @@ def _relative_sensitivity(
         scale = min_signal / n_signal
     else:
         scale = 1.0
-
-    print(f'{n_signal:.1f}', min_signal_events, f'{min_excess:.2f}', f'{scale:.4f}')
 
     return relative_flux * scale
 
@@ -211,6 +207,11 @@ def calculate_sensitivity(
     for k in filter(lambda c: c.startswith('n_') and c != 'n_weighted', background_hist.colnames):
         s[k] = background_hist[k]
 
+    s["significance"] = significance_function(
+        n_on=s["n_signal_weighted"] + alpha * s["n_background_weighted"],
+        n_off=s["n_background_weighted"],
+        alpha=alpha,
+    )
     s["relative_sensitivity"] = rel_sens
 
     return s
