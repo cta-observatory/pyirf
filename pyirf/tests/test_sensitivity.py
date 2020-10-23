@@ -26,6 +26,13 @@ def test_relative_sensitivity():
     # no background, should work
     assert relative_sensitivity(10, 0, 0.2) > 0
 
+    # test vectorization
+
+    n_on = np.array([10, 20, 30])
+    n_off = np.array([10, 100])
+    s = relative_sensitivity(n_on, n_off[:, np.newaxis], alpha=0.2)
+    assert s.shape == (2, 3)
+
 
 def test_calculate_sensitivity():
     from pyirf.sensitivity import calculate_sensitivity
