@@ -19,7 +19,7 @@ __all__ = ["relative_sensitivity", "calculate_sensitivity"]
 log = logging.getLogger(__name__)
 
 
-def relative_sensitivity(
+def _relative_sensitivity(
     n_on,
     n_off,
     alpha,
@@ -42,16 +42,19 @@ def relative_sensitivity(
     The reference time should be incorporated by appropriately weighting the events
     before calculating ``n_on`` and ``n_off``.
 
+    ``n_on``, ``n_off``, ``alpha`` and ``target_significance`` must be broadcastable
+    to a common shape.
+
     Parameters
     ----------
     n_on: int or array-like
         Number of signal-like events for the on observations
     n_off: int or array-like
         Number of signal-like events for the off observations
-    alpha: float
+    alpha: float or array-like
         Scaling factor between on and off observations.
         1 / number of off regions for wobble observations.
-    significance: float
+    significance: float or array-like
         Significance necessary for a detection
     significance_function: function
         A function f(n_on, n_off, alpha) -> significance in sigma
@@ -102,6 +105,12 @@ def relative_sensitivity(
         return np.nan
 
     return relative_flux
+
+
+relative_sensitivity = np.vectorize(
+    _relative_sensitivity,
+    excluded=['significance_function']
+)
 
 
 def calculate_sensitivity(
@@ -155,17 +164,15 @@ def calculate_sensitivity(
     """
     check_histograms(signal_hist, background_hist)
 
+    n_on = signal_hist["n_weighted"] + alpha * background_hist["n_weighted"]
+
+    # convert any quantities to arrays,
+    # since quantitites don't work with vectorize
+    n_on = u.Quantity(n_on, copy=False).to_value(u.one)
+    n_off = u.Quantity(background_hist["n_weighted"], copy=False).to_value(u.one)
+
     # calculate sensitivity in each bin
-    rel_sens = np.array([
-        relative_sensitivity(
-            n_on=n_signal + alpha * n_background,
-            n_off=n_background,
-            alpha=alpha,
-        )
-        for n_signal, n_background in zip(
-            signal_hist["n_weighted"], background_hist["n_weighted"]
-        )
-    ])
+    rel_sens = relative_sensitivity(n_on=n_on, n_off=n_off, alpha=alpha)
 
     # fill output table
     s = QTable()
