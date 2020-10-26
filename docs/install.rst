@@ -3,22 +3,21 @@
 Installation
 ============
 
+``pyirf`` requires Python ≥3.7 and pip, plus the packages defined in
+the ``setup.py``.
 
-``pyirf`` requires Python ≥3.6 and the packages as defined in the ``setup.py``.
 Core dependencies are
 
 * ``numpy``
 * ``astropy``
 * ``scipy``
 
-Dependencies for development, like unit tests and building the documentation
-are defined in ``extras``.
+We provide an environment file for Anaconda or Miniconda users.
 
 Installing a released version
 -----------------------------
 
-
-To install a release version, just install the ``pyirf`` package using
+To install a released version, just install the ``pyirf`` package using
 
 .. code-block:: bash
 
@@ -26,17 +25,20 @@ To install a release version, just install the ``pyirf`` package using
 
 or add it to the dependencies of your project.
 
-
 Installing for development
 --------------------------
 
-If you want to work on pyirf itself, clone the repository or your fork of
-the repository and install the local copy of pyirf in development mode.
+If you want to work on pyirf itself, clone the repository and install the local
+copy of pyirf in development mode.
 
-Make sure you add the ``tests`` and ``docs`` extra to also install the dependencies
-for unit tests and building the documentation.
-You can also simply install the ``all`` extra:
+It is required that the python environment contains also ``cython`` before
+installing pyirf.
+
+The dependencies required to perform unit-testing and to build the documentation
+are defined in ``extras`` under ``tests`` and ``docs`` respectively
+
+There requirements can be enabled by installing the ``all`` extra:
 
 .. code-block:: bash
 
-    pip install -e '.[all]'  # or [docs,tests]
+    pip install -e '.[all]'  # or [docs,tests] to install them separately
