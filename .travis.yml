@@ -32,7 +32,7 @@ before_install:
 install:
   - sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
   - conda env create -f environment.yml
-  - conda activate pyirf-dev
+  - conda activate pyirf
   # cython needed for building gammapy
   - pip install travis-sphinx codecov pytest-cov Cython
   - pip install .[all]

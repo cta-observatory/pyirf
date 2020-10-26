@@ -31,13 +31,14 @@ Installing for development
 If you want to work on pyirf itself, clone the repository and install the local
 copy of pyirf in development mode.
 
-It is required that the python environment contains also ``cython`` before
+Due to a temporary issue with gammapy, it is required that the python
+environment contains also ``cython`` together with ``numpy`` *before*
 installing pyirf.
 
 The dependencies required to perform unit-testing and to build the documentation
 are defined in ``extras`` under ``tests`` and ``docs`` respectively
 
-There requirements can be enabled by installing the ``all`` extra:
+These requirements can be enabled by installing the ``all`` extra:
 
 .. code-block:: bash
 
