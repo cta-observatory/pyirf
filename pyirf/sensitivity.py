@@ -214,35 +214,15 @@ def calculate_sensitivity(
     n_off = u.Quantity(background_hist["n_weighted"], copy=False).to_value(u.one)
 
     # calculate sensitivity in each bin
-<<<<<<< HEAD
-    rel_sens = relative_sensitivity(n_on=n_on, n_off=n_off, alpha=alpha)
-||||||| parent of ba40314 (Fix docstrings and tests)
-    rel_sens = np.array([
-        relative_sensitivity(
-            n_on=n_signal + alpha * n_background,
-            n_off=n_background,
-            alpha=alpha,
-        )
-        for n_signal, n_background in zip(
-            signal_hist["n_weighted"], background_hist["n_weighted"]
-        )
-    ])
-=======
-    rel_sens = np.array([
-        relative_sensitivity(
-            n_on=n_signal + alpha * n_background,
-            n_off=n_background,
-            alpha=alpha,
-            min_significance=min_significance,
-            min_signal_events=min_signal_events,
-            min_excess_over_background=min_excess_over_background,
-            significance_function=significance_function,
-        )
-        for n_signal, n_background in zip(
-            signal_hist["n_weighted"], background_hist["n_weighted"]
-        )
-    ])
->>>>>>> ba40314 (Fix docstrings and tests)
+    rel_sens = relative_sensitivity(
+        n_on=n_on,
+        n_off=n_off,
+        alpha=alpha,
+        min_significance=min_significance,
+        min_signal_events=min_signal_events,
+        min_excess_over_background=min_excess_over_background,
+        significance_function=significance_function,
+    )
 
     # fill output table
     s = QTable()
