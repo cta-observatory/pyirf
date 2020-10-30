@@ -132,6 +132,27 @@ def create_histogram_table(events, bins, key="reco_energy"):
         hist["n_weighted"], _ = np.histogram(
             events[key], bins, weights=events["weight"]
         )
+    else:
+        hist["n_weighted"] = hist["n"]
+
+    # create counts per particle type, only works if there is at least 1 event
+    if 'particle_type' in events.colnames and len(events) > 0:
+        by_particle = events.group_by('particle_type')
+
+        for group_key, group in zip(by_particle.groups.keys, by_particle.groups):
+            particle = group_key['particle_type']
+
+            hist["n_" + particle], _ = np.histogram(group[key], bins)
+
+            # also calculate weighted number of events
+            col = "n_" + particle
+            if "weight" in events.colnames:
+                hist[col + "_weighted"], _ = np.histogram(
+                    group[key], bins, weights=group["weight"]
+                )
+            else:
+                hist[col + "_weighted"] = hist[col]
+
     return hist
 
 
