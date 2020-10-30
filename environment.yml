@@ -1,5 +1,4 @@
-# A conda environment with all useful package for ctapipe developers
-name: pyirf-dev
+name: pyirf
 
 channels:
   - default
@@ -10,6 +9,7 @@ dependencies:
   - jupyter
   - matplotlib
   - scipy
+  - astropy>=4.0.2,<5
   - setuptools
   # tests
   - pytest
@@ -20,7 +20,6 @@ dependencies:
   - sphinx_rtd_theme
   - pip
   - pip:
-    - astropy>=4.0.2,<5
     - nbsphinx
     - sphinx_automodapi
     - uproot~=3.0
