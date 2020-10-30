@@ -266,7 +266,7 @@ def estimate_background(
         / cone_solid_angle(background_radius)
     ).to_value(u.one)
 
-    for key in filter(lambda col: col.startswith('n_'), bg.colnames):
+    for key in filter(lambda col: col.startswith('n'), bg.colnames):
         # *= not possible due to upcast from int to float
         bg[key] = bg[key] * size_ratio / alpha
 
