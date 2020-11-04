@@ -32,7 +32,6 @@ setup(
         "astropy~=4.0,>=4.0.2",
         "matplotlib",
         "numpy>=1.18",
-        "pandas",
         "scipy",
         "tqdm",
         "tables",

@@ -87,6 +87,7 @@ def main():
     for k, p in particles.items():
         log.info(f"Simulated {k.title()} Events:")
         p["events"], p["simulation_info"] = read_eventdisplay_fits(p["file"])
+        p["events"]["particle_type"] = k
 
         p["simulated_spectrum"] = PowerLaw.from_simulation(p["simulation_info"], T_OBS)
         p["events"]["weight"] = calculate_event_weights(
@@ -283,7 +284,7 @@ def main():
         fov_offset_bins=np.arange(0, 11) * u.deg,
     ))
     hdus.append(create_psf_table_hdu(
-            psf, true_energy_bins, source_offset_bins, fov_offset_bins,
+        psf, true_energy_bins, source_offset_bins, fov_offset_bins,
     ))
     hdus.append(create_rad_max_hdu(
         theta_cuts_opt["cut"][:, np.newaxis], theta_bins, fov_offset_bins

@@ -1,4 +1,5 @@
 import astropy.units as u
+from astropy.table import QTable
 import numpy as np
 
 
@@ -54,6 +55,50 @@ def test_bins_per_decade():
 
     assert bins[0] == 100 * u.GeV
     assert np.allclose(np.diff(np.log10(bins.to_value(u.GeV))), 0.1)
+
+
+def test_create_histogram_table():
+    '''Test create histogram table'''
+    from pyirf.binning import create_histogram_table
+
+    events = QTable({
+        'reco_energy': [1, 1, 10, 100, 100, 100] * u.TeV,
+    })
+    bins = [0.5, 5, 50, 500] * u.TeV
+
+    # test without weights
+    hist = create_histogram_table(events, bins, key='reco_energy')
+    assert np.all(hist['n'] == [2, 1, 3])
+    assert np.all(hist['n_weighted'] == [2, 1, 3])
+
+    # test with weights
+    events['weight'] = [0.5, 2, 2.5, 0.5, 0.2, 0.3]
+    hist = create_histogram_table(events, bins, key='reco_energy')
+    assert np.all(hist['n'] == [2, 1, 3])
+    assert np.all(hist['n_weighted'] == [2.5, 2.5, 1.0])
+
+    # test with particle_types
+    types = np.array(['gamma', 'electron', 'gamma', 'electron', 'gamma', 'proton'])
+    events['particle_type'] = types
+    hist = create_histogram_table(events, bins, key='reco_energy')
+
+    assert np.all(hist['n'] == [2, 1, 3])
+    assert np.all(hist['n_weighted'] == [2.5, 2.5, 1.0])
+
+    assert np.all(hist['n_gamma'] == [1, 1, 1])
+    assert np.all(hist['n_electron'] == [1, 0, 1])
+    assert np.all(hist['n_proton'] == [0, 0, 1])
+
+    assert np.allclose(hist['n_gamma_weighted'], [0.5, 2.5, 0.2])
+    assert np.allclose(hist['n_electron_weighted'], [2, 0, 0.5])
+    assert np.allclose(hist['n_proton_weighted'], [0, 0, 0.3])
+
+    # test with empty table
+    empty = events[:0]
+    hist = create_histogram_table(empty, bins, key='reco_energy')
+    zeros = np.zeros(3)
+    assert np.all(hist['n'] == zeros)
+    assert np.all(hist['n_weighted'] == zeros)
 
 
 def test_calculate_bin_indices():

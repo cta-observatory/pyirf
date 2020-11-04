@@ -181,9 +181,13 @@ def calculate_sensitivity(
         s[k] = signal_hist[k]
 
     s["n_signal"] = signal_hist["n"] * rel_sens
-    s["n_background"] = background_hist["n"]
     s["n_signal_weighted"] = signal_hist["n_weighted"] * rel_sens
+    s["n_background"] = background_hist["n"]
     s["n_background_weighted"] = background_hist["n_weighted"]
+
+    # copy also "n_proton" / "n_electron_weighted" etc. if available
+    for k in filter(lambda c: c.startswith('n_') and c != 'n_weighted', background_hist.colnames):
+        s[k] = background_hist[k]
 
     # perform safety checks
     # we use the number of signal events at the flux level that yields
@@ -262,7 +266,7 @@ def estimate_background(
         / cone_solid_angle(background_radius)
     ).to_value(u.one)
 
-    for key in ['n', 'n_weighted']:
+    for key in filter(lambda col: col.startswith('n'), bg.colnames):
         # *= not possible due to upcast from int to float
         bg[key] = bg[key] * size_ratio / alpha
 
