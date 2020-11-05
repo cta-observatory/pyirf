@@ -19,5 +19,5 @@ def test_lima_gammapy():
     n_offs = [10, 20, 30]
     alphas = [2, 1, 0.2]
     for n_on, n_off, alpha in zip(n_ons, n_offs, alphas):
-        sig_gammapy = WStatCountsStatistic(n_on, n_off, alpha).significance
+        sig_gammapy = WStatCountsStatistic(n_on, n_off, alpha).sqrt_ts
         assert np.isclose(li_ma_significance(n_on, n_off, alpha), sig_gammapy)
