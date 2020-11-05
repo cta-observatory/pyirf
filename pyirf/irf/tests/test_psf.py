@@ -20,7 +20,7 @@ def test_psf():
     events = QTable(
         {
             "true_energy": np.append(np.full(N, 1), np.full(N, 2)) * u.TeV,
-            "source_fov_offset": np.zeros(2 * N) * u.deg,
+            "true_source_fov_offset": np.zeros(2 * N) * u.deg,
             "theta": np.random.normal(0, TRUE_SIGMA) * u.deg,
         }
     )

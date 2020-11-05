@@ -8,8 +8,15 @@ if [ -z "$DATA_PASSWORD" ]; then
 	echo
 fi
 
-URL=https://nextcloud.e5.physik.tu-dortmund.de/public.php/webdav/
+DATA_URL=${DATA_URL:-https://big-tank.app.tu-dortmund.de/pyirf-testdata/}
 
-curl -sSfL -o data.zip -u "gFdJZDyz8mBD2AH:$DATA_PASSWORD" "$URL"
-unzip -o data.zip
-rm data.zip
+wget \
+	-R "*.html*,*.gif" \
+	--no-host-directories --cut-dirs=1 \
+	--no-parent \
+	--user=pyirf \
+	--password="$DATA_PASSWORD" \
+	--no-verbose \
+	--recursive \
+	--directory-prefix=data \
+	"$DATA_URL"

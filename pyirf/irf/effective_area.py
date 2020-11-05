@@ -61,7 +61,7 @@ def effective_area_per_energy_and_fov(
     selected_events: astropy.table.QTable
         DL2 events table, required columns for this function:
         - `true_energy`
-        - `source_fov_offset`
+        - `true_source_fov_offset`
     simulation_info: pyirf.simulations.SimulatedEventsInfo
         The overall statistics of the simulated events
     true_energy_bins: astropy.units.Quantity[energy]
@@ -77,7 +77,7 @@ def effective_area_per_energy_and_fov(
 
     hist_selected, _, _ = np.histogram2d(
         selected_events["true_energy"].to_value(u.TeV),
-        selected_events["source_fov_offset"].to_value(u.deg),
+        selected_events["true_source_fov_offset"].to_value(u.deg),
         bins=[
             true_energy_bins.to_value(u.TeV),
             fov_offset_bins.to_value(u.deg),

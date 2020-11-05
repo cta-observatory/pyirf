@@ -93,7 +93,10 @@ def main():
         p["events"]["weight"] = calculate_event_weights(
             p["events"]["true_energy"], p["target_spectrum"], p["simulated_spectrum"]
         )
-        p["events"]["source_fov_offset"] = calculate_source_fov_offset(p["events"])
+        for prefix in ('true', 'reco'):
+            k = f"{prefix}_source_fov_offset"
+            p["events"][k] = calculate_source_fov_offset(p["events"], prefix=prefix)
+
         # calculate theta / distance between reco and assuemd source positoin
         # we handle only ON observations here, so the assumed source pos
         # is the pointing position

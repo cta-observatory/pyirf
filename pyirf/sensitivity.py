@@ -273,7 +273,7 @@ def estimate_background(
         and inside ``background_radius`` from the center of the FOV
         Required columns for this function:
         - `reco_energy`,
-        - `source_fov_offset`.
+        - `reco_source_fov_offset`.
     reco_energy_bins: astropy.units.Quantity[energy]
         Desired bin edges in reconstructed energy for the background rate
     theta_cuts: astropy.table.QTable
@@ -286,7 +286,7 @@ def estimate_background(
         Maximum distance from the fov center for background events to be taken into account
     '''
     bg = create_histogram_table(
-        events[events['source_fov_offset'] < background_radius],
+        events[events['reco_source_fov_offset'] < background_radius],
         reco_energy_bins,
         key='reco_energy',
     )

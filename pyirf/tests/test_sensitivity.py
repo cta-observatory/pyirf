@@ -17,7 +17,7 @@ def test_relative_sensitivity():
 
     # test different target significance
     # numbers yield lima = 8 relatively precisely, so sensitivity should be 1
-    result = relative_sensitivity(93, 151, 0.2, min_significance=8)
+    result = relative_sensitivity(93, 150, 0.2, min_significance=8)
     assert np.isclose(result, 1, rtol=0.01)
 
     # no signal => inf
@@ -80,7 +80,7 @@ def test_estimate_background():
     from pyirf.sensitivity import estimate_background
     N = 1000
     events = QTable({
-        'source_fov_offset': np.append(np.full(N, 0.5), np.full(N, 1.5)) * u.deg,
+        'reco_source_fov_offset': np.append(np.full(N, 0.5), np.full(N, 1.5)) * u.deg,
         'reco_energy': np.tile([5, 50], N) * u.TeV,
         'weight': np.tile([1, 2], N),
     })
