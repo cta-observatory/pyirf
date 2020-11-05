@@ -33,6 +33,7 @@ install:
   - sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
   - conda env create -f environment.yml
   - conda activate pyirf
+  - pip install travis-sphinx
   - pip install .[all]
   - python --version
 
@@ -47,7 +48,6 @@ after_script:
 
 after_success:
   - codecov
-  - pip install travis-sphinx
   - travis-sphinx -v --outdir=docbuild deploy
 
 deploy:
