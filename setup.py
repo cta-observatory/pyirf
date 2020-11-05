@@ -16,7 +16,7 @@ extras_require = {
     "tests": [
         "pytest",
         "pytest-cov",
-        "gammapy~=0.17",
+        "gammapy~=0.18",
         "ogadf-schema~=0.2.3",
         "uproot~=3.0",
     ],
