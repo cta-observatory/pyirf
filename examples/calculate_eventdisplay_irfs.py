@@ -84,10 +84,10 @@ def main():
     logging.basicConfig(level=logging.INFO)
     logging.getLogger("pyirf").setLevel(logging.DEBUG)
 
-    for k, p in particles.items():
-        log.info(f"Simulated {k.title()} Events:")
+    for particle_type, p in particles.items():
+        log.info(f"Simulated {particle_type.title()} Events:")
         p["events"], p["simulation_info"] = read_eventdisplay_fits(p["file"])
-        p["events"]["particle_type"] = k
+        p["events"]["particle_type"] = particle_type
 
         p["simulated_spectrum"] = PowerLaw.from_simulation(p["simulation_info"], T_OBS)
         p["events"]["weight"] = calculate_event_weights(
