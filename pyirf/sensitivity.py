@@ -117,7 +117,7 @@ def _relative_sensitivity(
         )
         return np.nan
 
-    # less then min_sigma
+    # less than min_sigma
     if relative_flux > 1:
         return np.nan
 
