@@ -50,7 +50,7 @@ def psf_hdu():
     from pyirf.io import create_psf_table_hdu
     from pyirf.utils import cone_solid_angle
 
-    psf = np.zeros((len(e_bins) - 1, len(source_bins) - 1, len(fov_bins) - 1))
+    psf = np.zeros((len(e_bins) - 1, len(fov_bins) - 1, len(source_bins) - 1))
     psf[:, 0, :] = 1
     psf = psf / cone_solid_angle(source_bins[1])
 
@@ -65,9 +65,9 @@ def bg_hdu():
     from pyirf.io import create_background_2d_hdu
 
     background = np.column_stack([
-        np.geomspace(1e9, 1e3, 3),
-        np.geomspace(0.5e9, 0.5e3, 3),
-        np.geomspace(1e8, 1e2, 3),
+        np.geomspace(1e9, 1e3, len(e_bins) - 1),
+        np.geomspace(0.5e9, 0.5e3, len(e_bins) - 1),
+        np.geomspace(1e8, 1e2, len(e_bins) - 1),
     ]) * u.Unit('TeV-1 s-1 sr-1')
 
     hdu = create_background_2d_hdu(background, e_bins, fov_bins)
@@ -144,11 +144,7 @@ def test_psf_table_gammapy(psf_hdu):
 
         # test reading with gammapy works
         psf3d = PSF3D.read(f.name, 'PSF')
-
-        # gammapy does not transpose psf when reading from fits,
-        # unlike how it handles effective area and edisp
-        # see https://github.com/gammapy/gammapy/issues/3025
-        assert u.allclose(psf, psf3d.psf_value.T, atol=1e-16 / u.sr)
+        assert u.allclose(psf, psf3d.psf_value, atol=1e-16 / u.sr)
 
 
 def test_psf_schema(psf_hdu):
@@ -158,10 +154,6 @@ def test_psf_schema(psf_hdu):
     PSF_TABLE.validate_hdu(hdu)
 
 
-# gammapy uses inconsistent axis order, should be fixed before gammapy 1.0
-# see https://github.com/gammapy/gammapy/issues/2067
-# TODO: remove xfail when this is fixed in gammapy and bump the required gammapy version
-@pytest.mark.xfail
 def test_background_2d_gammapy(bg_hdu):
     '''Test our background hdu is readable by gammapy'''
     from gammapy.irf import Background2D

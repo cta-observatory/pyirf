@@ -66,7 +66,7 @@ def test_effective_area_energy_fov():
                 ]
             )
             * u.TeV,
-            "source_fov_offset": np.append(
+            "true_source_fov_offset": np.append(
                 np.full(1010, center_1), np.full(505, center_2)
             )
             * u.deg,

@@ -23,4 +23,5 @@ dependencies:
   - pip:
     - nbsphinx
     - sphinx_automodapi
-    - uproot~=3.0
+    - uproot4
+    - awkward1

@@ -60,13 +60,17 @@ def calculate_theta(events, assumed_source_az, assumed_source_alt):
     return theta.to(u.deg)
 
 
-def calculate_source_fov_offset(events):
+def calculate_source_fov_offset(events, prefix="true"):
     """Calculate angular separation between true and pointing positions.
 
     Parameters
     ----------
     events : astropy.QTable
         Astropy Table object containing the reconstructed events information.
+
+    prefix: str
+        Column prefix for az / alt, can be used to calculate reco or true
+        source fov offset.
 
     Returns
     -------
@@ -75,8 +79,8 @@ def calculate_source_fov_offset(events):
         in the sky.
     """
     theta = angular_separation(
-        events["true_az"],
-        events["true_alt"],
+        events[f"{prefix}_az"],
+        events[f"{prefix}_alt"],
         events["pointing_az"],
         events["pointing_alt"],
     )

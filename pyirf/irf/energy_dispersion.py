@@ -37,7 +37,7 @@ def energy_dispersion(
     ----------
     selected_events: astropy.table.QTable
         Table of the DL2 events.
-        Required columns: ``reco_energy``, ``true_energy``, ``source_fov_offset``.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``.
     true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
     migration_bins: astropy.units.Quantity[energy]
@@ -61,7 +61,7 @@ def energy_dispersion(
             [
                 selected_events["true_energy"].to_value(u.TeV),
                 mu,
-                selected_events["source_fov_offset"].to_value(u.deg),
+                selected_events["true_source_fov_offset"].to_value(u.deg),
             ]
         ),
         bins=[

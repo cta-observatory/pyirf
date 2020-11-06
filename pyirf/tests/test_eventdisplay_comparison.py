@@ -2,7 +2,7 @@ import numpy as np
 import subprocess
 import logging
 import os
-import uproot
+import uproot4 as uproot
 import sys
 from astropy.io import fits
 from ogadf_schema.irfs import AEFF_2D, EDISP_2D, PSF_TABLE, BKG_2D, RAD_MAX
@@ -43,11 +43,12 @@ def test_eventdisplay_example(caplog):
     RAD_MAX.validate_hdu(output_hdul["RAD_MAX"], onerror="raise")
 
     f = uproot.open(ROOT_DIR / "data" / IRF_FILE)
-    sensitivity_ed = f['DiffSens'] * u.Unit('erg s-1 cm-2')
+    sensitivity_ed = f['DiffSens'].to_numpy()[0] * u.Unit('erg s-1 cm-2')
     table = QTable.read(outpath, hdu='SENSITIVITY')
     sensitivity_pyirf = table['reco_energy_center']**2 * table['flux_sensitivity']
 
-    ratio = (sensitivity_pyirf[1:-1] / sensitivity_ed[1:-1]).to_value(u.one)
+    ratio = (sensitivity_pyirf[1:-1] / sensitivity_ed).to_value(u.one)
 
     # TODO shrink margin when we get closer to prevent a regression
-    assert np.all((ratio < 2) & (ratio > 0.45))
+    assert ratio.max() < 1.4
+    assert ratio.min() > 0.65

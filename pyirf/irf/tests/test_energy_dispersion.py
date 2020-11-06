@@ -27,7 +27,7 @@ def test_energy_dispersion():
                 [np.full(N, 0.5), np.full(N, 5.0), np.full(N, 50.0)]
             )
             * u.TeV,
-            "source_fov_offset": np.concatenate(
+            "true_source_fov_offset": np.concatenate(
                 [
                     np.full(N // 2, 0.2),
                     np.full(N // 2, 1.5),
@@ -105,7 +105,7 @@ def test_energy_dispersion_to_migration():
         {
             "reco_energy": reco_energy,
             "true_energy": true_energy,
-            "source_fov_offset": np.concatenate(
+            "true_source_fov_offset": np.concatenate(
                 [
                     np.full(N // 2, 0.2),
                     np.full(N // 2, 1.5),
@@ -175,7 +175,7 @@ def test_overflow_bins_migration_matrix():
         {
             "reco_energy": reco_energy,
             "true_energy": true_energy,
-            "source_fov_offset": np.concatenate(
+            "true_source_fov_offset": np.concatenate(
                 [
                     np.full(N // 2, 0.2),
                     np.full(N // 2, 1.5),

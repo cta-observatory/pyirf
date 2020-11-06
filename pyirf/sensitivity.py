@@ -23,7 +23,9 @@ def _relative_sensitivity(
     n_on,
     n_off,
     alpha,
-    target_significance=5,
+    min_significance=5,
+    min_signal_events=10,
+    min_excess_over_background=0.05,
     significance_function=li_ma_significance,
 ):
     """
@@ -42,8 +44,8 @@ def _relative_sensitivity(
     The reference time should be incorporated by appropriately weighting the events
     before calculating ``n_on`` and ``n_off``.
 
-    ``n_on``, ``n_off``, ``alpha`` and ``target_significance`` must be broadcastable
-    to a common shape.
+    All input values with the exception of ``significance_function``
+    must be broadcastable to a single, common shape.
 
     Parameters
     ----------
@@ -54,8 +56,19 @@ def _relative_sensitivity(
     alpha: float or array-like
         Scaling factor between on and off observations.
         1 / number of off regions for wobble observations.
-    significance: float or array-like
+    min_significance: float or array-like
         Significance necessary for a detection
+    min_signal_events: int or array-like
+        Minimum number of signal events required.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
+    min_excess_over_background: float or array-like
+        Minimum number of signal events expressed as the proportion of the
+        background.
+        So the required number of signal events will be
+        ``min_excess_over_background * alpha * n_off``.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
     significance_function: function
         A function f(n_on, n_off, alpha) -> significance in sigma
         Used to calculate the significance, default is the Li&Ma
@@ -80,7 +93,7 @@ def _relative_sensitivity(
     def equation(relative_flux):
         n_on = n_signal * relative_flux + n_background
         s = significance_function(n_on, n_off, alpha)
-        return s - target_significance
+        return s - min_significance
 
     try:
         # brentq needs a lower and an upper bound
@@ -88,7 +101,7 @@ def _relative_sensitivity(
         # with 10 to be sure it's above the Li and Ma solution
         # so rel * n_signal / sqrt(n_background) = target_significance
         if n_off > 1:
-            relative_flux_naive = target_significance * np.sqrt(n_background) / n_signal
+            relative_flux_naive = min_significance * np.sqrt(n_background) / n_signal
             upper_bound = 10 * relative_flux_naive
             lower_bound = 0.01 * relative_flux_naive
         else:
@@ -104,7 +117,23 @@ def _relative_sensitivity(
         )
         return np.nan
 
-    return relative_flux
+    # less than min_sigma
+    if relative_flux > 1:
+        return np.nan
+
+    # scale to achieved flux level
+    n_signal = n_signal * relative_flux
+    min_excess = min_excess_over_background * n_background
+    min_signal = max(min_signal_events, min_excess)
+
+    # if we violate the min signal events condition,
+    # increase flux until we meet the requirement
+    if n_signal < min_signal:
+        scale = min_signal / n_signal
+    else:
+        scale = 1.0
+
+    return relative_flux * scale
 
 
 relative_sensitivity = np.vectorize(
@@ -117,7 +146,9 @@ def calculate_sensitivity(
     signal_hist,
     background_hist,
     alpha,
-    target_significance=5,
+    min_significance=5,
+    min_signal_events=10,
+    min_excess_over_background=0.05,
     significance_function=li_ma_significance,
 ):
     """
@@ -147,8 +178,19 @@ def calculate_sensitivity(
         See ``pyirf.binning.create_histogram_table``
     alpha: float
         Size ratio of signal region to background region
-    target_significance: float
-        Required significance
+    min_significance: float
+        Significance necessary for a detection
+    min_signal_events: int
+        Minimum number of signal events required.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
+    min_excess_over_background: float
+        Minimum number of signal events expressed as the proportion of the
+        background.
+        So the required number of signal events will be
+        ``min_excess_over_background * alpha * n_off``.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
     significance_function: callable
         A function with signature (n_on, n_off, alpha) -> significance.
         Default is the Li & Ma likelihood ratio test.
@@ -172,7 +214,15 @@ def calculate_sensitivity(
     n_off = u.Quantity(background_hist["n_weighted"], copy=False).to_value(u.one)
 
     # calculate sensitivity in each bin
-    rel_sens = relative_sensitivity(n_on=n_on, n_off=n_off, alpha=alpha)
+    rel_sens = relative_sensitivity(
+        n_on=n_on,
+        n_off=n_off,
+        alpha=alpha,
+        min_significance=min_significance,
+        min_signal_events=min_signal_events,
+        min_excess_over_background=min_excess_over_background,
+        significance_function=significance_function,
+    )
 
     # fill output table
     s = QTable()
@@ -189,22 +239,11 @@ def calculate_sensitivity(
     for k in filter(lambda c: c.startswith('n_') and c != 'n_weighted', background_hist.colnames):
         s[k] = background_hist[k]
 
-    # perform safety checks
-    # we use the number of signal events at the flux level that yields
-    # the target significance
-    # safety checks according to the IRF document
-    # at least ten signal events and the number of signal events
-    # must be larger then five percent of the remaining background
-    min_excess = 0.05 * alpha * s["n_background_weighted"]
-
-    s['failed_checks'] = (
-        (s['n_signal_weighted'] < 10)
-        | ((s['n_signal_weighted'] < min_excess) << 1)
-        | ((rel_sens > 1) << 2)
+    s["significance"] = significance_function(
+        n_on=s["n_signal_weighted"] + alpha * s["n_background_weighted"],
+        n_off=s["n_background_weighted"],
+        alpha=alpha,
     )
-
-    rel_sens[s['failed_checks'] > 0] = np.nan
-
     s["relative_sensitivity"] = rel_sens
 
     return s
@@ -234,7 +273,7 @@ def estimate_background(
         and inside ``background_radius`` from the center of the FOV
         Required columns for this function:
         - `reco_energy`,
-        - `source_fov_offset`.
+        - `reco_source_fov_offset`.
     reco_energy_bins: astropy.units.Quantity[energy]
         Desired bin edges in reconstructed energy for the background rate
     theta_cuts: astropy.table.QTable
@@ -247,7 +286,7 @@ def estimate_background(
         Maximum distance from the fov center for background events to be taken into account
     '''
     bg = create_histogram_table(
-        events[events['source_fov_offset'] < background_radius],
+        events[events['reco_source_fov_offset'] < background_radius],
         reco_energy_bins,
         key='reco_energy',
     )

@@ -12,7 +12,7 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
     array = np.column_stack(
         [
             events["true_energy"].to_value(u.TeV),
-            events["source_fov_offset"].to_value(u.deg),
+            events["true_source_fov_offset"].to_value(u.deg),
             events["theta"].to_value(u.deg),
         ]
     )

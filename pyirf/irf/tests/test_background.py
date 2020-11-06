@@ -18,7 +18,7 @@ def test_background():
     events = QTable(
         {
             "reco_energy": np.append(np.full(N1, 1), np.full(N2, 2)) * u.TeV,
-            "source_fov_offset": np.zeros(N) * u.deg,
+            "reco_source_fov_offset": np.zeros(N) * u.deg,
             "weight": np.ones(N),
         }
     )

@@ -18,7 +18,7 @@ def background_2d(events, reco_energy_bins, fov_offset_bins, t_obs):
     ----------
     events: astropy.table.QTable
         DL2 events table of the selected background events.
-        Needed columns for this function: `source_fov_offset`, `reco_energy`, `weight`
+        Needed columns for this function: `reco_source_fov_offset`, `reco_energy`, `weight`
     reco_energy: astropy.units.Quantity[energy]
         The bins in reconstructed energy to be used for the IRF
     fov_offset_bins: astropy.units.Quantity[angle]
@@ -38,7 +38,7 @@ def background_2d(events, reco_energy_bins, fov_offset_bins, t_obs):
 
     hist, _, _ = np.histogram2d(
         events["reco_energy"].to_value(u.TeV),
-        events["source_fov_offset"].to_value(u.deg),
+        events["reco_source_fov_offset"].to_value(u.deg),
         bins=[
             reco_energy_bins.to_value(u.TeV),
             fov_offset_bins.to_value(u.deg),

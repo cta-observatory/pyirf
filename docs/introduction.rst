@@ -58,34 +58,35 @@ Most functions only need a small subgroup of these columns.
 
 .. table:: Column definitions for DL2 event lists
 
-    +-------------------+--------+----------------------------------------------------+
-    | Column            | Unit   | Explanation                                        |
-    +===================+========+====================================================+
-    | true_energy       | TeV    | True energy of the simulated shower                |
-    +-------------------+--------+----------------------------------------------------+
-    | weight            |        | Event weight                                       |
-    +-------------------+--------+----------------------------------------------------+
-    | source_fov_offset | deg    | Distance of the true origin to the FOV center      |
-    +-------------------+--------+----------------------------------------------------+
-    | true_alt          | deg    | True altitude of the shower origin                 |
-    | true_alt          | deg    | True altitude of the shower origin                 |
-    +-------------------+--------+----------------------------------------------------+
-    | true_az           | deg    | True azimuth of the shower origin                  |
-    +-------------------+--------+----------------------------------------------------+
-    | pointing_alt      | deg    | Altitude of the field of view center               |
-    +-------------------+--------+----------------------------------------------------+
-    | pointing_az       | deg    | Azimuth of the field of view center                |
-    +-------------------+--------+----------------------------------------------------+
-    | reco_energy       | TeV    | Reconstructed energy of the simulated shower       |
-    +-------------------+--------+----------------------------------------------------+
-    | reco_alt          | deg    | Reconstructed altitude of shower origin            |
-    +-------------------+--------+----------------------------------------------------+
-    | reco_az           | deg    | Reconstructed azimuth of shower origin             |
-    +-------------------+--------+----------------------------------------------------+
-    | gh_score          |        | Gamma/Hadron classification output                 |
-    +-------------------+--------+----------------------------------------------------+
-    | multiplicity      |        | Number of telescopes used in the reconstruction    |
-    +-------------------+--------+----------------------------------------------------+
+    +------------------------+--------+----------------------------------------------------+
+    | Column                 | Unit   | Explanation                                        |
+    +========================+========+====================================================+
+    | true_energy            | TeV    | True energy of the simulated shower                |
+    +------------------------+--------+----------------------------------------------------+
+    | weight                 |        | Event weight                                       |
+    +------------------------+--------+----------------------------------------------------+
+    | true_source_fov_offset | deg    | Distance of the true origin to the FOV center      |
+    +------------------------+--------+----------------------------------------------------+
+    | reco_source_fov_offset | deg    | Distance of the reco origin to the FOV center      |
+    +------------------------+--------+----------------------------------------------------+
+    | true_alt               | deg    | True altitude of the shower origin                 |
+    +------------------------+--------+----------------------------------------------------+
+    | true_az                | deg    | True azimuth of the shower origin                  |
+    +------------------------+--------+----------------------------------------------------+
+    | pointing_alt           | deg    | Altitude of the field of view center               |
+    +------------------------+--------+----------------------------------------------------+
+    | pointing_az            | deg    | Azimuth of the field of view center                |
+    +------------------------+--------+----------------------------------------------------+
+    | reco_energy            | TeV    | Reconstructed energy of the simulated shower       |
+    +------------------------+--------+----------------------------------------------------+
+    | reco_alt               | deg    | Reconstructed altitude of shower origin            |
+    +------------------------+--------+----------------------------------------------------+
+    | reco_az                | deg    | Reconstructed azimuth of shower origin             |
+    +------------------------+--------+----------------------------------------------------+
+    | gh_score               |        | Gamma/Hadron classification output                 |
+    +------------------------+--------+----------------------------------------------------+
+    | multiplicity           |        | Number of telescopes used in the reconstruction    |
+    +------------------------+--------+----------------------------------------------------+
 
 
 .. _Specification of the Data Formats for Gamma-Ray Astronomy: https://gamma-astro-data-formats.readthedocs.io

@@ -107,8 +107,10 @@ class PowerLaw:
 
         if viewcone.value > 0:
             solid_angle = 2 * np.pi * (1 - np.cos(viewcone)) * u.sr
+            unit = DIFFUSE_FLUX_UNIT
         else:
             solid_angle = 1
+            unit = POINT_SOURCE_FLUX_UNIT
 
         A = np.pi * simulated_event_info.max_impact ** 2
 
@@ -116,10 +118,10 @@ class PowerLaw:
         nom = (index + 1) * e_ref ** index * n_showers
         denom = (A * obstime * solid_angle) * delta
 
-        return cls(normalization=nom / denom, index=index, e_ref=e_ref,)
+        return cls(normalization=(nom / denom).to(unit), index=index, e_ref=e_ref,)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**{self.index}"
+        return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**{self.index})"
 
 
 class LogParabola:
@@ -221,6 +223,11 @@ class PowerLawWithExponentialGaussian(PowerLaw):
         # https://gitlab.cta-observatory.org/cta-consortium/aswg/irfs-macros/cosmic-rays-spectra/-/blob/master/electron_spectrum.C#L508
         gauss = np.exp(-0.5 * ((log10_e - self.mu) / self.sigma) ** 2)
         return power * (1 + self.f * (np.exp(gauss) - 1))
+
+    def __repr__(self):
+        s = super().__repr__()
+        gauss = f'Gauss(log10(E / {self.e_ref}), {self.mu}, {self.sigma})'
+        return s[:-1] + f' * (1 + {self.f} * (exp({gauss}) - 1))'
 
 
 #: Power Law parametrization of the Crab Nebula spectrum as published by HEGRA
