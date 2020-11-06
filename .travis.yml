@@ -33,7 +33,7 @@ install:
   - sed -i -e "s/- python=.*/- python=$PYTHON_VERSION/g" environment.yml
   - conda env create -f environment.yml
   - conda activate pyirf
-  - pip install travis-sphinx
+  - pip install travis-sphinx codecov pytest-cov
   - pip install .[all]
   - python --version
 

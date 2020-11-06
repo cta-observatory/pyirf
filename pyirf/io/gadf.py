@@ -132,7 +132,6 @@ def create_psf_table_hdu(
             "RPSF": psf.T[np.newaxis, ...].to(1 / u.sr),
         }
     )
-    print(psf['RPSF'].shape)
 
     # required header keywords
     header = DEFAULT_HEADER.copy()
