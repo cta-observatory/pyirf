@@ -146,7 +146,7 @@ def main():
     )
 
     log.info("Optimizing G/H separation cut for best sensitivity")
-    gh_cut_efficiencies = np.  np.arange(
+    gh_cut_efficiencies = np.arange(
         GH_CUT_EFFICIENCY_STEP,
         MAX_GH_CUT_EFFICIENCY + GH_CUT_EFFICIENCY_STEP / 2,
         GH_CUT_EFFICIENCY_STEP
