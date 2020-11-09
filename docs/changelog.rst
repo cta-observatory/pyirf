@@ -8,7 +8,7 @@ We use a one-line description of every pull request.
 .. to obtain the merged PRs since a specific release, e.g. v0.2.0 use
 .. `$ git log --merges --first-parent master --oneline  master...v0.2.0`
 .. to obtain the contributor, use
-.. `$ git shortlog -sne master...v0.2.0
+.. `$ git shortlog -sne --no-merges master...v0.2.0
 
 .. RELEASE TEMPLATE
 ..
@@ -35,6 +35,94 @@ We use a one-line description of every pull request.
 .. +++++++++++++
 ..
 .. - [#XXX] TITLE (AUTHOR)
+
+
+.. _pyirf_0p4p0_release:
+
+`0.4.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.4.0>`__ (2020-11-09)
+-------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+- Released November 11th, 2020
+- 2 Contributors
+
+Contributors
+++++++++++++
+
+In order of number of commits:
+
+- Maximilian Nöthe
+- Michele Peresano
+
+
+Description
++++++++++++
+
+This release is an important update that introduces three
+changes in the cut optimization, background estimation and sensitivity calculation.
+
+Together, these changes bring the calculated sensitivities much closer to the ones calculated by
+EventDisplay, see the updated :doc:`notebooks/comparison_with_EventDisplay`.
+
+* Scale the relative flux calculated to reach the target sensitivity
+  up if the requirements on the minimum number of signal events are not met.
+  Essentially, instead of always calculating the flux that
+  yields ``target_sensitivity`` and then checking if the two other conditions are met,
+  we increase the required flux to meet the other requirements.
+  This can result in new sensitivities where before pyirf would report no sensitivities,
+  and report better sensitivities everywhere where the event number conditions where not
+  met before at the target significance.
+  The best sensitivity now is the lowest flux that just barely satisfies all
+  requirements (so is at the minimum requirement of one of the three).
+
+* Differentiate between `reco_source_fov_offset` and `true_source_fov_offset`,
+  using the former for background rates and the latter for everything concerning
+  signal events.
+
+* Change ``optimize_gh_cut`` to do the optimization in terms of efficiency and
+  limit this efficiency to max. 80 % in the EventDisplay comparison.
+
+
+Smaller improvements also include:
+
+* It is now possible to include a ``particle_type`` column in the event lists,
+  which will result in additionally reporting all event counts also per ``particle_type``.
+  E.g. if ``particle_type`` is included in the background table consisting of both
+  electrons and protons, ``estimate_background`` will not only report ``n_background(_weighted)``
+  but also ``n_electron(_weighted)`` and ``n_proton(_weighted)``
+
+* ``relative_sensitivity`` now supports vectorized application and broadcasting
+  of inputs, as previously wrongly advertized in the docstring.
+
+
+Related news
+++++++++++++
+
+GammaPy ``0.18.0`` was released and includes fixes for IRF axis orders.
+The output of ``pyirf`` in GADF fits format can now be read by gammapy without
+problems.
+The workarounds for installing GammaPy is also no longer needed.
+
+
+Merged Pull Requests
+++++++++++++++++++++
+
+Feature changes
+"""""""""""""""
+
+- `#110 <https://github.com/cta-observatory/pyirf/pull/110>`_ Optimize cuts in efficiency steps with maximum efficiency of 80% for EventDisplay comparison
+- `#104 <https://github.com/cta-observatory/pyirf/pull/104>`_ Scale flux for conditions, differenatiate reco and true source_fov_offset
+- `#108 <https://github.com/cta-observatory/pyirf/pull/108>`_ Add counts / weighted counts per particle type
+- `#107 <https://github.com/cta-observatory/pyirf/pull/107>`_ Small update to installation instructions
+- `#106 <https://github.com/cta-observatory/pyirf/pull/106>`_ Use vectorize for relative_sensitivity
+
+Project maintenance
+"""""""""""""""""""
+
+- `#102 <https://github.com/cta-observatory/pyirf/pull/102>`_ Require astropy >= 4.0.2
+- `#100 <https://github.com/cta-observatory/pyirf/pull/100>`_ Fix deploy condition in travis yml
 
 
 .. _pyirf_0p3p0_release:
