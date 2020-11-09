@@ -60,6 +60,8 @@ ALPHA = 0.2
 
 # Radius to use for calculating bg rate
 MAX_BG_RADIUS = 1 * u.deg
+MAX_GH_CUT_EFFICIENCY = 0.8
+GH_CUT_EFFICIENCY_STEP = 0.01
 
 # gh cut used for first calculation of the binned theta cuts
 INITIAL_GH_CUT_EFFICENCY = 0.4
@@ -136,11 +138,6 @@ def main():
         percentile=68,
     )
 
-    # evaluate the theta cut
-    gammas["selected_theta"] = evaluate_binned_cut(
-        gammas["theta"], gammas["reco_energy"], theta_cuts, operator.le
-    )
-
     # same bins as event display uses
     sensitivity_bins = add_overflow_bins(
         create_bins_per_decade(
@@ -149,13 +146,18 @@ def main():
     )
 
     log.info("Optimizing G/H separation cut for best sensitivity")
+    gh_cut_efficiencies = np.arange(
+        GH_CUT_EFFICIENCY_STEP,
+        MAX_GH_CUT_EFFICIENCY + GH_CUT_EFFICIENCY_STEP / 2,
+        GH_CUT_EFFICIENCY_STEP
+    )
     sensitivity_step_2, gh_cuts = optimize_gh_cut(
-        gammas[gammas["selected_theta"]],
+        gammas,
         background,
         reco_energy_bins=sensitivity_bins,
-        gh_cut_values=np.arange(-0.5, 1.005, 0.01),
-        theta_cuts=theta_cuts,
+        gh_cut_efficiencies=gh_cut_efficiencies,
         op=operator.ge,
+        theta_cuts=theta_cuts,
         alpha=ALPHA,
         background_radius=MAX_BG_RADIUS,
     )
