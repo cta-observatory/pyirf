@@ -28,56 +28,6 @@ def _relative_sensitivity(
     min_excess_over_background=0.05,
     significance_function=li_ma_significance,
 ):
-    """
-    Calculate the relative sensitivity defined as the flux
-    relative to the reference source that is detectable with
-    significance ``target_significance``.
-
-    Given measured ``n_on`` and ``n_off``,
-    we estimate the number of gamma events ``n_signal`` as ``n_on - alpha * n_off``.
-
-    The number of background events ``n_background` is estimated as ``n_off * alpha``.
-
-    In the end, we find the relative sensitivity as the scaling factor for ``n_signal``
-    that yields a significance of ``target_significance``.
-
-    The reference time should be incorporated by appropriately weighting the events
-    before calculating ``n_on`` and ``n_off``.
-
-    All input values with the exception of ``significance_function``
-    must be broadcastable to a single, common shape.
-
-    Parameters
-    ----------
-    n_on: int or array-like
-        Number of signal-like events for the on observations
-    n_off: int or array-like
-        Number of signal-like events for the off observations
-    alpha: float or array-like
-        Scaling factor between on and off observations.
-        1 / number of off regions for wobble observations.
-    min_significance: float or array-like
-        Significance necessary for a detection
-    min_signal_events: int or array-like
-        Minimum number of signal events required.
-        The relative flux will be scaled up from the one yielding ``min_significance``
-        if this condition is violated.
-    min_excess_over_background: float or array-like
-        Minimum number of signal events expressed as the proportion of the
-        background.
-        So the required number of signal events will be
-        ``min_excess_over_background * alpha * n_off``.
-        The relative flux will be scaled up from the one yielding ``min_significance``
-        if this condition is violated.
-    significance_function: function
-        A function f(n_on, n_off, alpha) -> significance in sigma
-        Used to calculate the significance, default is the Li&Ma
-        likelihood ratio test formula.
-        Li, T-P., and Y-Q. Ma.
-        "Analysis methods for results in gamma-ray astronomy."
-        The Astrophysical Journal 272 (1983): 317-324.
-        Formula (17)
-    """
     if np.isnan(n_on) or np.isnan(n_off):
         return np.nan
 
@@ -136,10 +86,80 @@ def _relative_sensitivity(
     return relative_flux * scale
 
 
-relative_sensitivity = np.vectorize(
+_relative_sensitivity_vectorized = np.vectorize(
     _relative_sensitivity,
     excluded=['significance_function']
 )
+
+
+def relative_sensitivity(
+    n_on,
+    n_off,
+    alpha,
+    min_significance=5,
+    min_signal_events=10,
+    min_excess_over_background=0.05,
+    significance_function=li_ma_significance,
+):
+    """
+    Calculate the relative sensitivity defined as the flux
+    relative to the reference source that is detectable with
+    significance ``target_significance``.
+
+    Given measured ``n_on`` and ``n_off``,
+    we estimate the number of gamma events ``n_signal`` as ``n_on - alpha * n_off``.
+
+    The number of background events ``n_background` is estimated as ``n_off * alpha``.
+
+    In the end, we find the relative sensitivity as the scaling factor for ``n_signal``
+    that yields a significance of ``target_significance``.
+
+    The reference time should be incorporated by appropriately weighting the events
+    before calculating ``n_on`` and ``n_off``.
+
+    All input values with the exception of ``significance_function``
+    must be broadcastable to a single, common shape.
+
+    Parameters
+    ----------
+    n_on: int or array-like
+        Number of signal-like events for the on observations
+    n_off: int or array-like
+        Number of signal-like events for the off observations
+    alpha: float or array-like
+        Scaling factor between on and off observations.
+        1 / number of off regions for wobble observations.
+    min_significance: float or array-like
+        Significance necessary for a detection
+    min_signal_events: int or array-like
+        Minimum number of signal events required.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
+    min_excess_over_background: float or array-like
+        Minimum number of signal events expressed as the proportion of the
+        background.
+        So the required number of signal events will be
+        ``min_excess_over_background * alpha * n_off``.
+        The relative flux will be scaled up from the one yielding ``min_significance``
+        if this condition is violated.
+    significance_function: function
+        A function f(n_on, n_off, alpha) -> significance in sigma
+        Used to calculate the significance, default is the Li&Ma
+        likelihood ratio test formula.
+        Li, T-P., and Y-Q. Ma.
+        "Analysis methods for results in gamma-ray astronomy."
+        The Astrophysical Journal 272 (1983): 317-324.
+        Formula (17)
+    """
+    return _relative_sensitivity_vectorized(
+        n_on=n_on,
+        n_off=n_off,
+        alpha=alpha,
+        min_significance=min_significance,
+        min_signal_events=min_signal_events,
+        min_excess_over_background=min_excess_over_background,
+        significance_function=significance_function,
+    )
 
 
 def calculate_sensitivity(
