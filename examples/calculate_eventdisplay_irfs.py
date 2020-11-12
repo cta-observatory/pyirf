@@ -268,7 +268,7 @@ def main():
     bias_resolution = energy_bias_resolution(
         gammas[gammas["selected"]], true_energy_bins,
     )
-    ang_res = angular_resolution(gammas[gammas["selected_gh"]], true_energy_bins,)
+    ang_res = angular_resolution(gammas[gammas["selected_gh"]], reco_energy_bins,)
     psf = psf_table(
         gammas[gammas["selected_gh"]],
         true_energy_bins,
