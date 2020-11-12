@@ -13,7 +13,7 @@ def test_angular_resolution():
     true_resolution = np.append(np.full(1000, TRUE_RES_1), np.full(1000, TRUE_RES_2))
 
     events = QTable({
-        'true_energy': np.append(np.full(1000, 5.0), np.full(1000, 50.0)) * u.TeV,
+        'reco_energy': np.append(np.full(1000, 5.0), np.full(1000, 50.0)) * u.TeV,
         'theta': np.abs(np.random.normal(0, true_resolution)) * u.deg
     })
 
