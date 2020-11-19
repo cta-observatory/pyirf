@@ -13,13 +13,13 @@ def test_angular_resolution():
     true_resolution = np.append(np.full(1000, TRUE_RES_1), np.full(1000, TRUE_RES_2))
 
     events = QTable({
-        'reco_energy': np.append(np.full(1000, 5.0), np.full(1000, 50.0)) * u.TeV,
+        'true_energy': np.append(np.full(1000, 5.0), np.full(1000, 50.0)) * u.TeV,
         'theta': np.abs(np.random.normal(0, true_resolution)) * u.deg
     })
 
     ang_res = angular_resolution(
         events,
-        [1, 10, 100] * u.TeV
+        [1, 10, 100] * u.TeV,
     )['angular_resolution'].quantity
 
     assert len(ang_res) == 2
