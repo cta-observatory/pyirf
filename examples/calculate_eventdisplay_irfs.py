@@ -266,7 +266,7 @@ def main():
         )
 
     bias_resolution = energy_bias_resolution(
-        gammas[gammas["selected"]], true_energy_bins,
+        gammas[gammas["selected"]], reco_energy_bins, energy_type="reco"
     )
     ang_res = angular_resolution(gammas[gammas["selected_gh"]],
                                  reco_energy_bins,
