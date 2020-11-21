@@ -70,6 +70,8 @@ jobs:
             python examples/calculate_eventdisplay_irfs.py
 
       - name: Deploy to gihub pages
+        # only run on push to master
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
