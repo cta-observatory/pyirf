@@ -1,4 +1,3 @@
-import numpy as np
 import subprocess
 import logging
 import os
@@ -15,7 +14,7 @@ from astropy.table import QTable
 IRF_FILE = "DESY.d20180113.V3.ID0NIM2LST4MST4SST4SCMST4.prod3b-paranal20degs05b-NN.S.3HB9-FD.180000s.root"
 
 
-@pytest.mark.integration
+@pytest.mark.needs_data
 def test_eventdisplay_example(caplog):
     """Runs the EventDisplay example script and check its output."""
 
