@@ -13,6 +13,7 @@ extras_require = {
         "nbsphinx",
         "uproot4",
         "awkward1",
+        "notebook",
     ],
     "tests": [
         "pytest",
