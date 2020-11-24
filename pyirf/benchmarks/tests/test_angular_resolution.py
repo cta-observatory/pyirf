@@ -19,7 +19,7 @@ def test_angular_resolution():
 
     ang_res = angular_resolution(
         events,
-        [1, 10, 100] * u.TeV
+        [1, 10, 100] * u.TeV,
     )['angular_resolution'].quantity
 
     assert len(ang_res) == 2

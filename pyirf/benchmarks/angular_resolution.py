@@ -10,7 +10,7 @@ ONE_SIGMA_PERCENTILE = norm.cdf(1) - norm.cdf(-1)
 
 
 def angular_resolution(
-    events, true_energy_bins,
+    events, energy_bins, energy_type="true",
 ):
     """
     Calculate the angular resolution.
@@ -22,27 +22,30 @@ def angular_resolution(
     ----------
     events : astropy.table.QTable
         Astropy Table object containing the reconstructed events information.
-    true_energy_bins: numpy.ndarray(dtype=float, ndim=1)
-        Bin edges in true energy.
+    energy_bins: numpy.ndarray(dtype=float, ndim=1)
+        Bin edges in energy.
+    energy_type: str
+        Either "true" or "reco" energy.
+        Default is "true".
 
     Returns
     -------
     result : astropy.table.Table
         Table containing the 68% containment of the angular
-        distance distribution per each true energy bin.
+        distance distribution per each reconstructed energy bin.
     """
 
     # create a table to make use of groupby operations
-    table = Table(events[["true_energy", "theta"]])
+    table = Table(events[[f"{energy_type}_energy", "theta"]])
 
     table["bin_index"] = calculate_bin_indices(
-        table["true_energy"].quantity, true_energy_bins
+        table[f"{energy_type}_energy"].quantity, energy_bins
     )
 
     result = Table()
-    result["true_energy_low"] = true_energy_bins[:-1]
-    result["true_energy_high"] = true_energy_bins[1:]
-    result["true_energy_center"] = 0.5 * (true_energy_bins[:-1] + true_energy_bins[1:])
+    result[f"{energy_type}_energy_low"] = energy_bins[:-1]
+    result[f"{energy_type}_energy_high"] = energy_bins[1:]
+    result[f"{energy_type}_energy_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
 
     result["angular_resolution"] = np.nan * u.deg
 
