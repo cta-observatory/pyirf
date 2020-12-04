@@ -3,6 +3,9 @@
 How to contribute
 =================
 
+.. contents:: Current projects
+    :local:
+    :depth: 2
 
 Issue Tracker
 -------------
@@ -113,7 +116,15 @@ To look at the docs, use
 
 and visit the printed URL in your browser.
 
+Making your contribution visible
+--------------------------------
 
+Together with the changes that will come with you PR, you should check that the
+following maintenance files are up-to-date:
+
+- ``.mailmap``
+- ``CODEOWNERS``
+- ``.zenodo.json``
 
 Further details
 ---------------
