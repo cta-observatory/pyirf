@@ -1,0 +1,48 @@
+{
+  "description": "*pyirf* is a python3-based library for the generation of Instrument Response Functions (IRFs) and sensitivities for the Cherenkov Telescope Array (CTA)",
+  "license": "MIT",
+  "keywords": [
+    "gamma-ray astronomy",
+    "Imaging Atmospheric Cherenkov Telescope",
+    "IACT",
+    "CTA",
+    "instrument response",
+    "irf",
+    "python"
+  ],
+  "upload_type": "software",
+  "access_right": "open",
+  "creators": [
+    {
+      "affiliation": "TU Dortmund",
+      "name": "Maximilian N\u00f6the"
+      "orcid": ""
+    },
+    {
+      "affiliation": "CEA-Saclay/IRFU/DAp",
+      "name": "Michele Peresano"
+      "orcid": ""
+    },
+    {
+      "affiliation": "LAPP/CNRS",
+      "name": "Thomas Vuillaume"
+      "orcid": ""
+    },
+    {
+      "affiliation": "TU Dortmund",
+      "name": "Lukas Nickel"
+      "orcid": ""
+    },
+    {
+      "affiliation": "TU Dortmund",
+      "name": "Noah Biederbeck"
+      "orcid": ""
+    },
+    {
+      "affiliation": "",
+      "name": ""
+      "orcid": ""
+    }
+  ],
+  
+}
