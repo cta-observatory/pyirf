@@ -1,7 +1,7 @@
 import subprocess
 import logging
 import os
-import uproot4 as uproot
+import uproot
 import sys
 from astropy.io import fits
 from ogadf_schema.irfs import AEFF_2D, EDISP_2D, PSF_TABLE, BKG_2D, RAD_MAX
