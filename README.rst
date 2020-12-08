@@ -20,8 +20,8 @@ Thanks to its simple input/output and modular function-based structure,
 it can be potentially used to process also data from other Imaging Atmospheric
 Cherenkov Telescopes (IACTs).
 
-- **Source code: ** https://github.com/cta-observatory/pyirf
-- **Documentation: ** https://cta-observatory.github.io/pyirf/
+- **Source code:** https://github.com/cta-observatory/pyirf
+- **Documentation:** https://cta-observatory.github.io/pyirf/
 
 Citing this software
 --------------------
