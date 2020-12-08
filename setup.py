@@ -20,7 +20,7 @@ extras_require = {
         "pytest-cov",
         "gammapy~=0.18",
         "ogadf-schema~=0.2.3",
-        "uproot",
+        "uproot~=4.0",
         "awkward1",
     ],
 }
