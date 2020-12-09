@@ -28,6 +28,12 @@ Point Spread Function
 The PSF describes the probability of measuring a gamma ray
 of a given true energy and true position at a reconstructed position.
 
+Background rate
+---------------
+
+The background rate is calculated as the number of background-like events per
+second, reconstructed energy and solid angle.
+The current version is computed in radially symmetric bins in the Field Of View.
 
 Reference/API
 -------------
