@@ -1,0 +1,12 @@
+{
+    "interpol_irf": {
+        "pars": [["cosZd", "sin(alt_tel)"],
+                 ["Az", "az_tel*57.29577951308232"]],
+        "files": [["prod3b-v2/North_z20_N_50h/irf_file.fits", 0.9396926207859084, 0.0],
+                  ["prod3b-v2/North_z20_S_50h/irf_file.fits", 0.9396926207859084, 180.0],
+                  ["prod3b-v2/North_z20_N_50h/irf_file.fits", 0.9396926207859084, 360.0],
+                  ["prod3b-v2/North_z40_N_50h/irf_file.fits", 0.766044443118978, 0.0],
+                  ["prod3b-v2/North_z40_S_50h/irf_file.fits", 0.766044443118978, 180.0],
+                  ["prod3b-v2/North_z40_S_50h/irf_file.fits", 0.766044443118978, 180.0]]
+    }
+}
