@@ -7,108 +7,90 @@ a data file
 from astropy.io import fits
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
 import json
-from scipy.interpolate import griddata
+import pyirf.interpolation as interp
+import astropy.units as u
+from pyirf.io import create_aeff2d_hdu
 plt.ion()
 
-# definition from lstchain.io.io copied here to avoid dependency
-dl2_params_lstcam_key = 'dl2/event/telescope/parameters/LST_LSTCam'
 aeff_name = 'EFFECTIVE AREA'
 
 # settings
-data_file = 'lstdata/dl2_LST-1.Run03635.0001.h5'
+# data_file = 'lstdata/dl2_LST-1.Run03635.0001.h5'
+data_file = 'lstdata/dl2_LST-1.Run03642.0110.h5'
 config_file = './interpol_irf.json'
 min_aeff = 1.  # to avoid zeros in log
 interp_method = 'linear'
 
+output_file = 'irf_interp.fits'
 
 with open(config_file) as pars_file:
     config = json.load(pars_file)
 pars = config['interpol_irf']['pars']
 files = config['interpol_irf']['files']
 
+
 print('Interpolating over the following variables:')
 for par in pars:
     print(par[0], '=', par[1])
 
 print("opening: ", data_file)
-# read in the data
-data = pd.read_hdf(data_file, key=dl2_params_lstcam_key)
-interp_pos = []  # position for which to interpolate
-for par in pars:
-    val = np.mean(data.eval(par[1]))
-    print(par[0], val)
-    interp_pos.append(val)
-interp_pos = tuple(interp_pos)
+interp_pars = interp.read_mean_pars_data(data_file, pars)
 
 interp_names = np.array(pars)[:, 0].tolist()
 
 print(interp_names)
 interp_dim = len(interp_names)
 
-to_process = files
-n_process = len(to_process)
+print(files)
+n_files = len(files)
 
-# open the first file and check some settings
-hdul = fits.open(to_process[0][0])
-hdul.info()
-aeff_tab = hdul[aeff_name].data[0]
-en = np.sqrt(aeff_tab['ENERG_LO'] * aeff_tab['ENERG_HI'])
-en[en == 0] = 0.5 * aeff_tab['ENERG_HI'][en == 0]  # fix for the first bin that starts at E=0
-th_lows = aeff_tab['THETA_LO']
-th_his = aeff_tab['THETA_HI']
-n_theta = len(th_lows)
-n_en = len(en)
+aeff_all, pars_all, energy_bins, theta_bins = interp.read_irf_grid(files, aeff_name, 'EFFAREA')
+
+en = 0.5 * (energy_bins[1:] + energy_bins[:-1])
+n_theta = len(theta_bins) - 1
 
 fig0 = plt.figure(figsize=(12, 9))
 axs = []
-for iplot in range(n_theta):
-    axs.append(plt.subplot(2, 3, 1 + iplot))
-    title = r'$A_{eff}$, $\theta$=' + f'{th_lows[iplot]}-{th_his[iplot]}' + r'$^{\circ}$'
-    axs[iplot].set_title(title)
 
-log_aeff_all = np.empty((n_process, n_theta, n_en))
-pars_all = np.empty((n_process, interp_dim))
-# pars_all=(np.array(to_process)[:,1:]).tolist()  #alternative way of doing it
 
-for iprocess, process_it in enumerate(to_process):
-    infile = process_it[0]
-    pars = process_it[1:]
-    pars_all[iprocess, :] = pars
+for i_th in range(n_theta):
+    axs.append(plt.subplot(2, 3, 1 + i_th))
+    title = r'$A_{eff}$, $\theta$=' + f'{theta_bins[i_th]}-{theta_bins[i_th+1]}' + r'$^{\circ}$'
+    axs[i_th].set_title(title)
 
-    legentry = ""
-    for i in range(interp_dim):
-        legentry += f'{interp_names[i]}={pars[i]:.2f} '
-    hdul = fits.open(infile)
-
-    for i_th in range(n_theta):
-        aeff_tab = hdul[aeff_name].data[0]
-        aeff = aeff_tab['EFFAREA'][i_th]
-        log_aeff_all[iprocess, i_th, :] = aeff
+    for i_file in range(n_files):
+        legentry = ""
+        for i in range(interp_dim):
+            legentry += f'{interp_names[i]}={pars_all[i_file,i]:.2f} '
+        aeff = aeff_all[i_file][i_th]
         axs[i_th].loglog(en, aeff, label=legentry)
 
-# remove zeros and log it
-log_aeff_all[log_aeff_all < min_aeff] = min_aeff
-log_aeff_all = np.log(log_aeff_all)
+# pars_all=(np.array(to_process)[:,1:]).tolist()  #alternative way of doing it
 
-# interpolation
 leg_interp = "Interpol. "
 for i in range(interp_dim):
-    leg_interp += f'{interp_names[i]}={interp_pos[i]:.2f} '
+    leg_interp += f'{interp_names[i]}={interp_pars[i]:.2f} '
 
-aeff_interp = np.empty((n_theta, n_en))
-for i_th in range(n_theta):
-    for i_en in range(n_en):
-        aeff_interp[i_th, i_en] = griddata(pars_all, log_aeff_all[:, i_th, i_en], interp_pos, method='linear')
-
-# exp it and set to zero too low values
-aeff_interp = np.exp(aeff_interp)
-aeff_interp[aeff_interp < min_aeff * 1.1] = 0  # 1.1 to correct for numerical uncertainty and interpolation
+aeff_interp = interp.interpolate_effective_area(aeff_all * u.Unit('m2'), pars_all, interp_pars, method=interp_method)
 
 for i_th in range(n_theta):
-    axs[i_th].loglog(en, aeff_interp[i_th, :], label=leg_interp, linewidth=3)
+    axs[i_th].loglog(en, aeff_interp[:, i_th], label=leg_interp, linewidth=3)
 
 for iplot in range(n_theta):
     axs[iplot].legend()
 plt.tight_layout()
+
+
+# now write an output fits file
+
+hdus = [
+    fits.PrimaryHDU(),
+    create_aeff2d_hdu(
+        # effective_area[..., np.newaxis],
+        aeff_interp,
+        energy_bins,
+        theta_bins,
+        extname="EFFECTIVE AREA")
+]
+fits.HDUList(hdus).writeto(output_file, overwrite=True)

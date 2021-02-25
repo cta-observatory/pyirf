@@ -12,6 +12,7 @@ dependencies:
   - astropy>=4.0.2,<5
   - setuptools
   - tqdm
+  - pandas
   # tests
   - pytest
   - pytest-cov

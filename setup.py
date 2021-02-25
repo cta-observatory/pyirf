@@ -37,6 +37,7 @@ setup(
         "numpy>=1.18",
         "scipy",
         "tqdm",
+        "pandas",
         "tables",
     ],
     extras_require=extras_require,
