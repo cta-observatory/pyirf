@@ -90,6 +90,34 @@ def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_ar
     return aeff_interp * u.Unit('m2')
 
 
+def read_unit_from_HDUL(hdul, ext_name, field_name):
+    """
+    Searches for a field in FITS header of a given extension and checks its unit
+
+    Parameters
+    ----------
+    hdul: astropy.io.fits.hdu.image.PrimaryHDU
+        FITS HDU
+    ext_name: string
+        name of the extension to read the data from in fits file
+    field_name: string
+        name of the field in the extension to extract
+
+    Returns
+    -------
+    unit: astropy.units.core.Unit
+        unit
+    """
+    keys=list(hdul[ext_name].header['TTYPE*'].keys())
+    vals=list(hdul[ext_name].header['TTYPE*'].values())
+
+    print(keys)
+    print(vals)
+    TTYPE=keys[vals.index(field_name)]
+    TUNIT=TTYPE.replace('TYPE','UNIT')
+    return u.format.Fits.parse(hdul[ext_name].header[TUNIT])
+
+
 def read_irf_grid(files, ext_name, field_name):
     """
     Reads in a grid of IRFs for a bunch of different parameters and stores them in lists
@@ -127,6 +155,11 @@ def read_irf_grid(files, ext_name, field_name):
         theta_bins = list(ext_tab['THETA_LO'])
         theta_bins.append(ext_tab['THETA_HI'][-1])
 
+        # add units, maybe extracting them here is not needed since the units are supposed
+        # to be standard so could be hardcoded, but just in case...
+        energy_bins*=read_unit_from_HDUL(hdul, ext_name, 'ENERG_LO')
+        theta_bins*=read_unit_from_HDUL(hdul, ext_name, 'THETA_LO')
+
     n_theta = len(theta_bins) - 1  # number of bins in offset angle
 
     irfs_all = np.empty((n_grid_point, n_theta), dtype=np.object)
@@ -140,7 +173,7 @@ def read_irf_grid(files, ext_name, field_name):
                 irfs_all[ifile, i_th] = ext_tab[field_name][i_th]
 
     # convert irfs to a simple array and add unit
-    irfs_all = np.array(irfs_all.tolist())
+    irfs_all = np.array(irfs_all.tolist())*read_unit_from_HDUL(hdul, ext_name, field_name)
 
     # TBD: check in the input fits file that the units are indeed TeV, deg
-    return irfs_all, pars_all, energy_bins * u.TeV, theta_bins * u.deg
+    return irfs_all, pars_all, energy_bins, theta_bins

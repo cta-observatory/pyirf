@@ -72,7 +72,7 @@ leg_interp = "Interpol. "
 for i in range(interp_dim):
     leg_interp += f'{interp_names[i]}={interp_pars[i]:.2f} '
 
-aeff_interp = interp.interpolate_effective_area(aeff_all * u.Unit('m2'), pars_all, interp_pars, method=interp_method)
+aeff_interp = interp.interpolate_effective_area(aeff_all, pars_all, interp_pars, method=interp_method)
 
 for i_th in range(n_theta):
     axs[i_th].loglog(en, aeff_interp[:, i_th], label=leg_interp, linewidth=3)

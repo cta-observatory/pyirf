@@ -1,11 +1,11 @@
 import pyirf.interpolation as interp
 import json
 import pytest
+from astropy.io import fits
 import numpy as np
 import astropy.units as u
 
 
-# temporarily disabled (until the data are available in repository)
 def test_read_mean_pars_data():
     config_file = 'interp_test_data/interpol_irf.json'
     data_file = '../../data/dl2_LST-1.Run03642.0110.h5'
@@ -48,3 +48,10 @@ def test_interpolate_effective_area():
     print('ratio=', aeff_interp[:, 0] / aeff0)
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
+
+# temporarily disabled (until the data are available in repository)
+def _test_read_unit_from_HDUL():
+    with fits.open('interp_test_data/irf_file.fits') as hdul:
+        unit = interp.read_unit_from_HDUL(hdul, "EFFECTIVE AREA", "EFFAREA")
+        unit_true=u.Unit("m2")
+    assert unit == unit_true
