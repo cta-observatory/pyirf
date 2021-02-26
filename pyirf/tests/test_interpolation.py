@@ -6,9 +6,9 @@ import astropy.units as u
 
 
 # temporarily disabled (until the data are available in repository)
-def _test_read_mean_pars_data():
+def test_read_mean_pars_data():
     config_file = 'interp_test_data/interpol_irf.json'
-    data_file = 'interp_test_data/dl2_LST-1.Run03642.0110.h5'
+    data_file = '../../data/dl2_LST-1.Run03642.0110.h5'
     with open(config_file) as pars_file:
         config = json.load(pars_file)
     pars = config['interpol_irf']['pars']
