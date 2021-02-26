@@ -120,7 +120,7 @@ plt.imshow(mig_interp[:, :, 0].T, origin='lower')
 
 hdus = [fits.PrimaryHDU()]
 hdus.append(create_aeff2d_hdu(aeff_interp, energy_bins, theta_bins, extname=aeff_name))
-hdus.append(create_energy_dispersion_hdu(mig_interp, energy_bins_mig, migration_bins, theta_bins_mig, extname=edisp_name))
+hdus.append(create_energy_dispersion_hdu(mig_interp, energy_bins_mig, mig_bins, theta_bins_mig, extname=edisp_name))
 
     
 fits.HDUList(hdus).writeto(output_file, overwrite=True)
