@@ -90,6 +90,48 @@ def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_ar
     return aeff_interp * u.Unit('m2')
 
 
+def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='linear'):
+    """
+    Takes a grid of dispersion matrixes for a bunch of different parameters
+    and interpolates it to given value of those parameters
+
+    Parameters
+    ----------
+    matrix_all: np.array of astropy.units.Quantity[area]
+        grid of effective area, of shape (n_grid_points, n_fov_offset_bins, n_energy_bins, n_migration_bins)
+    pars_all: np.array
+        list of parameters corresponding to matrix_all, of shape (n_grid_points, n_interp_dim)
+    interp_pars: np.array
+        values of parameters for which the interpolation is performed, of shape (n_interp_dim)
+    method: 'linear’, ‘nearest’, ‘cubic’
+        Interpolation method
+
+    Returns
+    -------
+    matrix_interp: astropy.units.Quantity[area]
+        Interpolated dispersion matrix 3D array with shape (n_energy_bins, n_migration_bins, n_fov_offset_bins)
+    """
+
+    n_grid_point, n_fov_offset_bins, n_migration_bins, n_energy_bins = matrix_all.shape
+
+    # interpolation
+    r_th = range(n_fov_offset_bins)
+    r_en = range(n_energy_bins)
+    r_mig = range(n_migration_bins)
+    matrix_interp = np.empty((n_energy_bins, n_migration_bins, n_fov_offset_bins))
+    # TO DO this part can be optimized because nested for looks take quite some time
+    # but it is not a big problem because this has to be done only once per run
+    for i_th in r_th:
+        for i_en in r_en:
+            for i_mig in r_mig:
+                matrix_interp[i_en, i_mig, i_th] = griddata(pars_all, matrix_all[:, i_th, i_mig, i_en], interp_pars, method=method)
+
+    # now we need to renormalize along the migration axis
+    norm = np.sum(matrix_interp, axis=1, keepdims=True)
+    mig_norm=np.divide(matrix_interp, norm, out=np.zeros_like(matrix_interp), where=norm!=0) 
+    return matrix_interp
+
+
 def read_unit_from_HDUL(hdul, ext_name, field_name):
     """
     Searches for a field in FITS header of a given extension and checks its unit
@@ -111,11 +153,41 @@ def read_unit_from_HDUL(hdul, ext_name, field_name):
     keys=list(hdul[ext_name].header['TTYPE*'].keys())
     vals=list(hdul[ext_name].header['TTYPE*'].values())
 
-    print(keys)
-    print(vals)
     TTYPE=keys[vals.index(field_name)]
     TUNIT=TTYPE.replace('TYPE','UNIT')
+    if hdul[ext_name].header[TUNIT] == '':
+        return u.Unit('') # dimentionless
     return u.format.Fits.parse(hdul[ext_name].header[TUNIT])
+
+
+def read_fits_bins_lo_hi(file_name, ext_name, tag):
+    """
+    Reads from a fits file two arrays of tag_LO and tag_HI and joins them into a single array and adds unit
+
+    Parameters
+    ----------
+    file_name: string
+        file to be read
+    ext_name: string
+        name of the extension to read the data from in fits file
+    tag: string
+        name of the field in the extension to extract, _LO and _HI will be added
+
+    Returns
+    -------
+    bins: astropy.units.Quantity[energy]
+        bins
+    """
+
+    tag_lo = tag + '_LO'
+    tag_hi = tag + '_HI'
+
+    with fits.open(file_name) as hdul:
+        ext_tab = hdul[ext_name].data[0]
+        bins = list(ext_tab[tag_lo])
+        bins.append(ext_tab[tag_hi][-1])
+        bins*=read_unit_from_HDUL(hdul, ext_name, tag_lo)
+    return bins
 
 
 def read_irf_grid(files, ext_name, field_name):
@@ -148,17 +220,19 @@ def read_irf_grid(files, ext_name, field_name):
     pars_all = np.empty((n_grid_point, interp_dim))
 
     # open the first file to check the binning
-    with fits.open(files[0][0]) as hdul:
-        ext_tab = hdul[ext_name].data[0]
-        energy_bins = list(ext_tab['ENERG_LO'])
-        energy_bins.append(ext_tab['ENERG_HI'][-1])
-        theta_bins = list(ext_tab['THETA_LO'])
-        theta_bins.append(ext_tab['THETA_HI'][-1])
+    energy_bins=read_fits_bins_lo_hi(files[0][0], ext_name, 'ENERG')
+    theta_bins=read_fits_bins_lo_hi(files[0][0], ext_name, 'THETA')
+#    with fits.open(files[0][0]) as hdul:
+#        ext_tab = hdul[ext_name].data[0]
+#        energy_bins = list(ext_tab['ENERG_LO'])
+#        energy_bins.append(ext_tab['ENERG_HI'][-1])
+#        theta_bins = list(ext_tab['THETA_LO'])
+#        theta_bins.append(ext_tab['THETA_HI'][-1])
 
         # add units, maybe extracting them here is not needed since the units are supposed
         # to be standard so could be hardcoded, but just in case...
-        energy_bins*=read_unit_from_HDUL(hdul, ext_name, 'ENERG_LO')
-        theta_bins*=read_unit_from_HDUL(hdul, ext_name, 'THETA_LO')
+#        energy_bins*=read_unit_from_HDUL(hdul, ext_name, 'ENERG_LO')
+#        theta_bins*=read_unit_from_HDUL(hdul, ext_name, 'THETA_LO')
 
     n_theta = len(theta_bins) - 1  # number of bins in offset angle
 
@@ -175,5 +249,4 @@ def read_irf_grid(files, ext_name, field_name):
     # convert irfs to a simple array and add unit
     irfs_all = np.array(irfs_all.tolist())*read_unit_from_HDUL(hdul, ext_name, field_name)
 
-    # TBD: check in the input fits file that the units are indeed TeV, deg
     return irfs_all, pars_all, energy_bins, theta_bins
