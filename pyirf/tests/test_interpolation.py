@@ -6,7 +6,7 @@ import astropy.units as u
 
 
 def test_read_mean_pars_data():
-    """test of reading of average parameters from a data DL2 file"""
+    """Test of reading of average parameters from a data DL2 file."""
     config_file = 'interp_test_data/interpol_irf.json'
     data_file = '../../data/dl2_LST-1.Run03642.0110.h5'
     with open(config_file) as pars_file:
@@ -20,7 +20,7 @@ def test_read_mean_pars_data():
 
 
 def test_interpolate_effective_area():
-    """test of interpolating of effective area using dummy model files"""
+    """Test of interpolating of effective area using dummy model files."""
     n_en = 20
     n_th = 1
     en = np.logspace(-2, 2, n_en)
@@ -48,7 +48,7 @@ def test_interpolate_effective_area():
 
 
 def test_read_unit_from_HDUL():
-    """test of reading units from a field in a fits files"""
+    """Test of reading units from a field in a fits files."""
     with fits.open('interp_test_data/pyirf_eventdisplay_68.fits.gz') as hdul:
         unit = interp.read_unit_from_HDUL(hdul, "EFFECTIVE_AREA", "EFFAREA")
         unit_true = u.Unit("m2")
@@ -56,7 +56,7 @@ def test_read_unit_from_HDUL():
 
 
 def test_interpolate_dispersion_matrix():
-    """test of interpolation of energy dispersion matrix using a simple dummy model"""
+    """Test of interpolation of energy dispersion matrix using a simple dummy model."""
     x = [0.9, 1.1]
     y = [8., 11.5]
     n_grid = len(x) * len(y)
@@ -116,7 +116,7 @@ def test_interpolate_dispersion_matrix():
 
     # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
     sums = np.sum(mig_interp[:, :, 0], axis=1)
-    assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min() == True
+    assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min()
 
     # now check if we reconstruct the mean and sigma roughly fine after interpolation
     bias0, stds0 = calc_mean_std(mig_true)  # true
@@ -134,12 +134,12 @@ def test_interpolate_dispersion_matrix():
 
 
 def test_compare_irf_cuts():
-    """test of cut consistency using 3 files: two same ones and one different"""
+    """Test of cut consistency using 3 files: two same ones and one different."""
     file1a = 'interp_test_data/pyirf_eventdisplay_68.fits.gz'
     file1b = 'interp_test_data/pyirf_eventdisplay_68_copy.fits.gz'
     file2 = 'interp_test_data/pyirf_eventdisplay_80.fits.gz'
 
     match = interp.compare_irf_cuts([file1a, file1b], 'THETA_CUTS')
-    assert match == True
+    assert match
     match = interp.compare_irf_cuts([file1a, file1b, file2], 'THETA_CUTS')
-    assert match == False
+    assert not match

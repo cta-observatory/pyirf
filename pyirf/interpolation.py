@@ -68,7 +68,7 @@ def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_ar
         Interpolated Effective area array with shape (n_energy_bins, n_fov_offset_bins)
     """
 
-    n_grid_point, n_fov_offset_bins, n_energy_bins = aeff_all.shape
+    _, n_fov_offset_bins, n_energy_bins = aeff_all.shape
 
     # get rid of units
     aeff_all = aeff_all.to('m2').value
@@ -112,7 +112,7 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
         Interpolated dispersion matrix 3D array with shape (n_energy_bins, n_migration_bins, n_fov_offset_bins)
     """
 
-    n_grid_point, n_fov_offset_bins, n_migration_bins, n_energy_bins = matrix_all.shape
+    _, n_fov_offset_bins, n_migration_bins, n_energy_bins = matrix_all.shape
 
     # interpolation
     r_th = range(n_fov_offset_bins)

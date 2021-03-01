@@ -1,5 +1,6 @@
 """
 Example macro for reading in IRFs and performing interpolation
+
 The interpolation is done over a number of parameters that are specified
 in json config file, and the actual value to interpolate to is read from
 a data file
