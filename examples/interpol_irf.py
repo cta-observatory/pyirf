@@ -12,14 +12,18 @@ import pyirf.interpolation as interp
 import astropy.units as u
 from pyirf.io import create_aeff2d_hdu, create_energy_dispersion_hdu
 import time
+import sys
 
 plt.ion()
 
+# settings
 aeff_name = 'EFFECTIVE AREA'
 edisp_name = 'ENERGY DISPERSION'
 
-# settings
-# data_file = 'lstdata/dl2_LST-1.Run03635.0001.h5'
+# we should check if the files were produced with consistent theta2 and g/h separation cuts
+# however the test files over which this macro is run do not have them stored
+check_cut_consistency = False
+
 data_file = 'lstdata/dl2_LST-1.Run03642.0110.h5'
 config_file = './interpol_irf.json'
 min_aeff = 1.  # to avoid zeros in log
@@ -48,6 +52,12 @@ interp_dim = len(interp_names)
 
 print(files)
 n_files = len(files)
+
+if check_cut_consistency:
+    if interp.compare_irf_cuts(np.array(files)[:, 0], 'THETA_CUTS')==False:
+        sys.exit("not compatible theta2 cuts")
+    if interp.compare_irf_cuts(np.array(files)[:, 0], 'GH_CUTS')==False:
+        sys.exit("not compatible theta2 cuts")
 
 aeff_all, pars_all, energy_bins, theta_bins = interp.read_irf_grid(files, aeff_name, 'EFFAREA')
 
@@ -110,11 +120,9 @@ mig_interp = interp.interpolate_dispersion_matrix(mig_all, pars_all, interp_pars
 end = time.time()
 print("elapsed time=",end - start)
 
-#plt.figure(2)
-#plt.imshow(mig_all[0, 0, :, :], origin='lower')
-
-plt.figure(3)
-plt.imshow(mig_interp[:, :, 0].T, origin='lower')
+if draw_results:
+    plt.figure(3)
+    plt.imshow(mig_interp[:, :, 0].T, origin='lower')
 
 # now write an output fits file
 
@@ -124,6 +132,3 @@ hdus.append(create_energy_dispersion_hdu(mig_interp, energy_bins_mig, mig_bins, 
 
     
 fits.HDUList(hdus).writeto(output_file, overwrite=True)
-
-
-# time 141s

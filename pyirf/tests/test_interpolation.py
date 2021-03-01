@@ -51,11 +51,10 @@ def test_interpolate_effective_area():
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
 
-# temporarily disabled (until the data are available in repository)
-def _test_read_unit_from_HDUL():
+def test_read_unit_from_HDUL():
     """test of reading units from a field in a fits files"""
-    with fits.open('interp_test_data/irf_file.fits') as hdul:
-        unit = interp.read_unit_from_HDUL(hdul, "EFFECTIVE AREA", "EFFAREA")
+    with fits.open('interp_test_data/pyirf_eventdisplay_68.fits.gz') as hdul:
+        unit = interp.read_unit_from_HDUL(hdul, "EFFECTIVE_AREA", "EFFAREA")
         unit_true=u.Unit("m2")
     assert unit == unit_true
 
@@ -130,3 +129,14 @@ def test_interpolate_dispersion_matrix():
     stds = stds[idxs]
     assert np.allclose(bias, bias0, atol=0.6, rtol=0.)
     assert np.allclose(stds, stds0, atol=0.6, rtol=0.)
+
+def test_compare_irf_cuts():
+    """test of cut consistency using 3 files: two same ones and one different"""
+    file1a = 'interp_test_data/pyirf_eventdisplay_68.fits.gz'
+    file1b = 'interp_test_data/pyirf_eventdisplay_68_copy.fits.gz'
+    file2 = 'interp_test_data/pyirf_eventdisplay_80.fits.gz'
+
+    match = interp.compare_irf_cuts([file1a, file1b], 'THETA_CUTS')
+    assert match == True
+    match = interp.compare_irf_cuts([file1a, file1b, file2], 'THETA_CUTS')
+    assert match == False
