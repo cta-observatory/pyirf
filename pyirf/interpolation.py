@@ -98,7 +98,7 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
     Parameters
     ----------
     matrix_all: np.array of astropy.units.Quantity[area]
-        grid of effective area, of shape (n_grid_points, n_fov_offset_bins, n_energy_bins, n_migration_bins)
+        grid of effective area, of shape (n_grid_points, n_fov_offset_bins, n_migration_bins, n_energy_bins)
     pars_all: np.array
         list of parameters corresponding to matrix_all, of shape (n_grid_points, n_interp_dim)
     interp_pars: np.array
@@ -119,7 +119,7 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
     r_en = range(n_energy_bins)
     r_mig = range(n_migration_bins)
     matrix_interp = np.empty((n_energy_bins, n_migration_bins, n_fov_offset_bins))
-    # TO DO this part can be optimized because nested for looks take quite some time
+    # TO DO this part can be optimized because nested for loops take quite some time
     # but it is not a big problem because this has to be done only once per run
     for i_th in r_th:
         for i_en in r_en:
@@ -128,8 +128,8 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
 
     # now we need to renormalize along the migration axis
     norm = np.sum(matrix_interp, axis=1, keepdims=True)
-    mig_norm=np.divide(matrix_interp, norm, out=np.zeros_like(matrix_interp), where=norm!=0) 
-    return matrix_interp
+    mig_norm=np.divide(matrix_interp, norm, out=np.zeros_like(matrix_interp), where=norm!=0)
+    return mig_norm
 
 
 def read_unit_from_HDUL(hdul, ext_name, field_name):
@@ -222,17 +222,6 @@ def read_irf_grid(files, ext_name, field_name):
     # open the first file to check the binning
     energy_bins=read_fits_bins_lo_hi(files[0][0], ext_name, 'ENERG')
     theta_bins=read_fits_bins_lo_hi(files[0][0], ext_name, 'THETA')
-#    with fits.open(files[0][0]) as hdul:
-#        ext_tab = hdul[ext_name].data[0]
-#        energy_bins = list(ext_tab['ENERG_LO'])
-#        energy_bins.append(ext_tab['ENERG_HI'][-1])
-#        theta_bins = list(ext_tab['THETA_LO'])
-#        theta_bins.append(ext_tab['THETA_HI'][-1])
-
-        # add units, maybe extracting them here is not needed since the units are supposed
-        # to be standard so could be hardcoded, but just in case...
-#        energy_bins*=read_unit_from_HDUL(hdul, ext_name, 'ENERG_LO')
-#        theta_bins*=read_unit_from_HDUL(hdul, ext_name, 'THETA_LO')
 
     n_theta = len(theta_bins) - 1  # number of bins in offset angle
 
