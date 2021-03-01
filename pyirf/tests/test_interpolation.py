@@ -1,6 +1,5 @@
 import pyirf.interpolation as interp
 import json
-import pytest
 from astropy.io import fits
 import numpy as np
 import astropy.units as u
@@ -44,19 +43,17 @@ def test_interpolate_effective_area():
     pars0 = [1, 10]
     min_aeff = 1 * u.Unit('m2')
     aeff_interp = interp.interpolate_effective_area(aeff, pars, pars0, min_effective_area=min_aeff, method='linear')
-    print('Aeff=', aeff)
-    print('Aeff0=', aeff0)
-    print('Aeff_intp=', aeff_interp)
-    print('ratio=', aeff_interp[:, 0] / aeff0)
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
+
 
 def test_read_unit_from_HDUL():
     """test of reading units from a field in a fits files"""
     with fits.open('interp_test_data/pyirf_eventdisplay_68.fits.gz') as hdul:
         unit = interp.read_unit_from_HDUL(hdul, "EFFECTIVE_AREA", "EFFAREA")
-        unit_true=u.Unit("m2")
+        unit_true = u.Unit("m2")
     assert unit == unit_true
+
 
 def test_interpolate_dispersion_matrix():
     """test of interpolation of energy dispersion matrix using a simple dummy model"""
@@ -72,26 +69,28 @@ def test_interpolate_dispersion_matrix():
     def get_bias_std(i_en, x, y):
         i_en = i_en + 3 * ((x - 1) + (y - 10.))
         de = n_en - i_en
-        de[de<0] = 0.
+        de[de < 0] = 0.
         bias = de**0.5 + n_mig / 2
-        rms = 5 - 2*(i_en / n_en)
-        bias[i_en<3] = 2 * n_mig # return high values to zero the table
-        rms[i_en<3] = 0
+        rms = 5 - 2 * (i_en / n_en)
+        bias[i_en < 3] = 2 * n_mig  # return high values to zero out part of the table
+        rms[i_en < 3] = 0
         return bias, rms
 
     en = np.arange(n_en)[:, np.newaxis]
     mig = np.arange(n_mig)[np.newaxis, :]
 
+    # auxiliary function to compute profile of the 2D distribution
+    # used to check if the expected and interpolated matrixes are similar
     def calc_mean_std(matrix):
         n_en = matrix.shape[0]
         means = np.empty(n_en)
         stds = np.empty(n_en)
         for i_en in np.arange(n_en):
-            w = matrix[i_en,:]
-            if np.sum(w)>0:
+            w = matrix[i_en, :]
+            if np.sum(w) > 0:
                 means[i_en] = np.average(mig[0, :], weights=w)
                 stds[i_en] = np.sqrt(np.cov(mig[0, :], aweights=w))
-            else:
+            else:  # we need to skip the empty columns
                 means[i_en] = -1
                 stds[i_en] = -1
         return means, stds
@@ -100,7 +99,7 @@ def test_interpolate_dispersion_matrix():
     interp_pars = (1, 10)
     bias, sigma = get_bias_std(en, *interp_pars)
     mig_true = np.exp(-(mig - bias)**2 / (2 * sigma**2))
-    mig_true[mig_true<clip_level] = 0
+    mig_true[mig_true < clip_level] = 0
 
     # generate a grid of migration matrixes
     i_grid = 0
@@ -109,26 +108,30 @@ def test_interpolate_dispersion_matrix():
     for xx in x:
         for yy in y:
             bias, sigma = get_bias_std(en, xx, yy)
-            mig_all[i_grid, 0, :, :] = (np.exp(-(mig - bias)**2/(2 * sigma**2))).T
-            pars_all[i_grid,:]=(xx, yy)
+            mig_all[i_grid, 0, :, :] = (np.exp(-(mig - bias)**2 / (2 * sigma**2))).T
+            pars_all[i_grid, :] = (xx, yy)
             i_grid += 1
+    # do the interpolation and compare the results with expected ones
     mig_interp = interp.interpolate_dispersion_matrix(mig_all, pars_all, interp_pars, method='linear')
-    bias0, stds0 = calc_mean_std(mig_true)  # true
-    bias, stds = calc_mean_std(mig_interp[:, :, 0])  # interpolated
 
-    sums=np.sum(mig_interp[:, :, 0], axis=1)
     # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
+    sums = np.sum(mig_interp[:, :, 0], axis=1)
     assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min() == True
 
     # now check if we reconstruct the mean and sigma roughly fine after interpolation
+    bias0, stds0 = calc_mean_std(mig_true)  # true
+    bias, stds = calc_mean_std(mig_interp[:, :, 0])  # interpolated
+
     # first remove the bins that are empty in true value
     idxs = bias0 > 0
     bias0 = bias0[idxs]
     bias = bias[idxs]
     stds0 = stds0[idxs]
     stds = stds[idxs]
+    # allowing for a 0.6 bin size error on the interpolated values
     assert np.allclose(bias, bias0, atol=0.6, rtol=0.)
     assert np.allclose(stds, stds0, atol=0.6, rtol=0.)
+
 
 def test_compare_irf_cuts():
     """test of cut consistency using 3 files: two same ones and one different"""

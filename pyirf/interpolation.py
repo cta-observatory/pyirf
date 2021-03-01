@@ -128,7 +128,7 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
 
     # now we need to renormalize along the migration axis
     norm = np.sum(matrix_interp, axis=1, keepdims=True)
-    mig_norm=np.divide(matrix_interp, norm, out=np.zeros_like(matrix_interp), where=norm!=0)
+    mig_norm = np.divide(matrix_interp, norm, out=np.zeros_like(matrix_interp), where=norm != 0)
     return mig_norm
 
 
@@ -150,13 +150,13 @@ def read_unit_from_HDUL(hdul, ext_name, field_name):
     unit: astropy.units.core.Unit
         unit
     """
-    keys=list(hdul[ext_name].header['TTYPE*'].keys())
-    vals=list(hdul[ext_name].header['TTYPE*'].values())
+    keys = list(hdul[ext_name].header['TTYPE*'].keys())
+    vals = list(hdul[ext_name].header['TTYPE*'].values())
 
-    TTYPE=keys[vals.index(field_name)]
-    TUNIT=TTYPE.replace('TYPE','UNIT')
+    TTYPE = keys[vals.index(field_name)]
+    TUNIT = TTYPE.replace('TYPE', 'UNIT')
     if hdul[ext_name].header[TUNIT] == '':
-        return u.Unit('') # dimentionless
+        return u.Unit('')  # dimentionless
     return u.format.Fits.parse(hdul[ext_name].header[TUNIT])
 
 
@@ -186,7 +186,7 @@ def read_fits_bins_lo_hi(file_name, ext_name, tag):
         ext_tab = hdul[ext_name].data[0]
         bins = list(ext_tab[tag_lo])
         bins.append(ext_tab[tag_hi][-1])
-        bins*=read_unit_from_HDUL(hdul, ext_name, tag_lo)
+        bins *= read_unit_from_HDUL(hdul, ext_name, tag_lo)
     return bins
 
 
@@ -220,8 +220,8 @@ def read_irf_grid(files, ext_name, field_name):
     pars_all = np.empty((n_grid_point, interp_dim))
 
     # open the first file to check the binning
-    energy_bins=read_fits_bins_lo_hi(files[0][0], ext_name, 'ENERG')
-    theta_bins=read_fits_bins_lo_hi(files[0][0], ext_name, 'THETA')
+    energy_bins = read_fits_bins_lo_hi(files[0][0], ext_name, 'ENERG')
+    theta_bins = read_fits_bins_lo_hi(files[0][0], ext_name, 'THETA')
 
     n_theta = len(theta_bins) - 1  # number of bins in offset angle
 
@@ -236,7 +236,7 @@ def read_irf_grid(files, ext_name, field_name):
                 irfs_all[ifile, i_th] = ext_tab[field_name][i_th]
 
     # convert irfs to a simple array and add unit
-    irfs_all = np.array(irfs_all.tolist())*read_unit_from_HDUL(hdul, ext_name, field_name)
+    irfs_all = np.array(irfs_all.tolist()) * read_unit_from_HDUL(hdul, ext_name, field_name)
 
     return irfs_all, pars_all, energy_bins, theta_bins
 
@@ -257,8 +257,6 @@ def compare_irf_cuts(files, ext_name):
     match: Boolean
         if the cuts are the same in all the files
     """
-    n_files = len(files)
-
     with fits.open(files[0]) as hdul0:
         data0 = hdul0['THETA_CUTS'].data
 
