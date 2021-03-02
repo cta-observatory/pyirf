@@ -7,19 +7,18 @@ import astropy.units as u
 from astropy.io import fits
 from scipy.interpolate import griddata
 
-# definition from lstchain.io.io copied here to avoid dependency
-dl2_params_lstcam_key = 'dl2/event/telescope/parameters/LST_LSTCam'
 
-
-def read_mean_parameters_data(data_file, parameters):
+def read_mean_parameters_data(data_file, key, parameters):
     """
-    Reads a DL2 data file and extracts the average values
+    Reads a DL2 data fits file and extracts the average values
     of the parameters for interpolation
 
     Parameters
     ----------
     data_file: ``string``
         path to the DL2 data file
+    key: ``string``
+        key in the fits file where the parameters are stored
     parameters: list of ``string``
         list of parameters as they can be evaluated from DL2 file
 
@@ -31,7 +30,7 @@ def read_mean_parameters_data(data_file, parameters):
 
     # read in the data
     interp_pos = []  # position for which to interpolate
-    data = pd.read_hdf(data_file, key=dl2_params_lstcam_key)
+    data = pd.read_hdf(data_file, key=key)
     for par in parameters:
         # we use here eval function that is considered potentially dangerous
         # as it can execute arbitrary code, however this is the eval

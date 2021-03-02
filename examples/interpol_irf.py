@@ -22,6 +22,7 @@ plt.ion()
 # settings
 aeff_name = 'EFFECTIVE AREA'
 edisp_name = 'ENERGY DISPERSION'
+dl2_params_lstcam_key = 'dl2/event/telescope/parameters/LST_LSTCam'
 
 # we should check if the files were produced with consistent theta2 and g/h separation cuts
 # however the test files over which this macro is run do not have them stored
@@ -46,7 +47,7 @@ for par in pars:
     print(par[0], '=', par[1])
 
 print("opening: ", data_file)
-interp_pars = interp.read_mean_parameters_data(data_file, pars)
+interp_pars = interp.read_mean_parameters_data(data_file, dl2_params_lstcam_key, pars)
 
 interp_names = np.array(pars)[:, 0].tolist()
 interp_dim = len(interp_names)
