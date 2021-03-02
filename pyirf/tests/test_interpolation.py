@@ -1,25 +1,7 @@
 import pyirf.interpolation as interp
-import json
 from astropy.io import fits
 import numpy as np
 import astropy.units as u
-
-
-def test_read_mean_parameters_data():
-    """Test of reading of average parameters from a data DL2 file."""
-    config_file = 'interp_test_data/interpol_irf.json'
-    # definition from lstchain.io.io
-    dl2_params_lstcam_key = 'dl2/event/telescope/parameters/LST_LSTCam'
-
-    data_file = '../../data/dl2_LST-1.Run03642.0110.h5'
-    with open(config_file) as pars_file:
-        config = json.load(pars_file)
-    pars = config['interpol_irf']['pars']
-
-    interp_pos = interp.read_mean_parameters_data(data_file, dl2_params_lstcam_key, pars)
-    # true average values in that file
-    interp_pos_true = (0.8337625653926475, -63.52860081844798)
-    assert np.allclose(interp_pos, interp_pos_true, rtol=0.01)
 
 
 def test_interpolate_effective_area():

@@ -1,5 +1,4 @@
-"""
-Example macro for reading in IRFs and performing interpolation
+"""Example macro for reading in IRFs and performing interpolation
 
 The interpolation is done over a number of parameters that are specified
 in json config file, and the actual value to interpolate to is read from
@@ -15,6 +14,7 @@ import json
 import pyirf.interpolation as interp
 from pyirf.io import create_aeff2d_hdu, create_energy_dispersion_hdu
 import time
+import pandas as pd
 import sys
 
 plt.ion()
@@ -36,6 +36,41 @@ interp_method = 'linear'
 draw_results = True
 output_file = 'irf_interp.fits'
 
+
+def read_mean_parameters_data(data_file, key, parameters):
+    """
+    Reads a DL2 data fits file and extracts the average values
+    of the parameters for interpolation
+
+    Parameters
+    ----------
+    data_file: ``string``
+        path to the DL2 data file
+    key: ``string``
+        key in the fits file where the parameters are stored
+    parameters: list of ``string``
+        list of parameters as they can be evaluated from DL2 file
+
+    Returns
+    -------
+    interp_pos: tuple
+        tuple of average values of requested parameters
+    """
+
+    # read in the data
+    interp_pos = []  # position for which to interpolate
+    data = pd.read_hdf(data_file, key=key)
+    for par in parameters:
+        # we use here eval function that is considered potentially dangerous
+        # as it can execute arbitrary code, however this is the eval
+        # function from pandas, that is very much limitted to just
+        # the columns read from the file and math operations
+        # so it should be safe here (and it adds a lot of flexibility)
+        val = np.mean(data.eval(par[1]))
+        interp_pos.append(val)
+
+    return tuple(interp_pos)
+
 # load in a configuration file
 with open(config_file) as pars_file:
     config = json.load(pars_file)
@@ -47,7 +82,7 @@ for par in pars:
     print(par[0], '=', par[1])
 
 print("opening: ", data_file)
-interp_pars = interp.read_mean_parameters_data(data_file, dl2_params_lstcam_key, pars)
+interp_pars = read_mean_parameters_data(data_file, dl2_params_lstcam_key, pars)
 
 interp_names = np.array(pars)[:, 0].tolist()
 interp_dim = len(interp_names)
