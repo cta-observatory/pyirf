@@ -68,8 +68,8 @@ def read_mean_parameters_data(data_file, key, parameters):
         # so it should be safe here (and it adds a lot of flexibility)
         val = np.mean(data.eval(par[1]))
         interp_pos.append(val)
-
     return tuple(interp_pos)
+
 
 # load in a configuration file
 with open(config_file) as pars_file:
@@ -104,7 +104,6 @@ n_theta = len(theta_bins) - 1
 # pars_all=(np.array(to_process)[:,1:]).tolist()  #alternative way of doing it
 
 aeff_interp = interp.interpolate_effective_area(aeff_all, pars_all, interp_pars, method=interp_method)
-
 
 if draw_results:
     legentries = np.empty(n_files, dtype=object)

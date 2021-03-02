@@ -1,5 +1,4 @@
 import pyirf.interpolation as interp
-from astropy.io import fits
 import numpy as np
 import astropy.units as u
 
@@ -25,7 +24,7 @@ def test_interpolate_effective_area():
             pars[i_grid, :] = np.array([xx, yy])
             i_grid += 1
     aeff *= u.Unit('m2')
-    pars0 = [1, 10]
+    pars0 = (1, 10)
     min_aeff = 1 * u.Unit('m2')
     aeff_interp = interp.interpolate_effective_area(aeff, pars, pars0, min_effective_area=min_aeff, method='linear')
     # allowing for 3% accuracy except of close to the minimum value of Aeff

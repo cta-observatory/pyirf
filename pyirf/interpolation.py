@@ -1,4 +1,5 @@
 """Functions for performing interpolation of IRF to the values read from the data"""
+
 import numpy as np
 import astropy.units as u
 from astropy.table import Table
@@ -41,11 +42,7 @@ def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_ar
     aeff_all = np.log(aeff_all)
 
     # interpolation
-    aeff_interp = np.empty((n_energy_bins, n_fov_offset_bins))
-    for i_th in range(n_fov_offset_bins):
-        for i_en in range(n_energy_bins):
-            aeff_interp[i_en, i_th] = griddata(pars_all, aeff_all[:, i_th, i_en], interp_pars, method=method)
-
+    aeff_interp = griddata(pars_all, aeff_all, interp_pars, method=method).T
     # exp it and set to zero too low values
     aeff_interp = np.exp(aeff_interp)
     aeff_interp[aeff_interp < min_effective_area * 1.1] = 0  # 1.1 to correct for numerical uncertainty and interpolation
@@ -77,16 +74,8 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
     _, n_fov_offset_bins, n_migration_bins, n_energy_bins = matrix_all.shape
 
     # interpolation
-    r_th = range(n_fov_offset_bins)
-    r_en = range(n_energy_bins)
-    r_mig = range(n_migration_bins)
-    matrix_interp = np.empty((n_energy_bins, n_migration_bins, n_fov_offset_bins))
-    # TO DO this part can be optimized because nested for loops take quite some time
-    # but it is not a big problem because this has to be done only once per run
-    for i_th in r_th:
-        for i_en in r_en:
-            for i_mig in r_mig:
-                matrix_interp[i_en, i_mig, i_th] = griddata(pars_all, matrix_all[:, i_th, i_mig, i_en], interp_pars, method=method)
+    matrix_interp = griddata(pars_all, matrix_all, interp_pars, method=method)
+    matrix_interp = np.swapaxes(matrix_interp, 0, 2)
 
     # now we need to renormalize along the migration axis
     norm = np.sum(matrix_interp, axis=1, keepdims=True)
