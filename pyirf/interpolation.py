@@ -1,6 +1,7 @@
 """Functions for performing interpolation of IRF to the values read from the data"""
 import numpy as np
 import astropy.units as u
+from astropy.table import Table
 from astropy.io import fits
 from scipy.interpolate import griddata
 
@@ -93,34 +94,6 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
     return mig_norm
 
 
-def read_unit_from_HDUL(hdul, ext_name, field_name):
-    """
-    Searches for a field in FITS header of a given extension and checks its unit
-
-    Parameters
-    ----------
-    hdul: astropy.io.fits.hdu.image.PrimaryHDU
-        FITS HDU
-    ext_name: string
-        name of the extension to read the data from in fits file
-    field_name: string
-        name of the field in the extension to extract
-
-    Returns
-    -------
-    unit: astropy.units.core.Unit
-        unit
-    """
-    keys = list(hdul[ext_name].header['TTYPE*'].keys())
-    vals = list(hdul[ext_name].header['TTYPE*'].values())
-
-    TTYPE = keys[vals.index(field_name)]
-    TUNIT = TTYPE.replace('TYPE', 'UNIT')
-    if hdul[ext_name].header[TUNIT] == '':
-        return u.Unit('')  # dimentionless
-    return u.format.Fits.parse(hdul[ext_name].header[TUNIT])
-
-
 def read_fits_bins_lo_hi(file_name, ext_name, tag):
     """
     Reads from a fits file two arrays of tag_LO and tag_HI and joins them into a single array and adds unit
@@ -143,12 +116,10 @@ def read_fits_bins_lo_hi(file_name, ext_name, tag):
     tag_lo = tag + '_LO'
     tag_hi = tag + '_HI'
 
-    with fits.open(file_name) as hdul:
-        ext_tab = hdul[ext_name].data[0]
-        bins = list(ext_tab[tag_lo])
-        bins.append(ext_tab[tag_hi][-1])
-        bins *= read_unit_from_HDUL(hdul, ext_name, tag_lo)
-    return bins
+    table = Table.read(file_name, hdu=ext_name)
+    bins = list(table[tag_lo][0])
+    bins.append(table[tag_hi][0][-1])
+    return u.Quantity(bins, table[tag_lo].unit, copy=False)
 
 
 def read_irf_grid(files, ext_name, field_name):
@@ -191,13 +162,12 @@ def read_irf_grid(files, ext_name, field_name):
         file_name = this_file[0]
         pars_all[ifile, :] = this_file[1:]
 
-        with fits.open(file_name) as hdul:
-            for i_th in range(n_theta):
-                ext_tab = hdul[ext_name].data[0]
-                irfs_all[ifile, i_th] = ext_tab[field_name][i_th]
+        table = Table.read(file_name, hdu=ext_name)
+        for i_th in range(n_theta):
+            irfs_all[ifile, i_th] = table[field_name][0][i_th]
 
     # convert irfs to a simple array and add unit
-    irfs_all = np.array(irfs_all.tolist()) * read_unit_from_HDUL(hdul, ext_name, field_name)
+    irfs_all = u.Quantity(np.array(irfs_all.tolist()), table[field_name].unit, copy=False)
 
     return irfs_all, pars_all, energy_bins, theta_bins
 

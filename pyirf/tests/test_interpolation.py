@@ -32,14 +32,6 @@ def test_interpolate_effective_area():
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
 
 
-def test_read_unit_from_HDUL():
-    """Test of reading units from a field in a fits files."""
-    with fits.open('interp_test_data/pyirf_eventdisplay_68.fits.gz') as hdul:
-        unit = interp.read_unit_from_HDUL(hdul, "EFFECTIVE_AREA", "EFFAREA")
-        unit_true = u.Unit("m2")
-    assert unit == unit_true
-
-
 def test_interpolate_dispersion_matrix():
     """Test of interpolation of energy dispersion matrix using a simple dummy model."""
     x = [0.9, 1.1]
