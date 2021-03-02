@@ -11,7 +11,7 @@ from scipy.interpolate import griddata
 dl2_params_lstcam_key = 'dl2/event/telescope/parameters/LST_LSTCam'
 
 
-def read_mean_pars_data(data_file, pars):
+def read_mean_parameters_data(data_file, parameters):
     """
     Reads a DL2 data file and extracts the average values
     of the parameters for interpolation
@@ -20,7 +20,7 @@ def read_mean_pars_data(data_file, pars):
     ----------
     data_file: ``string``
         path to the DL2 data file
-    pars: list of ``string``
+    parameters: list of ``string``
         list of parameters as they can be evaluated from DL2 file
 
     Returns
@@ -32,7 +32,7 @@ def read_mean_pars_data(data_file, pars):
     # read in the data
     interp_pos = []  # position for which to interpolate
     data = pd.read_hdf(data_file, key=dl2_params_lstcam_key)
-    for par in pars:
+    for par in parameters:
         # we use here eval function that is considered potentially dangerous
         # as it can execute arbitrary code, however this is the eval
         # function from pandas, that is very much limitted to just
@@ -71,7 +71,7 @@ def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_ar
     _, n_fov_offset_bins, n_energy_bins = aeff_all.shape
 
     # get rid of units
-    aeff_all = aeff_all.to('m2').value
+    aeff_all = aeff_all.to_value(u.m**2)
     min_effective_area = min_effective_area.to('m2').value
 
     # remove zeros and log it
@@ -87,7 +87,7 @@ def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_ar
     # exp it and set to zero too low values
     aeff_interp = np.exp(aeff_interp)
     aeff_interp[aeff_interp < min_effective_area * 1.1] = 0  # 1.1 to correct for numerical uncertainty and interpolation
-    return aeff_interp * u.Unit('m2')
+    return u.Quantity(aeff_interp, u.m**2, copy=False)
 
 
 def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='linear'):

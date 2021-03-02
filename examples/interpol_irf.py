@@ -46,7 +46,7 @@ for par in pars:
     print(par[0], '=', par[1])
 
 print("opening: ", data_file)
-interp_pars = interp.read_mean_pars_data(data_file, pars)
+interp_pars = interp.read_mean_parameters_data(data_file, pars)
 
 interp_names = np.array(pars)[:, 0].tolist()
 interp_dim = len(interp_names)
