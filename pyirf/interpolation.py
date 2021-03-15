@@ -7,18 +7,18 @@ from astropy.io import fits
 from scipy.interpolate import griddata
 
 
-def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_area=1. * u.Unit('m2'), method='linear'):
+def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, target_point, min_effective_area=1. * u.Unit('m2'), method='linear'):
     """
     Takes a grid of effective areas for a bunch of different parameters
     and interpolates (log) effective areas to given value of those parameters
 
     Parameters
     ----------
-    aeff_all: np.array of astropy.units.Quantity[area]
+    effective_area: np.array of astropy.units.Quantity[area]
         grid of effective area, of shape (n_grid_points, n_fov_offset_bins, n_energy_bins)
-    pars_all: np.array
-        list of parameters corresponding to aeff_all, of shape (n_grid_points, n_interp_dim)
-    interp_pars: np.array
+    grid_points: np.array
+        list of parameters corresponding to effective_area, of shape (n_grid_points, n_interp_dim)
+    target_point: np.array
         values of parameters for which the interpolation is performed, of shape (n_interp_dim)
     min_effective_area: astropy.units.Quantity[area]
         Minimum value of effective area to be considered for interpolation
@@ -31,36 +31,36 @@ def interpolate_effective_area(aeff_all, pars_all, interp_pars, min_effective_ar
         Interpolated Effective area array with shape (n_energy_bins, n_fov_offset_bins)
     """
 
-    _, n_fov_offset_bins, n_energy_bins = aeff_all.shape
+    _, n_fov_offset_bins, n_energy_bins = effective_area.shape
 
     # get rid of units
-    aeff_all = aeff_all.to_value(u.m**2)
+    effective_area = effective_area.to_value(u.m**2)
     min_effective_area = min_effective_area.to('m2').value
 
     # remove zeros and log it
-    aeff_all[aeff_all < min_effective_area] = min_effective_area
-    aeff_all = np.log(aeff_all)
+    effective_area[effective_area < min_effective_area] = min_effective_area
+    effective_area = np.log(effective_area)
 
     # interpolation
-    aeff_interp = griddata(pars_all, aeff_all, interp_pars, method=method).T
+    aeff_interp = griddata(grid_points, effective_area, target_point, method=method).T
     # exp it and set to zero too low values
     aeff_interp = np.exp(aeff_interp)
     aeff_interp[aeff_interp < min_effective_area * 1.1] = 0  # 1.1 to correct for numerical uncertainty and interpolation
     return u.Quantity(aeff_interp, u.m**2, copy=False)
 
 
-def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='linear'):
+def interpolate_energy_dispersion(energy_dispersions, grid_points, target_point, method='linear'):
     """
     Takes a grid of dispersion matrixes for a bunch of different parameters
     and interpolates it to given value of those parameters
 
     Parameters
     ----------
-    matrix_all: np.array of astropy.units.Quantity[area]
+    energy_dispersions: np.array of astropy.units.Quantity[area]
         grid of effective area, of shape (n_grid_points, n_fov_offset_bins, n_migration_bins, n_energy_bins)
-    pars_all: np.array
-        list of parameters corresponding to matrix_all, of shape (n_grid_points, n_interp_dim)
-    interp_pars: np.array
+    grid_points: np.array
+        list of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
+    target_point: np.array
         values of parameters for which the interpolation is performed, of shape (n_interp_dim)
     method: 'linear’, ‘nearest’, ‘cubic’
         Interpolation method
@@ -71,10 +71,10 @@ def interpolate_dispersion_matrix(matrix_all, pars_all, interp_pars, method='lin
         Interpolated dispersion matrix 3D array with shape (n_energy_bins, n_migration_bins, n_fov_offset_bins)
     """
 
-    _, n_fov_offset_bins, n_migration_bins, n_energy_bins = matrix_all.shape
+    _, n_fov_offset_bins, n_migration_bins, n_energy_bins = energy_dispersions.shape
 
     # interpolation
-    matrix_interp = griddata(pars_all, matrix_all, interp_pars, method=method)
+    matrix_interp = griddata(grid_points, energy_dispersions, target_point, method=method)
     matrix_interp = np.swapaxes(matrix_interp, 0, 2)
 
     # now we need to renormalize along the migration axis
@@ -128,8 +128,8 @@ def read_irf_grid(files, ext_name, field_name):
     -------
     irfs_all: np.array
         array of IRFs
-    pars_all: np.array
-        list of parameters corresponding to aeff_all, of shape (n_grid_points, n_interp_dim)
+    grid_points: np.array
+        list of parameters corresponding to effective_area, of shape (n_grid_points, n_interp_dim)
     energy_bins: astropy.units.Quantity[energy]
         energy bins
     theta_bins: astropy.units.Quantity[angle]
@@ -138,7 +138,7 @@ def read_irf_grid(files, ext_name, field_name):
 
     n_grid_point = len(files)
     interp_dim = len(files[0]) - 1  # number of parameters to interpolate
-    pars_all = np.empty((n_grid_point, interp_dim))
+    grid_points = np.empty((n_grid_point, interp_dim))
 
     # open the first file to check the binning
     energy_bins = read_fits_bins_lo_hi(files[0][0], ext_name, 'ENERG')
@@ -149,7 +149,7 @@ def read_irf_grid(files, ext_name, field_name):
     irfs_all = np.empty((n_grid_point, n_theta), dtype=np.object)
     for ifile, this_file in enumerate(files):
         file_name = this_file[0]
-        pars_all[ifile, :] = this_file[1:]
+        grid_points[ifile, :] = this_file[1:]
 
         table = Table.read(file_name, hdu=ext_name)
         for i_th in range(n_theta):
@@ -158,7 +158,7 @@ def read_irf_grid(files, ext_name, field_name):
     # convert irfs to a simple array and add unit
     irfs_all = u.Quantity(np.array(irfs_all.tolist()), table[field_name].unit, copy=False)
 
-    return irfs_all, pars_all, energy_bins, theta_bins
+    return irfs_all, grid_points, energy_bins, theta_bins
 
 
 def compare_irf_cuts(files, ext_name):

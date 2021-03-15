@@ -3,7 +3,7 @@ import numpy as np
 import astropy.units as u
 
 
-def test_interpolate_effective_area():
+def test_interpolate_effective_area_per_energy_and_fov():
     """Test of interpolating of effective area using dummy model files."""
     n_en = 20
     n_th = 1
@@ -26,12 +26,12 @@ def test_interpolate_effective_area():
     aeff *= u.Unit('m2')
     pars0 = (1, 10)
     min_aeff = 1 * u.Unit('m2')
-    aeff_interp = interp.interpolate_effective_area(aeff, pars, pars0, min_effective_area=min_aeff, method='linear')
+    aeff_interp = interp.interpolate_effective_area_per_energy_and_fov(aeff, pars, pars0, min_effective_area=min_aeff, method='linear')
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
 
 
-def test_interpolate_dispersion_matrix():
+def test_interpolate_energy_dispersion():
     """Test of interpolation of energy dispersion matrix using a simple dummy model."""
     x = [0.9, 1.1]
     y = [8., 11.5]
@@ -88,7 +88,7 @@ def test_interpolate_dispersion_matrix():
             pars_all[i_grid, :] = (xx, yy)
             i_grid += 1
     # do the interpolation and compare the results with expected ones
-    mig_interp = interp.interpolate_dispersion_matrix(mig_all, pars_all, interp_pars, method='linear')
+    mig_interp = interp.interpolate_energy_dispersion(mig_all, pars_all, interp_pars, method='linear')
 
     # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
     sums = np.sum(mig_interp[:, :, 0], axis=1)
