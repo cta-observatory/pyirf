@@ -79,6 +79,7 @@ def interpolate_energy_dispersion(energy_dispersions, grid_points, target_point,
 
     # now we need to renormalize along the migration axis
     norm = np.sum(matrix_interp, axis=1, keepdims=True)
+    # By using out and where, it is ensured that columns with norm = 0 will have 0 values without raising an invalid value warning
     mig_norm = np.divide(matrix_interp, norm, out=np.zeros_like(matrix_interp), where=norm != 0)
     return mig_norm
 
