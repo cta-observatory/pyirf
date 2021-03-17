@@ -1,9 +1,10 @@
 '''
-Test export to GADF format
+Test export to / import from GADF format
 '''
 import astropy.units as u
 import numpy as np
 from astropy.io import fits
+from pyirf.io import gadf
 import pytest
 import tempfile
 
@@ -194,3 +195,16 @@ def test_compare_irf_cuts():
     assert match
     match = compare_irf_cuts([file1a, file1b, file2], 'THETA_CUTS')
     assert not match
+
+
+def test_read_fits_bins_lo_hi():
+    """Tests read_fits_bins_lo_hi on sample file."""
+    file_name = 'interp_test_data/pyirf_eventdisplay_68.fits.gz'
+    bin_lo, bin_hi = gadf.read_fits_bins_lo_hi(file_name, 'EFFECTIVE_AREA', 'ENERG')
+
+    # check that the bins are not empty
+    assert len(bin_lo[0]) > 0
+
+    # check if the right edge bin of one bin matches the start of the next one
+    # (allow for numerical precision of 1.e-5)
+    assert np.allclose(bin_lo[0,1:], bin_hi[0,:-1], rtol=1.e-5)

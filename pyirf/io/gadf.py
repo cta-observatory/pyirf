@@ -355,3 +355,78 @@ def compare_irf_cuts(files, ext_name):
                 return False
 
     return True
+
+
+def read_fits_bins_lo_hi(file_name, ext_name, tag):
+    """
+    Reads from a fits file two arrays of tag_LO and tag_HI and joins them into a single array and adds unit
+
+    Parameters
+    ----------
+    file_name: string
+        file to be read
+    ext_name: string
+        name of the extension to read the data from in fits file
+    tag: string
+        name of the field in the extension to extract, _LO and _HI will be added
+
+    Returns
+    -------
+    bins: astropy.units.Quantity[energy]
+        bins
+    """
+
+    tag_lo = tag + '_LO'
+    tag_hi = tag + '_HI'
+
+    table = QTable.read(file_name, hdu=ext_name)
+    return table[tag_lo], table[tag_hi]
+
+def read_irf_grid(files, ext_name, field_name):
+    """
+    Reads in a grid of IRFs for a bunch of different parameters and stores them in lists
+
+    Parameters
+    ----------
+    files: nested list
+        files to be read, each element has a form [filename, values of interpolation parameters]
+    ext_name: string
+        name of the extension to read the data from in fits file
+    field_name: string
+        name of the field in the extension to extract
+
+    Returns
+    -------
+    irfs_all: np.array
+        array of IRFs
+    grid_points: np.array
+        list of parameters corresponding to effective_area, of shape (n_grid_points, n_interp_dim)
+    energy_bins: astropy.units.Quantity[energy]
+        energy bins
+    theta_bins: astropy.units.Quantity[angle]
+        theta bins
+    """
+
+    n_grid_point = len(files)
+    interp_dim = len(files[0]) - 1  # number of parameters to interpolate
+    grid_points = np.empty((n_grid_point, interp_dim))
+
+    # open the first file to check the binning
+    energy_bins = read_fits_bins_lo_hi(files[0][0], ext_name, 'ENERG')
+    theta_bins = read_fits_bins_lo_hi(files[0][0], ext_name, 'THETA')
+
+    n_theta = len(theta_bins) - 1  # number of bins in offset angle
+
+    irfs_all = np.empty((n_grid_point, n_theta), dtype=np.object)
+    for ifile, this_file in enumerate(files):
+        file_name = this_file[0]
+        grid_points[ifile, :] = this_file[1:]
+
+        table = Table.read(file_name, hdu=ext_name)
+        for i_th in range(n_theta):
+            irfs_all[ifile, i_th] = table[field_name][0][i_th]
+
+    # convert irfs to a simple array and add unit
+    irfs_all = u.Quantity(np.array(irfs_all.tolist()), table[field_name].unit, copy=False)
+
+    return irfs_all, grid_points, energy_bins, theta_bins
