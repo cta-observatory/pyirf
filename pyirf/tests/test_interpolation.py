@@ -107,15 +107,3 @@ def test_interpolate_energy_dispersion():
     # allowing for a 0.6 bin size error on the interpolated values
     assert np.allclose(bias, bias0, atol=0.6, rtol=0.)
     assert np.allclose(stds, stds0, atol=0.6, rtol=0.)
-
-
-def test_compare_irf_cuts():
-    """Test of cut consistency using 3 files: two same ones and one different."""
-    file1a = 'interp_test_data/pyirf_eventdisplay_68.fits.gz'
-    file1b = 'interp_test_data/pyirf_eventdisplay_68_copy.fits.gz'
-    file2 = 'interp_test_data/pyirf_eventdisplay_80.fits.gz'
-
-    match = interp.compare_irf_cuts([file1a, file1b], 'THETA_CUTS')
-    assert match
-    match = interp.compare_irf_cuts([file1a, file1b, file2], 'THETA_CUTS')
-    assert not match

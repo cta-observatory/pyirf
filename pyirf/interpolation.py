@@ -3,7 +3,6 @@
 import numpy as np
 import astropy.units as u
 from astropy.table import Table
-from astropy.io import fits
 from scipy.interpolate import griddata
 
 
@@ -162,30 +161,3 @@ def read_irf_grid(files, ext_name, field_name):
     return irfs_all, grid_points, energy_bins, theta_bins
 
 
-def compare_irf_cuts(files, ext_name):
-    """
-    Reads in a list of IRF files and checks if the same cuts have been applied in all of them
-
-    Parameters
-    ----------
-    files: list of strings
-        files to be read
-    ext_name: string
-        name of the extension with cut values to read the data from in fits file
-
-    Returns
-    -------
-    match: Boolean
-        if the cuts are the same in all the files
-    """
-    with fits.open(files[0]) as hdul0:
-        data0 = hdul0['THETA_CUTS'].data
-
-    for file_name in files[1:]:
-        with fits.open(file_name) as hdul:
-            data = hdul['THETA_CUTS'].data
-            if (data != data0).any():
-                print("difference between file: " + files[0] + " and " + file_name + " in cut values: " + ext_name)
-                return False
-
-    return True

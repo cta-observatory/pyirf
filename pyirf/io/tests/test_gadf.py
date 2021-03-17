@@ -181,3 +181,16 @@ def test_rad_max_schema(rad_max_hdu):
 
     _, hdu = rad_max_hdu
     RAD_MAX.validate_hdu(hdu)
+
+
+def test_compare_irf_cuts():
+    """Test of cut consistency using 3 files: two same ones and one different."""
+    from pyirf.io.gadf import compare_irf_cuts
+    file1a = 'interp_test_data/pyirf_eventdisplay_68.fits.gz'
+    file1b = 'interp_test_data/pyirf_eventdisplay_68_copy.fits.gz'
+    file2 =  'interp_test_data/pyirf_eventdisplay_80.fits.gz'
+
+    match = compare_irf_cuts([file1a, file1b], 'THETA_CUTS')
+    assert match
+    match = compare_irf_cuts([file1a, file1b, file2], 'THETA_CUTS')
+    assert not match

@@ -1,5 +1,6 @@
 from astropy.table import QTable
 import astropy.units as u
+from astropy.io import fits
 from astropy.io.fits import Header, BinTableHDU
 import numpy as np
 from astropy.time import Time
@@ -325,3 +326,32 @@ def create_rad_max_hdu(
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(rad_max_table, header=header, name=extname)
+
+
+def compare_irf_cuts(files, ext_name):
+    """
+    Reads in a list of IRF files and checks if the same cuts have been applied in all of them
+
+    Parameters
+    ----------
+    files: list of strings
+        files to be read
+    ext_name: string
+        name of the extension with cut values to read the data from in fits file
+
+    Returns
+    -------
+    match: Boolean
+        if the cuts are the same in all the files
+    """
+    with fits.open(files[0]) as hdul0:
+        data0 = hdul0['THETA_CUTS'].data
+
+    for file_name in files[1:]:
+        with fits.open(file_name) as hdul:
+            data = hdul['THETA_CUTS'].data
+            if (data != data0).any():
+                print("difference between file: " + files[0] + " and " + file_name + " in cut values: " + ext_name)
+                return False
+
+    return True
