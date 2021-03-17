@@ -35,7 +35,7 @@ def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, t
 
     # get rid of units
     effective_area = effective_area.to_value(u.m**2)
-    min_effective_area = min_effective_area.to('m2').value
+    min_effective_area = min_effective_area.to_value(u.m**2)
 
     # remove zeros and log it
     effective_area[effective_area < min_effective_area] = min_effective_area
