@@ -3,7 +3,7 @@ try:
 except ImportError:
     raise ImportError('You need gammapy installed to use this module of pyirf') from None
 
-from gammapy.irf import EffectiveAreaTable2D, PSF3D
+from gammapy.irf import EffectiveAreaTable2D, PSF3D, EnergyDispersion2D
 from gammapy.maps import MapAxis
 import astropy.units as u
 
@@ -81,6 +81,10 @@ def create_psf_3d(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
+
+    Returns
+    -------
+    gammapy.irf.PSF3D
     """
     offset_axis = create_offset_axis(fov_offset_bins)
     energy_axis_true = create_energy_axis_true(true_energy_bins)
@@ -91,4 +95,47 @@ def create_psf_3d(
         offset_axis=offset_axis,
         rad_axis=rad_axis,
         psf_value=psf,
+    )
+
+
+@u.quantity_input(
+    true_energy_bins=u.TeV, fov_offset_bins=u.deg,
+)
+def create_energy_dispersion_2d(
+    energy_dispersion,
+    true_energy_bins,
+    migration_bins,
+    fov_offset_bins,
+):
+    """
+    Create a fits binary table HDU in GADF format for the energy dispersion.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
+
+    Parameters
+    ----------
+    energy_dispersion: numpy.ndarray
+        Energy dispersion array, must have shape
+        (n_energy_bins, n_migra_bins, n_source_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    migration_bins: numpy.ndarray
+        Bin edges for the relative energy migration (``reco_energy / true_energy``)
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+
+    Returns
+    -------
+    gammapy.irf.EnergyDispersion2D
+    """
+    offset_axis = create_offset_axis(fov_offset_bins)
+    energy_axis_true = create_energy_axis_true(true_energy_bins)
+    migra_axis = MapAxis.from_edges(migration_bins, name="migra")
+
+    return EnergyDispersion2D(
+        energy_axis_true=energy_axis_true,
+        migra_axis=migra_axis,
+        offset_axis=offset_axis,
+        data=energy_dispersion,
     )
