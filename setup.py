@@ -23,6 +23,9 @@ extras_require = {
         "uproot~=4.0",
         "awkward~=1.0",
     ],
+    "gammapy": [
+        "gammapy~=0.18",
+    ]
 }
 
 extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"]))
