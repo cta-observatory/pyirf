@@ -85,8 +85,8 @@ def create_aeff2d_hdu(
 @u.quantity_input(
     psf=u.sr ** -1,
     true_energy_bins=u.TeV,
-    fov_offset_bins=u.deg,
     source_offset_bins=u.deg,
+    fov_offset_bins=u.deg,
 )
 def create_psf_table_hdu(
     psf,
