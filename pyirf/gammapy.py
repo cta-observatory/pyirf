@@ -9,10 +9,10 @@ import astropy.units as u
 
 
 
-def create_offset_axis(fov_offset_bins):
+def _create_offset_axis(fov_offset_bins):
     return MapAxis.from_edges(fov_offset_bins, name="offset")
 
-def create_energy_axis_true(true_energy_bins):
+def _create_energy_axis_true(true_energy_bins):
     return MapAxis.from_edges(true_energy_bins, name="energy_true")
 
 
@@ -43,8 +43,8 @@ def create_effective_area_table_2d(
 
     '''
 
-    offset_axis = create_offset_axis(fov_offset_bins)
-    energy_axis_true = create_energy_axis_true(true_energy_bins)
+    offset_axis = _create_offset_axis(fov_offset_bins)
+    energy_axis_true = _create_energy_axis_true(true_energy_bins)
 
     return EffectiveAreaTable2D(
         energy_axis_true=energy_axis_true,
@@ -86,8 +86,8 @@ def create_psf_3d(
     -------
     gammapy.irf.PSF3D
     """
-    offset_axis = create_offset_axis(fov_offset_bins)
-    energy_axis_true = create_energy_axis_true(true_energy_bins)
+    offset_axis = _create_offset_axis(fov_offset_bins)
+    energy_axis_true = _create_energy_axis_true(true_energy_bins)
     rad_axis = MapAxis.from_edges(source_offset_bins, name='rad')
 
     return PSF3D(
@@ -129,8 +129,8 @@ def create_energy_dispersion_2d(
     -------
     gammapy.irf.EnergyDispersion2D
     """
-    offset_axis = create_offset_axis(fov_offset_bins)
-    energy_axis_true = create_energy_axis_true(true_energy_bins)
+    offset_axis = _create_offset_axis(fov_offset_bins)
+    energy_axis_true = _create_energy_axis_true(true_energy_bins)
     migra_axis = MapAxis.from_edges(migration_bins, name="migra")
 
     return EnergyDispersion2D(
