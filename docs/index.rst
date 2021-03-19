@@ -66,6 +66,7 @@ which this documentation is linked.
   spectral
   binning
   io/index
+  gammapy
   utils
 
 
