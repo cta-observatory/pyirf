@@ -108,9 +108,7 @@ def create_energy_dispersion_2d(
     fov_offset_bins,
 ):
     """
-    Create a fits binary table HDU in GADF format for the energy dispersion.
-    See the specification at
-    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
+    Create a ``gammapy.irf.EnergyDispersion2D`` from pyirf outputs.
 
     Parameters
     ----------

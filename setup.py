@@ -4,6 +4,9 @@ import re
 with open("pyirf/version.py") as f:
     __version__ = re.search('^__version__ = "(.*)"$', f.read()).group(1)
 
+
+gammapy = "gammapy~=0.18"
+
 extras_require = {
     "docs": [
         "sphinx",
@@ -14,6 +17,7 @@ extras_require = {
         "uproot4",
         "awkward1",
         "notebook",
+        gammapy,
     ],
     "tests": [
         "pytest",
@@ -24,7 +28,7 @@ extras_require = {
         "awkward~=1.0",
     ],
     "gammapy": [
-        "gammapy~=0.18",
+        gammapy,
     ]
 }
 
