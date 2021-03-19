@@ -56,7 +56,7 @@ def interpolate_energy_dispersion(energy_dispersions, grid_points, target_point,
     Parameters
     ----------
     energy_dispersions: np.array of astropy.units.Quantity[area]
-        grid of effective area, of shape (n_grid_points, n_fov_offset_bins, n_migration_bins, n_energy_bins)
+        grid of effective area, of shape (n_grid_points, n_energy_bins, n_migration_bins, n_fov_offset_bins)
     grid_points: np.array
         list of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
     target_point: np.array
@@ -70,11 +70,8 @@ def interpolate_energy_dispersion(energy_dispersions, grid_points, target_point,
         Interpolated dispersion matrix 3D array with shape (n_energy_bins, n_migration_bins, n_fov_offset_bins)
     """
 
-    _, n_fov_offset_bins, n_migration_bins, n_energy_bins = energy_dispersions.shape
-
     # interpolation
     matrix_interp = griddata(grid_points, energy_dispersions, target_point, method=method)
-    matrix_interp = np.swapaxes(matrix_interp, 0, 2)
 
     # now we need to renormalize along the migration axis
     norm = np.sum(matrix_interp, axis=1, keepdims=True)

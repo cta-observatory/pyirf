@@ -80,11 +80,11 @@ def test_interpolate_energy_dispersion():
     # generate a grid of migration matrixes
     i_grid = 0
     pars_all = np.empty((n_grid, 2))
-    mig_all = np.empty((n_grid, n_offset, n_mig, n_en))
+    mig_all = np.empty((n_grid, n_en, n_mig, n_offset))
     for xx in x:
         for yy in y:
             bias, sigma = get_bias_std(en, xx, yy)
-            mig_all[i_grid, 0, :, :] = (np.exp(-(mig - bias)**2 / (2 * sigma**2))).T
+            mig_all[i_grid, :, :, 0] = (np.exp(-(mig - bias)**2 / (2 * sigma**2)))
             pars_all[i_grid, :] = (xx, yy)
             i_grid += 1
     # do the interpolation and compare the results with expected ones
