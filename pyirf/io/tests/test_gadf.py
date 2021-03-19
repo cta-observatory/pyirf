@@ -189,7 +189,7 @@ def test_compare_irf_cuts():
     from pyirf.io.gadf import compare_irf_cuts
     file1a = 'interp_test_data/pyirf_eventdisplay_68.fits.gz'
     file1b = 'interp_test_data/pyirf_eventdisplay_68_copy.fits.gz'
-    file2 =  'interp_test_data/pyirf_eventdisplay_80.fits.gz'
+    file2 = 'interp_test_data/pyirf_eventdisplay_80.fits.gz'
 
     match = compare_irf_cuts([file1a, file1b], 'THETA_CUTS')
     assert match
@@ -207,4 +207,18 @@ def test_read_fits_bins_lo_hi():
 
     # check if the right edge bin of one bin matches the start of the next one
     # (allow for numerical precision of 1.e-5)
-    assert np.allclose(bin_lo[0,1:], bin_hi[0,:-1], rtol=1.e-5)
+    assert np.allclose(bin_lo[0, 1:], bin_hi[0, :-1], rtol=1.e-5)
+
+
+def test_read_irf_grid():
+    """Tests read_irf_grid on a single file and on a list of files"""
+    file_name = 'interp_test_data/irf_file_prod3b-v2_North_z20_N_50h.fits'
+    extname = "EFFECTIVE AREA"
+    fname = "EFFAREA"
+    # check on a single file
+    aeff = gadf.read_irf_grid(file_name, extname=extname, field_name=fname)
+    assert aeff.shape == (6, 42)
+
+    # check on a list of files
+    aeff = gadf.read_irf_grid([file_name, file_name], extname=extname, field_name=fname)
+    assert aeff.shape == (2, 6, 42)

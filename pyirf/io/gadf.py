@@ -13,6 +13,10 @@ __all__ = [
     "create_energy_dispersion_hdu",
     "create_psf_table_hdu",
     "create_rad_max_hdu",
+    "compare_irf_cuts",
+    "read_fits_bins_lo_hi",
+    "read_irf_grid",
+    "read_aeff2d_hdu"
 ]
 
 
@@ -382,15 +386,16 @@ def read_fits_bins_lo_hi(file_name, ext_name, tag):
     table = QTable.read(file_name, hdu=ext_name)
     return table[tag_lo], table[tag_hi]
 
-def read_irf_grid(files, ext_name, field_name):
+
+def read_irf_grid(files, extname, field_name):
     """
     Reads in a grid of IRFs for a bunch of different parameters and stores them in lists
 
     Parameters
     ----------
-    files: nested list
-        files to be read, each element has a form [filename, values of interpolation parameters]
-    ext_name: string
+    files: string or list of strings
+        files to be read
+    extname: string
         name of the extension to read the data from in fits file
     field_name: string
         name of the field in the extension to extract
@@ -398,35 +403,51 @@ def read_irf_grid(files, ext_name, field_name):
     Returns
     -------
     irfs_all: np.array
-        array of IRFs
-    grid_points: np.array
-        list of parameters corresponding to effective_area, of shape (n_grid_points, n_interp_dim)
-    energy_bins: astropy.units.Quantity[energy]
-        energy bins
+        array of IRFs, first axis specify the file number(if more then one is given),
+        second axis is the offset angle, rest of the axes are IRF-specific
     theta_bins: astropy.units.Quantity[angle]
         theta bins
     """
 
-    n_grid_point = len(files)
-    interp_dim = len(files[0]) - 1  # number of parameters to interpolate
-    grid_points = np.empty((n_grid_point, interp_dim))
+    # to allow the function work on either single file or a list of files convert a single string into a list
+    if isinstance(files, str):
+        files = [files]
 
-    # open the first file to check the binning
-    energy_bins = read_fits_bins_lo_hi(files[0][0], ext_name, 'ENERG')
-    theta_bins = read_fits_bins_lo_hi(files[0][0], ext_name, 'THETA')
+    n_files = len(files)
 
-    n_theta = len(theta_bins) - 1  # number of bins in offset angle
-
-    irfs_all = np.empty((n_grid_point, n_theta), dtype=np.object)
+    irfs_all = np.empty(n_files, dtype=np.object)
     for ifile, this_file in enumerate(files):
-        file_name = this_file[0]
-        grid_points[ifile, :] = this_file[1:]
+        # [0] because there the IRFs are written as a single row of the table
+        irfs_all[ifile] = QTable.read(this_file, hdu=extname)[field_name][0]
 
-        table = Table.read(file_name, hdu=ext_name)
-        for i_th in range(n_theta):
-            irfs_all[ifile, i_th] = table[field_name][0][i_th]
+    # if the function is run on single file do not need the first axis dimension
+    if n_files == 1:
+        irfs_all = irfs_all[0, ...]
+    # the last operation converts an array of objects to a multidimentional table
+    return np.array(irfs_all.tolist())
 
-    # convert irfs to a simple array and add unit
-    irfs_all = u.Quantity(np.array(irfs_all.tolist()), table[field_name].unit, copy=False)
 
-    return irfs_all, grid_points, energy_bins, theta_bins
+def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
+    """
+    Reads effective area from FITS file
+
+    Parameters
+    ----------
+    file_name: string or list of strings
+        file(s) to be read
+    extname:
+        Name for BinTableHDU
+
+    Returns
+    -------
+    effective_area: astropy.units.Quantity[area]
+        Effective area array, must have shape (n_energy_bins, n_fov_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+    """
+
+    field_name = "EFFAREA"
+    table = QTable.read(file_name, hdu=extname)
+    return table[field_name][0]
