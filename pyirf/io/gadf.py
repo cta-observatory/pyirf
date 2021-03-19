@@ -4,6 +4,7 @@ from astropy.io import fits
 from astropy.io.fits import Header, BinTableHDU
 import numpy as np
 from astropy.time import Time
+import pyirf.binning as binning
 
 from ..version import __version__
 
@@ -16,7 +17,8 @@ __all__ = [
     "compare_irf_cuts",
     "read_fits_bins_lo_hi",
     "read_irf_grid",
-    "read_aeff2d_hdu"
+    "read_aeff2d_hdu",
+    "read_energy_dispersion_hdu",
 ]
 
 
@@ -332,7 +334,7 @@ def create_rad_max_hdu(
     return BinTableHDU(rad_max_table, header=header, name=extname)
 
 
-def compare_irf_cuts(files, ext_name):
+def compare_irf_cuts(files, extname):
     """
     Reads in a list of IRF files and checks if the same cuts have been applied in all of them
 
@@ -340,7 +342,7 @@ def compare_irf_cuts(files, ext_name):
     ----------
     files: list of strings
         files to be read
-    ext_name: string
+    extname: string
         name of the extension with cut values to read the data from in fits file
 
     Returns
@@ -355,21 +357,22 @@ def compare_irf_cuts(files, ext_name):
         with fits.open(file_name) as hdul:
             data = hdul['THETA_CUTS'].data
             if (data != data0).any():
-                print("difference between file: " + files[0] + " and " + file_name + " in cut values: " + ext_name)
+                print("difference between file: " + files[0] + " and " + file_name + " in cut values: " + extname)
                 return False
 
     return True
 
 
-def read_fits_bins_lo_hi(file_name, ext_name, tag):
+def read_fits_bins_lo_hi(file_name, extname, tag):
     """
-    Reads from a fits file two arrays of tag_LO and tag_HI and joins them into a single array and adds unit
+    Reads from a fits file two arrays of tag_LO and tag_HI.
+    If more then one file is given it checks that all of them are consistent before returning the value
 
     Parameters
     ----------
-    file_name: string
-        file to be read
-    ext_name: string
+    file_name: string or list of string
+        file to be read, if a list of
+    extname: string
         name of the extension to read the data from in fits file
     tag: string
         name of the field in the extension to extract, _LO and _HI will be added
@@ -383,8 +386,21 @@ def read_fits_bins_lo_hi(file_name, ext_name, tag):
     tag_lo = tag + '_LO'
     tag_hi = tag + '_HI'
 
-    table = QTable.read(file_name, hdu=ext_name)
-    return table[tag_lo], table[tag_hi]
+    # to allow the function work on either single file or a list of files convert a single string into a list
+    if isinstance(file_name, str):
+        file_name = [file_name]
+
+    old_table = None
+    for this_file in file_name:
+        table = QTable.read(this_file, hdu=extname)
+        if old_table is not None:
+            if not old_table[tag_lo][0].shape == table[tag_lo][0].shape:
+                raise ValueError('Non matching bins')
+            if not ((old_table[tag_lo][0] == table[tag_lo][0]).all() and (old_table[tag_hi][0] == table[tag_hi][0]).all()):
+                raise ValueError('Non matching bins')
+        old_table = table
+
+    return table[tag_lo][0], table[tag_hi][0]
 
 
 def read_irf_grid(files, extname, field_name):
@@ -441,7 +457,7 @@ def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
     Returns
     -------
     effective_area: astropy.units.Quantity[area]
-        Effective area array, must have shape (n_energy_bins, n_fov_offset_bins)
+        Effective area array of shape (n_energy_bins, n_fov_offset_bins) or (n_files, n_energy_bins, n_fov_offset_bins)
     true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
     fov_offset_bins: astropy.units.Quantity[angle]
@@ -449,5 +465,44 @@ def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
     """
 
     field_name = "EFFAREA"
-    table = QTable.read(file_name, hdu=extname)
-    return table[field_name][0]
+    effective_area = read_irf_grid(file_name, extname, field_name)
+    true_energy_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
+    fov_offset_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
+
+    return effective_area, true_energy_bins, fov_offset_bins
+
+
+def read_energy_dispersion_hdu(file_name, extname="EDISP"):
+    """
+    Reads energy dispersion table from a FITS file
+
+    Parameters
+    ----------
+    file_name: string or list of strings
+        file(s) to be read
+    extname:
+        Name for BinTableHDU
+
+    Returns
+    -------
+    energy_dispersion: numpy.ndarray
+        Energy dispersion array, with shape
+        (n_energy_bins, n_migra_bins, n_source_offset_bins)
+        or (n_files, n_energy_bins, n_migra_bins, n_source_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    migration_bins: numpy.ndarray
+        Bin edges for the relative energy migration (``reco_energy / true_energy``)
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+    """
+
+    field_name = "MATRIX"
+    energy_dispersion = read_irf_grid(file_name, extname, field_name)
+    last_axis = len(energy_dispersion.shape) - 1
+    energy_dispersion = np.swapaxes(energy_dispersion, last_axis - 2, last_axis)
+    true_energy_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
+    migration_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "MIGRA"))
+    fov_offset_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
+
+    return energy_dispersion, true_energy_bins, migration_bins, fov_offset_bins

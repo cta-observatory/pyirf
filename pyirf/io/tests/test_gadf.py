@@ -203,11 +203,11 @@ def test_read_fits_bins_lo_hi():
     bin_lo, bin_hi = gadf.read_fits_bins_lo_hi(file_name, 'EFFECTIVE_AREA', 'ENERG')
 
     # check that the bins are not empty
-    assert len(bin_lo[0]) > 0
+    assert len(bin_lo) > 0
 
     # check if the right edge bin of one bin matches the start of the next one
     # (allow for numerical precision of 1.e-5)
-    assert np.allclose(bin_lo[0, 1:], bin_hi[0, :-1], rtol=1.e-5)
+    assert np.allclose(bin_lo[1:], bin_hi[:-1], rtol=1.e-5)
 
 
 def test_read_irf_grid():
@@ -222,3 +222,26 @@ def test_read_irf_grid():
     # check on a list of files
     aeff = gadf.read_irf_grid([file_name, file_name], extname=extname, field_name=fname)
     assert aeff.shape == (2, 6, 42)
+
+
+def test_read_aeff2d_hdu():
+    """Test read_aeff2d_hdu function."""
+    file_name = 'interp_test_data/irf_file_prod3b-v2_North_z20_N_50h.fits'
+    aeff, e_bins, th_bins = gadf.read_aeff2d_hdu([file_name, file_name], extname="EFFECTIVE AREA")
+
+    # check if correct shapes are recovered from the file
+    assert aeff.shape == (2, 6, 42)
+    assert e_bins.shape == (43,)
+    assert th_bins.shape == (7,)
+
+
+def test_read_energy_dispersion_hdu():
+    """Test energy_dispersion_hdu function."""
+    file_name = 'interp_test_data/irf_file_prod3b-v2_North_z20_N_50h.fits'
+    edisp, e_bins, mig_bins, th_bins = gadf.read_energy_dispersion_hdu(file_name, extname="ENERGY DISPERSION")
+
+    # check if correct shapes are recovered from the file
+    assert edisp.shape == (500, 300, 6)
+    assert mig_bins.shape == (301,)
+    assert e_bins.shape == (501,)
+    assert th_bins.shape == (7,)
