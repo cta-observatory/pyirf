@@ -12,7 +12,7 @@ def bin_center(edges):
     return 0.5 * (edges[:-1] + edges[1:])
 
 
-def join_bin_hi_lo(bin_lo, bin_hi):
+def join_bin_lo_hi(bin_lo, bin_hi):
     """
     Function joins bins into lo and hi part,
     e.g. [0, 1, 2] and [1, 2, 4] into [0, 1, 2, 4]
@@ -39,7 +39,7 @@ def join_bin_hi_lo(bin_lo, bin_hi):
         raise ValueError('Not matching bin edges')
 
 
-def split_bin_hi_lo(bins):
+def split_bin_lo_hi(bins):
     """
     Inverted function to join_bin_hi_lo,
     e.g. it splits [0, 1, 2, 4] into [0, 1, 2] and [1, 2, 4]

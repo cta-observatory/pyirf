@@ -70,10 +70,8 @@ def create_aeff2d_hdu(
         INSTRUME.
     """
     aeff = QTable()
-    aeff["ENERG_LO"] = u.Quantity(true_energy_bins[:-1], ndmin=2).to(u.TeV)
-    aeff["ENERG_HI"] = u.Quantity(true_energy_bins[1:], ndmin=2).to(u.TeV)
-    aeff["THETA_LO"] = u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg)
-    aeff["THETA_HI"] = u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg)
+    aeff["ENERG_LO"], aeff["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    aeff["THETA_LO"], aeff["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
     # transpose because FITS uses opposite dimension order than numpy
     aeff["EFFAREA"] = effective_area.T[np.newaxis, ...].to(u.m ** 2)
 
@@ -466,8 +464,8 @@ def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
 
     field_name = "EFFAREA"
     effective_area = read_irf_grid(file_name, extname, field_name)
-    true_energy_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
-    fov_offset_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
+    true_energy_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
+    fov_offset_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
 
     return effective_area, true_energy_bins, fov_offset_bins
 
@@ -501,8 +499,8 @@ def read_energy_dispersion_hdu(file_name, extname="EDISP"):
     energy_dispersion = read_irf_grid(file_name, extname, field_name)
     last_axis = len(energy_dispersion.shape) - 1
     energy_dispersion = np.swapaxes(energy_dispersion, last_axis - 2, last_axis)
-    true_energy_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
-    migration_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "MIGRA"))
-    fov_offset_bins = binning.join_bin_hi_lo(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
+    true_energy_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
+    migration_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "MIGRA"))
+    fov_offset_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
 
     return energy_dispersion, true_energy_bins, migration_bins, fov_offset_bins
