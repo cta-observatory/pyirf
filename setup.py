@@ -14,7 +14,7 @@ extras_require = {
         "sphinx_automodapi",
         "numpydoc",
         "nbsphinx",
-        "uproot4",
+        "uproot",
         "awkward1",
         "notebook",
         "tables",

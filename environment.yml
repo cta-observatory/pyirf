@@ -24,7 +24,7 @@ dependencies:
   - pip:
     - nbsphinx
     - sphinx_automodapi
-    - uproot4
+    - uproot
     - awkward1
     - gammapy
     - ogadf_schema
