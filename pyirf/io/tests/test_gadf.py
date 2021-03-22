@@ -211,7 +211,7 @@ def test_read_fits_bins_lo_hi():
 
 
 def test_read_irf_grid():
-    """Tests read_irf_grid on a single file and on a list of files"""
+    """Tests read_irf_grid on a single file and on a list of files."""
     file_name = 'interp_test_data/irf_file_prod3b-v2_North_z20_N_50h.fits'
     extname = "EFFECTIVE AREA"
     fname = "EFFAREA"

@@ -199,7 +199,7 @@ def test_resample_bins_units():
 
 
 def test_join_bin_lo_hi():
-    """Test join_bin_hi_lo function"""
+    """Test join_bin_hi_lo function."""
     bins = np.array([np.logspace(-1,3, 20)*u.TeV])
     bins_lo = bins[:,:-1]
     bins_hi = bins[:,1:]
@@ -209,7 +209,7 @@ def test_join_bin_lo_hi():
 
 
 def test_split_bin_lo_hi():
-    """Test split_bin_lo_hi function"""
+    """Test split_bin_lo_hi function."""
     bins = np.array([np.logspace(-1,3, 20)*u.TeV])
     bins_lo_true = bins[:,:-1]
     bins_hi_true = bins[:,1:]

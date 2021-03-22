@@ -1,8 +1,7 @@
-"""Functions for performing interpolation of IRF to the values read from the data"""
+"""Functions for performing interpolation of IRF to the values read from the data."""
 
 import numpy as np
 import astropy.units as u
-from astropy.table import Table
 from scipy.interpolate import griddata
 
 
@@ -30,7 +29,7 @@ def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, t
         Interpolated Effective area array with shape (n_energy_bins, n_fov_offset_bins)
     """
 
-    _, n_fov_offset_bins, n_energy_bins = effective_area.shape
+    _, _, n_energy_bins = effective_area.shape
 
     # get rid of units
     effective_area = effective_area.to_value(u.m**2)
