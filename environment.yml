@@ -20,6 +20,7 @@ dependencies:
   - sphinx
   - sphinx_rtd_theme
   - pip
+  - pytables
   - pip:
     - nbsphinx
     - sphinx_automodapi

@@ -64,7 +64,7 @@ jobs:
         with:
           docs-folder: "docs/"
           pre-build-command: |
-            apt update --yes && apt install --yes git build-essential pandoc
+            apt update --yes && apt install --yes git build-essential pandoc curl
             pip install -U pip setuptools wheel
             pip install --use-feature=2020-resolver -e '.[docs]'
             python examples/calculate_eventdisplay_irfs.py

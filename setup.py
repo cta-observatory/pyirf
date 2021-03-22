@@ -17,6 +17,7 @@ extras_require = {
         "uproot4",
         "awkward1",
         "notebook",
+        "tables",
         gammapy,
     ],
     "tests": [
@@ -44,7 +45,6 @@ setup(
         "numpy>=1.18",
         "scipy",
         "tqdm",
-        "tables",
     ],
     extras_require=extras_require,
 )

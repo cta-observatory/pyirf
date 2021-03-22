@@ -1,4 +1,6 @@
 # Byte-compiled / optimized / DLL files
+*.fits.gz
+*.hdf5
 data
 __pycache__/
 *.py[cod]
