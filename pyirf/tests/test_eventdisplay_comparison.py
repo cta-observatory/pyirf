@@ -50,4 +50,4 @@ def test_eventdisplay_example(caplog):
 
     # TODO shrink margin when we get closer to prevent a regression
     assert ratio.max() < 1.4
-    assert ratio.min() > 0.65
+    assert ratio.min() > 0.60
