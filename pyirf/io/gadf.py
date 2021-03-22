@@ -125,18 +125,12 @@ def create_psf_table_hdu(
         INSTRUME.
     """
 
-    psf = QTable(
-        {
-            "ENERG_LO": u.Quantity(true_energy_bins[:-1], ndmin=2).to(u.TeV),
-            "ENERG_HI": u.Quantity(true_energy_bins[1:], ndmin=2).to(u.TeV),
-            "THETA_LO": u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg),
-            "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
-            "RAD_LO": u.Quantity(source_offset_bins[:-1], ndmin=2).to(u.deg),
-            "RAD_HI": u.Quantity(source_offset_bins[1:], ndmin=2).to(u.deg),
-            # transpose as FITS uses opposite dimension order
-            "RPSF": psf.T[np.newaxis, ...].to(1 / u.sr),
-        }
-    )
+    psf_ = QTable()
+    psf_["ENERG_LO"], psf_["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    psf_["THETA_LO"], psf_["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    psf_["RAD_LO"], psf_["RAD_HI"] = binning.split_bin_lo_hi(source_offset_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    psf_["RPSF"] = psf.T[np.newaxis, ...].to(1 / u.sr)
 
     # required header keywords
     header = DEFAULT_HEADER.copy()
@@ -147,7 +141,7 @@ def create_psf_table_hdu(
     header["DATE"] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 
-    return BinTableHDU(psf, header=header, name=extname)
+    return BinTableHDU(psf_, header=header, name=extname)
 
 
 @u.quantity_input(
@@ -189,18 +183,12 @@ def create_energy_dispersion_hdu(
         INSTRUME.
     """
 
-    edisp = QTable(
-        {
-            "ENERG_LO": u.Quantity(true_energy_bins[:-1], ndmin=2).to(u.TeV),
-            "ENERG_HI": u.Quantity(true_energy_bins[1:], ndmin=2).to(u.TeV),
-            "MIGRA_LO": u.Quantity(migration_bins[:-1], ndmin=2).to(u.one),
-            "MIGRA_HI": u.Quantity(migration_bins[1:], ndmin=2).to(u.one),
-            "THETA_LO": u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg),
-            "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
-            # transpose as FITS uses opposite dimension order
-            "MATRIX": u.Quantity(energy_dispersion.T[np.newaxis, ...]).to(u.one),
-        }
-    )
+    edisp = QTable()
+    edisp["ENERG_LO"], edisp["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    edisp["MIGRA_LO"], edisp["MIGRA_HI"] = binning.split_bin_lo_hi(migration_bins[np.newaxis, :])
+    edisp["THETA_LO"], edisp["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    edisp["MATRIX"] = u.Quantity(energy_dispersion.T[np.newaxis, ...]).to(u.one)
 
     # required header keywords
     header = DEFAULT_HEADER.copy()
@@ -252,16 +240,11 @@ def create_background_2d_hdu(
         INSTRUME.
     """
 
-    bkg = QTable(
-        {
-            "ENERG_LO": u.Quantity(reco_energy_bins[:-1], ndmin=2).to(u.TeV),
-            "ENERG_HI": u.Quantity(reco_energy_bins[1:], ndmin=2).to(u.TeV),
-            "THETA_LO": u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg),
-            "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
-            # transpose as FITS uses opposite dimension order
-            "BKG": background_2d.T[np.newaxis, ...].to(GADF_BACKGROUND_UNIT),
-        }
-    )
+    bkg = QTable()
+    bkg["ENERG_LO"], bkg["ENERG_HI"] = binning.split_bin_lo_hi(reco_energy_bins[np.newaxis, :].to(u.TeV))
+    bkg["THETA_LO"], bkg["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    bkg["BKG"] = background_2d.T[np.newaxis, ...].to(GADF_BACKGROUND_UNIT)
 
     # required header keywords
     header = DEFAULT_HEADER.copy()
@@ -309,16 +292,12 @@ def create_rad_max_hdu(
         Additional metadata to add to the header, use this to set e.g. TELESCOP or
         INSTRUME.
     """
-    rad_max_table = QTable(
-        {
-            "ENERG_LO": u.Quantity(reco_energy_bins[:-1], ndmin=2).to(u.TeV),
-            "ENERG_HI": u.Quantity(reco_energy_bins[1:], ndmin=2).to(u.TeV),
-            "THETA_LO": u.Quantity(fov_offset_bins[:-1], ndmin=2).to(u.deg),
-            "THETA_HI": u.Quantity(fov_offset_bins[1:], ndmin=2).to(u.deg),
-            # transpose as FITS uses opposite dimension order
-            "RAD_MAX": rad_max.T[np.newaxis, ...].to(u.deg),
-        }
-    )
+
+    rad_max_table = QTable()
+    rad_max_table["ENERG_LO"], rad_max_table["ENERG_HI"] = binning.split_bin_lo_hi(reco_energy_bins[np.newaxis, :].to(u.TeV))
+    rad_max_table["THETA_LO"], rad_max_table["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    rad_max_table["RAD_MAX"] = rad_max.T[np.newaxis, ...].to(u.deg)
 
     # required header keywords
     header = DEFAULT_HEADER.copy()
