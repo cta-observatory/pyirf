@@ -29,8 +29,6 @@ def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, t
         Interpolated Effective area array with shape (n_energy_bins, n_fov_offset_bins)
     """
 
-    _, _, n_energy_bins = effective_area.shape
-
     # get rid of units
     effective_area = effective_area.to_value(u.m**2)
     min_effective_area = min_effective_area.to_value(u.m**2)
