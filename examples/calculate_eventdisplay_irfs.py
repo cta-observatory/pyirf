@@ -146,7 +146,7 @@ def main():
         percentile=68,
     )
 
-    # interpolate to 50 bins be decade
+    # interpolate to 50 bins per decade
     theta_center = bin_center(theta_bins)
     inter_center = bin_center(sensitivity_bins)
     theta_cuts = table.QTable({
