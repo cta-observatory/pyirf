@@ -311,7 +311,7 @@ def create_rad_max_hdu(
     return BinTableHDU(rad_max_table, header=header, name=extname)
 
 
-def compare_irf_cuts(files, extname):
+def compare_irf_cuts(files, extname='THETA_CUTS'):
     """
     Reads in a list of IRF files and checks if the same cuts have been applied in all of them
 
@@ -321,22 +321,19 @@ def compare_irf_cuts(files, extname):
         files to be read
     extname: string
         name of the extension with cut values to read the data from in fits file
-
     Returns
     -------
     match: Boolean
         if the cuts are the same in all the files
     """
     with fits.open(files[0]) as hdul0:
-        data0 = hdul0['THETA_CUTS'].data
+        data0 = hdul0[extname].data
 
     for file_name in files[1:]:
         with fits.open(file_name) as hdul:
-            data = hdul['THETA_CUTS'].data
+            data = hdul[extname].data
             if (data != data0).any():
-                print("difference between file: " + files[0] + " and " + file_name + " in cut values: " + extname)
-                return False
-
+                raise ValueError("difference between file: " + files[0] + " and " + file_name + " in cut values: " + extname)
     return True
 
 
