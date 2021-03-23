@@ -197,7 +197,6 @@ def test_compare_irf_cuts():
     # this one should raise an exception
     with pytest.raises(ValueError):
         compare_irf_cuts([file1a, file1b, file2], 'THETA_CUTS')
-#    assert not match
 
 
 def test_read_fits_bins_lo_hi():
