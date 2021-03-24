@@ -412,16 +412,17 @@ def read_irf_grid(files, extname, field_name):
 
     n_files = len(files)
 
-    irfs_all = np.empty(n_files, dtype=np.object)
+    irfs_all = list()
+
     for ifile, this_file in enumerate(files):
         # [0] because there the IRFs are written as a single row of the table
-        irfs_all[ifile] = QTable.read(this_file, hdu=extname)[field_name][0]
+        irfs_all.append(QTable.read(this_file, hdu=extname)[field_name][0])
 
     # if the function is run on single file do not need the first axis dimension
     if n_files == 1:
-        irfs_all = irfs_all[0, ...]
-    # the last operation converts an array of objects to a multidimentional table
-    return np.array(irfs_all.tolist())
+        irfs_all = irfs_all[0]
+    # the last operation converts the list to a multidimentional table
+    return np.array(irfs_all)
 
 
 def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
