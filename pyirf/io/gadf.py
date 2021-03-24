@@ -5,6 +5,7 @@ from astropy.io.fits import Header, BinTableHDU
 import numpy as np
 from astropy.time import Time
 import pyirf.binning as binning
+import pyirf.interpolation as interp
 
 from ..version import __version__
 
@@ -311,7 +312,7 @@ def create_rad_max_hdu(
     return BinTableHDU(rad_max_table, header=header, name=extname)
 
 
-def compare_irf_cuts(files, extname='THETA_CUTS'):
+def compare_irf_cuts_in_files(files, extname='THETA_CUTS'):
     """
     Reads in a list of IRF files and checks if the same cuts have been applied in all of them
 
@@ -326,15 +327,54 @@ def compare_irf_cuts(files, extname='THETA_CUTS'):
     match: Boolean
         if the cuts are the same in all the files
     """
-    with fits.open(files[0]) as hdul0:
-        data0 = hdul0[extname].data
+    cuts = read_irf_cuts(files, extname=extname)
+    return interp.compare_irf_cuts(cuts)
 
-    for file_name in files[1:]:
-        with fits.open(file_name) as hdul:
-            data = hdul[extname].data
-            if (data != data0).any():
-                raise ValueError("difference between file: " + files[0] + " and " + file_name + " in cut values: " + extname)
+
+def compare_irf_cuts(cuts):
+    """
+    checks if the same cuts have been applied in all of them
+
+    Parameters
+    ----------
+    cuts: list of QTables
+        list of cuts each entry in the list correspond to one set of IRFs
+    Returns
+    -------
+    match: Boolean
+        if the cuts are the same in all the files
+    """
+#    cuts = read_irf_cuts(files, extname=extname)
+
+    for i in range(len(cuts)-1):
+        if (cuts[i] != cuts[i+1]).any():
+            raise ValueError("difference in cuts")
     return True
+
+
+def read_irf_cuts(files, extname='THETA_CUTS'):
+    """
+    Reads in a list of IRF files, extracts cuts from them and returns them as a list
+
+    Parameters
+    ----------
+    files: list of strings
+        files to be read
+    extname: string
+        name of the extension with cut values to read the data from in fits file
+    Returns
+    -------
+    cuts: list
+        list of cuts
+    """
+    if isinstance(files, str):
+        files = [files]
+
+    cuts = list()
+    for file_name in files:
+        table = QTable.read(file_name, hdu=extname)
+        cuts.append(table)
+    return cuts
 
 
 def read_fits_bins_lo_hi(file_name, extname, tags):
