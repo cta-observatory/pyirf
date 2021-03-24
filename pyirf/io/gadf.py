@@ -337,7 +337,7 @@ def compare_irf_cuts(files, extname='THETA_CUTS'):
     return True
 
 
-def read_fits_bins_lo_hi(file_name, extname, tag):
+def read_fits_bins_lo_hi(file_name, extname, tags):
     """
     Reads from a fits file two arrays of tag_LO and tag_HI.
     If more then one file is given it checks that all of them are consistent before returning the value
@@ -348,33 +348,40 @@ def read_fits_bins_lo_hi(file_name, extname, tag):
         file to be read, if a list of
     extname: string
         name of the extension to read the data from in fits file
-    tag: string
-        name of the field in the extension to extract, _LO and _HI will be added
+    tags: list of string
+        names of the field in the extension to extract, _LO and _HI will be added
 
     Returns
     -------
-    bins: astropy.units.Quantity[energy]
-        bins
+    bins: list of astropy.units.Quantity
+        list of ntuples (LO, HI) of bins (with size of extnames)
     """
-
-    tag_lo = tag + '_LO'
-    tag_hi = tag + '_HI'
 
     # to allow the function work on either single file or a list of files convert a single string into a list
     if isinstance(file_name, str):
         file_name = [file_name]
 
+    # same to allow to run over single tag
+    if isinstance(tags, str):
+        tags = [tags]
+
+    tags_lo_hi = [(tag + '_LO', tag + '_HI') for tag in tags]
+
     old_table = None
+    bins = list()
     for this_file in file_name:
         table = QTable.read(this_file, hdu=extname)
-        if old_table is not None:
-            if not old_table[tag_lo][0].shape == table[tag_lo][0].shape:
-                raise ValueError('Non matching bins')
-            if not ((old_table[tag_lo][0] == table[tag_lo][0]).all() and (old_table[tag_hi][0] == table[tag_hi][0]).all()):
-                raise ValueError('Non matching bins')
+        for tag_lo, tag_hi in tags_lo_hi:
+            if old_table is not None:
+                if not old_table[tag_lo][0].shape == table[tag_lo][0].shape:
+                    raise ValueError('Non matching bins in ' + extname)
+                if not ((old_table[tag_lo][0] == table[tag_lo][0]).all() and (old_table[tag_hi][0] == table[tag_hi][0]).all()):
+                    raise ValueError('Non matching bins in ' + extname)
+            else:
+                bins.append([table[tag_lo][0], table[tag_hi][0]])
         old_table = table
 
-    return table[tag_lo][0], table[tag_hi][0]
+    return bins
 
 
 def read_irf_grid(files, extname, field_name):
@@ -440,9 +447,9 @@ def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
 
     field_name = "EFFAREA"
     effective_area = read_irf_grid(file_name, extname, field_name)
-    true_energy_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
-    fov_offset_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
-
+    true_energy_bins, fov_offset_bins = read_fits_bins_lo_hi(file_name, extname, ["ENERG", "THETA"])
+    true_energy_bins = binning.join_bin_lo_hi(*true_energy_bins)
+    fov_offset_bins = binning.join_bin_lo_hi(*fov_offset_bins)
     return effective_area, true_energy_bins, fov_offset_bins
 
 
@@ -475,8 +482,9 @@ def read_energy_dispersion_hdu(file_name, extname="EDISP"):
     energy_dispersion = read_irf_grid(file_name, extname, field_name)
     last_axis = len(energy_dispersion.shape) - 1
     energy_dispersion = np.swapaxes(energy_dispersion, last_axis - 2, last_axis)
-    true_energy_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "ENERG"))
-    migration_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "MIGRA"))
-    fov_offset_bins = binning.join_bin_lo_hi(*read_fits_bins_lo_hi(file_name, extname, "THETA"))
+    true_energy_bins, migration_bins, fov_offset_bins = read_fits_bins_lo_hi(file_name, extname, ["ENERG", "MIGRA", "THETA"])
+    true_energy_bins = binning.join_bin_lo_hi(*true_energy_bins)
+    migration_bins = binning.join_bin_lo_hi(*migration_bins)
+    fov_offset_bins = binning.join_bin_lo_hi(*fov_offset_bins)
 
     return energy_dispersion, true_energy_bins, migration_bins, fov_offset_bins

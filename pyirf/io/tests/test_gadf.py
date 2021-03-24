@@ -202,7 +202,7 @@ def test_compare_irf_cuts():
 def test_read_fits_bins_lo_hi():
     """Tests read_fits_bins_lo_hi on sample file."""
     file_name = 'interp_test_data/pyirf_eventdisplay_68.fits.gz'
-    bin_lo, bin_hi = gadf.read_fits_bins_lo_hi(file_name, 'EFFECTIVE_AREA', 'ENERG')
+    bin_lo, bin_hi = gadf.read_fits_bins_lo_hi(file_name, 'EFFECTIVE_AREA', 'ENERG')[0]
 
     # check that the bins are not empty
     assert len(bin_lo) > 0
