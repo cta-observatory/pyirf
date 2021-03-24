@@ -1,6 +1,5 @@
 from astropy.table import QTable
 import astropy.units as u
-from astropy.io import fits
 from astropy.io.fits import Header, BinTableHDU
 import numpy as np
 from astropy.time import Time
@@ -454,7 +453,7 @@ def read_irf_grid(files, extname, field_name):
 
     irfs_all = list()
 
-    for ifile, this_file in enumerate(files):
+    for this_file in files:
         # [0] because there the IRFs are written as a single row of the table
         irfs_all.append(QTable.read(this_file, hdu=extname)[field_name][0])
 
