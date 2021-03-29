@@ -3,7 +3,7 @@ Functions and classes for calculating spectral weights
 """
 import astropy.units as u
 import numpy as np
-
+from scipy.interpolate import interp1d
 
 #: Unit of a point source flux
 #:
@@ -28,6 +28,7 @@ __all__ = [
     "PDG_ALL_PARTICLE",
     "IRFDOC_PROTON_SPECTRUM",
     "IRFDOC_ELECTRON_SPECTRUM",
+    "DAMPE_P_plus_He_SPECTRUM",
 ]
 
 
@@ -279,3 +280,19 @@ IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
     sigma=0.741,
     f=1.950,
 )
+
+#: Proton + Helium spectrum obtained from:
+#: https://inspirehep.net/files/62efc8374ffced58ea7e3a333bfa1217
+#: Points are from DAMPE, up to  8 TeV. For higher energies we assume a
+#: flattening of the dF/dE*E^2.7 more or less in the middle of the large
+#: spread of the available data reported on the same proceeding.
+DAMPE_P_plus_He_SPECTRUM = lambda energy: interp1d(np.log10(
+        [5., 50.5185, 78.9163, 124.383, 199.575, 317.380, 495.808,
+         788.531, 1254.06, 1994.62, 3116.73, 4957.69, 7956.55, 12321.0,
+         19946.8, 100269]),
+         [18616.8, 18616.8, 18461.3, 18381.3, 18301.1, 18296.6, 18443.5,
+          18968.4, 19417.6, 20547.3, 22509.0, 24319.2, 25978.2, 27183.8,
+          27254.7, 27390.4], bounds_error=False)(np.log10(
+        energy/u.GeV)) * (energy / u.GeV) ** -2.7 / (u.GeV * u.s * u.sr *
+                                                     u.m ** 2)
+
