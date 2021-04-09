@@ -30,7 +30,8 @@ __all__ = [
     "PDG_ALL_PARTICLE",
     "IRFDOC_PROTON_SPECTRUM",
     "IRFDOC_ELECTRON_SPECTRUM",
-    "DAMPE_P_plus_He_SPECTRUM",
+    "TableInterpolationSpectrum",
+    "DAMPE_P_He_SPECTRUM",
 ]
 
 
