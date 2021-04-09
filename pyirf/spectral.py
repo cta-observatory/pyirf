@@ -4,6 +4,8 @@ Functions and classes for calculating spectral weights
 import astropy.units as u
 import numpy as np
 from scipy.interpolate import interp1d
+from pkg_resources import resource_filename
+from astropy.table import QTable
 
 #: Unit of a point source flux
 #:
@@ -231,6 +233,67 @@ class PowerLawWithExponentialGaussian(PowerLaw):
         return s[:-1] + f' * (1 + {self.f} * (exp({gauss}) - 1))'
 
 
+
+class TableInterpolationSpectrum:
+    '''
+    Interpolate flux points to obtain a spectrum.
+
+    By default, flux is interpolated linearly in log-log space.
+    '''
+    def __init__(self, energy, flux, log_energy=True, log_flux=True, reference_energy=1 * u.TeV):
+        self.energy = energy
+        self.flux = flux
+        self.flux_unit = flux.unit
+        self.log_energy = log_energy
+        self.log_flux = log_flux
+        self.reference_energy = reference_energy
+
+        x = (energy / reference_energy).to_value(u.one)
+        y = flux.to_value(self.flux_unit)
+
+        if log_energy:
+            x = np.log10(x)
+
+        if log_flux:
+            y = np.log10(y)
+
+        self.interp = interp1d(x, y, bounds_error=False, fill_value="extrapolate")
+
+
+    def __call__(self, energy):
+
+        x = (energy / self.reference_energy).to_value(u.one)
+
+        if self.log_energy:
+            x = np.log10(x)
+
+        y = self.interp(x)
+
+        if self.log_flux:
+            y = 10**y
+
+        return u.Quantity(y, self.flux_unit, copy=False)
+
+    @classmethod
+    def from_table(cls, table: QTable, log_energy=True, log_flux=True, reference_energy=1 * u.TeV):
+        return cls(
+            table["energy"],
+            table["flux"],
+            log_energy=log_energy,
+            log_flux=log_flux,
+            reference_energy=reference_energy,
+        )
+
+    @classmethod
+    def from_file(cls, path, log_energy=True, log_flux=True, reference_energy=1 * u.TeV):
+        return cls.from_table(
+            QTable.read(path),
+            log_energy=log_energy,
+            log_flux=log_flux,
+            reference_energy=reference_energy,
+        )
+
+
 #: Power Law parametrization of the Crab Nebula spectrum as published by HEGRA
 #:
 #: From "The Crab Nebula and Pulsar between 500 GeV and 80 TeV: Observations with the HEGRA stereoscopic air Cherenkov telescopes",
@@ -283,16 +346,8 @@ IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
 
 #: Proton + Helium spectrum obtained from:
 #: https://inspirehep.net/files/62efc8374ffced58ea7e3a333bfa1217
-#: Points are from DAMPE, up to  8 TeV. For higher energies we assume a
+#: Points are from DAMPE, up to  8 TeV.
+#: For higher energies we assume a
 #: flattening of the dF/dE*E^2.7 more or less in the middle of the large
 #: spread of the available data reported on the same proceeding.
-DAMPE_P_plus_He_SPECTRUM = lambda energy: interp1d(np.log10(
-        [5., 50.5185, 78.9163, 124.383, 199.575, 317.380, 495.808,
-         788.531, 1254.06, 1994.62, 3116.73, 4957.69, 7956.55, 12321.0,
-         19946.8, 100269]),
-         [18616.8, 18616.8, 18461.3, 18381.3, 18301.1, 18296.6, 18443.5,
-          18968.4, 19417.6, 20547.3, 22509.0, 24319.2, 25978.2, 27183.8,
-          27254.7, 27390.4], bounds_error=False)(np.log10(
-        energy/u.GeV)) * (energy / u.GeV) ** -2.7 / (u.GeV * u.s * u.sr *
-                                                     u.m ** 2)
-
+DAMPE_P_He_SPECTRUM = TableInterpolationSpectrum.from_file(resource_filename("pyirf", "resources/dampe_p+he.ecsv"))

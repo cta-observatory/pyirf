@@ -1,1 +1,2 @@
 exclude pyirf/_dev_version.py
+include pyirf/resources/*

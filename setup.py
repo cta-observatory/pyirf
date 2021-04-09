@@ -35,7 +35,6 @@ extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"
 setup(
     use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
     packages=find_packages(),
-    include_package_data=True,
     install_requires=[
         "astropy~=4.0,>=4.0.2",
         "matplotlib",
@@ -44,5 +43,6 @@ setup(
         "tqdm",
         "setuptools_scm",
     ],
+    include_package_data=True,
     extras_require=extras_require,
 )
