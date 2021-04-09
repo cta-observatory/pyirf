@@ -6,7 +6,7 @@ import astropy.units as u
 from ..binning import calculate_bin_indices
 
 
-ONE_SIGMA_PERCENTILE = norm.cdf(1) - norm.cdf(-1)
+ONE_SIGMA_QUANTILE = norm.cdf(1) - norm.cdf(-1)
 
 
 def angular_resolution(
@@ -34,13 +34,15 @@ def angular_resolution(
         Table containing the 68% containment of the angular
         distance distribution per each reconstructed energy bin.
     """
-
     # create a table to make use of groupby operations
     table = Table(events[[f"{energy_type}_energy", "theta"]])
 
     table["bin_index"] = calculate_bin_indices(
         table[f"{energy_type}_energy"].quantity, energy_bins
     )
+
+    n_bins =  len(energy_bins) - 1
+    mask = (table["bin_index"] >= 0) & (table["bin_index"] < n_bins)
 
     result = Table()
     result[f"{energy_type}_energy_low"] = energy_bins[:-1]
@@ -50,10 +52,10 @@ def angular_resolution(
     result["angular_resolution"] = np.nan * u.deg
 
     # use groupby operations to calculate the percentile in each bin
-    by_bin = table.group_by("bin_index")
+    by_bin = table[mask].group_by("bin_index")
 
     index = by_bin.groups.keys["bin_index"]
     result["angular_resolution"][index] = by_bin["theta"].groups.aggregate(
-        lambda x: np.percentile(x, 100 * ONE_SIGMA_PERCENTILE)
+        lambda x: np.quantile(x, ONE_SIGMA_QUANTILE)
     )
     return result
