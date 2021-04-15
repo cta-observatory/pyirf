@@ -20,6 +20,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       # make sure we have version info
       - run: git fetch --tags
 

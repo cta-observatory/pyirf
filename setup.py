@@ -1,8 +1,5 @@
 from setuptools import setup, find_packages
-import re
-
-with open("pyirf/version.py") as f:
-    __version__ = re.search('^__version__ = "(.*)"$', f.read()).group(1)
+import os
 
 
 gammapy = "gammapy~=0.18"
@@ -36,7 +33,7 @@ extras_require = {
 extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"]))
 
 setup(
-    version=__version__,
+    use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
@@ -45,6 +42,7 @@ setup(
         "numpy>=1.18",
         "scipy",
         "tqdm",
+        "setuptools_scm",
     ],
     extras_require=extras_require,
 )
