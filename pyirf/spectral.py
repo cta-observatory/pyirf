@@ -345,7 +345,9 @@ IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
     f=1.950,
 )
 
-#: Proton + Helium spectrum obtained from:
+#: Proton + Helium interpolated from DAMPE measurements
+#:
+#: Datapoints obtained from obtained from:
 #: https://inspirehep.net/files/62efc8374ffced58ea7e3a333bfa1217
 #: Points are from DAMPE, up to  8 TeV.
 #: For higher energies we assume a
