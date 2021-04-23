@@ -16,7 +16,12 @@ def test_energy_bias_resolution():
     true_bias = np.append(np.full(1000, TRUE_BIAS_1), np.full(1000, TRUE_BIAS_2))
     true_resolution = np.append(np.full(1000, TRUE_RES_1), np.full(1000, TRUE_RES_2))
 
-    true_energy = np.append(np.full(1000, 5.0), np.full(1000, 50.0)) * u.TeV
+    true_energy = np.concatenate([
+        [0.5], # below bin 1 to test with underflow
+        np.full(999, 5.0),
+        np.full(999, 50.0),
+        [500], # above bin 2 to test with overflow
+    ]) * u.TeV
     reco_energy = true_energy * (1 + np.random.normal(true_bias, true_resolution))
 
     events = QTable({

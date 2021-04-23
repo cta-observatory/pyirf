@@ -1,8 +1,8 @@
 from setuptools import setup, find_packages
-import re
+import os
 
-with open("pyirf/version.py") as f:
-    __version__ = re.search('^__version__ = "(.*)"$', f.read()).group(1)
+
+gammapy = "gammapy~=0.18"
 
 extras_require = {
     "docs": [
@@ -11,9 +11,11 @@ extras_require = {
         "sphinx_automodapi",
         "numpydoc",
         "nbsphinx",
-        "uproot4",
+        "uproot",
         "awkward1",
         "notebook",
+        "tables",
+        gammapy,
     ],
     "tests": [
         "pytest",
@@ -23,12 +25,15 @@ extras_require = {
         "uproot~=4.0",
         "awkward~=1.0",
     ],
+    "gammapy": [
+        gammapy,
+    ]
 }
 
 extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"]))
 
 setup(
-    version=__version__,
+    use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
@@ -37,7 +42,7 @@ setup(
         "numpy>=1.18",
         "scipy",
         "tqdm",
-        "tables",
+        "setuptools_scm",
     ],
     extras_require=extras_require,
 )
