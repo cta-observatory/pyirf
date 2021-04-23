@@ -4,6 +4,7 @@ from astropy.io.fits import Header, BinTableHDU
 import numpy as np
 from astropy.time import Time
 import pyirf.binning as binning
+
 from ..version import __version__
 
 
