@@ -1,6 +1,7 @@
 import astropy.units as u
 from astropy.table import QTable
 import numpy as np
+import pyirf.binning as binning
 
 
 def test_add_overflow_bins():
@@ -195,3 +196,24 @@ def test_resample_bins_units():
 
     with pytest.raises(u.core.UnitConversionError):
         new_data = resample_histogram1d(data, old_edges, u.Quantity(new_edges.value, unit=u.m))
+
+
+def test_join_bin_lo_hi():
+    """Test join_bin_hi_lo function."""
+    bins = np.array([np.logspace(-1,3, 20)*u.TeV])
+    bins_lo = bins[:,:-1]
+    bins_hi = bins[:,1:]
+
+    bins_joint = binning.join_bin_lo_hi(bins_lo,bins_hi)
+    assert np.allclose(bins_joint, bins, rtol=1.e-5)
+
+
+def test_split_bin_lo_hi():
+    """Test split_bin_lo_hi function."""
+    bins = np.array([np.logspace(-1,3, 20)*u.TeV])
+    bins_lo_true = bins[:,:-1]
+    bins_hi_true = bins[:,1:]
+
+    bin_lo, bin_hi = binning.split_bin_lo_hi(bins)
+    assert np.allclose(bin_lo, bins_lo_true, rtol=1.e-5)
+    assert np.allclose(bin_hi, bins_hi_true, rtol=1.e-5)

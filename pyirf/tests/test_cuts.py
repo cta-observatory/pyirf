@@ -125,3 +125,22 @@ def test_evaluate_binned_cut():
         op=operator.ge,
     )
     assert np.all(survived == [True, True, False, True, False, False])
+
+
+def test_compare_irf_cuts():
+    """Tests compare_irf_cuts."""
+
+    from pyirf.cuts import compare_irf_cuts
+    # first create some dummy cuts
+    enbins = np.logspace(-2, 3) * u.TeV
+    thcuts1 = np.linspace(0.5, 0.1) * u.deg
+    thcuts2 = np.linspace(0.6, 0.2) * u.deg
+    names = ("Energy", "Theta2")
+    t1 = QTable([enbins, thcuts1], names=names)
+    t1b = QTable([enbins, thcuts1], names=names)
+    t2 = QTable([enbins, thcuts2], names=names)
+    # comparing identical cuts ==> should return True
+    assert compare_irf_cuts([t1, t1b])
+
+    # different cuts ==> should return False
+    assert compare_irf_cuts([t1, t2]) is False

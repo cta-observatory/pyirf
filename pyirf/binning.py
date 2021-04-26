@@ -12,6 +12,54 @@ def bin_center(edges):
     return 0.5 * (edges[:-1] + edges[1:])
 
 
+def join_bin_lo_hi(bin_lo, bin_hi):
+    """
+    Function joins bins into lo and hi part,
+    e.g. [0, 1, 2] and [1, 2, 4] into [0, 1, 2, 4]
+    It works on multidimentional arrays as long as the binning is in the last axis
+
+    Parameters
+    ----------
+    bin_lo: np.array or u.Quantity
+        Lo bin edges array
+    bin_hi: np.array or u.Quantity
+        Hi bin edges array
+
+    Returns
+    -------
+    bins: np.array of u.Quantity
+        The joint bins
+    """
+
+    if np.allclose(bin_lo[...,1:], bin_hi[...,:-1], rtol=1.e-5):
+        last_axis=len(bin_lo.shape)-1
+        bins = np.concatenate((bin_lo, bin_hi[...,-1:]), axis=last_axis)
+        return bins
+    else:
+        raise ValueError('Not matching bin edges')
+
+
+def split_bin_lo_hi(bins):
+    """
+    Inverted function to join_bin_hi_lo,
+    e.g. it splits [0, 1, 2, 4] into [0, 1, 2] and [1, 2, 4]
+
+    Parameters
+    ----------
+    bins: np.array of u.Quantity
+        The joint bins
+
+    Returns
+    -------
+    bin_lo: np.array or u.Quantity
+        Lo bin edges array
+    bin_hi: np.array or u.Quantity
+        Hi bin edges array
+    """
+    bin_lo=bins[...,:-1]
+    bin_hi=bins[...,1:]
+    return bin_lo, bin_hi
+
 def add_overflow_bins(bins, positive=True):
     """
     Add under and overflow bins to a bin array.
