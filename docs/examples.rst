@@ -41,4 +41,4 @@ Visualization of the included Flux Models
 -----------------------------------------
 
 The ``examples/plot_spectra.py`` visualizes the Flux models included
-in ``pyirf`` for Crab Nebula, proton and electron flux.
+in ``pyirf`` for Crab Nebula, cosmic ray and electron flux.

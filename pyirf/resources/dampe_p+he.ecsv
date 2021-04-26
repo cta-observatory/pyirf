@@ -1,0 +1,26 @@
+# %ECSV 0.9
+# ---
+# datatype:
+# - {name: energy, unit: GeV, datatype: float64}
+# - {name: flux, unit: 1 / (GeV m2 s sr), datatype: float64}
+# meta: !!omap
+# - {description: Combined P + He Spectrum measured by DAMPE}
+# - {reference: 'https://inspirehep.net/files/62efc8374ffced58ea7e3a333bfa1217'}
+# schema: astropy-2.0
+energy flux
+5.0 241.37151783447848
+50.5185 0.46837
+78.9163 0.13929
+124.383 0.040600
+199.575 0.011277
+317.38 0.0032219
+495.808 0.00097386
+788.531 0.00028617
+1254.06 8.3702e-05
+1994.62 2.5301e-05
+3116.73 8.3056e-06
+4957.69 2.5627e-06
+7956.55 7.6322e-07
+12321.0 2.4523e-07
+19946.8 6.6955e-08
+100269.0 8.5990e-10

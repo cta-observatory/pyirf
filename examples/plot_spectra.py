@@ -4,6 +4,7 @@ import astropy.units as u
 from scipy.stats import norm
 
 from pyirf.spectral import (
+    DAMPE_P_He_SPECTRUM,
     IRFDOC_ELECTRON_SPECTRUM,
     IRFDOC_PROTON_SPECTRUM,
     PDG_ALL_PARTICLE,
@@ -17,6 +18,7 @@ from pyirf.spectral import (
 cr_spectra = {
     "PDG All Particle Spectrum": PDG_ALL_PARTICLE,
     "ATIC Proton Fit (from IRF Document)": IRFDOC_PROTON_SPECTRUM,
+    "DAMPE p + He Table Interpolation": DAMPE_P_He_SPECTRUM
 }
 
 
@@ -58,7 +60,7 @@ if __name__ == "__main__":
     plt.xscale("log")
     plt.yscale("log")
     plt.xlabel(r"$E \,\,/\,\, \mathrm{TeV}$")
-    plt.ylabel(rf'$E^2 \cdot \Phi \,\,/\,\,$ ({unit.to_string("latex")})')
+    plt.ylabel(rf'$E^{2} \cdot \Phi \,\,/\,\,$ ({unit.to_string("latex")})')
 
     energy = np.geomspace(0.006, 10, 1000) * u.TeV
     plt.figure(constrained_layout=True)
