@@ -88,6 +88,7 @@ class PowerLaw:
         normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, index, e_ref=1 * u.TeV):
+        '''Create a new PowerLaw spectrum'''
         self.normalization = normalization
         self.index = index
         self.e_ref = e_ref
@@ -155,6 +156,7 @@ class LogParabola:
         normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, a, b, e_ref=1 * u.TeV):
+        '''Create a new LogParabola spectrum'''
         self.normalization = normalization
         self.a = a
         self.b = b
@@ -212,6 +214,7 @@ class PowerLawWithExponentialGaussian(PowerLaw):
         normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, index, e_ref, f, mu, sigma):
+        '''Create a new PowerLawWithExponentialGaussian spectrum'''
         super().__init__(normalization=normalization, index=index, e_ref=e_ref)
         self.f = f
         self.mu = mu
@@ -242,6 +245,7 @@ class TableInterpolationSpectrum:
     By default, flux is interpolated linearly in log-log space.
     '''
     def __init__(self, energy, flux, log_energy=True, log_flux=True, reference_energy=1 * u.TeV):
+        '''Create a new TableInterpolationSpectrum spectrum'''
         self.energy = energy
         self.flux = flux
         self.flux_unit = flux.unit
