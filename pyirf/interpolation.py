@@ -5,24 +5,10 @@ import astropy.units as u
 from scipy.interpolate import griddata
 
 
-def compare_irf_cuts(cuts):
-    """
-    checks if the same cuts have been applied in all of IRFs
-
-    Parameters
-    ----------
-    cuts: list of QTables
-        list of cuts each entry in the list correspond to one set of IRFs
-    Returns
-    -------
-    match: Boolean
-        if the cuts are the same in all the files
-    """
-
-    for i in range(len(cuts)-1):
-        if (cuts[i] != cuts[i+1]).any():
-            raise ValueError("difference in cuts")
-    return True
+__all__ = [
+    'interpolate_effective_area_per_energy_and_fov',
+    'interpolate_energy_dispersion',
+]
 
 
 def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, target_point, min_effective_area=1. * u.Unit('m2'), method='linear'):
