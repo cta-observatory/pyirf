@@ -5,27 +5,20 @@ import astropy.units as u
 from scipy.interpolate import griddata
 
 
-def compare_irf_cuts(cuts):
-    """
-    checks if the same cuts have been applied in all of IRFs
-
-    Parameters
-    ----------
-    cuts: list of QTables
-        list of cuts each entry in the list correspond to one set of IRFs
-    Returns
-    -------
-    match: Boolean
-        if the cuts are the same in all the files
-    """
-
-    for i in range(len(cuts)-1):
-        if (cuts[i] != cuts[i+1]).any():
-            raise ValueError("difference in cuts")
-    return True
+__all__ = [
+    'interpolate_effective_area_per_energy_and_fov',
+    'interpolate_energy_dispersion',
+]
 
 
-def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, target_point, min_effective_area=1. * u.Unit('m2'), method='linear'):
+@u.quantity_input(effective_area=u.m**2)
+def interpolate_effective_area_per_energy_and_fov(
+    effective_area,
+    grid_points,
+    target_point,
+    min_effective_area=1. * u.Unit('m2'),
+    method='linear',
+):
     """
     Takes a grid of effective areas for a bunch of different parameters
     and interpolates (log) effective areas to given value of those parameters
@@ -65,25 +58,30 @@ def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, t
     return u.Quantity(aeff_interp, u.m**2, copy=False)
 
 
-def interpolate_energy_dispersion(energy_dispersions, grid_points, target_point, method='linear'):
+def interpolate_energy_dispersion(
+    energy_dispersions,
+    grid_points,
+    target_point,
+    method='linear',
+):
     """
     Takes a grid of dispersion matrixes for a bunch of different parameters
     and interpolates it to given value of those parameters
 
     Parameters
     ----------
-    energy_dispersions: np.array of astropy.units.Quantity[area]
-        grid of effective area, of shape (n_grid_points, n_energy_bins, n_migration_bins, n_fov_offset_bins)
-    grid_points: np.array
-        list of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
-    target_point: np.array
+    energy_dispersions: np.ndarray
+        grid of energy migrations, of shape (n_grid_points, n_energy_bins, n_migration_bins, n_fov_offset_bins)
+    grid_points: np.ndarray
+        array of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
+    target_point: np.ndarray
         values of parameters for which the interpolation is performed, of shape (n_interp_dim)
     method: 'linear’, ‘nearest’, ‘cubic’
         Interpolation method
 
     Returns
     -------
-    matrix_interp: astropy.units.Quantity[area]
+    matrix_interp: np.ndarray
         Interpolated dispersion matrix 3D array with shape (n_energy_bins, n_migration_bins, n_fov_offset_bins)
     """
 
