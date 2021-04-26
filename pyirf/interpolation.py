@@ -58,25 +58,30 @@ def interpolate_effective_area_per_energy_and_fov(
     return u.Quantity(aeff_interp, u.m**2, copy=False)
 
 
-def interpolate_energy_dispersion(energy_dispersions, grid_points, target_point, method='linear'):
+def interpolate_energy_dispersion(
+    energy_dispersions,
+    grid_points,
+    target_point,
+    method='linear',
+):
     """
     Takes a grid of dispersion matrixes for a bunch of different parameters
     and interpolates it to given value of those parameters
 
     Parameters
     ----------
-    energy_dispersions: np.array of astropy.units.Quantity[area]
-        grid of effective area, of shape (n_grid_points, n_energy_bins, n_migration_bins, n_fov_offset_bins)
-    grid_points: np.array
-        list of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
-    target_point: np.array
+    energy_dispersions: np.ndarray
+        grid of energy migrations, of shape (n_grid_points, n_energy_bins, n_migration_bins, n_fov_offset_bins)
+    grid_points: np.ndarray
+        array of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
+    target_point: np.ndarray
         values of parameters for which the interpolation is performed, of shape (n_interp_dim)
     method: 'linear’, ‘nearest’, ‘cubic’
         Interpolation method
 
     Returns
     -------
-    matrix_interp: astropy.units.Quantity[area]
+    matrix_interp: np.ndarray
         Interpolated dispersion matrix 3D array with shape (n_energy_bins, n_migration_bins, n_fov_offset_bins)
     """
 
