@@ -11,7 +11,14 @@ __all__ = [
 ]
 
 
-def interpolate_effective_area_per_energy_and_fov(effective_area, grid_points, target_point, min_effective_area=1. * u.Unit('m2'), method='linear'):
+@u.quantity_input(effective_area=u.m**2)
+def interpolate_effective_area_per_energy_and_fov(
+    effective_area,
+    grid_points,
+    target_point,
+    min_effective_area=1. * u.Unit('m2'),
+    method='linear',
+):
     """
     Takes a grid of effective areas for a bunch of different parameters
     and interpolates (log) effective areas to given value of those parameters
