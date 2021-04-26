@@ -5,8 +5,8 @@ from scipy.stats import norm
 from ..binning import calculate_bin_indices
 
 
-NORM_UPPER_SIGMA = norm(0, 1).cdf(1)
-NORM_LOWER_SIGMA = norm(0, 1).cdf(-1)
+NORM_LOWER_SIGMA, NORM_UPPER_SIGMA = norm(0, 1).cdf([-1, 1])
+MEDIAN = 0.5
 
 
 def energy_resolution_absolute_68(rel_error):
@@ -108,3 +108,39 @@ def energy_bias_resolution(
         resolution_function
     )
     return result
+
+def energy_bias_resolution_from_energy_dispersion(
+    energy_dispersion,
+    migration_bins,
+):
+    """
+    Calculate bias and energy resolution.
+
+    Parameters
+    ----------
+    edisp:
+        Energy dispersion matrix of shape
+        (n_energy_bins, n_migra_bins, n_source_offset_bins)
+    migration_bins: numpy.ndarray
+        Bin edges for the relative energy migration (``reco_energy / true_energy``)
+    """
+
+    cdf = np.cumsum(energy_dispersion, axis=1)
+
+    n_energy_bins, _, n_fov_bins = energy_dispersion.shape
+
+    bias = np.zeros((n_energy_bins, n_fov_bins))
+    resolution = np.zeros((n_energy_bins, n_fov_bins))
+
+    for energy_bin in range(n_energy_bins):
+        for fov_bin in range(n_fov_bins):
+
+            low, median, high = np.interp(
+                [NORM_LOWER_SIGMA, MEDIAN, NORM_UPPER_SIGMA],
+                cdf[energy_bin, :, fov_bin],
+                migration_bins[1:] # cdf is defined at upper bin edge
+            )
+            bias[energy_bin, fov_bin] = median - 1
+            resolution[energy_bin, fov_bin] = 0.5 * (high - low)
+
+    return bias, resolution
