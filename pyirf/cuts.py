@@ -8,6 +8,7 @@ from .binning import calculate_bin_indices, bin_center
 __all__ = [
     'calculate_percentile_cut',
     'evaluate_binned_cut',
+    'compare_irf_cuts',
 ]
 
 
@@ -128,3 +129,22 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
     bins = np.append(cut_table["low"], cut_table["high"][-1])
     bin_index = calculate_bin_indices(bin_values, bins)
     return op(values, cut_table["cut"][bin_index])
+
+
+def compare_irf_cuts(cuts):
+    """
+    checks if the same cuts have been applied in all of them
+
+    Parameters
+    ----------
+    cuts: list of QTables
+        list of cuts each entry in the list correspond to one set of IRFs
+    Returns
+    -------
+    match: Boolean
+        if the cuts are the same in all the files
+    """
+    for i in range(len(cuts) - 1):
+        if (cuts[i] != cuts[i + 1]).any():
+            return False
+    return True

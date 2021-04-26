@@ -13,7 +13,6 @@ __all__ = [
     "create_energy_dispersion_hdu",
     "create_psf_table_hdu",
     "create_rad_max_hdu",
-    "compare_irf_cuts",
 ]
 
 
@@ -304,24 +303,3 @@ def create_rad_max_hdu(
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(rad_max_table, header=header, name=extname)
-
-
-def compare_irf_cuts(cuts):
-    """
-    checks if the same cuts have been applied in all of them
-
-    Parameters
-    ----------
-    cuts: list of QTables
-        list of cuts each entry in the list correspond to one set of IRFs
-    Returns
-    -------
-    match: Boolean
-        if the cuts are the same in all the files
-    """
-#    cuts = read_irf_cuts(files, extname=extname)
-
-    for i in range(len(cuts)-1):
-        if (cuts[i] != cuts[i+1]).any():
-            raise ValueError("difference in cuts")
-    return True

@@ -1,26 +1,6 @@
 import pyirf.interpolation as interp
 import numpy as np
 import astropy.units as u
-import pytest
-from astropy.table import QTable
-
-def test_compare_irf_cuts():
-    """Tests compare_irf_cuts."""
-
-    # first create some dummy cuts
-    enbins = np.logspace(-2,3)*u.TeV
-    thcuts1 = np.linspace(0.5, 0.1)*u.deg
-    thcuts2 = np.linspace(0.6, 0.2)*u.deg
-    names=("Energy", "Theta2")
-    t1 = QTable([enbins, thcuts1], names=names)
-    t1b = QTable([enbins, thcuts1], names=names)
-    t2 = QTable([enbins, thcuts2], names=names)
-    # comparing identical cuts ==> should return True
-    assert interp.compare_irf_cuts([t1,t1b])
-
-    # this one should raise an exception
-    with pytest.raises(ValueError):
-        assert interp.compare_irf_cuts([t1,t2])
 
 
 def test_interpolate_effective_area_per_energy_and_fov():
