@@ -71,7 +71,7 @@ jobs:
             pip install -U pip setuptools wheel sphinx
             pip install -e '.[docs]'
             python examples/calculate_eventdisplay_irfs.py
-          build-command: make html SPHINXOPTS="-W --keep-going -n --color"
+          build-command: make html SPHINXOPTS="-W --keep-going -n --color -w /tmp/sphinx-log"
 
       - name: Deploy to gihub pages
         # only run on push to master
