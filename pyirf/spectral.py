@@ -88,6 +88,7 @@ class PowerLaw:
         normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, index, e_ref=1 * u.TeV):
+        """Create a new PowerLaw spectrum"""
         self.normalization = normalization
         self.index = index
         self.e_ref = e_ref
@@ -155,6 +156,7 @@ class LogParabola:
         normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, a, b, e_ref=1 * u.TeV):
+        """Create a new LogParabola spectrum"""
         self.normalization = normalization
         self.a = a
         self.b = b
@@ -212,6 +214,7 @@ class PowerLawWithExponentialGaussian(PowerLaw):
         normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
     def __init__(self, normalization, index, e_ref, f, mu, sigma):
+        """Create a new PowerLawWithExponentialGaussian spectrum"""
         super().__init__(normalization=normalization, index=index, e_ref=e_ref)
         self.f = f
         self.mu = mu
@@ -230,18 +233,21 @@ class PowerLawWithExponentialGaussian(PowerLaw):
 
     def __repr__(self):
         s = super().__repr__()
-        gauss = f'Gauss(log10(E / {self.e_ref}), {self.mu}, {self.sigma})'
-        return s[:-1] + f' * (1 + {self.f} * (exp({gauss}) - 1))'
-
+        gauss = f"Gauss(log10(E / {self.e_ref}), {self.mu}, {self.sigma})"
+        return s[:-1] + f" * (1 + {self.f} * (exp({gauss}) - 1))"
 
 
 class TableInterpolationSpectrum:
-    '''
+    """
     Interpolate flux points to obtain a spectrum.
 
     By default, flux is interpolated linearly in log-log space.
-    '''
-    def __init__(self, energy, flux, log_energy=True, log_flux=True, reference_energy=1 * u.TeV):
+    """
+
+    def __init__(
+        self, energy, flux, log_energy=True, log_flux=True, reference_energy=1 * u.TeV
+    ):
+        """Create a new TableInterpolationSpectrum spectrum"""
         self.energy = energy
         self.flux = flux
         self.flux_unit = flux.unit
@@ -260,7 +266,6 @@ class TableInterpolationSpectrum:
 
         self.interp = interp1d(x, y, bounds_error=False, fill_value="extrapolate")
 
-
     def __call__(self, energy):
 
         x = (energy / self.reference_energy).to_value(u.one)
@@ -271,12 +276,14 @@ class TableInterpolationSpectrum:
         y = self.interp(x)
 
         if self.log_flux:
-            y = 10**y
+            y = 10 ** y
 
         return u.Quantity(y, self.flux_unit, copy=False)
 
     @classmethod
-    def from_table(cls, table: QTable, log_energy=True, log_flux=True, reference_energy=1 * u.TeV):
+    def from_table(
+        cls, table: QTable, log_energy=True, log_flux=True, reference_energy=1 * u.TeV
+    ):
         return cls(
             table["energy"],
             table["flux"],
@@ -286,7 +293,9 @@ class TableInterpolationSpectrum:
         )
 
     @classmethod
-    def from_file(cls, path, log_energy=True, log_flux=True, reference_energy=1 * u.TeV):
+    def from_file(
+        cls, path, log_energy=True, log_flux=True, reference_energy=1 * u.TeV
+    ):
         return cls.from_table(
             QTable.read(path),
             log_energy=log_energy,
@@ -353,4 +362,6 @@ IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
 #: For higher energies we assume a
 #: flattening of the dF/dE*E^2.7 more or less in the middle of the large
 #: spread of the available data reported on the same proceeding.
-DAMPE_P_He_SPECTRUM = TableInterpolationSpectrum.from_file(resource_filename("pyirf", "resources/dampe_p+he.ecsv"))
+DAMPE_P_He_SPECTRUM = TableInterpolationSpectrum.from_file(
+    resource_filename("pyirf", "resources/dampe_p+he.ecsv")
+)
