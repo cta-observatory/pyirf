@@ -437,11 +437,10 @@ def read_irf_grid(files, extname, field_name):
     for this_file in files:
         # [0] because there the IRFs are written as a single row of the table
         # we transpose because of a different axis sequence in fits file and in pyirf
-        # and multiplication by u.one is to have Quantity also for migration matrix
-        irfs_all.append(QTable.read(this_file, hdu=extname)[field_name][0].T * u.one)
+        irfs_all.append(QTable.read(this_file, hdu=extname)[field_name][0].T)
 
     # convert the list to a multidimentional table
-    irfs_all = np.array(irfs_all) * irfs_all[0].unit
+    irfs_all = np.stack(irfs_all)
 
     # if the function is run on single file do not need the first axis dimension
     if len(files) == 1:
