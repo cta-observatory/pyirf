@@ -189,7 +189,6 @@ def create_energy_dispersion_hdu(
     edisp["THETA_LO"], edisp["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
     # transpose as FITS uses opposite dimension order
     edisp["MATRIX"] = u.Quantity(energy_dispersion.T[np.newaxis, ...]).to(u.one)
-
     # required header keywords
     header = DEFAULT_HEADER.copy()
     header["HDUCLAS1"] = "RESPONSE"
@@ -352,6 +351,11 @@ def read_irf_cuts(files, extname='THETA_CUTS'):
     for file_name in files:
         table = QTable.read(file_name, hdu=extname)
         cuts.append(table)
+
+    # if the function is run on single file do not need the first axis dimension
+    if len(files) == 1:
+        cuts = cuts[0]
+
     return cuts
 
 
@@ -428,19 +432,22 @@ def read_irf_grid(files, extname, field_name):
     if isinstance(files, str):
         files = [files]
 
-    n_files = len(files)
-
     irfs_all = list()
 
     for this_file in files:
         # [0] because there the IRFs are written as a single row of the table
-        irfs_all.append(QTable.read(this_file, hdu=extname)[field_name][0])
+        # we transpose because of a different axis sequence in fits file and in pyirf
+        # and multiplication by u.one is to have Quantity also for migration matrix
+        irfs_all.append(QTable.read(this_file, hdu=extname)[field_name][0].T * u.one)
+
+    # convert the list to a multidimentional table
+    irfs_all = np.array(irfs_all) * irfs_all[0].unit
 
     # if the function is run on single file do not need the first axis dimension
-    if n_files == 1:
+    if len(files) == 1:
         irfs_all = irfs_all[0]
-    # the last operation converts the list to a multidimentional table
-    return np.array(irfs_all)
+
+    return irfs_all
 
 
 def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
@@ -499,8 +506,6 @@ def read_energy_dispersion_hdu(file_name, extname="EDISP"):
 
     field_name = "MATRIX"
     energy_dispersion = read_irf_grid(file_name, extname, field_name)
-    last_axis = len(energy_dispersion.shape) - 1
-    energy_dispersion = np.swapaxes(energy_dispersion, last_axis - 2, last_axis)
     true_energy_bins, migration_bins, fov_offset_bins = read_fits_bins_lo_hi(file_name, extname, ["ENERG", "MIGRA", "THETA"])
     true_energy_bins = binning.join_bin_lo_hi(*true_energy_bins)
     migration_bins = binning.join_bin_lo_hi(*migration_bins)
