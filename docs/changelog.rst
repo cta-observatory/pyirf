@@ -36,6 +36,77 @@ We use a one-line description of every pull request.
 ..
 .. - [#XXX] TITLE (AUTHOR)
 
+.. _pyirf_0p5p0_release:
+
+`0.5.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.5.0>`__ (2021-05-05)
+-------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+- Released May 5th, 2021
+- 4 Contributors
+
+Contributors
+++++++++++++
+
+- Julian Sitarek
+- Maximilian Nöthe
+- Michele Peresano
+- Abelardo Moralejo Olaizola
+
+Description
++++++++++++
+
+Main new feature in this release are functions to interpolate grids of IRFs
+to, e.g. for different pointing directions, to new IRFs.
+Supported at the moment are effective area and energy dispersion.
+
+We also added a function to compute energy bias and resolution from the
+energy dispersion IRF and a new spectrum for cosmic rays: the DAMPE combined
+proton and helium spectrum.
+
+The other pull requests are mainly maintenance and a small bugfix.
+
+
+Merged Pull Requests
+++++++++++++++++++++
+
+- `#149 <https://github.com/cta-observatory/pyirf/pull/149>`_ Interpolation docs
+- `#141 <https://github.com/cta-observatory/pyirf/pull/141>`_ Interpolate IRFs
+- `#144 <https://github.com/cta-observatory/pyirf/pull/144>`_ Add function to compute bias and resolution from energy dispersion
+- `#145 <https://github.com/cta-observatory/pyirf/pull/145>`_ Proton+Helium spectrum from DAMPE 2019 ICRC proceeding
+- `#148 <https://github.com/cta-observatory/pyirf/pull/148>`_ Use setuptools_scm for versioning
+- `#147 <https://github.com/cta-observatory/pyirf/pull/147>`_ Fix benchmark functions for events outside given bins
+- `#138 <https://github.com/cta-observatory/pyirf/pull/138>`_ Fix name of deploy build
+- `#143 <https://github.com/cta-observatory/pyirf/pull/143>`_ Fix zenodo json
+- `#139 <https://github.com/cta-observatory/pyirf/pull/139>`_ Fix how theta cut is calculated in EventDisplay comparison
+- `#140 <https://github.com/cta-observatory/pyirf/pull/140>`_ uproot4 -> uproot
+
+
+.. _pyirf_0p4p1_release:
+
+`0.4.1 <https://github.com/cta-observatory/pyirf/releases/tag/v0.4.1>`__ (2021-03-22)
+-------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+- Released March 22nd, 2021
+- 1 Contributors
+
+Contributors
+++++++++++++
+
+- Maximilian Nöthe
+
+
+Merged Pull Requests
+++++++++++++++++++++
+
+- `#135 <https://github.com/cta-observatory/pyirf/pull/135>`_ Add functions to convert pyirf results to the corresponding gammapy classes
+- `#137 <https://github.com/cta-observatory/pyirf/pull/137>`_ Add example notebook for calculating point-lile IRFs from the FACT open data
+
 
 .. _pyirf_0p4p0_release:
 
