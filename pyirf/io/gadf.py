@@ -1,5 +1,6 @@
 from astropy.table import QTable
 import astropy.units as u
+from astropy.io import fits
 from astropy.io.fits import Header, BinTableHDU
 import numpy as np
 from astropy.time import Time
@@ -345,10 +346,10 @@ def read_irf_cuts(files, extname='THETA_CUTS'):
         list of cuts
     """
 
-    single_file=False
+    single_file = False
     if isinstance(files, str):
         files = [files]
-        single_file=True
+        single_file = True
 
     cuts = list()
     for file_name in files:
@@ -409,7 +410,7 @@ def read_fits_bins_lo_hi(file_name, extname, tags):
     return bins
 
 
-def read_irf_grid(files, extname, field_name):
+def read_irf_grid(files, extname, field_name, hduclas):
     """
     Reads in a grid of IRFs for a bunch of different parameters and stores them in lists
 
@@ -421,6 +422,8 @@ def read_irf_grid(files, extname, field_name):
         name of the extension to read the data from in fits file
     field_name: string
         name of the field in the extension to extract
+    hduclas: list of strings
+        list with expected HDUCLAS1, HDUCLAS2, ... headers.
 
     Returns
     -------
@@ -431,15 +434,26 @@ def read_irf_grid(files, extname, field_name):
         theta bins
     """
 
+    expected_headers = [[hduclasx] for hduclasx in hduclas]
+    if expected_headers[0] == [None]: expected_headers[0] = ["GADF"]
+    if expected_headers[1] == [None]: expected_headers[1] = ["RESPONSE"]
+    if expected_headers[3] == [None]: expected_headers[3] = ["POINT-LIKE", "FULL-ENCLOSURE"]
+
     # to allow the function work on either single file or a list of files convert a single string into a list
-    single_file=False
+    single_file = False
     if isinstance(files, str):
         files = [files]
-        single_file=True
+        single_file = True
 
     irfs_all = list()
 
     for this_file in files:
+        hdul = fits.open(this_file)
+        header = hdul[extname].header
+        for i, expected in enumerate(expected_headers):
+            header_i = ('HDUCLAS' + str(i)).replace('0', 'S')
+            if header[header_i] not in expected:
+                raise ValueError('Expected ' + header_i + ' in ' + str(expected) + ' and got ' + header[header_i] + " in " + this_file)
         # [0] because there the IRFs are written as a single row of the table
         # we transpose because of a different axis sequence in fits file and in pyirf
         irfs_all.append(QTable.read(this_file, hdu=extname)[field_name][0].T)
@@ -476,7 +490,7 @@ def read_aeff2d_hdu(file_name, extname="EFFECTIVE AREA"):
     """
 
     field_name = "EFFAREA"
-    effective_area = read_irf_grid(file_name, extname, field_name)
+    effective_area = read_irf_grid(file_name, extname, field_name, [None, None, "EFF_AREA", None, "AEFF_2D"])
     true_energy_bins, fov_offset_bins = read_fits_bins_lo_hi(file_name, extname, ["ENERG", "THETA"])
     true_energy_bins = binning.join_bin_lo_hi(*true_energy_bins)
     fov_offset_bins = binning.join_bin_lo_hi(*fov_offset_bins)
@@ -509,7 +523,7 @@ def read_energy_dispersion_hdu(file_name, extname="EDISP"):
     """
 
     field_name = "MATRIX"
-    energy_dispersion = read_irf_grid(file_name, extname, field_name)
+    energy_dispersion = read_irf_grid(file_name, extname, field_name, [None, None, "EDISP", None, "EDISP_2D"])
     true_energy_bins, migration_bins, fov_offset_bins = read_fits_bins_lo_hi(file_name, extname, ["ENERG", "MIGRA", "THETA"])
     true_energy_bins = binning.join_bin_lo_hi(*true_energy_bins)
     migration_bins = binning.join_bin_lo_hi(*migration_bins)

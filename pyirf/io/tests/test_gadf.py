@@ -232,7 +232,7 @@ def test_read_write_energy_dispersion(edisp_hdus):
     for hdu in hdus:
         with tempfile.NamedTemporaryFile(suffix='.fits') as f:
             fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
-            edisp2d, e_bins, mig_bins, th_bins = gadf.read_energy_dispersion_hdu(f.name, extname="ENERGY DISPERSION")
+            edisp2d, e_bins, mig_bins, th_bins = gadf.read_energy_dispersion_hdu(f.name, extname="EDISP")
             # check if the values of migration matrix are the same
             assert u.allclose(edisp, edisp2d, atol=1e-16)
             # check if the sequence of variables is fine
@@ -240,10 +240,14 @@ def test_read_write_energy_dispersion(edisp_hdus):
             assert bins_shape == edisp2d.shape
 
             # now check with reading two files
-            edisp2d, e_bins, mig_bins, th_bins = gadf.read_energy_dispersion_hdu([f.name, f.name], extname="ENERGY DISPERSION")
+            edisp2d, e_bins, mig_bins, th_bins = gadf.read_energy_dispersion_hdu([f.name, f.name], extname="EDISP")
             assert u.allclose(edisp, edisp2d[0], atol=1e-16)
             bins_shape = (2, e_bins.shape[0] - 1, mig_bins.shape[0] - 1, th_bins.shape[0] - 1)
             assert bins_shape == edisp2d.shape
+
+            # now try to read it as a wrong IRF type
+            with pytest.raises(ValueError):
+                gadf.read_aeff2d_hdu(f.name, extname="EDISP")
 
 
 def test_read_write_effective_area2d(aeff2d_hdus):
@@ -264,3 +268,7 @@ def test_read_write_effective_area2d(aeff2d_hdus):
             assert u.allclose(area, aeff2d[0], atol=-1e-16 * u.m**2)
             bins_shape = (2, e_bins.shape[0] - 1, th_bins.shape[0] - 1)
             assert bins_shape == aeff2d.shape
+
+            # now try to read it as a wrong IRF type
+            with pytest.raises(ValueError):
+                gadf.read_energy_dispersion_hdu(f.name, extname="EFFECTIVE AREA")
