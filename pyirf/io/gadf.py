@@ -344,8 +344,11 @@ def read_irf_cuts(files, extname='THETA_CUTS'):
     cuts: list
         list of cuts
     """
+
+    single_file=False
     if isinstance(files, str):
         files = [files]
+        single_file=True
 
     cuts = list()
     for file_name in files:
@@ -353,7 +356,7 @@ def read_irf_cuts(files, extname='THETA_CUTS'):
         cuts.append(table)
 
     # if the function is run on single file do not need the first axis dimension
-    if len(files) == 1:
+    if single_file:
         cuts = cuts[0]
 
     return cuts
@@ -429,8 +432,10 @@ def read_irf_grid(files, extname, field_name):
     """
 
     # to allow the function work on either single file or a list of files convert a single string into a list
+    single_file=False
     if isinstance(files, str):
         files = [files]
+        single_file=True
 
     irfs_all = list()
 
@@ -443,7 +448,7 @@ def read_irf_grid(files, extname, field_name):
     irfs_all = np.stack(irfs_all)
 
     # if the function is run on single file do not need the first axis dimension
-    if len(files) == 1:
+    if single_file:
         irfs_all = irfs_all[0]
 
     return irfs_all
