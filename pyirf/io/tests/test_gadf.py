@@ -186,7 +186,7 @@ def test_rad_max_schema(rad_max_hdu):
 
 
 def test_read_cuts():
-    """Test of reading cuts"""
+    """Test of reading cuts."""
     from pyirf.io.gadf import read_irf_cuts
 
     enbins = np.logspace(-2, 3) * u.TeV
@@ -205,7 +205,7 @@ def test_read_cuts():
 
 
 def test_compare_irf_cuts_files():
-    """Test of comparing cuts"""
+    """Test of comparing cuts."""
     from pyirf.io.gadf import compare_irf_cuts_in_files
 
     enbins = np.logspace(-2, 3) * u.TeV
@@ -225,7 +225,7 @@ def test_compare_irf_cuts_files():
 
 
 def test_read_write_energy_dispersion(edisp_hdus):
-    """Test consistency of reading and writing for migration matrix"""
+    """Test consistency of reading and writing for migration matrix."""
 
     edisp, hdus = edisp_hdus
 
@@ -251,7 +251,7 @@ def test_read_write_energy_dispersion(edisp_hdus):
 
 
 def test_read_write_effective_area2d(aeff2d_hdus):
-    """Test consistency of reading and writing for effective area"""
+    """Test consistency of reading and writing for effective area."""
 
     area, hdus = aeff2d_hdus
 
