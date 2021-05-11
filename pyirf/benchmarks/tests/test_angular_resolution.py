@@ -8,7 +8,7 @@ def test_empty_bias_resolution():
 
     events = QTable({
         'true_energy': [] * u.TeV,
-        '"theta"': [] * u.deg,
+        'theta': [] * u.deg,
     })
 
     table = angular_resolution(
