@@ -5,6 +5,22 @@ from scipy.stats import norm
 from itertools import product
 
 
+def test_empty_bias_resolution():
+    from pyirf.benchmarks import energy_bias_resolution
+
+    events = QTable({
+        'true_energy': [] * u.TeV,
+        'reco_energy': [] * u.TeV,
+    })
+
+    table = energy_bias_resolution(
+        events,
+        [1, 10, 100] * u.TeV
+    )
+
+    assert np.all(np.isnan(table["bias"]))
+    assert np.all(np.isnan(table["resolution"]))
+
 def test_energy_bias_resolution():
     from pyirf.benchmarks import energy_bias_resolution
 

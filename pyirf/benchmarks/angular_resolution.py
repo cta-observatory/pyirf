@@ -51,6 +51,11 @@ def angular_resolution(
 
     result["angular_resolution"] = np.nan * u.deg
 
+    if not len(events):
+        # if we get an empty input (no selected events available)
+        # we return the table filled with NaNs
+        return result
+
     # use groupby operations to calculate the percentile in each bin
     by_bin = table[mask].group_by("bin_index")
 

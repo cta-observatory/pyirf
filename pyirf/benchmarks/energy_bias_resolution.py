@@ -88,7 +88,7 @@ def energy_bias_resolution(
     table["bin_index"] = calculate_bin_indices(
         table[f"{energy_type}_energy"].quantity, energy_bins
     )
-    n_bins =  len(energy_bins) - 1
+    n_bins = len(energy_bins) - 1
     mask = (table["bin_index"] >= 0) & (table["bin_index"] < n_bins)
 
     result = Table()
@@ -98,6 +98,11 @@ def energy_bias_resolution(
 
     result["bias"] = np.nan
     result["resolution"] = np.nan
+
+    if not len(events):
+        # if we get an empty input (no selected events available)
+        # we return the table filled with NaNs
+        return result
 
     # use groupby operations to calculate the percentile in each bin
     by_bin = table[mask].group_by("bin_index")
