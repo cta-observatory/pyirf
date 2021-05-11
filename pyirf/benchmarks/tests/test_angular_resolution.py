@@ -3,7 +3,7 @@ import astropy.units as u
 import numpy as np
 
 
-def test_empty_bias_resolution():
+def test_empty_angular_resolution():
     from pyirf.benchmarks import angular_resolution
 
     events = QTable({
