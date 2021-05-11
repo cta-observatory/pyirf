@@ -6,13 +6,13 @@ on:
       - 'v*'
 
 jobs:
-  tests:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      
-      # make sure we have version info
-      - run: git fetch --tags
+        with:
+          fetch-depth: 0
+
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -22,7 +22,9 @@ jobs:
       - name: Install dependencies
         run: |
           python --version
-          pip install -U pip setuptools wheel
+          pip install -U pip setuptools wheel setuptools_scm[toml]
+          # make sure we have the version, grep will exit with 1 if it finds 0.0.0
+          python setup.py --version | grep -v '0.0.0'
           python setup.py sdist bdist_wheel
 
       - name: Publish package
