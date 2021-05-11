@@ -3,6 +3,21 @@ import astropy.units as u
 import numpy as np
 
 
+def test_empty_bias_resolution():
+    from pyirf.benchmarks import angular_resolution
+
+    events = QTable({
+        'true_energy': [] * u.TeV,
+        '"theta"': [] * u.deg,
+    })
+
+    table = angular_resolution(
+        events,
+        [1, 10, 100] * u.TeV
+    )
+
+    assert np.all(np.isnan(table["angular_resolution"]))
+
 def test_angular_resolution():
     from pyirf.benchmarks import angular_resolution
 
