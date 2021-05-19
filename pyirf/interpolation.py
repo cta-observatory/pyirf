@@ -95,3 +95,40 @@ def interpolate_energy_dispersion(
     return mig_norm
 
 
+def interpolate_psf_table(
+    psfs,
+    grid_points,
+    target_point,
+    method='linear',
+):
+    """
+    Takes a grid of PSF tables for a bunch of different parameters
+    and interpolates it to given value of those parameters
+
+    Parameters
+    ----------
+    psfs: np.ndarray
+        grid of PSF tables, of shape (n_grid_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
+    grid_points: np.ndarray
+        array of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
+    target_point: np.ndarray
+        values of parameters for which the interpolation is performed, of shape (n_interp_dim)
+    method: 'linear’, ‘nearest’, ‘cubic’
+        Interpolation method
+
+    Returns
+    -------
+    psf_interp: np.ndarray
+        Interpolated PSF table with shape (n_energy_bins,  n_fov_offset_bins, n_source_offset_bins)
+    """
+
+    # interpolation
+    psf_interp = griddata(grid_points, psfs, target_point, method=method)
+
+    # now we need to renormalize along the source offset axis
+    norm = np.sum(psf_interp, axis=2, keepdims=True)
+    # By using out and where, it is ensured that columns with norm = 0 will have 0 values without raising an invalid value warning
+    mig_norm = np.divide(psf_interp, norm, out=np.zeros_like(psf_interp), where=norm != 0)
+    return mig_norm
+
+
