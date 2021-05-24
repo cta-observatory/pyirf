@@ -99,6 +99,7 @@ def interpolate_psf_table(
     psfs,
     grid_points,
     target_point,
+    source_offset_bins,
     method='linear',
 ):
     """
@@ -107,12 +108,14 @@ def interpolate_psf_table(
 
     Parameters
     ----------
-    psfs: np.ndarray
+    psfs: np.ndarray of astropy.units.Quantity
         grid of PSF tables, of shape (n_grid_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
     grid_points: np.ndarray
         array of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
     target_point: np.ndarray
         values of parameters for which the interpolation is performed, of shape (n_interp_dim)
+    source_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the source offset (used for normalization)
     method: 'linear’, ‘nearest’, ‘cubic’
         Interpolation method
 
@@ -122,13 +125,12 @@ def interpolate_psf_table(
         Interpolated PSF table with shape (n_energy_bins,  n_fov_offset_bins, n_source_offset_bins)
     """
 
-    # interpolation
-    psf_interp = griddata(grid_points, psfs, target_point, method=method)
+    # interpolation (stripping units first)
+    psf_interp = griddata(grid_points, psfs.to_value('sr-1'), target_point, method=method) * u.Unit('sr-1')
 
     # now we need to renormalize along the source offset axis
-    norm = np.sum(psf_interp, axis=2, keepdims=True)
+    omegas = 2 * np.pi * (np.cos(source_offset_bins[:-1]) - np.cos(source_offset_bins[1:])) * u.sr
+    norm = np.sum(psf_interp * omegas, axis=2, keepdims=True)
     # By using out and where, it is ensured that columns with norm = 0 will have 0 values without raising an invalid value warning
-    mig_norm = np.divide(psf_interp, norm, out=np.zeros_like(psf_interp), where=norm != 0)
-    return mig_norm
-
-
+    psf_norm = np.divide(psf_interp, norm, out=np.zeros_like(psf_interp), where=norm != 0)
+    return psf_norm

@@ -109,7 +109,7 @@ def test_interpolate_energy_dispersion():
     assert np.allclose(stds, stds0, atol=0.6, rtol=0.)
 
 
-def  test_interpolate_psf_table():
+def test_interpolate_psf_table():
     """Test of interpolation of PSF tables using a simple dummy model"""
     x = [0.9, 1.1]
     y = [8., 11.5]
@@ -121,32 +121,35 @@ def  test_interpolate_psf_table():
     # define simple dummy model for angular resolution using two parameters x and y
     def get_sigma(i_en, x, y):
         i_en = i_en + 3 * ((x - 1) + (y - 10.))
-        return np.exp(-(i_en-30)/20)
+        return np.exp(-(i_en - 30) / 20)
 
     en = np.arange(n_en)[:, np.newaxis, np.newaxis]
+    src_bins = np.arange(n_src_off + 1) * u.deg
+    omegas = 2 * np.pi * (np.cos(src_bins[:-1]) - np.cos(src_bins[1:])) * u.sr
     src_off = np.arange(n_src_off)[np.newaxis, np.newaxis, :]
 
     # generate true values
     interp_pars = (1, 10)
     sigma = get_sigma(en, *interp_pars)
-    psf_true = np.exp(-src_off**2 / (2 * sigma**2))
+    psf_true = np.exp(-src_off**2 / (2 * sigma**2)) * u.Unit('sr-1')
 
     # generate a grid of PSF tables
     i_grid = 0
     pars_all = np.empty((n_grid, 2))
-    psfs_all = np.empty((n_grid, n_en,  n_offset, n_src_off))
+    psfs_all = np.empty((n_grid, n_en, n_offset, n_src_off))
     for xx in x:
         for yy in y:
             sigma = get_sigma(en, xx, yy)
             psfs_all[i_grid] = np.exp(-src_off**2 / (2 * sigma**2))
             pars_all[i_grid, :] = (xx, yy)
             i_grid += 1
+    psfs_all *= u.Unit('sr-1')
 
     # do the interpolation and compare the results with expected ones
-    psf_interp = interp.interpolate_psf_table(psfs_all, pars_all, interp_pars, method='linear')
+    psf_interp = interp.interpolate_psf_table(psfs_all, pars_all, interp_pars, src_bins, method='linear')
 
     # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
-    sums = np.sum(psf_interp, axis=2)
+    sums = np.sum(psf_interp * omegas, axis=2)
     assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min()
 
     # check the first two moments of the distribution for every energy
