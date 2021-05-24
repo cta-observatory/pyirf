@@ -100,6 +100,7 @@ def interpolate_psf_table(
     grid_points,
     target_point,
     source_offset_bins,
+    cumulative=False,
     method='linear',
 ):
     """
@@ -116,6 +117,8 @@ def interpolate_psf_table(
         values of parameters for which the interpolation is performed, of shape (n_interp_dim)
     source_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the source offset (used for normalization)
+    cumulative: bool
+        If false interpolation is done directly on PSF bins, if true first cumulative distribution is computed
     method: 'linear’, ‘nearest’, ‘cubic’
         Interpolation method
 
@@ -126,7 +129,13 @@ def interpolate_psf_table(
     """
 
     # interpolation (stripping units first)
+    if cumulative:
+        psfs = np.cumsum(psfs, axis=3)
+
     psf_interp = griddata(grid_points, psfs.to_value('sr-1'), target_point, method=method) * u.Unit('sr-1')
+
+    if cumulative:
+        psf_interp = np.concatenate((psf_interp[...,:1], np.diff(psf_interp, axis=2)), axis=2)
 
     # now we need to renormalize along the source offset axis
     omegas = 2 * np.pi * (np.cos(source_offset_bins[:-1]) - np.cos(source_offset_bins[1:])) * u.sr

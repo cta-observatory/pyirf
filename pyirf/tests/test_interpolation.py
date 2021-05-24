@@ -1,7 +1,7 @@
 import pyirf.interpolation as interp
 import numpy as np
 import astropy.units as u
-
+import pytest
 
 def test_interpolate_effective_area_per_energy_and_fov():
     """Test of interpolating of effective area using dummy model files."""
@@ -108,8 +108,8 @@ def test_interpolate_energy_dispersion():
     assert np.allclose(bias, bias0, atol=0.6, rtol=0.)
     assert np.allclose(stds, stds0, atol=0.6, rtol=0.)
 
-
-def test_interpolate_psf_table():
+@pytest.mark.parametrize("cumulative", [False, True])
+def test_interpolate_psf_table(cumulative):
     """Test of interpolation of PSF tables using a simple dummy model"""
     x = [0.9, 1.1]
     y = [8., 11.5]
@@ -146,7 +146,7 @@ def test_interpolate_psf_table():
     psfs_all *= u.Unit('sr-1')
 
     # do the interpolation and compare the results with expected ones
-    psf_interp = interp.interpolate_psf_table(psfs_all, pars_all, interp_pars, src_bins, method='linear')
+    psf_interp = interp.interpolate_psf_table(psfs_all, pars_all, interp_pars, src_bins, cumulative=cumulative, method='linear')
 
     # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
     sums = np.sum(psf_interp * omegas, axis=2)
