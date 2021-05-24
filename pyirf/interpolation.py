@@ -3,7 +3,7 @@
 import numpy as np
 import astropy.units as u
 from scipy.interpolate import griddata
-
+from pyirf.utils import cone_solid_angle
 
 __all__ = [
     'interpolate_effective_area_per_energy_and_fov',
@@ -138,7 +138,7 @@ def interpolate_psf_table(
         psf_interp = np.concatenate((psf_interp[...,:1], np.diff(psf_interp, axis=2)), axis=2)
 
     # now we need to renormalize along the source offset axis
-    omegas = 2 * np.pi * (np.cos(source_offset_bins[:-1]) - np.cos(source_offset_bins[1:])) * u.sr
+    omegas = np.diff(cone_solid_angle(source_offset_bins))
     norm = np.sum(psf_interp * omegas, axis=2, keepdims=True)
     # By using out and where, it is ensured that columns with norm = 0 will have 0 values without raising an invalid value warning
     psf_norm = np.divide(psf_interp, norm, out=np.zeros_like(psf_interp), where=norm != 0)

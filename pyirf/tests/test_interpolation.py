@@ -111,6 +111,7 @@ def test_interpolate_energy_dispersion():
 @pytest.mark.parametrize("cumulative", [False, True])
 def test_interpolate_psf_table(cumulative):
     """Test of interpolation of PSF tables using a simple dummy model"""
+    from pyirf.utils import cone_solid_angle
     x = [0.9, 1.1]
     y = [8., 11.5]
     n_grid = len(x) * len(y)
@@ -125,7 +126,7 @@ def test_interpolate_psf_table(cumulative):
 
     en = np.arange(n_en)[:, np.newaxis, np.newaxis]
     src_bins = np.arange(n_src_off + 1) * u.deg
-    omegas = 2 * np.pi * (np.cos(src_bins[:-1]) - np.cos(src_bins[1:])) * u.sr
+    omegas = np.diff(cone_solid_angle(src_bins))
     src_off = np.arange(n_src_off)[np.newaxis, np.newaxis, :]
 
     # generate true values
