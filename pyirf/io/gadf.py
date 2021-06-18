@@ -153,7 +153,7 @@ def create_energy_dispersion_hdu(
     """
     Create a fits binary table HDU in GADF format for the energy dispersion.
     See the specification at
-    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
 
     Parameters
     ----------
@@ -268,7 +268,7 @@ def create_rad_max_hdu(
     """
     Create a fits binary table HDU in GADF format for the directional cut.
     See the specification at
-    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/point_like/index.html?highlight=RAD_MAX#rad-max
 
     Parameters
     ----------
