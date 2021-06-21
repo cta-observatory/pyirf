@@ -1,7 +1,7 @@
 import pyirf.interpolation as interp
 import numpy as np
 import astropy.units as u
-
+import pytest
 
 def test_interpolate_effective_area_per_energy_and_fov():
     """Test of interpolating of effective area using dummy model files."""
@@ -31,6 +31,22 @@ def test_interpolate_effective_area_per_energy_and_fov():
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
 
 
+def calc_mean_std(matrix, vals):
+    """Auxiliary function to compute mean and std from 'matrix' along an axis which values are in 'values'."""
+    n_en = matrix.shape[0]
+    means = np.empty(n_en)
+    stds = np.empty(n_en)
+    for i_en in np.arange(n_en):
+        w = matrix[i_en, :]
+        if np.sum(w) > 0:
+            means[i_en] = np.average(vals, weights=w)
+            stds[i_en] = np.sqrt(np.cov(vals, aweights=w))
+        else:  # we need to skip the empty columns
+            means[i_en] = -1
+            stds[i_en] = -1
+    return means, stds
+
+
 def test_interpolate_energy_dispersion():
     """Test of interpolation of energy dispersion matrix using a simple dummy model."""
     x = [0.9, 1.1]
@@ -54,22 +70,6 @@ def test_interpolate_energy_dispersion():
 
     en = np.arange(n_en)[:, np.newaxis]
     mig = np.arange(n_mig)[np.newaxis, :]
-
-    # auxiliary function to compute profile of the 2D distribution
-    # used to check if the expected and interpolated matrixes are similar
-    def calc_mean_std(matrix):
-        n_en = matrix.shape[0]
-        means = np.empty(n_en)
-        stds = np.empty(n_en)
-        for i_en in np.arange(n_en):
-            w = matrix[i_en, :]
-            if np.sum(w) > 0:
-                means[i_en] = np.average(mig[0, :], weights=w)
-                stds[i_en] = np.sqrt(np.cov(mig[0, :], aweights=w))
-            else:  # we need to skip the empty columns
-                means[i_en] = -1
-                stds[i_en] = -1
-        return means, stds
 
     # generate true values
     interp_pars = (1, 10)
@@ -95,8 +95,8 @@ def test_interpolate_energy_dispersion():
     assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min()
 
     # now check if we reconstruct the mean and sigma roughly fine after interpolation
-    bias0, stds0 = calc_mean_std(mig_true)  # true
-    bias, stds = calc_mean_std(mig_interp[:, :, 0])  # interpolated
+    bias0, stds0 = calc_mean_std(mig_true, mig[0, :])  # true
+    bias, stds = calc_mean_std(mig_interp[:, :, 0], mig[0, :])  # interpolated
 
     # first remove the bins that are empty in true value
     idxs = bias0 > 0
@@ -107,3 +107,56 @@ def test_interpolate_energy_dispersion():
     # allowing for a 0.6 bin size error on the interpolated values
     assert np.allclose(bias, bias0, atol=0.6, rtol=0.)
     assert np.allclose(stds, stds0, atol=0.6, rtol=0.)
+
+@pytest.mark.parametrize("cumulative", [False, True])
+def test_interpolate_psf_table(cumulative):
+    """Test of interpolation of PSF tables using a simple dummy model"""
+    from pyirf.utils import cone_solid_angle
+    x = [0.9, 1.1]
+    y = [8., 11.5]
+    n_grid = len(x) * len(y)
+    n_offset = 1
+    n_en = 30
+    n_src_off = 20
+
+    # define simple dummy model for angular resolution using two parameters x and y
+    def get_sigma(i_en, x, y):
+        i_en = i_en + 3 * ((x - 1) + (y - 10.))
+        return np.exp(-(i_en - 30) / 20)
+
+    en = np.arange(n_en)[:, np.newaxis, np.newaxis]
+    src_bins = np.arange(n_src_off + 1) * u.deg
+    omegas = np.diff(cone_solid_angle(src_bins))
+    src_off = np.arange(n_src_off)[np.newaxis, np.newaxis, :]
+
+    # generate true values
+    interp_pars = (1, 10)
+    sigma = get_sigma(en, *interp_pars)
+    psf_true = np.exp(-src_off**2 / (2 * sigma**2)) * u.Unit('sr-1')
+
+    # generate a grid of PSF tables
+    i_grid = 0
+    pars_all = np.empty((n_grid, 2))
+    psfs_all = np.empty((n_grid, n_en, n_offset, n_src_off))
+    for xx in x:
+        for yy in y:
+            sigma = get_sigma(en, xx, yy)
+            psfs_all[i_grid] = np.exp(-src_off**2 / (2 * sigma**2))
+            pars_all[i_grid, :] = (xx, yy)
+            i_grid += 1
+    psfs_all *= u.Unit('sr-1')
+
+    # do the interpolation and compare the results with expected ones
+    psf_interp = interp.interpolate_psf_table(psfs_all, pars_all, interp_pars, src_bins, cumulative=cumulative, method='linear')
+
+    # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
+    sums = np.sum(psf_interp * omegas, axis=2)
+    assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min()
+
+    # check the first two moments of the distribution for every energy
+    mean_true, std_true = calc_mean_std(psf_true[:, 0, :], src_off[0, 0, :])
+    mean_interp, std_interp = calc_mean_std(psf_interp[:, 0, :], src_off[0, 0, :])
+
+    # check if they are within 10% + 0.25 of bin size
+    assert np.allclose(mean_interp, mean_true, atol=0.25, rtol=0.1)
+    assert np.allclose(std_interp, std_true, atol=0.25, rtol=0.1)
