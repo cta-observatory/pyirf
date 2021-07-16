@@ -1,15 +1,17 @@
 import astropy.units as u
 import numpy as np
 
+__all__ = [
+    'SimulatedEventsInfo',
+]
+
 
 class SimulatedEventsInfo:
     """
-    Information about all simulated events,
-    needed for calculating event weights.
+    Information about all simulated events, for calculating event weights.
 
     Attributes
     ----------
-
     n_showers: int
         Total number of simulated showers. If reuse was used, this
         should already include the reuse.
@@ -21,6 +23,8 @@ class SimulatedEventsInfo:
         Maximum simulated impact parameter
     spectral_index: float
         Spectral Index of the simulated power law with sign included.
+    viewcone: u.Quantity[angle]
+        Opening angle of the viewcone
     """
 
     __slots__ = (
@@ -38,11 +42,18 @@ class SimulatedEventsInfo:
     def __init__(
         self, n_showers, energy_min, energy_max, max_impact, spectral_index, viewcone
     ):
+        #: Total number of simulated showers, if reuse was used, this must
+        #: already include reuse
         self.n_showers = n_showers
+        #: Lower limit of the simulated energy range
         self.energy_min = energy_min
+        #: Upper limit of the simulated energy range
         self.energy_max = energy_max
+        #: Maximum simualted impact radius
         self.max_impact = max_impact
+        #: Spectral index of the simulated power law with sign included
         self.spectral_index = spectral_index
+        #: Opening angle of the viewcone
         self.viewcone = viewcone
 
         if spectral_index > -1:
@@ -58,12 +69,12 @@ class SimulatedEventsInfo:
 
         Parameters
         ----------
-        energy_bins: ``~astropy.units.Quantity``[energy]
+        energy_bins: astropy.units.Quantity[energy]
             The interval edges for which to calculate the number of simulated showers
 
         Returns
         -------
-        n_showers: ``~numpy.ndarray``
+        n_showers: numpy.ndarray
             The expected number of events inside each of the ``energy_bins``.
             This is a floating point number.
             The actual numbers will follow a poissionian distribution around this

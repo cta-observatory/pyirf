@@ -63,7 +63,9 @@ which this documentation is linked.
   benchmarks/index
   cuts
   cut_optimization
+  simulation
   spectral
+  statistics
   binning
   io/index
   interpolation
