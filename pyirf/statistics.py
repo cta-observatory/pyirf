@@ -2,12 +2,14 @@ import numpy as np
 
 from .utils import is_scalar
 
+__all__  = ['li_ma_significance']
+
 
 def li_ma_significance(n_on, n_off, alpha=0.2):
     """
     Calculate the Li & Ma significance.
 
-    Formula (17) doi.org/10.1086/161295
+    Formula (17) in https://doi.org/10.1086/161295
 
     This functions returns 0 significance when n_on < alpha * n_off
     instead of the negative sensitivities that would result from naively
