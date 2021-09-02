@@ -11,17 +11,20 @@ __all__ = [
 
 
 def _normalize_hist(hist):
-    # (N_E, N_MIGRA, N_FOV)
-    # (N_E, N_FOV)
+    # make sure we do not mutate the input array
+    hist = hist.copy()
 
+    # calculate number of events along the N_MIGRA axis to get events
+    # per energy per fov
     norm = hist.sum(axis=1)
-    h = np.swapaxes(hist, 0, 1)
 
     with np.errstate(invalid="ignore"):
-        h /= norm
+        # hist shape is (N_E, N_MIGRA, N_FOV), norm shape is (N_E, N_FOV)
+        # so we need to add a new axis in the middle to get (N_E, 1, N_FOV)
+        # for broadcasting
+        hist = hist / norm[:, np.newaxis, :]
 
-    h = np.swapaxes(h, 0, 1)
-    return np.nan_to_num(h)
+    return np.nan_to_num(hist)
 
 
 def energy_dispersion(
@@ -72,7 +75,6 @@ def energy_dispersion(
     )
 
     n_events_per_energy = energy_dispersion.sum(axis=1)
-    assert len(n_events_per_energy) == len(true_energy_bins) - 1
     energy_dispersion = _normalize_hist(energy_dispersion)
 
     return energy_dispersion
