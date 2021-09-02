@@ -50,23 +50,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: git fetch --tags
+        with:
+          fetch-depth: 0
 
-      - name: Download data
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install doc dependencies
+        run: |
+          sudo apt update --yes && sudo apt install --yes git build-essential pandoc curl graphviz
+          pip install -U pip setuptools wheel
+          pip install -e .[docs]
+          git describe --tags
+          python -c 'import pyirf; print(pyirf.__version__)'
+
+      - name: Download data and run example
         env:
           DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
         run: |
           ./download_test_data.sh
+          python examples/calculate_eventdisplay_irfs.py
 
-      - uses: ammaraskar/sphinx-action@master
-        with:
-          docs-folder: "docs/"
-          pre-build-command: |
-            apt update --yes && apt install --yes git build-essential pandoc curl
-            pip install -U pip setuptools wheel sphinx
-            pip install -e '.[docs]'
-            python examples/calculate_eventdisplay_irfs.py
-          build-command: make html SPHINXOPTS="-W --keep-going -n --color -w /tmp/sphinx-log"
+      - name: Build docs
+        run: cd docs && make html SPHINXOPTS="-W --keep-going -n --color -j auto"
 
       - name: Deploy to gihub pages
         # only run on push to master
