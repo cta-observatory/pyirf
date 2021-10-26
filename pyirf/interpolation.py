@@ -127,8 +127,9 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     be given at the dimension specified by axis.
 
     m: numpy.ndarray, shape=(2)
-    Array of the 2 morphing parameter values corresponding to the 2 input templates
-
+    Array of the 2 morphing parameter values corresponding to the 2 input templates. The pdf's qunatiles 
+    are expected to vary linearly between these two reference points.
+ 
     m_prime: float
     Value for which the interpolation is performed (target point)
 
