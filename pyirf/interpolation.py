@@ -46,7 +46,7 @@ def numerical_quantile(pdf, mids, percentile):
 
     Parameters
     ----------
-    pdf: numpy.ndarray, shape=(N)
+    pdf: numpy.ndarray, shape=(2)
     Input histogram
 
     mids: numpy.ndarray, shape=(M)
@@ -121,13 +121,13 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     edges: numpy.ndarray, shape=(M+1)
     Common array of bin-edges (along the abscissal ("x") axis) for the M bins of the input templates
 
-    hists: numpy.ndarray, shape=(N,...,M,...)
-    Array of M bin-heights (along the ordinate ("y") axis) for each of the N input templates.
+    hists: numpy.ndarray, shape=(2,...,M,...)
+    Array of M bin-heights (along the ordinate ("y") axis) for each of the 2 input templates.
     The distributions to be interpolated (e.g. MigraEnerg for the IRFs Energy Dispersion) is expected to
     be given at the dimension specified by axis.
 
-    m: numpy.ndarray, shape=(N)
-    Array of the N morphing parameter values corresponding to the N input templates
+    m: numpy.ndarray, shape=(2)
+    Array of the 2 morphing parameter values corresponding to the 2 input templates
 
     m_prime: float
     Value at which the histogram should be interpolated
@@ -142,7 +142,7 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
 
     Returns
     -------
-    f_new: numpy.ndarray, shape=(N,...,M,...)
+    f_new: numpy.ndarray, shape=(...,M,...)
     Interpolated histograms
 
     References
@@ -183,7 +183,7 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     q_bar = q_bar[None, :]
     V_bar = V_bar[None, :]
 
-    # Shift interpolated pdf back into the original histogram binsm as V_bar is by construction given at
+    # Shift interpolated pdf back into the original histogram bins as V_bar is by construction given at
     # positions q_bar.
     width = np.diff(edges)[0]
     helper = np.concatenate((q_bar, V_bar), axis=axis)
