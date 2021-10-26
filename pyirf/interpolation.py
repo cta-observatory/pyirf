@@ -130,7 +130,7 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     Array of the 2 morphing parameter values corresponding to the 2 input templates
 
     m_prime: float
-    Value at which the histogram should be interpolated
+    Value for which the interpolation is performed (target point)
 
     axis: int
     Axis along which the pdfs used for interpolation are located
