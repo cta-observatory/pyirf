@@ -154,9 +154,7 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     # determine quantiles step
     percentages = np.linspace(0, 1, 1000)
     mids = bin_center(edges)
-    quantiles = np.apply_along_axis(
-        numerical_quantile, axis, hists, *[mids, percentages]
-    )
+    quantiles = np.apply_along_axis(numerical_quantile, axis, hists, mids, percentages)
 
     # interpolate quantiles step
     # First: compute alpha from eq. (6), the euclidean norm between the two grid points has to be one,
@@ -173,21 +171,21 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     # The original PDF (only given as histogram) has to be re-evaluated at the quantiles determined above
     binnr = np.digitize(quantiles, edges)
     helper = np.concatenate((hists, binnr), axis=axis)
-    V = np.apply_along_axis(lookup, axis, helper, *[hists.shape[axis]])
+    V = np.apply_along_axis(lookup, axis, helper, hists.shape[axis])
 
     # Compute the interpolated histogram at positions q_bar
     V_bar = V[0] * V[1] / ((1 - alpha) * V[1] + alpha * V[0])
 
     # Create temporal axis to imitate the former shape, as one dimension was lost through the interpolation and
     # therefore axis might not longer be correct
-    q_bar = q_bar[None, :]
-    V_bar = V_bar[None, :]
+    q_bar = q_bar[np.newaxis, :]
+    V_bar = V_bar[np.newaxis, :]
 
     # Shift interpolated pdf back into the original histogram bins as V_bar is by construction given at
     # positions q_bar.
     width = np.diff(edges)
     helper = np.concatenate((q_bar, V_bar), axis=axis)
-    interpolated_histogram = np.apply_along_axis(rebin, axis, helper, *[mids, width])
+    interpolated_histogram = np.apply_along_axis(rebin, axis, helper, mids, width)
 
     # Re-Normalize, as the normalisation is lost due to approximate nature of this method
     if normalize == "sum":
