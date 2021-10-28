@@ -111,7 +111,9 @@ def rebin(entries, mids, width):
     )
 
 
-def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
+def interp_hist_quantile(
+    edges, hists, m, m_prime, axis, normalize, quantile_resolution=1e-3
+):
     """
     Function that wraps up the quantile PDF interpolation procedure [1] adopted for histograms.
 
@@ -140,6 +142,9 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     the interpolated histogram to a sum of 1, "weighted_sum" to an integral of 1. None does not apply any
     normalization.
 
+    quantile_resolution: float
+    Interpolated quantile spacing, defaults to 1/1000
+
     Returns
     -------
     f_new: numpy.ndarray, shape=(...,M,...)
@@ -152,7 +157,7 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
            https://engineering.ucsc.edu/sites/default/files/technical-reports/UCSC-SOE-13-13.pdf
     """
     # determine quantiles step
-    percentages = np.linspace(0, 1, 1000)
+    percentages = np.arange(0, 1, quantile_resolution)
     mids = bin_center(edges)
     quantiles = np.apply_along_axis(numerical_quantile, axis, hists, mids, percentages)
 
