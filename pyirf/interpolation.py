@@ -4,6 +4,7 @@ import numpy as np
 import astropy.units as u
 from scipy.interpolate import griddata, interp1d
 from pyirf.utils import cone_solid_angle
+from pyirf.binning import bin_center
 
 __all__ = [
     "interpolate_effective_area_per_energy_and_fov",
@@ -152,7 +153,7 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     """
     # determine quantiles step
     percentages = np.linspace(0, 1, 1000)
-    mids = (edges[:-1] + edges[1:]) / 2
+    mids = bin_center(edges)
     quantiles = np.apply_along_axis(
         numerical_quantile, axis, hists, *[mids, percentages]
     )
@@ -184,7 +185,7 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
 
     # Shift interpolated pdf back into the original histogram bins as V_bar is by construction given at
     # positions q_bar.
-    width = np.diff(edges)[0]
+    width = np.diff(edges)
     helper = np.concatenate((q_bar, V_bar), axis=axis)
     interpolated_histogram = np.apply_along_axis(rebin, axis, helper, *[mids, width])
 
