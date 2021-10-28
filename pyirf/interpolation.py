@@ -64,17 +64,15 @@ def numerical_quantile(pdf, mids, percentile):
     if np.sum(pdf) == 0:
         return np.full(len(percentile), np.nan)
 
-    # Compute cdf and interpolate for continuity, Normalize to one first, since the sum of a histogram does not
+    # Compute cdf and interpolate for ppf, Normalize to one first, since the sum of a histogram does not
     # need to be one
     cdf = np.cumsum(pdf)
-    interp = interp1d(mids, cdf / cdf.max(), fill_value=(0, 1))
+    interp = interp1d(
+        cdf / cdf.max(), mids, fill_value=(mids.min(), mids.max()), bounds_error=False
+    )
 
-    # Create more continious version of the cdf
-    x_range = np.linspace(mids.min(), mids.max(), 10000)
-    y_new = interp(x_range)
-
-    # Lookup when the cdf first lies above a certain percentile
-    return [x_range[y_new >= perc][0] for perc in percentile]
+    # Lookup ppf value
+    return interp(percentile)
 
 
 def rebin(entries, mids, width):
@@ -127,9 +125,9 @@ def interp_hist_quantile(edges, hists, m, m_prime, axis, normalize):
     be given at the dimension specified by axis.
 
     m: numpy.ndarray, shape=(2)
-    Array of the 2 morphing parameter values corresponding to the 2 input templates. The pdf's qunatiles 
+    Array of the 2 morphing parameter values corresponding to the 2 input templates. The pdf's qunatiles
     are expected to vary linearly between these two reference points.
- 
+
     m_prime: float
     Value for which the interpolation is performed (target point)
 
