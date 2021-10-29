@@ -6,6 +6,8 @@ from scipy.interpolate import griddata, interp1d
 from pyirf.utils import cone_solid_angle
 from pyirf.binning import bin_center
 
+import warnings
+
 __all__ = [
     "interpolate_effective_area_per_energy_and_fov",
     "interpolate_energy_dispersion",
@@ -103,12 +105,19 @@ def rebin(entries, mids, width):
     y = entries[int(len(entries) / 2) :]
 
     # Put into bins, replace nans by 0 that arise in those bins where no entries lie (np.mean([]) = np.nan)
-    return np.nan_to_num(
-        [
+    # Catch both warnings that arise when np.mean([]) is called, as this is anticipated.
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings(action="ignore", message="Mean of empty slice")
+        warnings.filterwarnings(
+            action="ignore", message="invalid value encountered in double_scalars"
+        )
+        rebinned_histogram = [
             np.mean(y[(x >= low) & (x < up)])
             for low, up in zip(mids - width / 2, mids + width / 2)
         ]
-    )
+
+    return np.nan_to_num(rebinned_histogram)
 
 
 def interp_hist_quantile(
@@ -157,7 +166,7 @@ def interp_hist_quantile(
            https://engineering.ucsc.edu/sites/default/files/technical-reports/UCSC-SOE-13-13.pdf
     """
     # determine quantiles step
-    percentages = np.arange(0, 1, quantile_resolution)
+    percentages = np.arange(0, 1 + 0.5 * quantile_resolution, quantile_resolution)
     mids = bin_center(edges)
     quantiles = np.apply_along_axis(numerical_quantile, axis, hists, mids, percentages)
 
@@ -178,10 +187,14 @@ def interp_hist_quantile(
     helper = np.concatenate((hists, binnr), axis=axis)
     V = np.apply_along_axis(lookup, axis, helper, hists.shape[axis])
 
-    # Compute the interpolated histogram at positions q_bar
-    V_bar = V[0] * V[1] / ((1 - alpha) * V[1] + alpha * V[0])
+    # Compute the interpolated histogram at positions q_bar as in eq. (12), set V_bar to
+    # zero when both template PDFs are zero
+    # V_bar = V[0] * V[1] / ((1 - alpha) * V[1] + alpha * V[0])
+    a = V[0] * V[1]
+    b = (1 - alpha) * V[1] + alpha * V[0]
+    V_bar = np.divide(a, b, out=np.zeros_like(a), where=b != 0)
 
-    # Create temporal axis to imitate the former shape, as one dimension was lost through the interpolation and
+    # Create temporary axis to imitate the former shape, as one dimension was lost through the interpolation and
     # therefore axis might not longer be correct
     q_bar = q_bar[np.newaxis, :]
     V_bar = V_bar[np.newaxis, :]
@@ -193,20 +206,23 @@ def interp_hist_quantile(
     interpolated_histogram = np.apply_along_axis(rebin, axis, helper, mids, width)
 
     # Re-Normalize, as the normalisation is lost due to approximate nature of this method
+    # Set norm to nan for empty histograms to avoid division through 0
     if normalize == "sum":
         norm = np.sum(interpolated_histogram, axis=axis)
         norm = np.repeat(
             np.expand_dims(norm, axis), interpolated_histogram.shape[axis], axis=axis
         )
+        norm[norm == 0] = np.nan
     elif normalize == "weighted_sum":
         norm = np.sum(interpolated_histogram * width, axis=axis)
         norm = np.repeat(
             np.expand_dims(norm, axis), interpolated_histogram.shape[axis], axis=axis
         )
+        norm[norm == 0] = np.nan
     elif normalize is None:
         norm = 1
 
-    # Normalize and squeeze the temporal axis from the result
+    # Normalize and squeeze the temporary axis from the result
     return np.nan_to_num(interpolated_histogram / norm).squeeze()
 
 
