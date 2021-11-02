@@ -3,6 +3,7 @@
 import numpy as np
 import astropy.units as u
 from scipy.interpolate import griddata, interp1d
+from scipy.spatial import Delaunay
 from pyirf.utils import cone_solid_angle
 from pyirf.binning import bin_center
 
@@ -303,12 +304,88 @@ def interpolate_energy_dispersion(
     -------
     matrix_interp: np.ndarray
         Interpolated dispersion matrix 3D array with shape (n_energy_bins, n_migration_bins, n_fov_offset_bins)
-    """
 
-    matrix_interp = interp_hist_quantile(
-        bin_edges, energy_dispersions, grid_points, target_point, axis, normalize
+    Raises
+    ------
+    ValueError if target_point is outside grid
+
+    ValueError if grid dimension is > 2
+    """
+    # Test grid and energy_dispersions for matching dimensions
+    if len(grid_points) != energy_dispersions.shape[0]:
+        raise ValueError("Number of grid- and template-points not matching.")
+
+    # If grid is nD with n>2: Raise Error.
+    if (not np.isscalar(grid_points[0])) and (len(grid_points[0]) > 2):
+        raise ValueError("Grid Dimension > 2")
+
+    # If data is 1D: directly interpolate between next neighbors
+    if np.isscalar(grid_points[0]):
+        # Sort arrays to find the pair of next neighbors to the target_point
+        sorting_indizes = np.argsort(grid_points)
+        sorted_grid = grid_points[sorting_indizes]
+        sorted_template = energy_dispersions[sorting_indizes]
+        input_pos = np.digitize(target_point, sorted_grid)
+
+        if (input_pos == len(grid_points)) or (input_pos == -1):
+            raise ValueError("The target point lies outside the specified grid.")
+
+        neighbors = np.array([input_pos - 1, input_pos])
+
+        # Get matching pdfs and interpolate
+        grid_point_subset = sorted_grid[neighbors]
+
+        template_subset = sorted_template[neighbors]
+        return interp_hist_quantile(
+            bin_edges, template_subset, grid_point_subset, target_point, axis, normalize
+        )
+
+    # Else for 2D: Chain 1D interpolations to arive at the desired point
+
+    # Find simplex (triangle in this 2D case) of grid-points in which the target point lies.
+    # Use Delaunay-Transformation to costruct a triangular grid from grid_points.
+    triangular_grid = Delaunay(grid_points)
+    target_simplex = triangular_grid.find_simplex(target_point)
+    if target_simplex == -1:
+        raise ValueError("The target point lies outside the specified grid.")
+
+    target_simplex_indices = triangular_grid.simplices[target_simplex]
+    target_simplex_vertices = grid_points[target_simplex_indices]
+
+    # Use the segment between the two vertices of the triangle that are closest to the target_point to construct
+    # the intermediate point m_tilde. m_tilde will be the point where the line between
+    # the most distant vertex and the target point crosses the remaining triangle side. This construction assures
+    # minimal distance between m_tilde and the target point and should thus minimize interpolation error.
+    distances = np.linalg.norm(target_point - target_simplex_vertices, axis=1)
+
+    sorting_indizes = np.argsort(distances)
+    sorted_vertices = target_simplex_vertices[sorting_indizes]
+    sorted_indices = target_simplex_indices[sorting_indizes]
+
+    # Construct m_tilde. This needs one to solve a problem of the form Ax = b
+    A = np.array(
+        [target_point - sorted_vertices[-1], -sorted_vertices[1] + sorted_vertices[0]]
+    ).T
+    b = sorted_vertices[0] - sorted_vertices[-1]
+    m_tilde = sorted_vertices[-1] + np.linalg.solve(A, b)[0] * (
+        target_point - sorted_vertices[-1]
     )
-    return matrix_interp
+
+    # Interpolate to m_tilde
+    template_subset = energy_dispersions[[sorted_indices[0], sorted_indices[1]], :]
+    grid_point_subset = grid_points[[sorted_indices[0], sorted_indices[1]], :]
+    interpolated_hist_tilde = interp_hist_quantile(
+        bin_edges, template_subset, grid_point_subset, m_tilde, axis, normalize
+    )
+
+    # Interpolate to target_point
+    template_subset = np.array(
+        [interpolated_hist_tilde, energy_dispersions[sorted_indices[-1], :]]
+    )
+    grid_point_subset = np.array([m_tilde, grid_points[sorted_indices[-1]]])
+    return interp_hist_quantile(
+        bin_edges, template_subset, grid_point_subset, target_point, axis, normalize
+    )
 
 
 def interpolate_psf_table(
