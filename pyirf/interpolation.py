@@ -307,6 +307,8 @@ def interpolate_energy_dispersion(
 
     Raises
     ------
+    ValueError if number of grid- and template-points is not matching
+
     ValueError if target_point is outside grid
 
     ValueError if grid dimension is > 2
