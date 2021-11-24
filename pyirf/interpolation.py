@@ -169,6 +169,7 @@ def interp_hist_quantile(
     # determine quantiles step
     percentages = np.arange(0, 1 + 0.5 * quantile_resolution, quantile_resolution)
     mids = bin_center(edges)
+
     quantiles = np.apply_along_axis(numerical_quantile, axis, hists, mids, percentages)
 
     # interpolate quantiles step
@@ -380,11 +381,15 @@ def interpolate_energy_dispersion(
         bin_edges, template_subset, grid_point_subset, m_tilde, axis, normalize
     )
 
-    # Interpolate to target_point
+    # Interpolate to target_point, reshape as axis with length 1 are lost in the computation and the shapes would not be matching
     template_subset = np.array(
-        [interpolated_hist_tilde, energy_dispersions[sorted_indices[-1], :]]
+        [
+            interpolated_hist_tilde.reshape(energy_dispersions.shape[1:]),
+            energy_dispersions[sorted_indices[-1]],
+        ]
     )
     grid_point_subset = np.array([m_tilde, grid_points[sorted_indices[-1]]])
+
     return interp_hist_quantile(
         bin_edges, template_subset, grid_point_subset, target_point, axis, normalize
     )
