@@ -381,7 +381,7 @@ def interpolate_energy_dispersion(
         bin_edges, template_subset, grid_point_subset, m_tilde, axis, normalize
     )
 
-    # Interpolate to target_point, reshape as axis with length 1 are lost in the computation and the shapes would not be matching
+    # Interpolate to target_point, reshape as axes with length 1 are lost in the computation and the shapes would not be matching
     template_subset = np.array(
         [
             interpolated_hist_tilde.reshape(energy_dispersions.shape[1:]),
@@ -390,9 +390,10 @@ def interpolate_energy_dispersion(
     )
     grid_point_subset = np.array([m_tilde, grid_points[sorted_indices[-1]]])
 
+    # Reshape result as axes with length 1 are lost in the computation and the shapes would not be matching the input shape
     return interp_hist_quantile(
         bin_edges, template_subset, grid_point_subset, target_point, axis, normalize
-    )
+    ).reshape(energy_dispersions.shape[1:])
 
 
 def interpolate_psf_table(
