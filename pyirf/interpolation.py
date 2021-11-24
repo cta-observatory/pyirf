@@ -176,8 +176,8 @@ def interp_hist_quantile(
     # First: compute alpha from eq. (6), the euclidean norm between the two grid points has to be one,
     # so normalize to ||m1-m0|| first
     dist = np.linalg.norm(m[1] - m[0])
-    g = m / (m[1] - m[0])
-    p = m_prime / (m[1] - m[0])
+    g = m / dist
+    p = m_prime / dist
     alpha = np.linalg.norm(p - g[0])
 
     # Second: Interpolate quantiles as in eq. (10)
