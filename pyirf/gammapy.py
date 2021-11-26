@@ -44,7 +44,7 @@ def create_effective_area_table_2d(
     energy_axis_true = _create_energy_axis_true(true_energy_bins)
 
     return EffectiveAreaTable2D(
-        axes = [energy_axis_true, 
+        axes = [energy_axis_true,
                 offset_axis],
         data=effective_area,
     )
@@ -86,8 +86,8 @@ def create_psf_3d(
     rad_axis = MapAxis.from_edges(source_offset_bins, name='rad')
 
     return PSF3D(
-        axes = [energy_axis_true, 
-                offset_axis, 
+        axes = [energy_axis_true,
+                offset_axis,
                 rad_axis],
         data = psf
     )
