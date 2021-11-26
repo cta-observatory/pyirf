@@ -26,7 +26,6 @@ def create_effective_area_table_2d(
 ):
     '''
     Create a ``gammapy.irf.EffectiveAreaTable2D`` from pyirf outputs.
-
     Parameters
     ----------
     effective_area: astropy.units.Quantity[area]
@@ -36,19 +35,17 @@ def create_effective_area_table_2d(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
-
     Returns
     -------
     gammapy.irf.EffectiveAreaTable2D
-
     '''
 
     offset_axis = _create_offset_axis(fov_offset_bins)
     energy_axis_true = _create_energy_axis_true(true_energy_bins)
 
     return EffectiveAreaTable2D(
-        energy_axis_true=energy_axis_true,
-        offset_axis=offset_axis,
+        axes = [energy_axis_true, 
+                offset_axis],
         data=effective_area,
     )
 
@@ -68,7 +65,6 @@ def create_psf_3d(
 ):
     """
     Create a ``gammapy.irf.PSF3D`` from pyirf outputs.
-
     Parameters
     ----------
     psf: astropy.units.Quantity[(solid angle)^-1]
@@ -81,7 +77,6 @@ def create_psf_3d(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
-
     Returns
     -------
     gammapy.irf.PSF3D
@@ -91,10 +86,10 @@ def create_psf_3d(
     rad_axis = MapAxis.from_edges(source_offset_bins, name='rad')
 
     return PSF3D(
-        energy_axis_true=energy_axis_true,
-        offset_axis=offset_axis,
-        rad_axis=rad_axis,
-        psf_value=psf,
+        axes = [energy_axis_true, 
+                offset_axis, 
+                rad_axis],
+        data = psf
     )
 
 
@@ -109,7 +104,6 @@ def create_energy_dispersion_2d(
 ):
     """
     Create a ``gammapy.irf.EnergyDispersion2D`` from pyirf outputs.
-
     Parameters
     ----------
     energy_dispersion: numpy.ndarray
@@ -122,7 +116,6 @@ def create_energy_dispersion_2d(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
-
     Returns
     -------
     gammapy.irf.EnergyDispersion2D
@@ -132,8 +125,8 @@ def create_energy_dispersion_2d(
     migra_axis = MapAxis.from_edges(migration_bins, name="migra")
 
     return EnergyDispersion2D(
-        energy_axis_true=energy_axis_true,
-        migra_axis=migra_axis,
-        offset_axis=offset_axis,
-        data=energy_dispersion,
+        axes = [energy_axis_true,
+                migra_axis,
+                offset_axis],
+        data = energy_dispersion,
     )
