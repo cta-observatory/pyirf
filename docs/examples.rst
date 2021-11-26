@@ -16,7 +16,7 @@ The resulting FITS files are the input to the example and can be downloaded usin
 
 .. code:: bash
 
-    ./download_test_data.sh
+    ./download_private_data.sh
 
 This requires ``curl`` and ``unzip`` to be installed.
 The download is password protected, please ask one of the maintainers for the
