@@ -16,7 +16,7 @@ The resulting FITS files are the input to the example and can be downloaded usin
 
 .. code:: bash
 
-    ./download_test_data.sh
+    ./download_private_data.sh
 
 This requires ``curl`` and ``unzip`` to be installed.
 The download is password protected, please ask one of the maintainers for the
@@ -34,7 +34,7 @@ by running:
 
 
 A jupyter notebook plotting the results and comparing them to the EventDisplay output
-is available in :doc:`notebooks/comparison_with_EventDisplay`.
+is available in ``examples/comparison_with_EventDisplay.ipynb``
 
 
 Visualization of the included Flux Models
