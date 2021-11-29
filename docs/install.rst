@@ -36,6 +36,30 @@ are defined in ``extras`` under ``tests`` and ``docs`` respectively
 
 These requirements can be enabled by installing the ``all`` extra:
 
+Best practice is to create a new conda environment for development as below 
+(which will get the name ``pyirf``):
+
 .. code-block:: bash
 
-    pip install -e '.[all]'  # or [docs,tests] to install them separately
+    conda env create -f environment.yml
+    conda activate pyirf
+    pip install -e '.[all]' # or [docs,tests] to install them separately
+
+where the ```-e``` switch for ``pip`` is for editable, 
+also called "Developer Mode". 
+It installs symlinks from the current directory 
+(the ``.`` in the command) into the Python in use.
+
+So this creates a new conda env with all needed dependencies 
+and symlinks to your development repository for pyirf.
+Then, your modifications can be committed with git, 
+
+*Note:* if you want to use your ongoing modifications in 
+another of your conda environments, 
+just execute the 
+
+.. code-block:: bash
+
+    pip install -e .  
+
+from your cloned directory, with that environment active.
