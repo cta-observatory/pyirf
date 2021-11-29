@@ -36,6 +36,7 @@ def create_effective_area_table_2d(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
+
     Returns
     -------
     gammapy.irf.EffectiveAreaTable2D
@@ -79,6 +80,7 @@ def create_psf_3d(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
+
     Returns
     -------
     gammapy.irf.PSF3D
@@ -120,6 +122,7 @@ def create_energy_dispersion_2d(
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
+
     Returns
     -------
     gammapy.irf.EnergyDispersion2D
