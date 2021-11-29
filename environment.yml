@@ -26,5 +26,5 @@ dependencies:
     - sphinx_automodapi
     - uproot
     - awkward1
-    - gammapy=0.19
+    - gammapy~=0.19.0
     - ogadf_schema
