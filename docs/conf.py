@@ -87,6 +87,14 @@ html_theme_options = {
     'display_version': True,
 }
 
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.7", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "astropy": ("https://docs.astropy.org/en/latest/", None),
+    "gammapy": ("https://docs.gammapy.org/0.18/", None),
+}
+
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
