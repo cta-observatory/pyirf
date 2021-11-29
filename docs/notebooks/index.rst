@@ -8,4 +8,3 @@ Example Notebooks
    :maxdepth: 1
 
    fact_example
-   comparison_with_EventDisplay

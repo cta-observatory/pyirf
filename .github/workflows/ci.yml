@@ -33,40 +33,34 @@ jobs:
           pip install --use-feature=2020-resolver -e .[all]
           pip freeze
 
-      - name: Tests without external data
+      - name: Tests
         run: |
-          pytest -m "not needs_data" --cov=pyirf --cov-report=xml
+          pytest --cov=pyirf --cov-report=xml
 
       - uses: codecov/codecov-action@v1
-
-      - name: Tests with external data
-        env:
-          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
-        run: |
-          ./download_test_data.sh
-          pytest -m "needs_data"
 
   docs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: git fetch --tags
-
-      - name: Download data
-        env:
-          DATA_PASSWORD: ${{ secrets.DATA_PASSWORD }}
-        run: |
-          ./download_test_data.sh
-
-      - uses: ammaraskar/sphinx-action@master
         with:
-          docs-folder: "docs/"
-          pre-build-command: |
-            apt update --yes && apt install --yes git build-essential pandoc curl
-            pip install -U pip setuptools wheel sphinx
-            pip install -e '.[docs]'
-            python examples/calculate_eventdisplay_irfs.py
-          build-command: make html SPHINXOPTS="-W --keep-going -n --color -w /tmp/sphinx-log"
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install doc dependencies
+        run: |
+          sudo apt update --yes && sudo apt install --yes git build-essential pandoc curl graphviz
+          pip install -U pip setuptools wheel
+          pip install -e .[docs]
+          git describe --tags
+          python -c 'import pyirf; print(pyirf.__version__)'
+
+      - name: Build docs
+        run: cd docs && make html SPHINXOPTS="-W --keep-going -n --color -j auto"
 
       - name: Deploy to gihub pages
         # only run on push to master

@@ -32,10 +32,21 @@ If you want to work on pyirf itself, clone the repository and install the local
 copy of pyirf in development mode.
 
 The dependencies required to perform unit-testing and to build the documentation
-are defined in ``extras`` under ``tests`` and ``docs`` respectively
+are defined in ``extras`` under ``tests`` and ``docs`` respectively.
 
-These requirements can be enabled by installing the ``all`` extra:
+These requirements can also be enabled by installing the ``all`` extra:
 
 .. code-block:: bash
 
     pip install -e '.[all]'  # or [docs,tests] to install them separately
+
+
+You should isolate your pyirf development environment from the rest of your system.
+Either by using a virtual environment or by using ``conda`` environments.
+``pyirf`` provides a conda ``environment.yml``, that includes all dependencies:
+
+.. code-block:: bash
+
+   conda env create -f environment.yml
+   conda activate pyirf
+   pip install -e '.[all]'
