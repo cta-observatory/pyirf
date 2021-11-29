@@ -34,7 +34,7 @@ by running:
 
 
 A jupyter notebook plotting the results and comparing them to the EventDisplay output
-is available in :doc:`notebooks/comparison_with_EventDisplay`.
+is available in ``examples/comparison_with_EventDisplay.ipynb``
 
 
 Visualization of the included Flux Models
