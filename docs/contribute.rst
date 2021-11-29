@@ -47,7 +47,7 @@ See the `GitHub tutorial on forks <https://docs.github.com/en/github/getting-sta
 #. Wait for review comments and then implement or discuss requested changes.
 
 
-We use `Travis CI <https://travis-ci.com/github/cta-observatory/pyirf>`__ to
+We use `Github Actions <https://github.com/cta-observatory/pyirf/actions?query=workflow%3ACI+branch%3Amaster>`__ to
 run the unit tests and documentation building automatically for every pull request.
 Passing unit tests and coverage of the changed code are required for all pull requests.
 
@@ -138,9 +138,3 @@ Please also have a look at the
 - `CTA IRF working group wiki (internal) <https://forge.in2p3.fr/projects/instrument-response-functions/wiki>`__
 
 - `CTA IRF Description Document for Prod3b (internal) <https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description>`__
-
-
-Benchmarks
-----------
-
-- :doc:`notebooks/comparison_with_EventDisplay`

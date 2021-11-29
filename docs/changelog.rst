@@ -135,7 +135,7 @@ This release is an important update that introduces three
 changes in the cut optimization, background estimation and sensitivity calculation.
 
 Together, these changes bring the calculated sensitivities much closer to the ones calculated by
-EventDisplay, see the updated :doc:`notebooks/comparison_with_EventDisplay`.
+EventDisplay.
 
 * Scale the relative flux calculated to reach the target sensitivity
   up if the requirements on the minimum number of signal events are not met.
