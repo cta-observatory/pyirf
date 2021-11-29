@@ -26,7 +26,7 @@ def create_effective_area_table_2d(
 ):
     '''
     Create a ``gammapy.irf.EffectiveAreaTable2D`` from pyirf outputs.
-    
+
     Parameters
     ----------
     effective_area: astropy.units.Quantity[area]
