@@ -96,7 +96,7 @@ def test_effective_area2d_gammapy(aeff2d_hdus):
             fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
             # test reading with gammapy works
             aeff2d = EffectiveAreaTable2D.read(f.name)
-            assert u.allclose(area, aeff2d.data.data, atol=1e-16 * u.m**2)
+            assert u.allclose(area, aeff2d.quantity, atol=1e-16 * u.m**2)
 
 
 def test_effective_area2d_schema(aeff2d_hdus):
@@ -121,7 +121,7 @@ def test_energy_dispersion_gammapy(edisp_hdus):
 
             # test reading with gammapy works
             edisp2d = EnergyDispersion2D.read(f.name, 'EDISP')
-            assert u.allclose(edisp, edisp2d.data.data, atol=1e-16)
+            assert u.allclose(edisp, edisp2d.quantity, atol=1e-16)
 
 
 def test_energy_dispersion_schema(edisp_hdus):
@@ -144,7 +144,7 @@ def test_psf_table_gammapy(psf_hdu):
 
         # test reading with gammapy works
         psf3d = PSF3D.read(f.name, 'PSF')
-        assert u.allclose(psf, psf3d.psf_value, atol=1e-16 / u.sr)
+        assert u.allclose(psf, psf3d.quantity, atol=1e-16 / u.sr)
 
 
 def test_psf_schema(psf_hdu):
@@ -166,7 +166,7 @@ def test_background_2d_gammapy(bg_hdu):
         # test reading with gammapy works
         bg2d = Background2D.read(f.name, 'BACKGROUND')
 
-        assert u.allclose(background, bg2d.data.data, atol=1e-16 * u.Unit('TeV-1 s-1 sr-1'))
+        assert u.allclose(background, bg2d.quantity, atol=1e-16 * u.Unit('TeV-1 s-1 sr-1'))
 
 
 def test_background_2d_schema(bg_hdu):
