@@ -47,7 +47,7 @@ See the `GitHub tutorial on forks <https://docs.github.com/en/github/getting-sta
 #. Wait for review comments and then implement or discuss requested changes.
 
 
-We use `Travis CI <https://travis-ci.com/github/cta-observatory/pyirf>`__ to
+We use `Github Actions <https://github.com/cta-observatory/pyirf/actions?query=workflow%3ACI+branch%3Amaster>`__ to
 run the unit tests and documentation building automatically for every pull request.
 Passing unit tests and coverage of the changed code are required for all pull requests.
 

@@ -2,6 +2,7 @@ name: pyirf
 
 channels:
   - default
+  - conda-forge
 dependencies:
   - python=3.7
   - numpy
@@ -17,14 +18,14 @@ dependencies:
   - pytest-cov
   # docs
   - numpydoc
+  - pytables
+  - nbsphinx
   - sphinx
   - sphinx_rtd_theme
+  - sphinx_automodapi
+  - uproot=4
+  - awkward=1
+  - gammapy=0.18
   - pip
-  - pytables
   - pip:
-    - nbsphinx
-    - sphinx_automodapi
-    - uproot
-    - awkward1
-    - gammapy
     - ogadf_schema
