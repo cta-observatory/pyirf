@@ -26,6 +26,7 @@ def create_effective_area_table_2d(
 ):
     '''
     Create a ``gammapy.irf.EffectiveAreaTable2D`` from pyirf outputs.
+    
     Parameters
     ----------
     effective_area: astropy.units.Quantity[area]
@@ -38,8 +39,8 @@ def create_effective_area_table_2d(
     Returns
     -------
     gammapy.irf.EffectiveAreaTable2D
+    
     '''
-
     offset_axis = _create_offset_axis(fov_offset_bins)
     energy_axis_true = _create_energy_axis_true(true_energy_bins)
 
@@ -65,6 +66,7 @@ def create_psf_3d(
 ):
     """
     Create a ``gammapy.irf.PSF3D`` from pyirf outputs.
+    
     Parameters
     ----------
     psf: astropy.units.Quantity[(solid angle)^-1]
@@ -80,6 +82,7 @@ def create_psf_3d(
     Returns
     -------
     gammapy.irf.PSF3D
+    
     """
     offset_axis = _create_offset_axis(fov_offset_bins)
     energy_axis_true = _create_energy_axis_true(true_energy_bins)
@@ -104,6 +107,7 @@ def create_energy_dispersion_2d(
 ):
     """
     Create a ``gammapy.irf.EnergyDispersion2D`` from pyirf outputs.
+    
     Parameters
     ----------
     energy_dispersion: numpy.ndarray
@@ -119,6 +123,7 @@ def create_energy_dispersion_2d(
     Returns
     -------
     gammapy.irf.EnergyDispersion2D
+    
     """
     offset_axis = _create_offset_axis(fov_offset_bins)
     energy_axis_true = _create_energy_axis_true(true_energy_bins)
