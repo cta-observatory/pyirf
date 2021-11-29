@@ -22,7 +22,7 @@ dependencies:
   - nbsphinx
   - sphinx
   - sphinx_rtd_theme
-  - sphinx_automodapi
+  - sphinx-automodapi
   - uproot=4
   - awkward=1
   - gammapy=0.18
