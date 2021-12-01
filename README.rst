@@ -8,9 +8,12 @@ pyirf |ci| |codacy| |coverage| |doilatest|
   :target: https://www.codacy.com/gh/cta-observatory/pyirf/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=cta-observatory/pyirf&amp;utm_campaign=Badge_Grade
 .. |coverage| image:: https://codecov.io/gh/cta-observatory/pyirf/branch/master/graph/badge.svg
   :target: https://codecov.io/gh/cta-observatory/pyirf
-.. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4304466.svg
+.. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4740755.svg
+  :target: https://doi.org/10.5281/zenodo.4740755
+.. |doi_v0.5.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4748994.svg
+  :target: https://doi.org/10.5281/zenodo.4748994
+.. |doi_v0.4.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4304466.svg
   :target: https://doi.org/10.5281/zenodo.4304466
-
 
 *pyirf* is a python3-based library for the generation of Instrument Response
 Functions (IRFs) and sensitivities for the
@@ -28,4 +31,6 @@ Citing this software
 If you use a released version of this software for a publication,
 please cite it by using the corresponding DOI:
 
-- v0.4.0 : |doilatest|
+- latest : |doilatest|
+- v0.5.0 : |doi_v0.5.0|
+- v0.4.0 : |doi_v0.4.0|
