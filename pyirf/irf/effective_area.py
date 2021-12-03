@@ -47,6 +47,8 @@ def effective_area_per_energy(
         The overall statistics of the simulated events
     true_energy_axis: gammapy.maps.MapAxis
         The bin edges in which to calculate effective area.
+    fov_offset_bins: astropy.units.Quantity[angle]
+        The field of view radial offset axis. This must only have a single bin.
     """
     area = np.pi * simulation_info.max_impact ** 2
 
@@ -87,10 +89,10 @@ def effective_area_per_energy_and_fov(
         - `true_source_fov_offset`
     simulation_info: pyirf.simulations.SimulatedEventsInfo
         The overall statistics of the simulated events
-    true_energy_bins: astropy.units.Quantity[energy]
-        The true energy bin edges in which to calculate effective area.
-    fov_offset_bins: astropy.units.Quantity[angle]
-        The field of view radial bin edges in which to calculate effective area.
+    true_energy_axis: MapAxis[energy]
+        The true energy axis in which to calculate effective area.
+    fov_offset_axis: MapAxis[angle]
+        The field of view radial offset axis in which to calculate effective area.
     """
     area = np.pi * simulation_info.max_impact ** 2
 
