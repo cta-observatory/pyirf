@@ -2,7 +2,6 @@ from setuptools import setup, find_packages
 import os
 
 
-gammapy = "gammapy~=0.19"
 
 extras_require = {
     "docs": [
@@ -15,19 +14,14 @@ extras_require = {
         "awkward1",
         "notebook",
         "tables",
-        gammapy,
     ],
     "tests": [
         "pytest",
         "pytest-cov",
-        gammapy,
         "ogadf-schema~=0.2.3",
         "uproot~=4.0",
         "awkward~=1.0",
     ],
-    "gammapy": [
-        gammapy,
-    ]
 }
 
 extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"]))
@@ -42,6 +36,7 @@ setup(
         "scipy",
         "tqdm",
         "setuptools_scm",
+        "gammapy~=0.19",
     ],
     include_package_data=True,
     extras_require=extras_require,

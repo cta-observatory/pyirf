@@ -48,6 +48,9 @@ from pyirf.io import (
 )
 
 
+from gammapy.maps import MapAxis
+
+
 log = logging.getLogger("pyirf")
 
 
@@ -121,14 +124,14 @@ def main():
 
     # event display uses much finer bins for the theta cut than
     # for the sensitivity
-    theta_bins = add_overflow_bins(
-        create_bins_per_decade(10 ** (-1.9) * u.TeV, 10 ** 2.3005 * u.TeV, 50)
+    energy_axis_theta = MapAxis.from_edges(
+        add_overflow_bins(create_bins_per_decade(10 ** (-1.9) * u.TeV, 10 ** 2.3005 * u.TeV, 50)),
+        name="energy",
     )
     # same bins as event display uses
-    sensitivity_bins = add_overflow_bins(
-        create_bins_per_decade(
-            10 ** -1.9 * u.TeV, 10 ** 2.31 * u.TeV, bins_per_decade=5
-        )
+    energy_axis_sensitivity = MapAxis.from_edges(
+        add_overflow_bins(create_bins_per_decade(10 ** (-1.9) * u.TeV, 10 ** 2.3005 * u.TeV, 5)),
+        name="energy",
     )
 
     # theta cut is 68 percent containmente of the gammas
@@ -139,7 +142,7 @@ def main():
     theta_cuts_coarse = calculate_percentile_cut(
         gammas["theta"][mask_theta_cuts],
         gammas["reco_energy"][mask_theta_cuts],
-        bins=sensitivity_bins,
+        bins=energy_axis_sensitivity.edges,
         min_value=0.05 * u.deg,
         fill_value=0.32 * u.deg,
         max_value=0.32 * u.deg,
@@ -147,11 +150,11 @@ def main():
     )
 
     # interpolate to 50 bins per decade
-    theta_center = bin_center(theta_bins)
-    inter_center = bin_center(sensitivity_bins)
+    theta_center = energy_axis_theta.center
+    inter_center = energy_axis_sensitivity.center
     theta_cuts = table.QTable({
-        "low": theta_bins[:-1],
-        "high": theta_bins[1:],
+        "low": energy_axis_theta.edges_min,
+        "high": energy_axis_theta.edges_max,
         "center": theta_center,
         "cut": np.interp(np.log10(theta_center / u.TeV), np.log10(inter_center / u.TeV), theta_cuts_coarse['cut']),
     })
@@ -166,7 +169,7 @@ def main():
     sensitivity, gh_cuts = optimize_gh_cut(
         gammas,
         background,
-        reco_energy_bins=sensitivity_bins,
+        reco_energy_bins=energy_axis_sensitivity.edges,
         gh_cut_efficiencies=gh_cut_efficiencies,
         op=operator.ge,
         theta_cuts=theta_cuts,
@@ -258,8 +261,8 @@ def main():
     psf = psf_table(
         gammas[gammas["selected_gh"]],
         true_energy_bins,
-        fov_offset_bins=fov_offset_bins,
-        source_offset_bins=source_offset_bins,
+        fov_offset_axis=fov_offset_bins,
+        source_offset_axis=source_offset_bins,
     )
 
     background_rate = background_2d(
@@ -278,7 +281,7 @@ def main():
         psf, true_energy_bins, source_offset_bins, fov_offset_bins,
     ))
     hdus.append(create_rad_max_hdu(
-        theta_cuts["cut"][:, np.newaxis], theta_bins, fov_offset_bins
+        theta_cuts["cut"][:, np.newaxis], energy_axis_theta, fov_offset_bins
     ))
     hdus.append(fits.BinTableHDU(ang_res, name="ANGULAR_RESOLUTION"))
     hdus.append(fits.BinTableHDU(bias_resolution, name="ENERGY_BIAS_RESOLUTION"))
