@@ -1,10 +1,17 @@
 import numpy as np
 import astropy.units as u
+from gammapy.irf import PSF3D
+from gammapy.maps import MapAxis
 
 from ..utils import cone_solid_angle
 
 
-def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
+def psf_table(
+    events,
+    true_energy_axis: MapAxis,
+    source_offset_axis: MapAxis,
+    fov_offset_axis: MapAxis
+):
     """
     Calculate the table based PSF (radially symmetrical bins around the true source)
     """
@@ -20,14 +27,22 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
     hist, _ = np.histogramdd(
         array,
         [
-            true_energy_bins.to_value(u.TeV),
-            fov_offset_bins.to_value(u.deg),
-            source_offset_bins.to_value(u.deg),
+            true_energy_axis.edges.to_value(u.TeV),
+            fov_offset_axis.edges.to_value(u.deg),
+            source_offset_axis.edges.to_value(u.deg),
         ],
     )
 
-    psf = _normalize_psf(hist, source_offset_bins)
-    return psf
+    psf = _normalize_psf(hist, source_offset_axis.edges)
+
+    return PSF3D(
+        axes=[
+            true_energy_axis,
+            fov_offset_axis,
+            source_offset_axis,
+        ],
+        data=psf
+    )
 
 
 def _normalize_psf(hist, source_offset_bins):

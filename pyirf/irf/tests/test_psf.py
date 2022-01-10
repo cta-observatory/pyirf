@@ -2,6 +2,8 @@ import astropy.units as u
 from astropy.table import QTable
 import numpy as np
 
+from gammapy.maps import MapAxis
+
 
 def test_psf():
     from pyirf.irf import psf_table
@@ -25,25 +27,25 @@ def test_psf():
         }
     )
 
-    energy_bins = [0, 1.5, 3] * u.TeV
-    fov_bins = [0, 1] * u.deg
-    source_bins = np.linspace(0, 1, 201) * u.deg
+    energy_axis = MapAxis.from_edges([0, 1.5, 3], unit=u.TeV, name='energy_true')
+    fov_axis = MapAxis.from_edges([0, 1], unit=u.deg, name='offset')
+    source_axis = MapAxis.from_bounds(0, 1, 200, unit=u.deg, name='rad')
 
     # We return a table with one row as needed for gadf
-    psf = psf_table(events, energy_bins, source_bins, fov_bins)
+    psf = psf_table(events, energy_axis, source_axis, fov_axis)
 
     # 2 energy bins, 1 fov bin, 200 source distance bins
-    assert psf.shape == (2, 1, 200)
-    assert psf.unit == u.Unit("sr-1")
+    assert psf.quantity.shape == (2, 1, 200)
+    assert psf.quantity.unit == u.Unit("sr-1")
 
     # check that psf is normalized
-    bin_solid_angle = np.diff(cone_solid_angle(source_bins))
-    assert np.allclose(np.sum(psf * bin_solid_angle, axis=2), 1.0)
+    bin_solid_angle = np.diff(cone_solid_angle(source_axis.edges))
+    assert np.allclose(np.sum(psf.quantity * bin_solid_angle, axis=2), 1.0)
 
-    cumulated = np.cumsum(psf * bin_solid_angle, axis=2)
+    cumulated = np.cumsum(psf.quantity * bin_solid_angle, axis=2)
 
     # first energy and only fov bin
-    bin_centers = 0.5 * (source_bins[1:] + source_bins[:-1])
+    bin_centers = source_axis.center
     assert u.isclose(
         bin_centers[np.where(cumulated[0, 0, :] >= 0.68)[0][0]],
         TRUE_SIGMA_1 * u.deg,
