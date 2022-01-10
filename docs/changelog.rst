@@ -36,6 +36,53 @@ We use a one-line description of every pull request.
 ..
 .. - [#XXX] TITLE (AUTHOR)
 
+
+.. _pyirf_0p6p0_release:
+
+`0.6.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.6.0>`__ (2021-01-10)
+-------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+- Released January 10th, 2022
+- 5 Contributors
+
+Contributors
+++++++++++++
+
+- Maximilian Nöthe
+- Michael Punch
+- Michele Peresano
+- Julian Sitarek
+- Gernot Maier
+
+Description
++++++++++++
+
+This release is mainly a maintenance release with few changes to the functionality.
+The main feature is the update to gammapy 0.19 in the tests and the utility functions
+to get gammapy IRF classes from pyirf output.
+
+In the future, we will more directly interface with and use gammapy, now that
+the science tool decision was taken.
+
+
+merged pull requests
+++++++++++++++++++++
+
+- `#164 <https://github.com/cta-observatory/pyirf/pull/164>`_ Update to gammapy 0.19
+- `#168 <https://github.com/cta-observatory/pyirf/pull/168>`_ Enable intersphinx, use to link to gammapy docs
+- `#171 <https://github.com/cta-observatory/pyirf/pull/171>`_ Add release-drafter action
+- `#172 <https://github.com/cta-observatory/pyirf/pull/172>`_ Replace outdated link to redmine by xwiki link
+- `#165 <https://github.com/cta-observatory/pyirf/pull/165>`_ Do not require private DL2 event display output anymore for unit tests
+- `#162 <https://github.com/cta-observatory/pyirf/pull/162>`_ Refactor hist normalization, remove assert from library code
+- `#160 <https://github.com/cta-observatory/pyirf/pull/160>`_ Add missing docs pages
+- `#156 <https://github.com/cta-observatory/pyirf/pull/156>`_ Interpolate psf
+- `#159 <https://github.com/cta-observatory/pyirf/pull/159>`_ GADF URL corrections
+- `#154 <https://github.com/cta-observatory/pyirf/pull/154>`_ Fill energy and/or angular resolution tables with NaNs if input events table is empty
+
+
 .. _pyirf_0p5p0_release:
 
 `0.5.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.5.0>`__ (2021-05-05)
@@ -69,7 +116,7 @@ proton and helium spectrum.
 The other pull requests are mainly maintenance and a small bugfix.
 
 
-Merged Pull Requests
+merged pull requests
 ++++++++++++++++++++
 
 - `#149 <https://github.com/cta-observatory/pyirf/pull/149>`_ Interpolation docs
