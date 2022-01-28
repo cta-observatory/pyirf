@@ -106,10 +106,9 @@ def interpolate_energy_dispersion(
            for Ensemble Visualization
            https://engineering.ucsc.edu/sites/default/files/technical-reports/UCSC-SOE-13-13.pdf
     """
-    if hists.ndim > 2:
-        # To have the needed axis always at the last index, as the number of indices is
-        # not safely propageted through the interpolation but the last element remains the last element
-        hists = np.swapaxes(hists, axis, -1)
+    # To have the needed axis always at the last index, as the number of indices is
+    # not safely propageted through the interpolation but the last element remains the last element
+    hists = np.swapaxes(hists, axis, -1)
 
     # Compute CDFs
     cdfs = np.cumsum(hists, axis=-1)
@@ -135,50 +134,39 @@ def interpolate_energy_dispersion(
     # recalculate pdf values, evaluate interpolant PDF values step of [1]
     pdf_interpolant = np.diff(quantiles) / np.diff(ppf_interpolant, axis=-1)
 
-    if hists.ndim > 2:
-        # Unconventional solution to make this usable with np.apply_along_axis for readability
-        # The ppf bin-mids are computed since the pdf-values are derived through derivation
-        # from the ppf-values
-        xyconcat = np.concatenate(
-            (
-                ppf_interpolant[..., :-1] + np.diff(ppf_interpolant) / 2,
-                np.nan_to_num(pdf_interpolant),
-            ),
-            axis=-1,
-        )
+    # Unconventional solution to make this usable with np.apply_along_axis for readability
+    # The ppf bin-mids are computed since the pdf-values are derived through derivation
+    # from the ppf-values
+    xyconcat = np.concatenate(
+        (
+            ppf_interpolant[..., :-1] + np.diff(ppf_interpolant) / 2,
+            np.nan_to_num(pdf_interpolant),
+        ),
+        axis=-1,
+    )
 
-        # Interpolate pdf samples and evaluate at bin edges, weight with the bin_width to estimate
-        # correct bin height via the midpoint rule formulation of the trapezoidal rule
-        result = np.apply_along_axis(
-            lambda xy: np.diff(edges)
-            * np.nan_to_num(
-                interp1d(
-                    xy[: int(len(xy) / 2)],
-                    xy[int(len(xy) / 2) :],
-                    bounds_error=False,
-                    fill_value=(0, 0),
-                )(bin_mids)
-            ),
-            -1,
-            xyconcat,
-        )
+    # Interpolate pdf samples and evaluate at bin edges, weight with the bin_width to estimate
+    # correct bin height via the midpoint rule formulation of the trapezoidal rule
+    result = np.apply_along_axis(
+        lambda xy: np.diff(edges)
+        * np.nan_to_num(
+            interp1d(
+                xy[: int(len(xy) / 2)],
+                xy[int(len(xy) / 2) :],
+                bounds_error=False,
+                fill_value=(0, 0),
+            )(bin_mids)
+        ),
+        -1,
+        xyconcat,
+    )
 
-        # Renormalize histogram to a sum of 1
-        norm = np.sum(result, axis=-1)
-        norm = np.repeat(np.expand_dims(norm, -1), result.shape[-1], axis=-1)
-        norm[norm == 0] = np.nan
+    # Renormalize histogram to a sum of 1
+    norm = np.sum(result, axis=-1)
+    norm = np.repeat(np.expand_dims(norm, -1), result.shape[-1], axis=-1)
+    norm[norm == 0] = np.nan
 
-        return np.swapaxes(np.nan_to_num(result / norm), axis, -1)
-    else:
-        # Same as above, only simpler as only one axis exists
-        result = interp1d(
-            bin_center(ppf_interpolant.squeeze()),
-            np.nan_to_num(pdf_interpolant.squeeze()),
-            bounds_error=False,
-            fill_value=0,
-        )(bin_mids)
-        result = np.diff(edges) * result
-        return np.nan_to_num(result / np.sum(result))
+    return np.swapaxes(np.nan_to_num(result / norm), axis, -1)
 
 
 def interpolate_psf_table(
