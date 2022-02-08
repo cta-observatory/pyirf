@@ -10,7 +10,7 @@ dependencies:
   - jupyter
   - matplotlib
   - scipy
-  - astropy>=4.0.2,<5
+  - astropy=5
   - setuptools
   - tqdm
   # tests
