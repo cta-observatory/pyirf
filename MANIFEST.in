@@ -1,2 +1,2 @@
-exclude pyirf/_dev_version.py
+prune pyirf/_dev_version
 include pyirf/resources/*

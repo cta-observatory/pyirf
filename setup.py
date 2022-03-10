@@ -34,9 +34,9 @@ extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"
 
 setup(
     use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
-    packages=find_packages(),
+    packages=find_packages(exclude=['pyirf._dev_version']),
     install_requires=[
-        "astropy~=4.0,>=4.0.2",
+        "astropy>=4.0.2",
         "matplotlib",
         "numpy>=1.18",
         "scipy",
