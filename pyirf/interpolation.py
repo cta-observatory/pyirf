@@ -25,7 +25,7 @@ def cdf_values(binned_pdf):
     return cdfs
 
 
-def ppf_values(cdfs, bin_mids, m, mprime, quantiles):
+def ppf_values(cdfs, bin_mids, quantiles):
     """
     Compute ppfs from cdfs and interpolate them to the desired interpolation point
 
@@ -36,13 +36,6 @@ def ppf_values(cdfs, bin_mids, m, mprime, quantiles):
 
     bin_mids: numpy.ndarray, shape=(M)
         M bin-midss for which the cdf-values are known
-
-    m: numpy.ndarray, shape=(N, O)
-        Array of the N O-dimensional morphing parameter values corresponding to the N input templates. The pdf's quantiles
-        are expected to vary linearly between these two reference points.
-
-    m_prime: numpy.ndarray, shape=(O)
-        Value for which the interpolation is performed (target point)
 
     quantiles: numpy.ndarray, shape=(L)
         L quantiles for which the ppf_values are known
@@ -94,10 +87,10 @@ def ppf_values(cdfs, bin_mids, m, mprime, quantiles):
         cdfs,
     )
     # nD interpolation of ppf values
-    return griddata(m, ppfs, mprime)
+    return ppfs
 
 
-def reconstruct_pdf_values(quantiles, ppfs, edges):
+def pdf_from_ppf(quantiles, ppfs, edges):
     """
     Reconstruct pdf from ppf and evaluate at desired points.
 
@@ -208,23 +201,24 @@ def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resoluti
     # compute quantiles from quantile_resolution
     quantiles = np.linspace(0, 1, int(np.round(1 / quantile_resolution, decimals=0)))
 
-    # compute bin-mids from bin-edges
     bin_mids = bin_center(edges)
 
-    # compute cdf values
     cdfs = cdf_values(binned_pdf)
 
-    # compute ppf values at interpolation point, determine quantile and interpolate quantiles steps of [1]
-    ppfs = ppf_values(cdfs, bin_mids, m, mprime, quantiles)
+    # compute ppf values at quantiles, determine quantile step of [1]
+    ppfs = ppf_values(cdfs, bin_mids, quantiles)
+
+    # interpolate ppfs to target point, interpolate quantiles step of [1]
+    interpolated_ppfs = griddata(m, ppfs, mprime)
 
     # compute pdf values for all bins, evaluate interpolant PDF values step of [1]
-    pdf_values = reconstruct_pdf_values(quantiles, ppfs, edges)
+    interpolated_pdfs = pdf_from_ppf(quantiles, interpolated_ppfs, edges)
 
-    # Renormalize pdf
-    normed_pdf_values = norm_pdf(pdf_values)
+    # Renormalize pdf to sum of 1
+    normed_interpolated_pdfs = norm_pdf(interpolated_pdfs)
 
-    # Re-swap axes
-    return np.swapaxes(normed_pdf_values, axis, -1)
+    # Re-swap axes and set all nans to zero
+    return np.swapaxes(normed_interpolated_pdfs, axis, -1)
 
 
 @u.quantity_input(effective_area=u.m ** 2)
@@ -232,7 +226,7 @@ def interpolate_effective_area_per_energy_and_fov(
     effective_area,
     grid_points,
     target_point,
-    min_effective_area=1.0 * u.Unit("m2"),
+    min_effective_area=1 * u.m**2,
     method="linear",
 ):
     """
@@ -270,9 +264,8 @@ def interpolate_effective_area_per_energy_and_fov(
     aeff_interp = griddata(grid_points, effective_area, target_point, method=method).T
     # exp it and set to zero too low values
     aeff_interp = np.exp(aeff_interp)
-    aeff_interp[
-        aeff_interp < min_effective_area * 1.1
-    ] = 0  # 1.1 to correct for numerical uncertainty and interpolation
+    # 1.1 to correct for numerical uncertainty and interpolation
+    aeff_interp[aeff_interp < min_effective_area * 1.1] = 0
     return u.Quantity(aeff_interp, u.m ** 2, copy=False)
 
 
