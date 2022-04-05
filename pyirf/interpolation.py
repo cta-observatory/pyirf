@@ -145,10 +145,10 @@ def norm_pdf(pdf_values):
     """
     norm = np.sum(pdf_values, axis=-1)
 
-    # Ignore errors from rows without errors as they are set to 0 through nan_to_num
-    with np.errstate(invalid="ignore"):
-        normed_pdf_values = pdf_values / norm[..., np.newaxis]
-    return np.nan_to_num(normed_pdf_values)
+    # Norm all binned_pdfs to unity that are not empty
+    normed_pdf_values = np.divide(pdf_values, norm[..., np.newaxis], out=np.zeros_like(pdf_values), where=norm[..., np.newaxis] != 0)
+
+    return normed_pdf_values
 
 
 def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resolution):
@@ -218,7 +218,7 @@ def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resoluti
     normed_interpolated_pdfs = norm_pdf(interpolated_pdfs)
 
     # Re-swap axes and set all nans to zero
-    return np.swapaxes(normed_interpolated_pdfs, axis, -1)
+    return np.swapaxes(np.nan_to_num(normed_interpolated_pdfs), axis, -1)
 
 
 @u.quantity_input(effective_area=u.m ** 2)
