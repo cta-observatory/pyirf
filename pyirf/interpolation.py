@@ -25,7 +25,7 @@ def cdf_values(binned_pdf):
     return cdfs
 
 
-def ppf_values(cdfs, bin_mids, quantiles):
+def ppf_values(cdfs, edges, quantiles):
     """
     Compute ppfs from cdfs and interpolate them to the desired interpolation point
 
@@ -34,8 +34,8 @@ def ppf_values(cdfs, bin_mids, quantiles):
     cdfs: numpy.ndarray, shape=(N,...,M)
         Corresponding cdf-values for all quantiles
 
-    bin_mids: numpy.ndarray, shape=(M)
-        M bin-midss for which the cdf-values are known
+    edges: numpy.ndarray, shape=(M+1)
+        Binning of the given binned pdf
 
     quantiles: numpy.ndarray, shape=(L)
         L quantiles for which the ppf_values are known
@@ -53,6 +53,9 @@ def ppf_values(cdfs, bin_mids, quantiles):
         in between filled bins. Both cases would result in division by zero errors when computing
         the interpolation polynom.
         """
+
+        #cdf = np.append(np.array(0), cdf)
+
         # Find last 0 and first 1 entry
         last_0 = np.max(np.arange(len(cdf))[cdf == 0]) if cdf[0] == 0 else 0
         first_1 = np.min(np.arange(len(cdf))[cdf == 1])
@@ -76,6 +79,8 @@ def ppf_values(cdfs, bin_mids, quantiles):
             bounds_error=False,
             fill_value="extrapolate",
         )(quantiles)
+
+    bin_mids = bin_center(edges)
 
     # create ppf values from cdf samples via interpolation of the cdfs
     # return nan for empty pdfs
@@ -198,21 +203,26 @@ def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resoluti
     # not safely propageted through the interpolation but the last element remains the last element
     binned_pdf = np.swapaxes(binned_pdf, axis, -1)
 
+    # include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise 
+    # start at a value != 0, also extend edges with one bin to the left 
+    fill_zeros = np.zeros(shape=binned_pdf.shape[:-1])[..., np.newaxis]
+    binned_pdf = np.concatenate((fill_zeros, binned_pdf), axis=-1)
+    edges = np.append(edges[0] - np.diff(edges)[0], edges)
+
     # compute quantiles from quantile_resolution
     quantiles = np.linspace(0, 1, int(np.round(1 / quantile_resolution, decimals=0)))
-
-    bin_mids = bin_center(edges)
 
     cdfs = cdf_values(binned_pdf)
 
     # compute ppf values at quantiles, determine quantile step of [1]
-    ppfs = ppf_values(cdfs, bin_mids, quantiles)
+    ppfs = ppf_values(cdfs, edges, quantiles)
 
     # interpolate ppfs to target point, interpolate quantiles step of [1]
     interpolated_ppfs = griddata(m, ppfs, mprime)
 
-    # compute pdf values for all bins, evaluate interpolant PDF values step of [1]
-    interpolated_pdfs = pdf_from_ppf(quantiles, interpolated_ppfs, edges)
+    # compute pdf values for all bins, evaluate interpolant PDF values step of [1], drop the earlier 
+    # introduced extra bin 
+    interpolated_pdfs = pdf_from_ppf(quantiles, interpolated_ppfs, edges)[..., 1:]
 
     # Renormalize pdf to sum of 1
     normed_interpolated_pdfs = norm_pdf(interpolated_pdfs)
@@ -281,13 +291,14 @@ def interpolate_energy_dispersion(
     )
 
 
+@u.quantity_input(psf=u.sr**-1, source_offset_bins=u.deg)
 def interpolate_psf_table(
     psfs,
     grid_points,
     target_point,
     source_offset_bins,
-    cumulative=False,
-    method="linear",
+    axis, 
+    quantile_resolution=1e-3,
 ):
     """
     Takes a grid of PSF tables for a bunch of different parameters
@@ -303,10 +314,6 @@ def interpolate_psf_table(
         values of parameters for which the interpolation is performed, of shape (n_interp_dim)
     source_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the source offset (used for normalization)
-    cumulative: bool
-        If false interpolation is done directly on PSF bins, if true first cumulative distribution is computed
-    method: 'linear’, ‘nearest’, ‘cubic’
-        Interpolation method
 
     Returns
     -------
@@ -314,24 +321,20 @@ def interpolate_psf_table(
         Interpolated PSF table with shape (n_energy_bins,  n_fov_offset_bins, n_source_offset_bins)
     """
 
-    # interpolation (stripping units first)
-    if cumulative:
-        psfs = np.cumsum(psfs, axis=3)
+    # Swap axes of pdf input to aid broadcasting, have the actual PSF entries along the last axis
+    psfs = np.swapaxes(psfs, axis, -1)
 
-    psf_interp = griddata(
-        grid_points, psfs.to_value("sr-1"), target_point, method=method
-    ) * u.Unit("sr-1")
-
-    if cumulative:
-        psf_interp = np.concatenate(
-            (psf_interp[..., :1], np.diff(psf_interp, axis=2)), axis=2
-        )
-
-    # now we need to renormalize along the source offset axis
+    # Renormalize along the source offset axis to have a proper PDF
     omegas = np.diff(cone_solid_angle(source_offset_bins))
-    norm = np.sum(psf_interp * omegas, axis=2, keepdims=True)
-    # By using out and where, it is ensured that columns with norm = 0 will have 0 values without raising an invalid value warning
-    psf_norm = np.divide(
-        psf_interp, norm, out=np.zeros_like(psf_interp), where=norm != 0
+    psfs_normed = psfs * omegas
+
+    # actual interpolation
+    interpolated_psf_normed = interpolate_binned_pdf(
+        source_offset_bins, psfs_normed, grid_points, target_point, axis=-1, quantile_resolution=quantile_resolution
     )
-    return psf_norm
+
+    # Undo normalisation to get a proper PSF 
+    interpolated_psf = interpolated_psf_normed / omegas
+
+    # Undo axes swap from above and return 
+    return np.swapaxes(interpolated_psf, axis, -1)
