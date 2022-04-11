@@ -54,7 +54,7 @@ def ppf_values(cdfs, edges, quantiles):
         the interpolation polynom.
         """
 
-        #cdf = np.append(np.array(0), cdf)
+        # cdf = np.append(np.array(0), cdf)
 
         # Find last 0 and first 1 entry
         last_0 = np.max(np.arange(len(cdf))[cdf == 0]) if cdf[0] == 0 else 0
@@ -151,7 +151,12 @@ def norm_pdf(pdf_values):
     norm = np.sum(pdf_values, axis=-1)
 
     # Norm all binned_pdfs to unity that are not empty
-    normed_pdf_values = np.divide(pdf_values, norm[..., np.newaxis], out=np.zeros_like(pdf_values), where=norm[..., np.newaxis] != 0)
+    normed_pdf_values = np.divide(
+        pdf_values,
+        norm[..., np.newaxis],
+        out=np.zeros_like(pdf_values),
+        where=norm[..., np.newaxis] != 0,
+    )
 
     return normed_pdf_values
 
@@ -203,8 +208,8 @@ def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resoluti
     # not safely propageted through the interpolation but the last element remains the last element
     binned_pdf = np.swapaxes(binned_pdf, axis, -1)
 
-    # include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise 
-    # start at a value != 0, also extend edges with one bin to the left 
+    # include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise
+    # start at a value != 0, also extend edges with one bin to the left
     fill_zeros = np.zeros(shape=binned_pdf.shape[:-1])[..., np.newaxis]
     binned_pdf = np.concatenate((fill_zeros, binned_pdf), axis=-1)
     edges = np.append(edges[0] - np.diff(edges)[0], edges)
@@ -220,8 +225,8 @@ def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resoluti
     # interpolate ppfs to target point, interpolate quantiles step of [1]
     interpolated_ppfs = griddata(m, ppfs, mprime)
 
-    # compute pdf values for all bins, evaluate interpolant PDF values step of [1], drop the earlier 
-    # introduced extra bin 
+    # compute pdf values for all bins, evaluate interpolant PDF values step of [1], drop the earlier
+    # introduced extra bin
     interpolated_pdfs = pdf_from_ppf(quantiles, interpolated_ppfs, edges)[..., 1:]
 
     # Renormalize pdf to sum of 1
@@ -236,7 +241,7 @@ def interpolate_effective_area_per_energy_and_fov(
     effective_area,
     grid_points,
     target_point,
-    min_effective_area=1 * u.m**2,
+    min_effective_area=1 * u.m ** 2,
     method="linear",
 ):
     """
@@ -280,25 +285,48 @@ def interpolate_effective_area_per_energy_and_fov(
 
 
 def interpolate_energy_dispersion(
-    edges, binned_pdf, m, mprime, axis, quantile_resolution=1e-3
+    migra_bins, edisps, grid_points, target_point, quantile_resolution=1e-3
 ):
     """
     Takes a grid of energy dispersions for a bunch of different parameters
     and interpolates it to given value of those parameters.
+
+    Parameters
+    ----------
+    migra_bins: numpy.ndarray, shape=(M+1)
+        Common array of migration bin-edges
+
+    edisps: numpy.ndarray, shape=(N, ..., M,...)
+        The EDISP MATRIX, shape is assumed to be (N:n_grid_points, n_energy_bins, M:n_migration_bins, n_fov_offset_bins).
+
+    grid_points: numpy.ndarray, shape=(N, O)
+        Array of the N O-dimensional morphing parameter values corresponding to the N input templates. The pdf's quantiles
+        are expected to vary linearly between these two reference points.
+
+    target_point: numpy.ndarray, shape=(O)
+        Value for which the interpolation is performed (target point)
+
+    quantile_resolution: float
+        Spacing between the quantiles that are computed in the interpolation. Defaults to 1e-3.
+
+    Returns
+    -------
+    edisp_interp: numpy.ndarray, shape=(1,...,M,...)
+        Interpolated and binned energy dispersion.
     """
     return interpolate_binned_pdf(
-        edges, binned_pdf, m, mprime, axis, quantile_resolution
+        migra_bins,
+        edisps,
+        grid_points,
+        target_point,
+        axis=-2,
+        quantile_resolution=quantile_resolution,
     )
 
 
-@u.quantity_input(psf=u.sr**-1, source_offset_bins=u.deg)
+@u.quantity_input(psf=u.sr ** -1, source_offset_bins=u.deg)
 def interpolate_psf_table(
-    psfs,
-    grid_points,
-    target_point,
-    source_offset_bins,
-    axis, 
-    quantile_resolution=1e-3,
+    source_offset_bins, psfs, grid_points, target_point, quantile_resolution=1e-3
 ):
     """
     Takes a grid of PSF tables for a bunch of different parameters
@@ -306,23 +334,27 @@ def interpolate_psf_table(
 
     Parameters
     ----------
-    psfs: np.ndarray of astropy.units.Quantity
-        grid of PSF tables, of shape (n_grid_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
-    grid_points: np.ndarray
-        array of parameters corresponding to energy_dispersions, of shape (n_grid_points, n_interp_dim)
-    target_point: np.ndarray
-        values of parameters for which the interpolation is performed, of shape (n_interp_dim)
-    source_offset_bins: astropy.units.Quantity[angle]
-        Bin edges in the source offset (used for normalization)
+    source_offset_bins: numpy.ndarray, shape=(M+1), of astropy.units.Quantity[deg]
+        Common array of source offset bin-edges
+
+    psfs: numpy.ndarray, shape=(N, ..., M), of astropy.units.Quantity[sr**-1]
+        The PSF_TABLE, shape is assumed to be (N:n_grid_points, n_energy_bins, n_fov_offset_bins, M:n_source_offset_bins).
+
+    grid_points: numpy.ndarray, shape=(N, O)
+        Array of the N O-dimensional morphing parameter values corresponding to the N input templates. The pdf's quantiles
+        are expected to vary linearly between these two reference points.
+
+    target_point: numpy.ndarray, shape=(O)
+        Value for which the interpolation is performed (target point)
+
+    quantile_resolution: float
+        Spacing between the quantiles that are computed in the interpolation. Defaults to 1e-3.
 
     Returns
     -------
-    psf_interp: np.ndarray
-        Interpolated PSF table with shape (n_energy_bins,  n_fov_offset_bins, n_source_offset_bins)
+    psf_interp: numpy.ndarray, shape=(1, ..., M)
+        Interpolated PSF table with shape (n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
     """
-
-    # Swap axes of pdf input to aid broadcasting, have the actual PSF entries along the last axis
-    psfs = np.swapaxes(psfs, axis, -1)
 
     # Renormalize along the source offset axis to have a proper PDF
     omegas = np.diff(cone_solid_angle(source_offset_bins))
@@ -330,11 +362,13 @@ def interpolate_psf_table(
 
     # actual interpolation
     interpolated_psf_normed = interpolate_binned_pdf(
-        source_offset_bins, psfs_normed, grid_points, target_point, axis=-1, quantile_resolution=quantile_resolution
+        source_offset_bins,
+        psfs_normed,
+        grid_points,
+        target_point,
+        axis=-1,
+        quantile_resolution=quantile_resolution,
     )
 
-    # Undo normalisation to get a proper PSF 
-    interpolated_psf = interpolated_psf_normed / omegas
-
-    # Undo axes swap from above and return 
-    return np.swapaxes(interpolated_psf, axis, -1)
+    # Undo normalisation to get a proper PSF and return
+    return interpolated_psf_normed / omegas
