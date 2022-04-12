@@ -54,8 +54,6 @@ def ppf_values(cdfs, edges, quantiles):
         the interpolation polynom.
         """
 
-        # cdf = np.append(np.array(0), cdf)
-
         # Find last 0 and first 1 entry
         last_0 = np.max(np.arange(len(cdf))[cdf == 0]) if cdf[0] == 0 else 0
         first_1 = np.min(np.arange(len(cdf))[cdf == 1])
