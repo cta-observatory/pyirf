@@ -12,24 +12,10 @@ def data():
     bin_edges = np.linspace(-5, 30, 101)
     distributions = [norm(5, 1), norm(10, 2), norm(15, 3)]
 
-    norm_1 = np.array(
-        [
-            quad(lambda x: distributions[0].pdf(x), low, up)[0]
-            for low, up in zip(bin_edges[:-1], bin_edges[1:])
-        ]
-    )
-    norm_2 = np.array(
-        [
-            quad(lambda x: distributions[1].pdf(x), low, up)[0]
-            for low, up in zip(bin_edges[:-1], bin_edges[1:])
-        ]
-    )
-    norm_3 = np.array(
-        [
-            quad(lambda x: distributions[2].pdf(x), low, up)[0]
-            for low, up in zip(bin_edges[:-1], bin_edges[1:])
-        ]
-    )
+    # create binned pdfs by interpolation of bin content
+    norm_1 = distributions[0].cdf(bin_edges[1:]) - distributions[0].cdf(bin_edges[:-1])
+    norm_2 = distributions[1].cdf(bin_edges[1:]) - distributions[1].cdf(bin_edges[:-1])
+    norm_3 = distributions[2].cdf(bin_edges[1:]) - distributions[2].cdf(bin_edges[:-1])
 
     dataset = {
         "bin_edges": bin_edges,
