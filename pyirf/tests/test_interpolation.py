@@ -3,7 +3,6 @@ import numpy as np
 import astropy.units as u
 import pytest
 from scipy.stats import norm
-from scipy.integrate import quad
 
 
 @pytest.fixture
