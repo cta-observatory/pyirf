@@ -9,6 +9,7 @@ from pyirf.binning import bin_center
 __all__ = [
     "interpolate_effective_area_per_energy_and_fov",
     "interpolate_energy_dispersion",
+    "interpolate_psf_table",
 ]
 
 
