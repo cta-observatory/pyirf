@@ -13,16 +13,14 @@ def data():
     distributions = [norm(5, 1), norm(10, 2), norm(15, 3)]
 
     # create binned pdfs by interpolation of bin content
-    norm_1 = distributions[0].cdf(bin_edges[1:]) - distributions[0].cdf(bin_edges[:-1])
-    norm_2 = distributions[1].cdf(bin_edges[1:]) - distributions[1].cdf(bin_edges[:-1])
-    norm_3 = distributions[2].cdf(bin_edges[1:]) - distributions[2].cdf(bin_edges[:-1])
+    binned_pdfs = np.array([np.diff(dist.cdf(bin_edges)) for dist in distributions])
 
     dataset = {
         "bin_edges": bin_edges,
         "means": np.array([5, 10, 15]),
         "stds": np.array([1, 2, 3]),
         "distributions": distributions,
-        "binned_pdfs": np.array([norm_1, norm_2, norm_3]),
+        "binned_pdfs": binned_pdfs,
         "grid_points": np.array([1, 2, 3]),
     }
 
@@ -107,8 +105,6 @@ def test_interpolate_binned_pdf(data):
     # Estimate mean and standart_deviation from interpolant
     interp_mean = np.average(bin_mids, weights=interp)
     interp_std = np.sqrt(np.average((bin_mids - interp_mean) ** 2, weights=interp))
-
-    print(interp_mean)
 
     # Assert they match the truth within one bin of uncertainty
     assert np.isclose(interp_mean, data["means"][1], atol=bin_width)
