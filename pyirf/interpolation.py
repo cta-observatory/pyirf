@@ -55,8 +55,8 @@ def ppf_values(cdfs, edges, quantiles):
         """
 
         # Find last 0 and first 1 entry
-        last_0 = np.max(np.arange(len(cdf))[cdf == 0]) if cdf[0] == 0 else 0
-        first_1 = np.min(np.arange(len(cdf))[cdf == 1])
+        last_0 = np.nonzero(cdf == 0)[0][-1] if cdf[0] == 0 else 0
+        first_1 = np.nonzero(cdf == 1.0)[0][0]
 
         # Predefine selection mask
         selection = np.ones(len(cdf), dtype=bool)
