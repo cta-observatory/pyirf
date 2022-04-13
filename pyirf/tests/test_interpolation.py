@@ -2,6 +2,113 @@ import pyirf.interpolation as interp
 import numpy as np
 import astropy.units as u
 import pytest
+from scipy.stats import norm
+
+
+@pytest.fixture
+def data():
+    """Create common dataset containing binned Gaussians for interpolation testing. Binned PDFs sum to 1."""
+    bin_edges = np.linspace(-5, 30, 101)
+    distributions = [norm(5, 1), norm(10, 2), norm(15, 3)]
+
+    # create binned pdfs by interpolation of bin content
+    binned_pdfs = np.array([np.diff(dist.cdf(bin_edges)) for dist in distributions])
+
+    dataset = {
+        "bin_edges": bin_edges,
+        "means": np.array([5, 10, 15]),
+        "stds": np.array([1, 2, 3]),
+        "distributions": distributions,
+        "binned_pdfs": binned_pdfs,
+        "grid_points": np.array([1, 2, 3]),
+    }
+
+    return dataset
+
+
+def test_cdf_values(data):
+    from pyirf.interpolation import cdf_values
+
+    cdf_est = cdf_values(data["binned_pdfs"][0])
+
+    # Assert empty histograms result in cdf containing zeros
+    assert np.all(cdf_values(np.zeros(shape=5)) == 0)
+
+    # Assert cdf is increasing or constant for actual pdfs
+    assert np.all(np.diff(cdf_est) >= 0)
+
+    # Assert cdf is capped at 1
+    assert np.max(cdf_est) == 1
+
+    # Assert estimated and true cdf are matching
+    assert np.allclose(cdf_est, data["distributions"][0].cdf(data["bin_edges"][1:]))
+
+
+def test_ppf_values(data):
+    from pyirf.interpolation import ppf_values, cdf_values
+
+    # Create quantiles, ignore the 0% and 100% quantile as they are analytically +- inf
+    quantiles = np.linspace(0, 1, 10)[1:-2]
+
+    # True ppf-values
+    ppf_true = data["distributions"][0].ppf(quantiles)
+
+    # Estimated ppf-values
+    cdf_est = cdf_values(data["binned_pdfs"][0])
+    ppf_est = ppf_values(cdf_est, data["bin_edges"], quantiles)
+
+    # Assert truth and estimation match allowing for +- bin_width deviation
+    assert np.allclose(ppf_true, ppf_est, atol=np.diff(data["bin_edges"])[0])
+
+
+def test_pdf_from_ppf(data):
+    from pyirf.interpolation import ppf_values, cdf_values, pdf_from_ppf
+
+    # Create quantiles
+    quantiles = np.linspace(0, 1, 1000)
+
+    # Estimate ppf-values
+    cdf_est = cdf_values(data["binned_pdfs"][0])
+    ppf_est = ppf_values(cdf_est, data["bin_edges"], quantiles)
+
+    # Compute pdf_values
+    pdf_est = pdf_from_ppf(quantiles, ppf_est, data["bin_edges"])
+
+    # Assert pdf-values matching true pdf within +-1%
+    assert np.allclose(pdf_est, data["binned_pdfs"][0], atol=1e-2)
+
+
+def test_norm_pdf(data):
+    from pyirf.interpolation import norm_pdf
+
+    assert np.allclose(norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0])
+    assert np.allclose(norm_pdf(np.zeros(5)), 0)
+
+
+def test_interpolate_binned_pdf(data):
+    from pyirf.interpolation import interpolate_binned_pdf
+    from pyirf.binning import bin_center
+
+    interp = interpolate_binned_pdf(
+        edges=data["bin_edges"],
+        binned_pdfs=data["binned_pdfs"][[0, 2], :],
+        grid_points=data["grid_points"][[0, 2]],
+        target_point=data["grid_points"][1],
+        axis=-1,
+        quantile_resolution=1e-3,
+    )
+
+    bin_mids = bin_center(data["bin_edges"])
+    bin_width = np.diff(data["bin_edges"])[0]
+
+    # Estimate mean and standart_deviation from interpolant
+    interp_mean = np.average(bin_mids, weights=interp)
+    interp_std = np.sqrt(np.average((bin_mids - interp_mean) ** 2, weights=interp))
+
+    # Assert they match the truth within one bin of uncertainty
+    assert np.isclose(interp_mean, data["means"][1], atol=bin_width)
+    assert np.isclose(interp_std, data["stds"][1], atol=bin_width)
+
 
 def test_interpolate_effective_area_per_energy_and_fov():
     """Test of interpolating of effective area using dummy model files."""
@@ -9,11 +116,11 @@ def test_interpolate_effective_area_per_energy_and_fov():
     n_th = 1
     en = np.logspace(-2, 2, n_en)
     # applying a simple sigmoid function
-    aeff0 = 1.e4 / (1 + 1 / en**2) * u.Unit('m2')
+    aeff0 = 1.0e4 / (1 + 1 / en ** 2) * u.Unit("m2")
 
     # assume that for parameters 'x' and 'y' the Aeff scales x*y*Aeff0
     x = [0.9, 1.1]
-    y = [8., 11.5]
+    y = [8.0, 11.5]
     n_grid = len(x) * len(y)
     aeff = np.empty((n_grid, n_th, n_en))
     pars = np.empty((n_grid, 2))
@@ -23,140 +130,11 @@ def test_interpolate_effective_area_per_energy_and_fov():
             aeff[i_grid, 0, :] = aeff0 * xx * yy / 10
             pars[i_grid, :] = np.array([xx, yy])
             i_grid += 1
-    aeff *= u.Unit('m2')
+    aeff *= u.Unit("m2")
     pars0 = (1, 10)
-    min_aeff = 1 * u.Unit('m2')
-    aeff_interp = interp.interpolate_effective_area_per_energy_and_fov(aeff, pars, pars0, min_effective_area=min_aeff, method='linear')
+    min_aeff = 1 * u.Unit("m2")
+    aeff_interp = interp.interpolate_effective_area_per_energy_and_fov(
+        aeff, pars, pars0, min_effective_area=min_aeff, method="linear"
+    )
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
-
-
-def calc_mean_std(matrix, vals):
-    """Auxiliary function to compute mean and std from 'matrix' along an axis which values are in 'values'."""
-    n_en = matrix.shape[0]
-    means = np.empty(n_en)
-    stds = np.empty(n_en)
-    for i_en in np.arange(n_en):
-        w = matrix[i_en, :]
-        if np.sum(w) > 0:
-            means[i_en] = np.average(vals, weights=w)
-            stds[i_en] = np.sqrt(np.cov(vals, aweights=w))
-        else:  # we need to skip the empty columns
-            means[i_en] = -1
-            stds[i_en] = -1
-    return means, stds
-
-
-def test_interpolate_energy_dispersion():
-    """Test of interpolation of energy dispersion matrix using a simple dummy model."""
-    x = [0.9, 1.1]
-    y = [8., 11.5]
-    n_grid = len(x) * len(y)
-    n_offset = 1
-    n_en = 30
-    n_mig = 20
-    clip_level = 1.e-3
-
-    # define simple dummy bias and resolution model using two parameters x and y
-    def get_bias_std(i_en, x, y):
-        i_en = i_en + 3 * ((x - 1) + (y - 10.))
-        de = n_en - i_en
-        de[de < 0] = 0.
-        bias = de**0.5 + n_mig / 2
-        rms = 5 - 2 * (i_en / n_en)
-        bias[i_en < 3] = 2 * n_mig  # return high values to zero out part of the table
-        rms[i_en < 3] = 0
-        return bias, rms
-
-    en = np.arange(n_en)[:, np.newaxis]
-    mig = np.arange(n_mig)[np.newaxis, :]
-
-    # generate true values
-    interp_pars = (1, 10)
-    bias, sigma = get_bias_std(en, *interp_pars)
-    mig_true = np.exp(-(mig - bias)**2 / (2 * sigma**2))
-    mig_true[mig_true < clip_level] = 0
-
-    # generate a grid of migration matrixes
-    i_grid = 0
-    pars_all = np.empty((n_grid, 2))
-    mig_all = np.empty((n_grid, n_en, n_mig, n_offset))
-    for xx in x:
-        for yy in y:
-            bias, sigma = get_bias_std(en, xx, yy)
-            mig_all[i_grid, :, :, 0] = (np.exp(-(mig - bias)**2 / (2 * sigma**2)))
-            pars_all[i_grid, :] = (xx, yy)
-            i_grid += 1
-    # do the interpolation and compare the results with expected ones
-    mig_interp = interp.interpolate_energy_dispersion(mig_all, pars_all, interp_pars, method='linear')
-
-    # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
-    sums = np.sum(mig_interp[:, :, 0], axis=1)
-    assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min()
-
-    # now check if we reconstruct the mean and sigma roughly fine after interpolation
-    bias0, stds0 = calc_mean_std(mig_true, mig[0, :])  # true
-    bias, stds = calc_mean_std(mig_interp[:, :, 0], mig[0, :])  # interpolated
-
-    # first remove the bins that are empty in true value
-    idxs = bias0 > 0
-    bias0 = bias0[idxs]
-    bias = bias[idxs]
-    stds0 = stds0[idxs]
-    stds = stds[idxs]
-    # allowing for a 0.6 bin size error on the interpolated values
-    assert np.allclose(bias, bias0, atol=0.6, rtol=0.)
-    assert np.allclose(stds, stds0, atol=0.6, rtol=0.)
-
-@pytest.mark.parametrize("cumulative", [False, True])
-def test_interpolate_psf_table(cumulative):
-    """Test of interpolation of PSF tables using a simple dummy model"""
-    from pyirf.utils import cone_solid_angle
-    x = [0.9, 1.1]
-    y = [8., 11.5]
-    n_grid = len(x) * len(y)
-    n_offset = 1
-    n_en = 30
-    n_src_off = 20
-
-    # define simple dummy model for angular resolution using two parameters x and y
-    def get_sigma(i_en, x, y):
-        i_en = i_en + 3 * ((x - 1) + (y - 10.))
-        return np.exp(-(i_en - 30) / 20)
-
-    en = np.arange(n_en)[:, np.newaxis, np.newaxis]
-    src_bins = np.arange(n_src_off + 1) * u.deg
-    omegas = np.diff(cone_solid_angle(src_bins))
-    src_off = np.arange(n_src_off)[np.newaxis, np.newaxis, :]
-
-    # generate true values
-    interp_pars = (1, 10)
-    sigma = get_sigma(en, *interp_pars)
-    psf_true = np.exp(-src_off**2 / (2 * sigma**2)) * u.Unit('sr-1')
-
-    # generate a grid of PSF tables
-    i_grid = 0
-    pars_all = np.empty((n_grid, 2))
-    psfs_all = np.empty((n_grid, n_en, n_offset, n_src_off))
-    for xx in x:
-        for yy in y:
-            sigma = get_sigma(en, xx, yy)
-            psfs_all[i_grid] = np.exp(-src_off**2 / (2 * sigma**2))
-            pars_all[i_grid, :] = (xx, yy)
-            i_grid += 1
-    psfs_all *= u.Unit('sr-1')
-
-    # do the interpolation and compare the results with expected ones
-    psf_interp = interp.interpolate_psf_table(psfs_all, pars_all, interp_pars, src_bins, cumulative=cumulative, method='linear')
-
-    # check if all the energy bins have normalization 1 or 0 (can happen because of empty bins)
-    sums = np.sum(psf_interp * omegas, axis=2)
-    assert np.logical_or(np.isclose(sums, 0., atol=1.e-5), np.isclose(sums, 1., atol=1.e-5)).min()
-
-    # check the first two moments of the distribution for every energy
-    mean_true, std_true = calc_mean_std(psf_true[:, 0, :], src_off[0, 0, :])
-    mean_interp, std_interp = calc_mean_std(psf_interp[:, 0, :], src_off[0, 0, :])
-
-    # check if they are within 10% + 0.25 of bin size
-    assert np.allclose(mean_interp, mean_true, atol=0.25, rtol=0.1)
-    assert np.allclose(std_interp, std_true, atol=0.25, rtol=0.1)
