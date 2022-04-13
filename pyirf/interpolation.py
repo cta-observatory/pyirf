@@ -154,7 +154,7 @@ def norm_pdf(pdf_values):
     return normed_pdf_values
 
 
-def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resolution):
+def interpolate_binned_pdf(edges, binned_pdfs, grid_points, target_point, axis, quantile_resolution):
     """
     Takes a grid of binned pdfs for a bunch of different parameters
     and interpolates it to given value of those parameters.
@@ -168,16 +168,16 @@ def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resoluti
     edges: numpy.ndarray, shape=(M+1)
         Common array of bin-edges (along the abscissal ("x") axis) for the M bins of the input templates
 
-    binned_pdf: numpy.ndarray, shape=(N,...,M,...)
+    binned_pdfs: numpy.ndarray, shape=(N,...,M,...)
         Array of M bin-heights (along the ordinate ("y") axis) for each of the N input templates.
         The distributions to be interpolated (e.g. MigraEnerg for the IRFs Energy Dispersion) is expected to
         be given at the dimension specified by axis.
 
-    m: numpy.ndarray, shape=(N, O)
+    grid_points: numpy.ndarray, shape=(N, O)
         Array of the N O-dimensional morphing parameter values corresponding to the N input templates. The pdf's quantiles
         are expected to vary linearly between these two reference points.
 
-    m_prime: numpy.ndarray, shape=(O)
+    target_point: numpy.ndarray, shape=(O)
         Value for which the interpolation is performed (target point)
 
     axis: int
@@ -199,24 +199,24 @@ def interpolate_binned_pdf(edges, binned_pdf, m, mprime, axis, quantile_resoluti
     """
     # To have the needed axis always at the last index, as the number of indices is
     # not safely propageted through the interpolation but the last element remains the last element
-    binned_pdf = np.swapaxes(binned_pdf, axis, -1)
+    binned_pdfs = np.swapaxes(binned_pdfs, axis, -1)
 
     # include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise
     # start at a value != 0, also extend edges with one bin to the left
-    fill_zeros = np.zeros(shape=binned_pdf.shape[:-1])[..., np.newaxis]
-    binned_pdf = np.concatenate((fill_zeros, binned_pdf), axis=-1)
+    fill_zeros = np.zeros(shape=binned_pdfs.shape[:-1])[..., np.newaxis]
+    binned_pdfs = np.concatenate((fill_zeros, binned_pdfs), axis=-1)
     edges = np.append(edges[0] - np.diff(edges)[0], edges)
 
     # compute quantiles from quantile_resolution
     quantiles = np.linspace(0, 1, int(np.round(1 / quantile_resolution, decimals=0)))
 
-    cdfs = cdf_values(binned_pdf)
+    cdfs = cdf_values(binned_pdfs)
 
     # compute ppf values at quantiles, determine quantile step of [1]
     ppfs = ppf_values(cdfs, edges, quantiles)
 
     # interpolate ppfs to target point, interpolate quantiles step of [1]
-    interpolated_ppfs = griddata(m, ppfs, mprime)
+    interpolated_ppfs = griddata(grid_points, ppfs, target_point)
 
     # compute pdf values for all bins, evaluate interpolant PDF values step of [1], drop the earlier
     # introduced extra bin

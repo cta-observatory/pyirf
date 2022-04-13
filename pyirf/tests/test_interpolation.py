@@ -91,9 +91,9 @@ def test_interpolate_binned_pdf(data):
 
     interp = interpolate_binned_pdf(
         edges=data["bin_edges"],
-        binned_pdf=data["binned_pdfs"][[0, 2], :],
-        m=data["grid_points"][[0, 2]],
-        mprime=data["grid_points"][1],
+        binned_pdfs=data["binned_pdfs"][[0, 2], :],
+        grid_points=data["grid_points"][[0, 2]],
+        target_point=data["grid_points"][1],
         axis=-1,
         quantile_resolution=1e-3,
     )
