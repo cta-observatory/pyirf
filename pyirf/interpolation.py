@@ -123,21 +123,16 @@ def pdf_from_ppf(quantiles, ppfs, edges):
         (ppfs[..., :-1] + np.diff(ppfs) / 2, pdf_interpolant), axis=-1
     )
 
+    def interpolate_ppf(xy):
+        ppf = xy[:len(xy) // 2]
+        pdf = xy[len(xy) // 2:]
+        interpolate = interp1d(ppf, pdf, bounds_error=False, fill_value=(0, 0))
+        result = np.nan_to_num(interpolate(edges[:-1]))
+        return np.diff(edges) * result
+
     # Interpolate pdf samples and evaluate at bin edges, weight with the bin_width to estimate
     # correct bin height via the midpoint rule formulation of the trapezoidal rule
-    pdf_values = np.apply_along_axis(
-        lambda xy: np.diff(edges)
-        * np.nan_to_num(
-            interp1d(
-                xy[: int(len(xy) / 2)],
-                xy[int(len(xy) / 2) :],
-                bounds_error=False,
-                fill_value=(0, 0),
-            )(edges[:-1])
-        ),
-        -1,
-        xyconcat,
-    )
+    pdf_values = np.apply_along_axis(interpolate_ppf, -1, xyconcat)
 
     return pdf_values
 
