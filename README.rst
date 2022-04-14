@@ -10,17 +10,14 @@ pyirf |ci| |codacy| |coverage| |doilatest|
   :target: https://codecov.io/gh/cta-observatory/pyirf
 .. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4740755.svg
   :target: https://doi.org/10.5281/zenodo.4740755
-.. |doi_v0.5.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4748994.svg
-  :target: https://doi.org/10.5281/zenodo.4748994
-.. |doi_v0.4.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4304466.svg
-  :target: https://doi.org/10.5281/zenodo.4304466
+..|zenodo| 
 
-*pyirf* is a python3-based library for the generation of Instrument Response
+*pyirf* is a python library for the generation of Instrument Response
 Functions (IRFs) and sensitivities for the
 `Cherenkov Telescope Array (CTA) <https://www.cta-observatory.org/>`_ .
 
 Thanks to its simple input/output and modular function-based structure,
-it can be potentially used to process also data from other Imaging Atmospheric
+it can be used to process also data from other Imaging Atmospheric
 Cherenkov Telescopes (IACTs).
 
 - **Source code:** https://github.com/cta-observatory/pyirf
@@ -32,5 +29,4 @@ If you use a released version of this software for a publication,
 please cite it by using the corresponding DOI:
 
 - latest : |doilatest|
-- v0.5.0 : |doi_v0.5.0|
-- v0.4.0 : |doi_v0.4.0|
+- all versions: `Please visit Zenodo <https://zenodo.org/record/5833284>`_ and select the correct version
