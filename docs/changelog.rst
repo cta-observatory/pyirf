@@ -37,6 +37,42 @@ We use a one-line description of every pull request.
 .. - [#XXX] TITLE (AUTHOR)
 
 
+.. _pyirf_0p7p0_release:
+
+`0.7.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.7.0>`__ (2022-04-14)
+-------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+- Released April 4th, 2022
+- 2 Contributors
+
+Contributors
+++++++++++++
+
+- Rune Michael Dominik
+- Maximilian Nöthe
+
+Description
++++++++++++
+
+
+The main feature of this release is new methods for interpolation of
+pdf-like IRFs, i.e. energy dispersion and psf table.
+These methods replace the methods not suitable for interpolation of probability
+densities introduced in pyirf 0.5.0.
+
+This release also adds support for astropy 5.0.
+
+merged pull requests
+++++++++++++++++++++
+
+- `#174 <https://github.com/cta-observatory/pyirf/pull/174>`_ Adapted quantile interpolation
+- `#177 <https://github.com/cta-observatory/pyirf/pull/177>`_ Add interpolate_psf_table to ``__all__``
+- `#175 <https://github.com/cta-observatory/pyirf/pull/175>`_ Allow and test astropy=5
+
+
 .. _pyirf_0p6p0_release:
 
 `0.6.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.6.0>`__ (2021-01-10)
