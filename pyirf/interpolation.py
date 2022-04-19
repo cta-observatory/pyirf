@@ -381,8 +381,8 @@ def interpolate_rad_max(
     Parameters
     ----------
     rad_max: numpy.ndarray, shape=(N, M, ...)
-        Theta**2-cuts for all grid-points and combinations of energy and fov_offset, 
-        shape (N:n_grid_points, M:n_energy_bins, n_fov_offset_bins)
+        Theta-cuts for all combinations of grid-points, energy and fov_offset.
+        Shape (N:n_grid_points, M:n_energy_bins, n_fov_offset_bins)
 
     grid_points: numpy.ndarray, shape=(N, O)
         Array of the N O-dimensional morphing parameter values corresponding to the N input templates.
