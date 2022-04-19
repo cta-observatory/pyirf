@@ -396,8 +396,7 @@ def interpolate_rad_max(
     Returns
     -------
     rad_max_interp: numpy.ndarray, shape=(1, M, ...)
-        Theta**2-cuts for the target grid-points and all combinations of energy and fov_offset, 
-        shape (1, M:n_energy_bins, n_fov_offset_bins)
+        Theta-cuts for the target grid-point, shape (1, M:n_energy_bins, n_fov_offset_bins)
 
     References
     ----------
