@@ -10,7 +10,6 @@ pyirf |ci| |codacy| |coverage| |doilatest|
   :target: https://codecov.io/gh/cta-observatory/pyirf
 .. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4740755.svg
   :target: https://doi.org/10.5281/zenodo.4740755
-..|zenodo| 
 
 *pyirf* is a python library for the generation of Instrument Response
 Functions (IRFs) and sensitivities for the
