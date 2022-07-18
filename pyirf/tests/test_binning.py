@@ -45,17 +45,24 @@ def test_bins_per_decade():
     bins = create_bins_per_decade(100 * u.GeV, 100 * u.TeV)
 
     assert bins.unit == u.GeV
-    assert len(bins) == 15  # end non-inclusive
+    assert len(bins) == 16  # end inclusive if exactly fits per_decade
 
     assert bins[0] == 100 * u.GeV
     assert np.allclose(np.diff(np.log10(bins.to_value(u.GeV))), 0.2)
 
     bins = create_bins_per_decade(100 * u.GeV, 100 * u.TeV, 10)
     assert bins.unit == u.GeV
-    assert len(bins) == 30  # end non-inclusive
+    assert len(bins) == 31  # end inclusive since it fits exactly
 
     assert bins[0] == 100 * u.GeV
     assert np.allclose(np.diff(np.log10(bins.to_value(u.GeV))), 0.1)
+
+    bins = create_bins_per_decade(100 * u.GeV, 105 * u.TeV, 5)
+    assert bins.unit == u.GeV
+    assert len(bins) == 16  # end non-inclusive
+
+    assert u.isclose(bins[-1], 100 * u.TeV) # last value at correct difference
+    assert np.allclose(np.diff(np.log10(bins.to_value(u.GeV))), 0.2)
 
 
 def test_create_histogram_table():

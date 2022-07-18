@@ -98,7 +98,9 @@ def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
     e_min: u.Quantity[energy]
         Minimum energy, inclusive
     e_max: u.Quantity[energy]
-        Maximum energy, exclusive
+        Maximum energy, non-inclusive
+        If the endpoint exactly matches the ``n_bins_per_decade`` requirement,
+        it will be included.
     n_bins_per_decade: int
         number of bins per decade
 
@@ -112,7 +114,10 @@ def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
     log_lower = np.log10(e_min.to_value(unit))
     log_upper = np.log10(e_max.to_value(unit))
 
-    bins = 10 ** np.arange(log_lower, log_upper, 1 / bins_per_decade)
+    step = 1 / bins_per_decade
+    # include endpoint if reasonably close
+    eps = step / 10000
+    bins = 10 ** np.arange(log_lower, log_upper + eps, step)
     return u.Quantity(bins, e_min.unit, copy=False)
 
 
