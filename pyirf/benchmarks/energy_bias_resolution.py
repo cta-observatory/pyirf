@@ -85,9 +85,12 @@ def energy_bias_resolution(
     table = Table(events[["true_energy", "reco_energy"]])
     table["rel_error"] = (events["reco_energy"] / events["true_energy"]) - 1
 
-    table["bin_index"] = calculate_bin_indices(
+    table["bin_index"], valid = calculate_bin_indices(
         table[f"{energy_type}_energy"].quantity, energy_bins
     )
+    # ignore under/overflow events
+    table = table[valid]
+
     n_bins = len(energy_bins) - 1
     mask = (table["bin_index"] >= 0) & (table["bin_index"] < n_bins)
 

@@ -28,6 +28,10 @@ def test_calculate_percentile_cuts():
 
     values = np.append(dist1.rvs(size=N), dist2.rvs(size=N)) * u.deg
     bin_values = np.append(np.zeros(N), np.ones(N)) * u.m
+    # add some values outside of binning to test that under/overflow are ignored
+    bin_values[10] = 5 * u.m
+    bin_values[30] = -1 * u.m
+
     bins = [-0.5, 0.5, 1.5] * u.m
 
     cuts = calculate_percentile_cut(values, bin_values, bins, fill_value=np.nan * u.deg)

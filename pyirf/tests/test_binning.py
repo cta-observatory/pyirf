@@ -109,13 +109,18 @@ def test_calculate_bin_indices():
     values = [0.5, 0.5, 1, 1.1, 1.9, 2, -1, 2.5]
 
     true_idx = np.array([0, 0, 1, 1, 1, 2, -1, 2])
+    true_valid = np.array([True, True, True, True, True, False, False, False])
 
-    assert np.all(calculate_bin_indices(values, bins) == true_idx)
+    idx, valid = calculate_bin_indices(values, bins)
+    assert np.all(idx == true_idx)
+    assert np.all(valid == true_valid)
 
     # test with units
     bins *= u.TeV
     values *= 1000 * u.GeV
-    assert np.all(calculate_bin_indices(values, bins) == true_idx)
+    idx, valid = calculate_bin_indices(values, bins)
+    assert np.all(idx == true_idx)
+    assert np.all(valid == true_valid)
 
 
 def test_resample_bins_1d():

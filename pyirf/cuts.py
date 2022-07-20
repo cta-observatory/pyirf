@@ -52,7 +52,10 @@ def calculate_percentile_cut(
     if unit is not None:
         fill_value = u.Quantity(fill_value).to(unit)
 
-    table["bin_index"] = calculate_bin_indices(table["bin_values"].quantity, bins)
+    table["bin_index"], valid = calculate_bin_indices(table["bin_values"].quantity, bins)
+
+    # remove events outside of binning
+    table = table[valid]
 
     cut_table = QTable()
     cut_table["low"] = bins[:-1]
@@ -103,7 +106,10 @@ def calculate_percentile_cut(
 
 def evaluate_binned_cut(values, bin_values, cut_table, op):
     """
-    Evaluate a binned cut as defined in cut_table on given events
+    Evaluate a binned cut as defined in cut_table on given events.
+
+    Events with bin_values outside the bin edges defined in cut table
+    will be set to False.
 
     Parameters
     ----------
@@ -127,8 +133,11 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
         raise ValueError('cut_table needs to be an astropy.table.QTable')
 
     bins = np.append(cut_table["low"], cut_table["high"][-1])
-    bin_index = calculate_bin_indices(bin_values, bins)
-    return op(values, cut_table["cut"][bin_index])
+    bin_index, valid = calculate_bin_indices(bin_values, bins)
+
+    result = np.zeros(len(values), dtype=bool)
+    result[valid] = op(values[valid], cut_table["cut"][bin_index[valid]])
+    return result
 
 
 def compare_irf_cuts(cuts):
