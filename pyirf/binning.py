@@ -147,12 +147,15 @@ def calculate_bin_indices(data, bins):
 
     if hasattr(data, "unit"):
         if not hasattr(bins, "unit"):
-            raise TypeError(f"If ``data`` is a Quantity, so must ``bin``, got {bins}")
+            raise TypeError(f"If ``data`` is a Quantity, so must ``bins``, got {bins}")
         unit = data.unit
         data = data.to_value(unit)
         bins = bins.to_value(unit)
 
-    return np.digitize(data, bins) - 1
+    idx = np.digitize(data, bins) - 1
+    n_bins = len(bins) - 1
+    valid = (idx >= 0) & (idx < n_bins)
+    return idx, valid
 
 
 def create_histogram_table(events, bins, key="reco_energy"):

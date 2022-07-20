@@ -37,9 +37,11 @@ def angular_resolution(
     # create a table to make use of groupby operations
     table = Table(events[[f"{energy_type}_energy", "theta"]])
 
-    table["bin_index"] = calculate_bin_indices(
+    table["bin_index"], valid = calculate_bin_indices(
         table[f"{energy_type}_energy"].quantity, energy_bins
     )
+    # ignore under / overflow
+    table = table[valid]
 
     n_bins =  len(energy_bins) - 1
     mask = (table["bin_index"] >= 0) & (table["bin_index"] < n_bins)
