@@ -110,6 +110,56 @@ def test_interpolate_binned_pdf(data):
     assert np.isclose(interp_std, data["stds"][1], atol=bin_width)
 
 
+@pytest.mark.parametrize(
+    "params, grid_points, target_point, expected",
+    [
+        (  # Model: param = 10 + 5 * (grid - 1)
+            np.array([10, 20]),
+            np.array([1, 3]),
+            np.array([2]),
+            15,
+        ),
+        (  # Model: param = 10 + 5 * (grid - 1), with extrapolation
+            np.array([10, 20]),
+            np.array([1, 3]),
+            np.array([4]),
+            25,
+        ),
+        (  # Model: param[0] = 10 + 5 * (grid - 1), param[1] = 5 + 2.5 * (grid - 1)
+            np.array([[10, 5], [20, 10]]),
+            np.array([1, 3]),
+            np.array([2]),
+            np.array([15, 7.5]),
+        ),
+        (  # Model: param[0] = 10 + 5 * (grid - 1), param[1] = 5 + 2.5 * (grid - 1), 
+           # with extrapolation
+            np.array([[10, 5], [20, 10]]),
+            np.array([1, 3]),
+            np.array([0]),
+            np.array([5, 2.5]),
+        ),
+        (  # Model: param = grid[0] + grid[1]
+            np.array([0, 2, 2, 4]),
+            np.array([[0, 0], [2, 0], [0, 2], [2, 2]]),
+            np.array([-1, 1]),
+            np.array([0]),
+        ),
+        (  # Model: param[0] = grid[0] + grid[1], param[1] = 5 + grid[1] * 2.5
+            np.array([[0, 5], [2, 5], [2, 10], [4, 10]]),
+            np.array([[0, 0], [2, 0], [0, 2], [2, 2]]),
+            np.array([-1, 1]),
+            np.array([0, 7.5]),
+        ),
+    ],
+)
+def test_interpolate_parametrized_pdf(params, grid_points, target_point, expected):
+    from pyirf.interpolation import interpolate_parametrized_pdf
+
+    assert np.allclose(
+        interpolate_parametrized_pdf(params, grid_points, target_point), expected
+    )
+
+
 def test_interpolate_effective_area_per_energy_and_fov():
     """Test of interpolating of effective area using dummy model files."""
     n_en = 20
