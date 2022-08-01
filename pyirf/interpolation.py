@@ -2,7 +2,7 @@
 
 import numpy as np
 import astropy.units as u
-from scipy.interpolate import interp1d, griddata
+from scipy.interpolate import interp1d, griddata, RBFInterpolator
 from pyirf.utils import cone_solid_angle
 from pyirf.binning import bin_center
 
@@ -125,8 +125,8 @@ def pdf_from_ppf(quantiles, ppfs, edges):
     )
 
     def interpolate_ppf(xy):
-        ppf = xy[:len(xy) // 2]
-        pdf = xy[len(xy) // 2:]
+        ppf = xy[: len(xy) // 2]
+        pdf = xy[len(xy) // 2 :]
         interpolate = interp1d(ppf, pdf, bounds_error=False, fill_value=(0, 0))
         result = np.nan_to_num(interpolate(edges[:-1]))
         return np.diff(edges) * result
@@ -155,7 +155,9 @@ def norm_pdf(pdf_values):
     return normed_pdf_values
 
 
-def interpolate_binned_pdf(edges, binned_pdfs, grid_points, target_point, axis, quantile_resolution):
+def interpolate_binned_pdf(
+    edges, binned_pdfs, grid_points, target_point, axis, quantile_resolution
+):
     """
     Takes a grid of binned pdfs for a bunch of different parameters
     and interpolates it to given value of those parameters.
@@ -228,6 +230,56 @@ def interpolate_binned_pdf(edges, binned_pdfs, grid_points, target_point, axis, 
 
     # Re-swap axes and set all nans to zero
     return np.swapaxes(np.nan_to_num(normed_interpolated_pdfs), axis, -1)
+
+
+def interpolate_parametrized_pdf(params, grid_points, target_point, **kwargs):
+    """
+    Independently interpolates a parametrized pdf's parameters using scipy's RBFInterpolator [1] to support 
+    extrapolation. Uses scipys defaults (currently e.g. a thin-plate-spline kernel) 
+    if no further **kwargs are supplied.  
+    
+    Parameters
+    ----------
+    params: numpy.ndarray, shape=(L, N)
+        Array of the N parameter-values (one for each of the N grid_points) for the L different parameters
+
+    grid_points: numpy.ndarray, shape=(N, O)
+        Array of the N O-dimensional morphing parameter values corresponding to the N input templates. 
+
+    target_point: numpy.ndarray, shape=(O)
+        Value for which the interpolation is performed (target point).
+        
+    **kwargs:
+        Additional arguments passed to scipy.interpolate.RBFInterpolator. See [1] for details.
+        
+    Returns
+    -------
+    interp: numpy.ndarray, shape=(L)
+        Array of the interpolated parameter-values.
+        
+    References
+    ----------
+    .. [1] Scipy Documentation, scipy.interpolate.RBFInterpolator
+           https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RBFInterpolator.html
+
+    """
+
+    # Assert shapes of target and grid-points are properly inflated
+    if np.ndim(target_point) < 2:
+        target_point = target_point[np.newaxis, ...]
+
+    if np.ndim(grid_points) < 2:
+        grid_points = grid_points[..., np.newaxis]
+
+    if np.ndim(params) == 1:
+        return RBFInterpolator(y=grid_points, d=params, **kwargs)(target_point)
+    else:
+        return np.array(
+            [
+                RBFInterpolator(y=grid_points, d=param_set, **kwargs)(target_point)
+                for param_set in params.T
+            ]
+        ).squeeze()
 
 
 @u.quantity_input(effective_area=u.m ** 2)
