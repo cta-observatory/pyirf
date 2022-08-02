@@ -160,6 +160,24 @@ def test_interpolate_parametrized_pdf(params, grid_points, target_point, expecte
     )
 
 
+def test_interpolate_3gauss_psf():
+    from pyirf.interpolation import interpolate_3gauss_psf
+
+    dummy_data_dtype = [("mu", "<f4"), ("sigma", "<f4")]
+    dummy_data = np.array([[(0, 1), (1, 1)], [(0, 2), (2, 3)]], dtype=dummy_data_dtype)
+
+    grid_points = np.array([0, 2])
+    target_point = np.array([1])
+    interpolant = interpolate_3gauss_psf(dummy_data, grid_points, target_point)
+
+    expected = np.array([[(0, 1.5), (1.5, 2)]], dtype=dummy_data_dtype)
+
+    assert interpolant.dtype == expected.dtype
+
+    for param_name in dummy_data.dtype.names:
+        assert np.allclose(interpolant[param_name], expected[param_name])
+
+
 def test_interpolate_effective_area_per_energy_and_fov():
     """Test of interpolating of effective area using dummy model files."""
     n_en = 20
