@@ -10,6 +10,7 @@ __all__ = [
     "interpolate_effective_area_per_energy_and_fov",
     "interpolate_energy_dispersion",
     "interpolate_psf_table",
+    "interpolate_3gauss_psf",
 ]
 
 
@@ -418,3 +419,67 @@ def interpolate_psf_table(
 
     # Undo normalisation to get a proper PSF and return
     return interpolated_psf_normed / omegas
+
+
+def interpolate_3gauss_psf(psf3gauss, grid_points, target_point, **kwargs):
+    """
+    Takes a grid of energy dispersions for a bunch of different parameters
+    and interpolates it to given value of those parameters. All parameters are treated independetly.
+    
+    Parameters
+    ----------
+    psf3gauss: numpy.ndarray, shape=(N, ...)
+        Structured array of the 3Gauss PSF parameters for all N grid-points, 
+        shape is assumed to be (N:n_grid_points, n_energy_bins, n_fov_offset_bins).
+        
+    grid_points: numpy.ndarray, shape=(N, O)
+        Array of the N O-dimensional morphing parameter values corresponding to the N input templates. 
+        Without further specification via **kwargs, the psf's parameters are expected to vary 
+        linearly between these two reference points.
+    
+    target_point: numpy.ndarray, shape=(O)
+        Value for which the interpolation is performed (target point).
+    
+    **kwargs: 
+        Additional arguments passed to scipy.interpolate.RBFInterpolator through 
+        pyirf.interpolation.interpolate_parametrized_pdf. See [1] for details.
+        
+    Returns
+    -------
+    interp: numpy.ndarray
+        Structured array containing the interpolated parameter values.
+        
+    References
+    ----------
+    .. [1] Scipy Documentation, scipy.interpolate.RBFInterpolator
+           https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.RBFInterpolator.html
+    """
+    # 3gauss psfs come as a structured array. Each tupel contains all 6 parameters for one combination of
+    # fov-offset and true energy. They need to be unpacked and are flattend along all but the first axis for easier
+    # interpolation.
+    unpacked_psfs = np.array(
+        [
+            psf3gauss[param_name].reshape(psf3gauss.shape[0], -1)
+            for param_name in psf3gauss.dtype.names
+        ]
+    )
+
+    # Broadcasting the interpolation over all combinations of fov-offset and true energy.
+    interpolated_psf = np.array(
+        [
+            np.apply_along_axis(
+                lambda x: interpolate_parametrized_pdf(x, grid_points, target_point),
+                0,
+                param_row,
+            )
+            for param_row in unpacked_psfs
+        ]
+    )
+
+    # Retransform the interpolated psf into structured array
+    interpolated_psf_structured = np.array(
+        [tuple(row) for row in interpolated_psf.squeeze().T], dtype=psf3gauss.dtype
+    )
+
+    # Reshape interpolated psf back into fov-offset and true energy grid
+    return interpolated_psf_structured.reshape(*psf3gauss.shape[1:])
