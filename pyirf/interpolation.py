@@ -235,17 +235,17 @@ def interpolate_binned_pdf(
 
 def interpolate_parametrized_pdf(params, grid_points, target_point, **kwargs):
     """
-    Independently interpolates a parametrized pdf's parameters using scipy's RBFInterpolator [1] to support 
-    extrapolation. Uses scipys defaults (currently e.g. a thin-plate-spline kernel) 
-    if no further **kwargs are supplied.  
-    
+    Independently interpolates a parametrized pdf's parameters using scipy's RBFInterpolator [1] to support
+    extrapolation. Uses scipys defaults (currently e.g. a thin-plate-spline kernel)
+    if no further **kwargs are supplied.
+
     Parameters
     ----------
     params: numpy.ndarray, shape=(L, N)
         Array of the N parameter-values (one for each of the N grid_points) for the L different parameters
 
     grid_points: numpy.ndarray, shape=(N, O)
-        Array of the N O-dimensional morphing parameter values corresponding to the N input templates. 
+        Array of the N O-dimensional morphing parameter values corresponding to the N input templates.
 
     target_point: numpy.ndarray, shape=(O)
         Value for which the interpolation is performed (target point).
@@ -429,19 +429,19 @@ def interpolate_3gauss_psf(psf3gauss, grid_points, target_point, **kwargs):
     Parameters
     ----------
     psf3gauss: numpy.ndarray, shape=(N, ...)
-        Structured array of the 3Gauss PSF parameters for all N grid-points, 
+        Structured array of the 3Gauss PSF parameters for all N grid-points,
         shape is assumed to be (N:n_grid_points, n_energy_bins, n_fov_offset_bins).
         
     grid_points: numpy.ndarray, shape=(N, O)
         Array of the N O-dimensional morphing parameter values corresponding to the N input templates. 
-        Without further specification via **kwargs, the psf's parameters are expected to vary 
+        Without further specification via **kwargs, the psf parameters are expected to vary
         linearly between these two reference points.
     
     target_point: numpy.ndarray, shape=(O)
         Value for which the interpolation is performed (target point).
     
-    **kwargs: 
-        Additional arguments passed to scipy.interpolate.RBFInterpolator through 
+    **kwargs:
+        Additional arguments passed to scipy.interpolate.RBFInterpolator through
         pyirf.interpolation.interpolate_parametrized_pdf. See [1] for details.
         
     Returns

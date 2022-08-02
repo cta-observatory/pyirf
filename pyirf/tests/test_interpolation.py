@@ -131,8 +131,8 @@ def test_interpolate_binned_pdf(data):
             np.array([2]),
             np.array([15, 7.5]),
         ),
-        (  # Model: param[0] = 10 + 5 * (grid - 1), param[1] = 5 + 2.5 * (grid - 1), 
-           # with extrapolation
+        (  # Model: param[0] = 10 + 5 * (grid - 1), param[1] = 5 + 2.5 * (grid - 1),
+            # with extrapolation
             np.array([[10, 5], [20, 10]]),
             np.array([1, 3]),
             np.array([0]),
