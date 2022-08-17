@@ -33,6 +33,7 @@ def test_cone_solid_angle():
 def test_check_table():
     from pyirf.exceptions import MissingColumns, WrongColumnUnit
     from pyirf.utils import check_table
+    from astropy.table import Table
 
     t = QTable({'bar': [0, 1, 2] * u.TeV})
 
@@ -49,3 +50,7 @@ def test_check_table():
 
     # m is convertible
     check_table(t, required_units={'bar': u.cm})
+
+    t = Table({'bar': [0, 1, 2]})
+    with pytest.raises(WrongColumnUnit):
+        check_table(t, required_units={'bar': u.cm})
