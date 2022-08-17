@@ -168,5 +168,5 @@ def check_table(table, required_columns=None, required_units=None):
                 raise MissingColumns(col)
 
             unit = table[col].unit
-            if not expected.is_equivalent(unit):
+            if not unit or not expected.is_equivalent(unit):
                 raise WrongColumnUnit(col, unit, expected)
