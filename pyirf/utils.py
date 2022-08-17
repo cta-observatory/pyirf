@@ -50,6 +50,7 @@ def calculate_theta(events, assumed_source_az, assumed_source_alt):
         Angular separation between the assumed and reconstructed positions
         in the sky.
     """
+    check_table(events, required_units={"reco_az": u.deg, "reco_alt": u.deg})
     theta = angular_separation(
         assumed_source_az,
         assumed_source_alt,
@@ -78,6 +79,15 @@ def calculate_source_fov_offset(events, prefix="true"):
         Angular separation between the true and pointing positions
         in the sky.
     """
+    check_table(
+        events,
+        required_units={
+            f"{prefix}_az": u.deg,
+            f"{prefix}_alt": u.deg,
+            "pointing_az": u.deg,
+            "pointing_alt": u.deg,
+        },
+    )
     theta = angular_separation(
         events[f"{prefix}_az"],
         events[f"{prefix}_alt"],
