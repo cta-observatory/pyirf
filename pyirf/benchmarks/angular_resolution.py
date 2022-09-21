@@ -51,7 +51,7 @@ def angular_resolution(
     result[f"{energy_type}_energy_high"] = energy_bins[1:]
     result[f"{energy_type}_energy_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
 
-    result["angular_resolution"] = np.nan * u.deg
+    result["angular_resolution"] = u.Quantity(np.nan, table["theta"].unit)
 
     if not len(events):
         # if we get an empty input (no selected events available)
