@@ -1,6 +1,7 @@
 from astropy.table import QTable
 import astropy.units as u
 import numpy as np
+import pytest
 
 
 def test_empty_angular_resolution():
@@ -18,7 +19,8 @@ def test_empty_angular_resolution():
 
     assert np.all(np.isnan(table["angular_resolution"]))
 
-def test_angular_resolution():
+@pytest.mark.parametrize("unit", (u.deg, u.rad))
+def test_angular_resolution(unit):
     from pyirf.benchmarks import angular_resolution
 
     np.random.seed(1337)
@@ -36,6 +38,8 @@ def test_angular_resolution():
         ]) * u.TeV,
         'theta': np.abs(np.random.normal(0, true_resolution)) * u.deg
     })
+
+    events['theta'] = events['theta'].to(unit)
 
     ang_res = angular_resolution(
         events,
