@@ -91,14 +91,15 @@ def test_estimate_background():
         'center': [5.5, 55] * u.TeV,
         'cut': (np.arccos([0.9998, 0.9999]) * u.rad).to(u.deg),
     })
-    background_radius = np.arccos(0.999) * u.rad
+    fov_offset_max = np.arccos(0.999) * u.rad
 
     bg = estimate_background(
         events,
         reco_energy_bins,
         theta_cuts,
         alpha=0.2,
-        background_radius=background_radius
+        fov_offset_min=0 * u.deg,
+        fov_offset_max=fov_offset_max,
     )
 
     assert np.allclose(bg['n'], [1000, 500])

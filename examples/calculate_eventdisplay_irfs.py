@@ -171,7 +171,7 @@ def main():
         op=operator.ge,
         theta_cuts=theta_cuts,
         alpha=ALPHA,
-        background_radius=MAX_BG_RADIUS,
+        fov_offset_max=MAX_BG_RADIUS,
     )
 
     # now that we have the optimized gh cuts, we recalculate the theta

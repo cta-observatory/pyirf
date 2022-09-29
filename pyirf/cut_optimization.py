@@ -21,7 +21,8 @@ def optimize_gh_cut(
     gh_cut_efficiencies,
     theta_cuts,
     op=operator.ge,
-    background_radius=1 * u.deg,
+    fov_offset_min=0 * u.deg,
+    fov_offset_max=1 * u.deg,
     alpha=1.0,
     progress=True,
     **kwargs
@@ -57,9 +58,10 @@ def optimize_gh_cut(
         Returning true means an event passes the cut, so is not discarded.
         E.g. for gammaness-like score, use `operator.ge` (>=) and for a
         hadroness-like score use `operator.le` (<=).
-    background_radius: astropy.units.Quantity[angle]
-        Radius around the field of view center used for background rate
-        estimation.
+    fov_offset_min: astropy.units.Quantity[angle]
+        Minimum distance from the fov center for background events to be taken into account
+    fov_offset_max: astropy.units.Quantity[angle]
+        Maximum distance from the fov center for background events to be taken into account
     alpha: float
         Size ratio of off region / on region. Will be used to
         scale the background rate.
@@ -119,7 +121,8 @@ def optimize_gh_cut(
             reco_energy_bins=reco_energy_bins,
             theta_cuts=theta_cuts,
             alpha=alpha,
-            background_radius=background_radius
+            fov_offset_min=fov_offset_min,
+            fov_offset_max=fov_offset_max,
         )
 
         sensitivity = calculate_sensitivity(
