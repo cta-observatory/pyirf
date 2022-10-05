@@ -7,6 +7,8 @@ from scipy.interpolate import interp1d
 from pkg_resources import resource_filename
 from astropy.table import QTable
 
+from .utils import cone_solid_angle
+
 #: Unit of a point source flux
 #:
 #: Number of particles per Energy, time and area
@@ -127,6 +129,35 @@ class PowerLaw:
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**{self.index})"
+
+    @u.quantity_input(inner=u.rad, outer=u.rad)
+    def integrate_cone(self, inner, outer):
+        """Integrate this powerlaw over solid angle in the given cone
+
+        Parameters
+        ----------
+        inner : astropy.units.Quantity[angle]
+            inner opening angle of cone
+        outer : astropy.units.Quantity[angle]
+            outer opening angle of cone
+
+        Returns
+        -------
+        integrated : PowerLaw
+            A new powerlaw instance with new normalization with the integration
+            result.
+        """
+        if not self.normalization.unit.is_equivalent(DIFFUSE_FLUX_UNIT):
+            raise ValueError("Can only integrate a diffuse flux over solid angle")
+
+        solid_angle = cone_solid_angle(outer) - cone_solid_angle(inner)
+
+        return PowerLaw(
+            normalization=self.normalization * solid_angle,
+            index=self.index,
+            e_ref=self.e_ref,
+        )
+
 
 
 class LogParabola:
