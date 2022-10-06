@@ -25,7 +25,7 @@ COLUMN_MAP = {
 }
 
 
-def read_eventdisplay_fits(infile):
+def read_eventdisplay_fits(infile, use_histogram=True):
     """
     Read a DL2 FITS file as produced by the EventDisplay DL2 converter
     from ROOT files:
@@ -33,15 +33,20 @@ def read_eventdisplay_fits(infile):
 
     Parameters
     ----------
-    infile: str or pathlib.Path
+    infile : str or pathlib.Path
         Path to the input fits file
+    use_histogram : bool
+        If True, use number of simulated events from histogram provided in fits file,
+        if False, estimate this number from the unique run_id, pointing direction
+        combinations and the number of events per run in the run header.
+        This will fail e.g. for protons with cuts already applied, since many
+        runs will have 0 events surviving cuts.
 
     Returns
     -------
     events: astropy.QTable
         Astropy Table object containing the reconstructed events information.
     simulated_events: ``~pyirf.simulations.SimulatedEventsInfo``
-
     """
     log.debug(f"Reading {infile}")
     events = QTable.read(infile, hdu="EVENTS")
@@ -54,9 +59,17 @@ def read_eventdisplay_fits(infile):
     n_runs = len(unique(events[['obs_id', 'pointing_az', 'pointing_alt']]))
     log.info(f"Estimated number of runs from obs ids and pointing position: {n_runs}")
 
-    n_showers = n_runs * run_header["num_use"] * run_header["num_showers"]
-    log.debug(f"Number of events from n_runs and run header: {n_showers}")
-    log.debug(f'Number of events histogram: {sim_events["EVENTS"].sum()}')
+    n_showers_guessed = n_runs * run_header["num_use"] * run_header["num_showers"]
+    n_showers_hist = int(sim_events["EVENTS"].sum())
+
+    if use_histogram:
+        n_showers = n_showers_hist
+    else:
+        n_showers = n_showers_guessed
+
+    log.debug("Number of events histogram: %d", n_showers_hist)
+    log.debug("Number of events from n_runs and run header: %d", n_showers_guessed)
+    log.debug("Using number of events from %s", "histogram" if use_histogram else "guess")
 
     sim_info = SimulatedEventsInfo(
         n_showers=n_showers,
