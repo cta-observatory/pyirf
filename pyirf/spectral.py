@@ -304,6 +304,37 @@ class TableInterpolationSpectrum:
         )
 
 
+
+class PolynomialSpectrum:
+    def __init__(self, parameters, unit, log_flux=True, log_energy=True, reference_energy=1 * u.TeV, scale=None, output_unit=POINT_SOURCE_FLUX_UNIT):
+        self.parameters = parameters
+        self.log_flux = log_flux
+        self.log_energy = log_energy
+        self.reference_energy = reference_energy
+        self.scale = scale
+        self.unit = unit
+        self.output_unit = output_unit
+
+    def __call__(self, energy):
+        x = (energy / self.reference_energy).to_value(u.one)
+
+        if self.log_energy:
+            x = np.log10(x)
+
+        print(self.parameters)
+        y = np.sum([p * x**i for i, p in enumerate(self.parameters)], axis=0)
+
+        if self.log_flux is True:
+            y = 10**y
+
+        y = u.Quantity(y, self.unit)
+
+        if self.scale is not None:
+            y = y * self.scale(energy)
+
+        return y.to(self.output_unit)
+
+
 #: Power Law parametrization of the Crab Nebula spectrum as published by HEGRA
 #:
 #: From "The Crab Nebula and Pulsar between 500 GeV and 80 TeV: Observations with the HEGRA stereoscopic air Cherenkov telescopes",
@@ -364,4 +395,20 @@ IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
 #: spread of the available data reported on the same proceeding.
 DAMPE_P_He_SPECTRUM = TableInterpolationSpectrum.from_file(
     resource_filename("pyirf", "resources/dampe_p+he.ecsv")
+)
+
+
+CRAB_MEYER_ET_AL = PolynomialSpectrum(
+    parameters=[
+        -10.2708,
+        -0.53616,
+        -0.179475,
+        0.0473174,
+        0,
+        -0.00449161,
+    ],
+    unit=u.erg / u.s / u.cm**2,
+    scale=lambda e: 1/e**2,
+    log_flux=True,
+    log_energy=True,
 )
