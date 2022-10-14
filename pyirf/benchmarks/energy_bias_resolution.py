@@ -1,11 +1,13 @@
-from astropy.table import Table
 import numpy as np
 from scipy.stats import norm
+from astropy.table import QTable
+import astropy.units as u
 
-from ..binning import calculate_bin_indices
+from ..binning import calculate_bin_indices, UNDERFLOW_INDEX, OVERFLOW_INDEX
 
 
 NORM_LOWER_SIGMA, NORM_UPPER_SIGMA = norm(0, 1).cdf([-1, 1])
+ONE_SIGMA_COVERAGE = NORM_UPPER_SIGMA - NORM_LOWER_SIGMA
 MEDIAN = 0.5
 
 
@@ -24,8 +26,7 @@ def energy_resolution_absolute_68(rel_error):
     resolution: numpy.ndarray(dtype=float, ndim=1)
         Array containing the 68% intervals
     """
-    resolution = np.percentile(np.abs(rel_error), 68)
-    return resolution
+    return np.nanpercentile(np.abs(rel_error), ONE_SIGMA_COVERAGE)
 
 
 def inter_quantile_distance(rel_error):
@@ -44,8 +45,8 @@ def inter_quantile_distance(rel_error):
     resolution: numpy.ndarray(dtype=float, ndim=1)
         Array containing the resolution values.
     """
-    upper_sigma = np.percentile(rel_error, 100 * NORM_UPPER_SIGMA)
-    lower_sigma = np.percentile(rel_error, 100 * NORM_LOWER_SIGMA)
+    upper_sigma = np.nanquantile(rel_error, NORM_UPPER_SIGMA)
+    lower_sigma = np.nanquantile(rel_error, NORM_LOWER_SIGMA)
     resolution = 0.5 * (upper_sigma - lower_sigma)
     return resolution
 
@@ -82,20 +83,17 @@ def energy_bias_resolution(
     """
 
     # create a table to make use of groupby operations
-    table = Table(events[["true_energy", "reco_energy"]])
-    table["rel_error"] = (events["reco_energy"] / events["true_energy"]) - 1
+    table = QTable(events[["true_energy", "reco_energy"]], copy=False)
+    table["rel_error"] = (events["reco_energy"] / events["true_energy"]).to_value(u.one) - 1
 
-    table["bin_index"] = calculate_bin_indices(
-        table[f"{energy_type}_energy"].quantity, energy_bins
-    )
-    n_bins = len(energy_bins) - 1
-    mask = (table["bin_index"] >= 0) & (table["bin_index"] < n_bins)
+    energy_key = f"{energy_type}_energy"
 
-    result = Table()
-    result[f"{energy_type}_energy_low"] = energy_bins[:-1]
-    result[f"{energy_type}_energy_high"] = energy_bins[1:]
-    result[f"{energy_type}_energy_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
+    result = QTable()
+    result[f"{energy_key}_low"] = energy_bins[:-1]
+    result[f"{energy_key}_high"] = energy_bins[1:]
+    result[f"{energy_key}_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
 
+    result["n_events"] = 0
     result["bias"] = np.nan
     result["resolution"] = np.nan
 
@@ -104,14 +102,23 @@ def energy_bias_resolution(
         # we return the table filled with NaNs
         return result
 
-    # use groupby operations to calculate the percentile in each bin
-    by_bin = table[mask].group_by("bin_index")
 
-    index = by_bin.groups.keys["bin_index"]
-    result["bias"][index] = by_bin["rel_error"].groups.aggregate(bias_function)
-    result["resolution"][index] = by_bin["rel_error"].groups.aggregate(
-        resolution_function
-    )
+    # use groupby operations to calculate the percentile in each bin
+    bin_index = calculate_bin_indices(table[energy_key], energy_bins)
+    by_bin = table.group_by(bin_index)
+
+    # use groupby operations to calculate the percentile in each bin
+    by_bin = table.group_by(bin_index)
+    for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
+
+        # skip under / overflow
+        if bin_idx == UNDERFLOW_INDEX or bin_idx == OVERFLOW_INDEX:
+            continue
+
+        result["n_events"][bin_idx] = len(group)
+        result["bias"][bin_idx] = bias_function(group["rel_error"])
+        result["resolution"][bin_idx] = resolution_function(group["rel_error"])
+
     return result
 
 def energy_bias_resolution_from_energy_dispersion(

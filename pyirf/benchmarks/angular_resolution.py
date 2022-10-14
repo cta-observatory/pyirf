@@ -1,9 +1,9 @@
 import numpy as np
-from astropy.table import Table
+from astropy.table import QTable
 from scipy.stats import norm
 import astropy.units as u
 
-from ..binning import calculate_bin_indices
+from ..binning import calculate_bin_indices, UNDERFLOW_INDEX, OVERFLOW_INDEX
 
 
 ONE_SIGMA_QUANTILE = norm.cdf(1) - norm.cdf(-1)
@@ -35,32 +35,33 @@ def angular_resolution(
         distance distribution per each reconstructed energy bin.
     """
     # create a table to make use of groupby operations
-    table = Table(events[[f"{energy_type}_energy", "theta"]])
+    energy_key = f"{energy_type}_energy"
+    table = QTable(events[[energy_key, "theta"]])
 
-    table["bin_index"] = calculate_bin_indices(
-        table[f"{energy_type}_energy"].quantity, energy_bins
-    )
+    bin_index = calculate_bin_indices(table[energy_key], energy_bins)
 
-    n_bins =  len(energy_bins) - 1
-    mask = (table["bin_index"] >= 0) & (table["bin_index"] < n_bins)
+    result = QTable()
+    result[f"{energy_key}_low"] = energy_bins[:-1]
+    result[f"{energy_key}_high"] = energy_bins[1:]
+    result[f"{energy_key}_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
+    result["n_events"] = 0
 
-    result = Table()
-    result[f"{energy_type}_energy_low"] = energy_bins[:-1]
-    result[f"{energy_type}_energy_high"] = energy_bins[1:]
-    result[f"{energy_type}_energy_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
+    key = "angular_resolution"
+    result[key] = np.nan * u.deg
 
-    result["angular_resolution"] = np.nan * u.deg
-
-    if not len(events):
-        # if we get an empty input (no selected events available)
-        # we return the table filled with NaNs
+    # if we get an empty input (no selected events available)
+    # we return the table filled with NaNs
+    if len(events) == 0:
         return result
 
     # use groupby operations to calculate the percentile in each bin
-    by_bin = table[mask].group_by("bin_index")
+    by_bin = table.group_by(bin_index)
+    for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
 
-    index = by_bin.groups.keys["bin_index"]
-    result["angular_resolution"][index] = by_bin["theta"].groups.aggregate(
-        lambda x: np.quantile(x, ONE_SIGMA_QUANTILE)
-    )
+        # skip under / overflow
+        if bin_idx == UNDERFLOW_INDEX or bin_idx == OVERFLOW_INDEX:
+            continue
+
+        result[key][bin_idx] = np.nanquantile(group["theta"], ONE_SIGMA_QUANTILE)
+
     return result

@@ -8,6 +8,12 @@ import astropy.units as u
 from astropy.table import QTable
 
 
+#: Index returned by `calculate_bin_indices` for underflown values
+UNDERFLOW_INDEX = np.iinfo(np.int64).min
+#: Index returned by `calculate_bin_indices` for overflown values
+OVERFLOW_INDEX = np.iinfo(np.int64).max
+
+
 def bin_center(edges):
     return 0.5 * (edges[:-1] + edges[1:])
 
@@ -119,10 +125,11 @@ def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
 def calculate_bin_indices(data, bins):
     """
     Calculate bin indices for given data array and bins.
-    Underflow will be -1 and overflow len(bins) - 1.
-    If the bis already include underflow / overflow bins, e.g.
+    Underflow will be `UNDERFLOW_INDEX` and overflow `OVERFLOW_INDEX`.
+
+    If the bins already include underflow / overflow bins, e.g.
     `bins[0] = -np.inf` and `bins[-1] = np.inf`, using the result of this
-    function will always be a valid index into the resultung histogram.
+    function will always be a valid index into the resulting histogram.
 
 
     Parameters
@@ -137,7 +144,9 @@ def calculate_bin_indices(data, bins):
     Returns
     -------
     bin_index: np.ndarray[int]
-        Indices of the histogram bin the values in data belong to
+        Indices of the histogram bin the values in data belong to.
+        Under- and overflown values will have values of `UNDERFLOW_INDEX`
+        and `OVERFLOW_INDEX` respectively.
     """
 
     if hasattr(data, "unit"):
@@ -147,7 +156,10 @@ def calculate_bin_indices(data, bins):
         data = data.to_value(unit)
         bins = bins.to_value(unit)
 
-    return np.digitize(data, bins) - 1
+    indices = np.digitize(data, bins) - 1
+    indices[indices == -1] = UNDERFLOW_INDEX
+    indices[indices == len(bins) - 1] = OVERFLOW_INDEX
+    return indices
 
 
 def create_histogram_table(events, bins, key="reco_energy"):
