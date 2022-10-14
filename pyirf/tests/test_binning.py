@@ -110,13 +110,14 @@ def test_create_histogram_table():
 
 
 def test_calculate_bin_indices():
-    from pyirf.binning import calculate_bin_indices
+    from pyirf.binning import calculate_bin_indices, OVERFLOW_INDEX, UNDERFLOW_INDEX
 
     bins = np.array([0, 1, 2])
     values = [0.5, 0.5, 1, 1.1, 1.9, 2, -1, 2.5]
 
     true_idx = np.array([0, 0, 1, 1, 1, 2, -1, 2])
     true_valid = np.array([True, True, True, True, True, False, False, False])
+    true_idx = np.array([0, 0, 1, 1, 1, OVERFLOW_INDEX, UNDERFLOW_INDEX, OVERFLOW_INDEX])
 
     idx, valid = calculate_bin_indices(values, bins)
     assert np.all(idx == true_idx)

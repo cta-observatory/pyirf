@@ -1,9 +1,9 @@
 import numpy as np
 from astropy.table import Table, QTable
-from scipy.ndimage.filters import gaussian_filter1d
+from scipy.ndimage import gaussian_filter1d
 import astropy.units as u
 
-from .binning import calculate_bin_indices, bin_center
+from .binning import calculate_bin_indices, bin_center, UNDERFLOW_INDEX, OVERFLOW_INDEX
 
 __all__ = [
     'calculate_percentile_cut',
@@ -26,7 +26,7 @@ def calculate_percentile_cut(
         The values for which the cut should be calculated
     bin_values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``
         The values used to sort the ``values`` into bins
-    bins: ``~numpy.ndarray`` or ``~astropy.units.Quantity``
+    edges: ``~numpy.ndarray`` or ``~astropy.units.Quantity``
         Bin edges
     fill_value: float or quantity
         Value for bins with less than ``min_events``,
@@ -45,61 +45,43 @@ def calculate_percentile_cut(
         Bins with less events than this number are replaced with ``fill_value``
     """
     # create a table to make use of groupby operations
-    table = Table({"values": values, "bin_values": bin_values}, copy=False)
+    table = QTable({"values": values, "bin_values": bin_values}, copy=False)
     unit = table["values"].unit
 
     # make sure units match
     if unit is not None:
         fill_value = u.Quantity(fill_value).to(unit)
 
-    table["bin_index"], valid = calculate_bin_indices(table["bin_values"].quantity, bins)
-
-    # remove events outside of binning
-    table = table[valid]
+    bin_index, valid = calculate_bin_indices(table["bin_values"], bins)
+    by_bin = table[valid].group_by(bin_index[valid])
 
     cut_table = QTable()
     cut_table["low"] = bins[:-1]
     cut_table["high"] = bins[1:]
     cut_table["center"] = bin_center(bins)
-    cut_table["cut"] = fill_value
+    cut_table["n_events"] = 0
+    cut_table["cut"] = np.asanyarray(fill_value, values.dtype)
 
-    # use groupby operations to calculate the percentile in each bin
-    by_bin = table.group_by("bin_index")
+    for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
+        # replace bins with too few events with fill_value
+        n_events = len(group)
+        cut_table["n_events"][bin_idx] = n_events
 
-    # fill only the non-empty bins
-    cut = by_bin["values"].groups.aggregate(lambda g: np.percentile(g, percentile))
-    if unit is not None:
-        cut = cut.quantity.to(unit)
+        if n_events < min_events:
+            cut_table["cut"][bin_idx] = fill_value
+        else:
+            value = np.nanpercentile(group["values"], percentile)
+            if min_value is not None or max_value is not None:
+                value = np.clip(value, min_value, max_value)
 
-    # replace bins with too few events with fill_value
-    n_events = by_bin["values"].groups.aggregate(len)
-    cut[n_events < min_events] = fill_value
-
-    # assign to full table, index lookup needed in case of empty bins
-    cut_table["cut"][by_bin.groups.keys["bin_index"]] = cut
-
-    if min_value is not None:
-        if unit is not None:
-            min_value = u.Quantity(min_value).to(unit)
-        invalid = cut_table["cut"] < min_value
-        cut_table["cut"] = np.where(invalid, min_value, cut_table["cut"])
-
-    if max_value is not None:
-        if unit is not None:
-            max_value = u.Quantity(max_value).to(unit)
-        invalid = cut_table["cut"] > max_value
-        cut_table["cut"] = np.where(invalid, max_value, cut_table["cut"])
+            cut_table["cut"][bin_idx] = value
 
     if smoothing is not None:
-        if unit is not None:
-            cut = cut_table['cut'].to_value(unit)
-
-        cut = gaussian_filter1d(cut, smoothing, mode='nearest')
-
-        if unit is not None:
-            cut = u.Quantity(cut, unit=unit, copy=False)
-
-        cut_table['cut'] = cut
+        cut_table['cut'].value[:] = gaussian_filter1d(
+            cut_table["cut"].value,
+            smoothing,
+            mode='nearest',
+        )
 
     return cut_table
 
