@@ -270,7 +270,8 @@ def calculate_sensitivity(
 
 
 def estimate_background(
-    events, reco_energy_bins, theta_cuts, alpha, background_radius
+    events, reco_energy_bins, theta_cuts, alpha,
+    fov_offset_min, fov_offset_max, 
 ):
     '''
     Estimate the number of background events for a point-like sensitivity.
@@ -280,17 +281,17 @@ def estimate_background(
     source position.
 
     Here we calculate the expected number of background events for the off
-    regions by taking all background events up to `background_radius` away from
-    the camera center and then scale these to the size of the off region,
-    which is scaled by 1 / alpha from the size of the on region given by the
-    theta cuts.
+    regions by taking all background events between ``fov_offset_min`` and
+    ``fov_offset_max`` from the camera center and then scale these to the size
+    of the off region, which is scaled by 1 / alpha from the size of the on
+    region given by the theta cuts.
 
 
     Parameters
     ----------
     events: astropy.table.QTable
         DL2 event list of background surviving event selection
-        and inside ``background_radius`` from the center of the FOV
+        and inside ``fov_offset_max`` from the center of the FOV
         Required columns for this function:
         - `reco_energy`,
         - `reco_source_fov_offset`.
@@ -302,11 +303,18 @@ def estimate_background(
         Columns `center` and `cut` are required for this function.
     alpha: float
         size of the on region divided by the size of the off region.
-    background_radius: astropy.units.Quantity[angle]
+    fov_offset_min: astropy.units.Quantity[angle]
+        Minimum distance from the fov center for background events to be taken into account
+    fov_offset_max: astropy.units.Quantity[angle]
         Maximum distance from the fov center for background events to be taken into account
     '''
+    in_ring = (
+        (events['reco_source_fov_offset'] >= fov_offset_min)
+        & (events['reco_source_fov_offset'] < fov_offset_max)
+    )
+
     bg = create_histogram_table(
-        events[events['reco_source_fov_offset'] < background_radius],
+        events[in_ring],
         reco_energy_bins,
         key='reco_energy',
     )
@@ -320,10 +328,10 @@ def estimate_background(
         theta_cuts['center'],
         theta_cuts['cut']
     )
-    size_ratio = (
-        cone_solid_angle(theta_cuts_bg_bins)
-        / cone_solid_angle(background_radius)
-    ).to_value(u.one)
+
+    solid_angle_on = cone_solid_angle(theta_cuts_bg_bins) 
+    solid_angle_ring = cone_solid_angle(fov_offset_max) - cone_solid_angle(fov_offset_min)
+    size_ratio = (solid_angle_on / solid_angle_ring).to_value(u.one)
 
     for key in filter(lambda col: col.startswith('n'), bg.colnames):
         # *= not possible due to upcast from int to float
