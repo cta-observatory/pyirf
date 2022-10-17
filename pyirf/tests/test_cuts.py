@@ -148,3 +148,33 @@ def test_compare_irf_cuts():
 
     # different cuts ==> should return False
     assert compare_irf_cuts([t1, t2]) is False
+
+
+def test_calculate_percentile_cuts_table():
+    '''Test that calculate percentile cuts does not modify input table'''
+    from pyirf.cuts import calculate_percentile_cut
+
+    np.random.seed(0)
+
+    dist1 = norm(0, 1)
+    dist2 = norm(10, 1)
+    N = int(1e4)
+
+    table = QTable({
+        "foo": np.append(dist1.rvs(size=N), dist2.rvs(size=N)) * u.deg,
+        "bar": np.append(np.zeros(N), np.ones(N)) * u.m,
+    })
+
+    bins = [-0.5, 0.5, 1.5] * u.m
+    cuts = calculate_percentile_cut(
+        table["foo"],
+        table["bar"],
+        bins,
+        fill_value=np.nan * u.rad,
+    )
+    assert table.colnames == ["foo", "bar"]
+    assert np.allclose(
+        cuts["cut"].to_value(u.deg),
+        [dist1.ppf(0.68), dist2.ppf(0.68)],
+        rtol=0.1,
+    )

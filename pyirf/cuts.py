@@ -3,7 +3,7 @@ from astropy.table import Table, QTable
 from scipy.ndimage import gaussian_filter1d
 import astropy.units as u
 
-from .binning import calculate_bin_indices, bin_center, UNDERFLOW_INDEX, OVERFLOW_INDEX
+from .binning import calculate_bin_indices, bin_center
 
 __all__ = [
     'calculate_percentile_cut',
@@ -45,14 +45,21 @@ def calculate_percentile_cut(
         Bins with less events than this number are replaced with ``fill_value``
     """
     # create a table to make use of groupby operations
-    table = QTable({"values": values, "bin_values": bin_values}, copy=False)
+    # we use a normal table here to avoid astropy/astropy#13840
+    table = Table({"values": values}, copy=False)
     unit = table["values"].unit
 
     # make sure units match
     if unit is not None:
         fill_value = u.Quantity(fill_value).to(unit)
 
-    bin_index, valid = calculate_bin_indices(table["bin_values"], bins)
+        if min_value is not None:
+            min_value = u.Quantity(min_value).to_value(unit)
+
+        if max_value is not None:
+            max_value = u.Quantity(max_value).to_value(unit)
+
+    bin_index, valid = calculate_bin_indices(bin_values, bins)
     by_bin = table[valid].group_by(bin_index[valid])
 
     cut_table = QTable()
@@ -74,7 +81,7 @@ def calculate_percentile_cut(
             if min_value is not None or max_value is not None:
                 value = np.clip(value, min_value, max_value)
 
-            cut_table["cut"][bin_idx] = value
+            cut_table["cut"].value[bin_idx] = value
 
     if smoothing is not None:
         cut_table['cut'].value[:] = gaussian_filter1d(
