@@ -56,6 +56,46 @@ def test_calculate_percentile_cuts():
     assert np.all(cuts["cut"] == [1.0, 5.0] * u.deg)
 
 
+def test_calculate_percentile_cuts_multiple():
+    from pyirf.cuts import calculate_percentile_cut
+
+    np.random.seed(0)
+
+    dist1 = norm(0, 1)
+    dist2 = norm(10, 1)
+    N = int(1e4)
+
+    values = np.append(dist1.rvs(size=N), dist2.rvs(size=N)) * u.deg
+    bin_values = np.append(np.zeros(N), np.ones(N)) * u.m
+    # add some values outside of binning to test that under/overflow are ignored
+    bin_values[10] = 5 * u.m
+    bin_values[30] = -1 * u.m
+
+    bins = [-0.5, 0.5, 1.5] * u.m
+
+    cuts = calculate_percentile_cut(values, bin_values, bins, fill_value=np.nan * u.deg, percentile=np.array([20, 50, 80]))
+    assert np.all(cuts["low"] == bins[:-1])
+    assert np.all(cuts["high"] == bins[1:])
+
+    np.testing.assert_allclose(
+        cuts["cut"].to_value(u.deg),
+        [dist1.ppf([0.2, 0.5, 0.8]), dist2.ppf([0.2, 0.5, 0.8])],
+        rtol=0.05,
+        atol=0.05,
+    )
+
+    # test with min/max value
+    cuts = calculate_percentile_cut(
+        values,
+        bin_values,
+        bins,
+        fill_value=np.nan * u.deg,
+        min_value=1 * u.deg,
+        max_value=5 * u.deg,
+    )
+    assert np.all(cuts["cut"] == [1.0, 5.0] * u.deg)
+
+
 def test_calculate_percentile_cuts_no_units():
     from pyirf.cuts import calculate_percentile_cut
 

@@ -1,7 +1,9 @@
+from astropy.io.fits.util import fill
 import numpy as np
 from astropy.table import Table, QTable
 from scipy.ndimage.filters import gaussian_filter1d
 import astropy.units as u
+from scipy.stats import percentileofscore
 
 from .binning import calculate_bin_indices, bin_center
 
@@ -61,7 +63,10 @@ def calculate_percentile_cut(
     cut_table["low"] = bins[:-1]
     cut_table["high"] = bins[1:]
     cut_table["center"] = bin_center(bins)
-    cut_table["cut"] = fill_value
+
+    percentile = np.asanyarray(percentile)
+    cut_table["cut"] = np.full(percentile.shape, fill_value)[np.newaxis, ...]
+    cut_table["cut"].unit = unit
 
     # use groupby operations to calculate the percentile in each bin
     by_bin = table.group_by("bin_index")
