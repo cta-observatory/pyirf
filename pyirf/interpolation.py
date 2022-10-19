@@ -390,7 +390,7 @@ def interpolate_rad_max(
     target_point: numpy.ndarray, shape=(O)
         Value for which the interpolation is performed (target point)
 
-    method: 'linear’, ‘nearest’, ‘cubic’
+    method: 'linear', 'nearest', 'cubic'
         Interpolation method for scipy.interpolate.griddata [1]. Defaults to 'linear'.
 
     Returns

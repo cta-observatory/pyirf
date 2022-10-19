@@ -138,3 +138,25 @@ def test_interpolate_effective_area_per_energy_and_fov():
     )
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
+
+
+def test_interpolate_rad_max():
+    from pyirf.interpolation import interpolate_rad_max
+
+    # linear test case
+    rad_max_1 = np.array([[0, 0], [1, 0], [2, 1], [3, 2]])
+    rad_max_2 = 2 * rad_max_1
+    rad_max = np.array([rad_max_1, rad_max_2])
+
+    grid_points = np.array([[0], [1]])
+    target_point = np.array([0.5])
+
+    interp = interpolate_rad_max(
+        rad_max=rad_max,
+        grid_points=grid_points,
+        target_point=target_point,
+        method="linear",
+    )
+
+    assert interp.shape == (1, *rad_max_1.shape)
+    assert np.allclose(interp, 1.5 * rad_max_1)
