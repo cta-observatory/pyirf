@@ -91,13 +91,17 @@ class PowerLaw:
     )
     def __init__(self, normalization, index, e_ref=1 * u.TeV):
         """Create a new PowerLaw spectrum"""
+        if index > 0:
+            raise ValueError(f'Index must be < 0, got {index}')
+
         self.normalization = normalization
         self.index = index
         self.e_ref = e_ref
 
     @u.quantity_input(energy=u.TeV)
     def __call__(self, energy):
-        return self.normalization * (energy / self.e_ref) ** self.index
+        e = (energy / self.e_ref).to_value(u.one)
+        return self.normalization * e**self.index
 
     @classmethod
     @u.quantity_input(obstime=u.hour, e_ref=u.TeV)
