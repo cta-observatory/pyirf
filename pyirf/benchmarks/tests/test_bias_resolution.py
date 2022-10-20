@@ -21,6 +21,14 @@ def test_empty_bias_resolution():
     assert np.all(np.isnan(table["bias"]))
     assert np.all(np.isnan(table["resolution"]))
 
+
+def test_absolute_68():
+    from pyirf.benchmarks.energy_bias_resolution import energy_resolution_absolute_68
+    rng = np.random.default_rng(0)
+    values = rng.normal(0, 1, 1000)
+    assert np.isclose(energy_resolution_absolute_68(values), 1, rtol=0.01)
+
+
 def test_energy_bias_resolution():
     from pyirf.benchmarks import energy_bias_resolution
 

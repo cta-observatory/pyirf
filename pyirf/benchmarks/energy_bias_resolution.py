@@ -26,7 +26,7 @@ def energy_resolution_absolute_68(rel_error):
     resolution: numpy.ndarray(dtype=float, ndim=1)
         Array containing the 68% intervals
     """
-    return np.nanpercentile(np.abs(rel_error), ONE_SIGMA_COVERAGE)
+    return np.nanquantile(np.abs(rel_error), ONE_SIGMA_COVERAGE)
 
 
 def inter_quantile_distance(rel_error):
