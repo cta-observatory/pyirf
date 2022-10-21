@@ -41,10 +41,14 @@ def test_angular_resolution(unit):
 
     events['theta'] = events['theta'].to(unit)
 
+    # add nans to test if nans are ignored
+    events["true_energy"].value[500] = np.nan
+    events["true_energy"].value[1500] = np.nan
+
     ang_res = angular_resolution(
         events,
         [1, 10, 100] * u.TeV,
-    )['angular_resolution'].quantity
+    )['angular_resolution']
 
     assert len(ang_res) == 2
     assert u.isclose(ang_res[0], TRUE_RES_1 * u.deg, rtol=0.05)
