@@ -143,7 +143,7 @@ def check_table(table, required_columns=None, required_units=None):
 
     Parameters
     ----------
-    table: astropy.table.QTable
+    table: astropy.table.Table
         Table to check
     required_columns: iterable[str]
         Column names that are required to be present
@@ -157,6 +157,7 @@ def check_table(table, required_columns=None, required_units=None):
         as keys in ``required_units are`` not present in the table.
     WrongColumnUnit: if any column has the wrong unit
     """
+    table = QTable(table)
     if required_columns is not None:
         missing = set(required_columns) - set(table.colnames)
         if missing:
