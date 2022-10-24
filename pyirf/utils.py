@@ -1,9 +1,9 @@
-import numpy as np
 import astropy.units as u
+import numpy as np
 from astropy.coordinates.angle_utilities import angular_separation
+from astropy.table import QTable
 
 from .exceptions import MissingColumns, WrongColumnUnit
-
 
 __all__ = [
     "is_scalar",
