@@ -10,6 +10,7 @@ __all__ = [
     "interpolate_effective_area_per_energy_and_fov",
     "interpolate_energy_dispersion",
     "interpolate_psf_table",
+    "interpolate_rad_max",
 ]
 
 
@@ -125,8 +126,8 @@ def pdf_from_ppf(quantiles, ppfs, edges):
     )
 
     def interpolate_ppf(xy):
-        ppf = xy[:len(xy) // 2]
-        pdf = xy[len(xy) // 2:]
+        ppf = xy[: len(xy) // 2]
+        pdf = xy[len(xy) // 2 :]
         interpolate = interp1d(ppf, pdf, bounds_error=False, fill_value=(0, 0))
         result = np.nan_to_num(interpolate(edges[:-1]))
         return np.diff(edges) * result
@@ -155,7 +156,9 @@ def norm_pdf(pdf_values):
     return normed_pdf_values
 
 
-def interpolate_binned_pdf(edges, binned_pdfs, grid_points, target_point, axis, quantile_resolution):
+def interpolate_binned_pdf(
+    edges, binned_pdfs, grid_points, target_point, axis, quantile_resolution
+):
     """
     Takes a grid of binned pdfs for a bunch of different parameters
     and interpolates it to given value of those parameters.
@@ -366,3 +369,38 @@ def interpolate_psf_table(
 
     # Undo normalisation to get a proper PSF and return
     return interpolated_psf_normed / omegas
+
+
+def interpolate_rad_max(
+    rad_max, grid_points, target_point, method="linear",
+):
+    """
+    Interpolates a grid of RAD_MAX tables for point-like IRFs to a target-point.
+    Wrapper around scipy.interpolate.griddata [1].
+
+    Parameters
+    ----------
+    rad_max: numpy.ndarray, shape=(N, M, ...)
+        Theta-cuts for all combinations of grid-points, energy and fov_offset.
+        Shape (N:n_grid_points, M:n_energy_bins, n_fov_offset_bins)
+
+    grid_points: numpy.ndarray, shape=(N, O)
+        Array of the N O-dimensional morphing parameter values corresponding to the N input templates.
+
+    target_point: numpy.ndarray, shape=(O)
+        Value for which the interpolation is performed (target point)
+
+    method: 'linear', 'nearest', 'cubic'
+        Interpolation method for scipy.interpolate.griddata [1]. Defaults to 'linear'.
+
+    Returns
+    -------
+    rad_max_interp: numpy.ndarray, shape=(1, M, ...)
+        Theta-cuts for the target grid-point, shape (1, M:n_energy_bins, n_fov_offset_bins)
+
+    References
+    ----------
+    .. [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html
+    """
+
+    return griddata(grid_points, rad_max, target_point, method=method)
