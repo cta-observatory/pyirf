@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 
 
-gammapy = "gammapy~=0.19"
+gammapy = "gammapy~=1.0"
 
 extras_require = {
     "docs": [
