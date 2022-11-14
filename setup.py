@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import os
 
 
-gammapy = "gammapy~=0.19"
+gammapy = "gammapy~=1.0"
 
 extras_require = {
     "docs": [
@@ -30,7 +30,10 @@ extras_require = {
     ]
 }
 
-extras_require["all"] = list(set(extras_require["tests"] + extras_require["docs"]))
+all_extras = set()
+for extra in extras_require.values():
+    all_extras.update(extra)
+extras_require["all"] = list(all_extras)
 
 setup(
     use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
