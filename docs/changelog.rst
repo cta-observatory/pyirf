@@ -33,14 +33,14 @@ diffuse gamma-ray simulations.
 merged pull requests
 ++++++++++++++++++++
 
-- `#202 https://github.com/cta-observatory/pyirf/pull/202`_ Update gammapy requirement to 1.x
-- `#180 https://github.com/cta-observatory/pyirf/pull/180`_ Interpolate RAD_MAX tables
-- `#199 https://github.com/cta-observatory/pyirf/pull/199`_ Improve under/overflow and nan handling in binning related functions
-- `#200 https://github.com/cta-observatory/pyirf/pull/200`_ Fix unit handling of powerlaw
-- `#197 https://github.com/cta-observatory/pyirf/pull/197`_ Improvements for calculating sensitivity on diffuse gammas
-- `#193 https://github.com/cta-observatory/pyirf/pull/193`_ Fix ang res unit handling, fixes #192
-- `#189 https://github.com/cta-observatory/pyirf/pull/189`_ Ignore under/overflow events in table operations
-- `#188 https://github.com/cta-observatory/pyirf/pull/188`_ Include endpoint in create_bins_per_decade if it matches the regular spacing, fixes #187
+- `#202 <https://github.com/cta-observatory/pyirf/pull/202>`_ Update gammapy requirement to 1.x
+- `#180 <https://github.com/cta-observatory/pyirf/pull/180>`_ Interpolate RAD_MAX tables
+- `#199 <https://github.com/cta-observatory/pyirf/pull/199>`_ Improve under/overflow and nan handling in binning related functions
+- `#200 <https://github.com/cta-observatory/pyirf/pull/200>`_ Fix unit handling of powerlaw
+- `#197 <https://github.com/cta-observatory/pyirf/pull/197>`_ Improvements for calculating sensitivity on diffuse gammas
+- `#193 <https://github.com/cta-observatory/pyirf/pull/193>`_ Fix ang res unit handling, fixes #192
+- `#189 <https://github.com/cta-observatory/pyirf/pull/189>`_ Ignore under/overflow events in table operations
+- `#188 <https://github.com/cta-observatory/pyirf/pull/188>`_ Include endpoint in create_bins_per_decade if it matches the regular spacing, fixes #187
 
 
 .. _pyirf_0p7p0_release:
