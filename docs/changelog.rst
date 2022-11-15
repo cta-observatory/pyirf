@@ -5,36 +5,42 @@ Changelog
 
 We use a one-line description of every pull request.
 
-.. to obtain the merged PRs since a specific release, e.g. v0.2.0 use
-.. `$ git log --merges --first-parent master --oneline  master...v0.2.0`
-.. to obtain the contributor, use
-.. `$ git shortlog -sne --no-merges master...v0.2.0
 
-.. RELEASE TEMPLATE
-..
-.. `X.Y.Z < github link >`__ (Month Day, YEAR)
-.. -------------------------------------------
-..
-.. Summary
-.. +++++++
-..
-.. - Released Month Day, YEAR
-.. - N contributors
-..
-.. **Description**
-..
-.. . . .
-..
-.. **Contributors:**
-..
-.. In alphabetical order by last name:
-..
-.. - . . .
-..
-.. Pull Requests
-.. +++++++++++++
-..
-.. - [#XXX] TITLE (AUTHOR)
+.. _pyirf_0p8p0_release:
+
+`0.8.0 <https://github.com/cta-observatory/pyirf/releases/tag/v0.8.0>`__ (2022-11-16)
+-------------------------------------------------------------------------------------
+
+Summary
++++++++
+
+- Released November 16th, 2022
+- 2 Contributors
+
+Contributors
+++++++++++++
+
+- Rune Michael Dominik
+- Maximilian Nöthe
+
+Description
++++++++++++
+
+This release updates the optional gammapy dependency to the 1.x, after the recent gammapy 1.0 release.
+Basic support for interpolating rad max tables was added as well as some improvements for dealing with
+diffuse gamma-ray simulations.
+
+merged pull requests
+++++++++++++++++++++
+
+- `#202 https://github.com/cta-observatory/pyirf/pull/202`_ Update gammapy requirement to 1.x
+- `#180 https://github.com/cta-observatory/pyirf/pull/180`_ Interpolate RAD_MAX tables
+- `#199 https://github.com/cta-observatory/pyirf/pull/199`_ Improve under/overflow and nan handling in binning related functions
+- `#200 https://github.com/cta-observatory/pyirf/pull/200`_ Fix unit handling of powerlaw
+- `#197 https://github.com/cta-observatory/pyirf/pull/197`_ Improvements for calculating sensitivity on diffuse gammas
+- `#193 https://github.com/cta-observatory/pyirf/pull/193`_ Fix ang res unit handling, fixes #192
+- `#189 https://github.com/cta-observatory/pyirf/pull/189`_ Ignore under/overflow events in table operations
+- `#188 https://github.com/cta-observatory/pyirf/pull/188`_ Include endpoint in create_bins_per_decade if it matches the regular spacing, fixes #187
 
 
 .. _pyirf_0p7p0_release:
