@@ -80,27 +80,31 @@ def optimize_gh_cut(
     )
 
     sensitivities = []
-    gh_cuts = []
-    for efficiency in tqdm(gh_cut_efficiencies, disable=not progress):
+    # calculate necessary percentile needed for
+    # ``calculate_percentile_cut`` with the correct efficiency.
+    # Depends on the operator, since we need to invert the
+    # efficiency if we compare using >=, since percentile is
+    # defines as <=.
+    gh_cut_efficiencies = np.asanyarray(gh_cut_efficiencies)
+    if op(-1, 1):
+        # if operator behaves like "<=", "<" etc:
+        percentiles = 100 * gh_cut_efficiencies
+        fill_value = signal['gh_score'].min()
+    else:
+        # operator behaves like ">=", ">"
+        percentiles = 100 * (1 - gh_cut_efficiencies)
+        fill_value = signal['gh_score'].max()
 
-        # calculate necessary percentile needed for
-        # ``calculate_percentile_cut`` with the correct efficiency.
-        # Depends on the operator, since we need to invert the
-        # efficiency if we compare using >=, since percentile is
-        # defines as <=.
-        if op(-1, 1): # if operator behaves like "<=", "<" etc:
-            percentile = 100 * efficiency
-            fill_value = signal['gh_score'].min()
-        else: # operator behaves like ">=", ">"
-            percentile = 100 * (1 - efficiency)
-            fill_value = signal['gh_score'].max()
+    gh_cuts = calculate_percentile_cut(
+        signal['gh_score'], signal['reco_energy'],
+        bins=reco_energy_bins,
+        fill_value=fill_value,
+        percentile=percentiles,
+    )
 
-        gh_cut = calculate_percentile_cut(
-            signal['gh_score'], signal['reco_energy'],
-            bins=reco_energy_bins,
-            fill_value=fill_value, percentile=percentile,
-        )
-        gh_cuts.append(gh_cut)
+    for col in tqdm(range(len(gh_cut_efficiencies)), disable=not progress):
+        gh_cut = gh_cuts.copy()
+        gh_cut["cut"] = gh_cuts["cut"][:, col]
 
         # apply the current cut
         signal_selected = evaluate_binned_cut(
@@ -149,6 +153,6 @@ def optimize_gh_cut(
             best = 0
 
         best_sensitivity[bin_id] = sensitivities[best][bin_id]
-        best_cut_table["cut"][bin_id] = gh_cuts[best]["cut"][bin_id]
+        best_cut_table["cut"][bin_id] = gh_cuts["cut"][bin_id][best]
 
     return best_sensitivity, best_cut_table
