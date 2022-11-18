@@ -70,12 +70,18 @@ def calculate_percentile_cut(
     bin_index, valid = calculate_bin_indices(bin_values, bins)
     by_bin = table[valid].group_by(bin_index[valid])
 
+    n_bins = len(bins) - 1
     cut_table = QTable()
     cut_table["low"] = bins[:-1]
     cut_table["high"] = bins[1:]
     cut_table["center"] = bin_center(bins)
     cut_table["n_events"] = 0
-    cut_table["cut"] = np.asanyarray(fill_value, values.dtype)
+
+    percentile = np.asanyarray(percentile)
+    if percentile.shape == ():
+        cut_table["cut"] = np.asanyarray(fill_value, values.dtype)
+    else:
+        cut_table["cut"] = np.full((n_bins, len(percentile)), fill_value, dtype=values.dtype) 
 
     for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
         # replace bins with too few events with fill_value
