@@ -140,6 +140,7 @@ def optimize_gh_cut(
     best_cut_table["center"] = bin_center(reco_energy_bins)
     best_cut_table["high"] = reco_energy_bins[1:]
     best_cut_table["cut"] = np.nan
+    best_cut_table["efficiency"] = np.nan
 
     best_sensitivity = sensitivities[0].copy()
     for bin_id in range(len(reco_energy_bins) - 1):
@@ -154,5 +155,6 @@ def optimize_gh_cut(
 
         best_sensitivity[bin_id] = sensitivities[best][bin_id]
         best_cut_table["cut"][bin_id] = gh_cuts["cut"][bin_id][best]
+        best_cut_table["efficiency"][bin_id] = gh_cut_efficiencies[best]
 
     return best_sensitivity, best_cut_table
