@@ -77,11 +77,19 @@ def calculate_percentile_cut(
     cut_table["center"] = bin_center(bins)
     cut_table["n_events"] = 0
 
+    unit = None
+    if hasattr(fill_value, 'unit'):
+        unit = fill_value.unit
+        fill_value = fill_value.value
+
     percentile = np.asanyarray(percentile)
     if percentile.shape == ():
         cut_table["cut"] = np.asanyarray(fill_value, values.dtype)
     else:
         cut_table["cut"] = np.full((n_bins, len(percentile)), fill_value, dtype=values.dtype) 
+
+    if unit is not None:
+        cut_table["cut"].unit = unit
 
     for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
         # replace bins with too few events with fill_value
