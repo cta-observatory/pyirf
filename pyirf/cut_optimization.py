@@ -1,7 +1,7 @@
 import numpy as np
 from astropy.table import QTable
 import astropy.units as u
-from tqdm import tqdm
+from tqdm.auto import tqdm
 import operator
 
 from .cuts import evaluate_binned_cut, calculate_percentile_cut
