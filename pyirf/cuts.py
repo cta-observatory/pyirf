@@ -97,7 +97,7 @@ def calculate_percentile_cut(
         cut_table["n_events"][bin_idx] = n_events
 
         if n_events < min_events:
-            cut_table["cut"][bin_idx] = fill_value
+            cut_table["cut"].value[bin_idx] = fill_value
         else:
             value = np.nanpercentile(group["values"], percentile)
             if min_value is not None or max_value is not None:
