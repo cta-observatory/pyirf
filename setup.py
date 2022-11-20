@@ -47,6 +47,7 @@ setup(
         "matplotlib",
         "numpy>=1.18",
         "scipy",
+        "setuptools<65.6",
         "tqdm",
         "importlib_resources ; python_version < '3.9'"
     ],
