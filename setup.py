@@ -27,8 +27,11 @@ extras_require = {
     ],
     "gammapy": [
         gammapy,
-    ]
+    ],
 }
+extras_require["dev"] = extras_require["tests"] + [
+    "setuptools_scm",
+]
 
 all_extras = set()
 for extra in extras_require.values():
@@ -44,7 +47,6 @@ setup(
         "numpy>=1.18",
         "scipy",
         "tqdm",
-        "setuptools_scm",
     ],
     include_package_data=True,
     extras_require=extras_require,
