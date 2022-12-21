@@ -54,6 +54,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
+    "IPython.sphinxext.ipython_console_highlighting",
 ]
 
 # nbsphinx
