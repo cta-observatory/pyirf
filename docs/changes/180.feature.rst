@@ -1,0 +1,2 @@
+Add interpolation function for RAD_MAX tables. 
+There is now a ``interpolate_rad_max`` function in ``pyirf.interpolation`` that is a simple wrapper around ``scipy.interpolate.griddata``.
