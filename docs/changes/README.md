@@ -9,7 +9,6 @@ A tutorial can be found [here](https://towncrier.readthedocs.io/en/stable/tutori
     - optimization: `Refactoring and Optimization`
     - maintenance: `Maintenance`
 
-
 2. Write a suitable message for the change:
     ```
     Fixed ``crazy_function`` to be consistent with ``not_so_crazy_function``
