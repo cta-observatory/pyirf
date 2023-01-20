@@ -1,1 +1,0 @@
-Updates ``gammapy`` dependency to version 1.
