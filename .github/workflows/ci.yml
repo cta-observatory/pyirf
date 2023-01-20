@@ -1,10 +1,17 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - '**'
+  pull_request:
 
 env:
   MPLBACKEND: Agg
   PYTEST_ADDOPTS: --color=yes
+  GITHUB_PR_NUMBER: ${{ github.event.number }}
 
 jobs:
   tests:
@@ -58,10 +65,14 @@ jobs:
       - name: Install doc dependencies
         run: |
           sudo apt update --yes && sudo apt install --yes git build-essential pandoc curl graphviz
-          pip install -U pip setuptools wheel
+          pip install -U pip setuptools wheel towncrier
           pip install -e .[docs]
           git describe --tags
           python -c 'import pyirf; print(pyirf.__version__)'
+
+      - name: Produce Changelog
+        run: |
+          towncrier build --yes
 
       - name: Build docs
         run: cd docs && make html SPHINXOPTS="-W --keep-going -n --color -j auto"
@@ -76,3 +87,19 @@ jobs:
           FOLDER: docs/_build/html
           CLEAN: true
           SINGLE_COMMIT: true
+
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Set environment
+        run: echo FRAGMENT_NAME="docs/changes/${GITHUB_PR_NUMBER}.*.rst" >> $GITHUB_ENV
+
+      - name: Check for news fragment
+        uses: andstor/file-existence-action@v2
+        with: 
+          files: ${{ env.FRAGMENT_NAME }}
+          fail: true

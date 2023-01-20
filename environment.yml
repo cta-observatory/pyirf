@@ -17,6 +17,7 @@ dependencies:
   - pytest
   - pytest-cov
   # docs
+  - towncrier
   - numpydoc
   - pytables
   - nbsphinx

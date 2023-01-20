@@ -44,6 +44,10 @@ See the `GitHub tutorial on forks <https://docs.github.com/en/github/getting-sta
      that the test is then passing.
      This helps understanding the bug and will prevent it from reappearing later.
 
+   - Create a changelog entry in ``docs/changes``, please note the ``README.md`` there.
+     Minor changes (on the magnitude of fixing a broken link or renaming a variable) can receive the ``no-changelog-needed`` label. 
+     This should, however, be a rare exception.    
+
 #. Wait for review comments and then implement or discuss requested changes.
 
 
