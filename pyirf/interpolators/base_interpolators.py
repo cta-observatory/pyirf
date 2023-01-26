@@ -14,14 +14,19 @@ class BaseInterpolator:
         """BaseInterpolator constructor, doing sanity checks and ensuring
         correct shapes of inputs
 
-        Args:
-            grid_points (np.ndarray, shape=[n_points, n_dims]): Grid points at which
-                interpolation templates exist
+        Parameters
+        ----------
+            grid_points: np.ndarray, shape=(n_points, n_dims): 
+                Grid points at which interpolation templates exist
 
-        Raises:
-            TypeError: When grid_points is not a np.ndarray
-            TypeError: When grid_point has dtype object
-            ValueError: When there are too few points in grid_points to span a volume
+        Raises
+        ------
+            TypeError: 
+                When grid_points is not a np.ndarray
+            TypeError: 
+                When grid_point has dtype object
+            ValueError: 
+                When there are too few points in grid_points to span a volume
                 in the grid dimension.
         """
         if not isinstance(grid_points, np.ndarray):
@@ -70,18 +75,27 @@ class BaseInterpolator:
     def __call__(self, target_point, extrapolator=None, **kwargs):
         """Providing a common __call__ interface sanity checking the target point
 
-        Args:
-            target_point (np.ndarray): Target for inter-/extrapolation
-            extrapolator (callable, optional): Fall-Back extrapolator called when target_point is outside grid.
+        Parameters
+        ----------
+            target_point: np.ndarray
+                Target for inter-/extrapolation
+            extrapolator: callable, optional
+                Fall-Back extrapolator called when target_point is outside grid.
                 Defaults to None, meaning no extrapolation is done.
 
-        Raises:
-            TypeError: When target_point is not an np.ndarray
-            ValueError: When more then one target_point is given
-            ValueError: When target_point and grid_points have miss-matching dimensions
-            ValueError: When target_point is outside of the grids convex hull but extrapolator is None
+        Raises
+        ------
+            TypeError: 
+                When target_point is not an np.ndarray
+            ValueError: 
+                When more then one target_point is given
+            ValueError: 
+                When target_point and grid_points have miss-matching dimensions
+            ValueError: 
+                When target_point is outside of the grids convex hull but extrapolator is None
 
-        Returns:
+        Returns
+        -------
             Interpolated or, if necessary extrapolated, result.
         """
         if not isinstance(target_point, np.ndarray):
@@ -123,16 +137,23 @@ class ParametrizedInterpolator(BaseInterpolator):
     def __init__(self, grid_points, params):
         """ParametrizedInterpolator constructor
 
-        Args:
-            grid_points (np.ndarray): Grid points at which interpolation templates exist
-            params (np.ndarray): Corresponding parameter values at each point in
-                grid_points. First dimesion has to correspond to number of grid_points
+        Parameters
+        ----------
+            grid_points, np.ndarray
+                Grid points at which interpolation templates exist
+            params: np.ndarray
+                Corresponding parameter values at each point in grid_points. 
+                First dimesion has to correspond to number of grid_points
 
-        Raises:
-            TypeError: When params is not a np.ndarray
-            ValueError: When number of points grid_points and params is not matching
+        Raises
+        ------
+            TypeError: 
+                When params is not a np.ndarray
+            ValueError: 
+                When number of points grid_points and params is not matching
 
-        Note:
+        Note
+        ----
             Also calls pyirf.interpolators.BaseInterpolators.__call__
         """
         super().__init__(grid_points)
@@ -160,22 +181,33 @@ class BinnedInterpolator(BaseInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents):
         """BinnedInterpolator constructor
 
-        Args:
-            grid_points (np.ndarray): Grid points at which interpolation templates exist
-            bin_edges (np.ndarray): Edges of the data binning
-            bin_content (np.ndarray): Content of each bin in bin_edges for
+        Parameters
+        ----------
+            grid_points: np.ndarray
+                Grid points at which interpolation templates exist
+            bin_edges: np.ndarray
+                Edges of the data binning
+            bin_content: np.ndarray
+                Content of each bin in bin_edges for
                 each point in grid_points. First dimesion has to correspond to number
                 of grid_points, second dimension has to correspond to number of bins for
                 the quantity that should be interpolated (e.g. the Migra axis for EDisp)
-        Raises:
-            TypeError: When bin_edges is not a np.ndarray
-            TypeError: When bin_content is not a np.ndarray
-            ValueError: When number of bins in bin_edges and contents in
-                bin_contents is not matching
-            ValueError: When number of histograms in bin_contents and
-                points in grid_points is not matching
+        
+        Raises
+        ------
+            TypeError: 
+                When bin_edges is not a np.ndarray
+            TypeError: 
+                When bin_content is not a np.ndarray
+            ValueError: 
+                When number of bins in bin_edges and contents bin_contents is 
+                not matching
+            ValueError: 
+                When number of histograms in bin_contents and points in grid_points 
+                is not matching
 
-        Note:
+        Note
+        ----
             Also calls pyirf.interpolators.BaseInterpolators.__call__
         """
         super().__init__(grid_points)
