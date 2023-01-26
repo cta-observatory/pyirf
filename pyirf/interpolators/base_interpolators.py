@@ -125,8 +125,8 @@ class ParametrizedInterpolator(BaseInterpolator):
 
         Args:
             grid_points (np.ndarray): Grid points at which interpolation templates exist
-            params (np.ndarray): Corresponding parameter values at each point
-                in grid_points
+            params (np.ndarray): Corresponding parameter values at each point in
+                grid_points. First dimesion has to correspond to number of grid_points
 
         Raises:
             TypeError: When params is not a np.ndarray
@@ -164,8 +164,9 @@ class BinnedInterpolator(BaseInterpolator):
             grid_points (np.ndarray): Grid points at which interpolation templates exist
             bin_edges (np.ndarray): Edges of the data binning
             bin_content (np.ndarray): Content of each bin in bin_edges for
-                each point in grid_points
-
+                each point in grid_points. First dimesion has to correspond to number
+                of grid_points, second dimension has to correspond to number of bins for
+                the quantity that should be interpolated (e.g. the Migra axis for EDisp)
         Raises:
             TypeError: When bin_edges is not a np.ndarray
             TypeError: When bin_content is not a np.ndarray
@@ -183,7 +184,7 @@ class BinnedInterpolator(BaseInterpolator):
             raise TypeError("Input bin_edges is not a numpy array.")
         elif not isinstance(bin_contents, np.ndarray):
             raise TypeError("Input bin_contents is not a numpy array.")
-        elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
+        elif bin_contents.shape[1] != (bin_edges.shape[0] - 1):
             raise ValueError(
                 "Shape missmatch, bin_edges and bin_contents not matching."
             )
