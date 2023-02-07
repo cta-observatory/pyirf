@@ -1,8 +1,10 @@
 """Base classes for interpolators"""
-import numpy as np
-from pyirf.binning import bin_center
-from scipy.spatial import Delaunay, QhullError
 from abc import ABCMeta, abstractmethod
+
+import numpy as np
+from scipy.spatial import Delaunay, QhullError
+
+from pyirf.binning import bin_center
 
 __all__ = ["BaseInterpolator", "ParametrizedInterpolator", "BinnedInterpolator"]
 

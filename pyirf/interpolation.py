@@ -1,12 +1,11 @@
 """Functions for performing interpolation of IRF to the values read from the data."""
 
-import numpy as np
 import astropy.units as u
-from scipy.interpolate import interp1d, griddata
-from pyirf.utils import cone_solid_angle
-from pyirf.binning import bin_center
+import numpy as np
+from scipy.interpolate import griddata
 
 from pyirf.interpolators import QuantileInterpolator
+from pyirf.utils import cone_solid_angle
 
 __all__ = [
     "interpolate_effective_area_per_energy_and_fov",

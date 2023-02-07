@@ -1,5 +1,4 @@
 """Tests for base interpolator classes"""
-import pytest
 import numpy as np
 
 

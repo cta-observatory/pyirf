@@ -1,6 +1,6 @@
 """Tests for base interpolator classes"""
-import pytest
 import numpy as np
+import pytest
 
 
 def test_BaseInterpolator_datastructure_checks():
@@ -15,11 +15,11 @@ def test_BaseInterpolator_datastructure_checks():
     grid_points2D_bad = np.array([[1, 1], [2, 1], [1.5]], dtype="object")
     target2D_bad = [1.25, 1.25]
 
-    with pytest.raises(TypeError):  # Abstract class, cannot be instanciated
+    with pytest.raises(TypeError):  # Abstract class, cannot be instantiated
         BaseInterpolator(grid_points1D_good)
 
     class DummyBaseInterpolator(BaseInterpolator):
-        def interpolate(self, target, **kwargs):
+        def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
     with pytest.raises(TypeError):  # Grid is a list
@@ -52,7 +52,7 @@ def test_BaseInterpolator_sanity_checks():
     target2D_twopoints = np.array([[1.25, 1.25], [1.25, 1.25]])
 
     class DummyBaseInterpolator(BaseInterpolator):
-        def interpolate(self, target, **kwargs):
+        def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
     with pytest.raises(ValueError):  # Target out of grid
@@ -93,7 +93,7 @@ def test_BaseInterpolator_extrapolation():
         return np.sum(target_point)
 
     class DummyBaseInterpolator(BaseInterpolator):
-        def interpolate(self, target, **kwargs):
+        def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
     grid_points1D_good = np.array([1, 2, 3])
@@ -123,11 +123,11 @@ def test_ParametrizedInterpolator():
     params_good = np.array([[1], [2], [3]])
     params_shape_missmatch = np.array([[1], [2]])
 
-    with pytest.raises(TypeError):  # Abstract class, cannot be instanciated
+    with pytest.raises(TypeError):  # Abstract class, cannot be instantiated
         ParametrizedInterpolator(grid_points, params_good)
 
     class DummyParametrizedInterpolator(ParametrizedInterpolator):
-        def interpolate(self, target, **kwargs):
+        def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
     with pytest.raises(TypeError):  # parameters not a np.ndarray
@@ -153,11 +153,11 @@ def test_BinnedInterpolator():
     bin_content_bad_nhist = np.ones(shape=(len(grid_points) - 1, len(bin_edges) - 1))
     bin_content_bad_nbins = np.ones(shape=(len(grid_points), len(bin_edges)))
 
-    with pytest.raises(TypeError):  # Abstract class, cannot be instanciated
+    with pytest.raises(TypeError):  # Abstract class, cannot be instantiated
         BinnedInterpolator(grid_points, bin_edges, bin_content_good_shape)
 
     class DummyBinnedInterpolator(BinnedInterpolator):
-        def interpolate(self, target, **kwargs):
+        def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
     with pytest.raises(TypeError):  # bin_edges are not a np.ndarray

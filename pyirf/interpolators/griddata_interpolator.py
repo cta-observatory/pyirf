@@ -2,9 +2,10 @@
 Simple wrapper around scipy.interpolate.griddata to interpolate parametrized quantities
 """
 
-from .base_interpolators import ParametrizedInterpolator
-from scipy.interpolate import griddata
 import numpy as np
+from scipy.interpolate import griddata
+
+from .base_interpolators import ParametrizedInterpolator
 
 __all__ = ["GridDataInterpolator"]
 

@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from scipy.stats import norm
+
 from pyirf.binning import bin_center
 
 
@@ -44,7 +45,8 @@ def test_cdf_values(data):
 
 
 def test_ppf_values(data):
-    from pyirf.interpolators.quantile_interpolator import ppf_values, cdf_values
+    from pyirf.interpolators.quantile_interpolator import (cdf_values,
+                                                           ppf_values)
 
     # Create quantiles, ignore the 0% and 100% quantile as they are analytically +- inf
     quantiles = np.linspace(0, 1, 10)[1:-2]
@@ -62,11 +64,9 @@ def test_ppf_values(data):
 
 
 def test_pdf_from_ppf(data):
-    from pyirf.interpolators.quantile_interpolator import (
-        ppf_values,
-        cdf_values,
-        pdf_from_ppf,
-    )
+    from pyirf.interpolators.quantile_interpolator import (cdf_values,
+                                                           pdf_from_ppf,
+                                                           ppf_values)
 
     # Create quantiles
     quantiles = np.linspace(0, 1, 1000)
@@ -92,7 +92,6 @@ def test_norm_pdf(data):
 
 def test_interpolate_binned_pdf(data):
     from pyirf.interpolators import QuantileInterpolator
-    from pyirf.binning import bin_center
 
     interpolator = QuantileInterpolator(
         grid_points=data["grid_points"][[0, 2]],

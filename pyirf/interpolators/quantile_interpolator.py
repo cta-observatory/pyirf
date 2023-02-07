@@ -1,7 +1,7 @@
-from .base_interpolators import BinnedInterpolator
-from scipy.interpolate import interp1d, griddata
-
 import numpy as np
+from scipy.interpolate import griddata, interp1d
+
+from .base_interpolators import BinnedInterpolator
 
 __all__ = ["QuantileInterpolator"]
 
