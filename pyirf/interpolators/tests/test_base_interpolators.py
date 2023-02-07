@@ -12,7 +12,8 @@ def test_BaseInterpolator_datastructure_checks():
     target1D_bad = 1
 
     grid_points2D_good = np.array([[1, 1], [2, 1], [1.5, 1.5]])
-    grid_points2D_bad = np.array([[1, 1], [2, 1], [1.5]], dtype="object")
+    grid_points2D_bad_str = np.array([["1", "1"], ["2", "1"], ["1.5", "1.5"]])
+    grid_points2D_bad_obj = np.array([[1, 1], [2, 1], [1.5]], dtype="object")
     target2D_bad = [1.25, 1.25]
 
     with pytest.raises(TypeError):  # Abstract class, cannot be instantiated
@@ -26,7 +27,10 @@ def test_BaseInterpolator_datastructure_checks():
         DummyBaseInterpolator(grid_points1D_bad)
 
     with pytest.raises(TypeError):  # Grid is an array with dtype object
-        DummyBaseInterpolator(grid_points2D_bad)
+        DummyBaseInterpolator(grid_points2D_bad_obj)
+
+    with pytest.raises(TypeError):  # Grid is an array of strings
+        DummyBaseInterpolator(grid_points2D_bad_str)
 
     with pytest.raises(TypeError):  # Target is an integer
         Interp = DummyBaseInterpolator(grid_points1D_good)

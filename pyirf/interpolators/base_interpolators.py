@@ -38,6 +38,8 @@ class BaseInterpolator(metaclass=ABCMeta):
             raise TypeError("Input grid_points is not a numpy array.")
         if grid_points.dtype == "O":
             raise TypeError("Input grid_points array cannot be of dtype object.")
+        if not np.can_cast(grid_points.dtype, np.float128):
+            raise TypeError("Input grid_points dtype incompatible with float.")
 
         self.grid_points = grid_points
         if self.grid_points.ndim == 1:
