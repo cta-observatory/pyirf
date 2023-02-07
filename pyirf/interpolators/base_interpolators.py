@@ -16,16 +16,16 @@ class BaseInterpolator:
 
         Parameters
         ----------
-            grid_points: np.ndarray, shape=(n_points, n_dims): 
+            grid_points: np.ndarray, shape=(n_points, n_dims):
                 Grid points at which interpolation templates exist
 
         Raises
         ------
-            TypeError: 
+            TypeError:
                 When grid_points is not a np.ndarray
-            TypeError: 
+            TypeError:
                 When grid_point has dtype object
-            ValueError: 
+            ValueError:
                 When there are too few points in grid_points to span a volume
                 in the grid dimension.
         """
@@ -85,13 +85,13 @@ class BaseInterpolator:
 
         Raises
         ------
-            TypeError: 
+            TypeError:
                 When target_point is not an np.ndarray
-            ValueError: 
+            ValueError:
                 When more then one target_point is given
-            ValueError: 
+            ValueError:
                 When target_point and grid_points have miss-matching dimensions
-            ValueError: 
+            ValueError:
                 When target_point is outside of the grids convex hull but extrapolator is None
 
         Returns
@@ -142,14 +142,14 @@ class ParametrizedInterpolator(BaseInterpolator):
             grid_points, np.ndarray
                 Grid points at which interpolation templates exist
             params: np.ndarray
-                Corresponding parameter values at each point in grid_points. 
+                Corresponding parameter values at each point in grid_points.
                 First dimesion has to correspond to number of grid_points
 
         Raises
         ------
-            TypeError: 
+            TypeError:
                 When params is not a np.ndarray
-            ValueError: 
+            ValueError:
                 When number of points grid_points and params is not matching
 
         Note
@@ -190,20 +190,20 @@ class BinnedInterpolator(BaseInterpolator):
             bin_content: np.ndarray
                 Content of each bin in bin_edges for
                 each point in grid_points. First dimesion has to correspond to number
-                of grid_points, second dimension has to correspond to number of bins for
+                of grid_points, last dimension has to correspond to number of bins for
                 the quantity that should be interpolated (e.g. the Migra axis for EDisp)
-        
+
         Raises
         ------
-            TypeError: 
+            TypeError:
                 When bin_edges is not a np.ndarray
-            TypeError: 
+            TypeError:
                 When bin_content is not a np.ndarray
-            ValueError: 
-                When number of bins in bin_edges and contents bin_contents is 
+            ValueError:
+                When number of bins in bin_edges and contents bin_contents is
                 not matching
-            ValueError: 
-                When number of histograms in bin_contents and points in grid_points 
+            ValueError:
+                When number of histograms in bin_contents and points in grid_points
                 is not matching
 
         Note
@@ -216,14 +216,16 @@ class BinnedInterpolator(BaseInterpolator):
             raise TypeError("Input bin_edges is not a numpy array.")
         elif not isinstance(bin_contents, np.ndarray):
             raise TypeError("Input bin_contents is not a numpy array.")
-        elif bin_contents.shape[1] != (bin_edges.shape[0] - 1):
+        elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
             raise ValueError(
-                "Shape missmatch, bin_edges and bin_contents not matching."
+                f"Shape missmatch, bin_edges ({bin_edges[0] - 1} bins) "
+                f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
             )
         elif self.n_points != bin_contents.shape[0]:
             raise ValueError(
-                "Shape missmatch, number of grid_points and histograms in bin_contents"
-                " not matching."
+                f"Shape missmatch, number of grid_points ({self.n_points}) and "
+                f"number of histograms in bin_contents ({bin_contents.shape[0]}) "
+                "not matching."
             )
         else:
             self.bin_edges = bin_edges
