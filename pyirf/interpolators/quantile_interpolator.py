@@ -154,33 +154,33 @@ class QuantileInterpolator(BinnedInterpolator):
 
         Parameters
         ----------
-            grid_points: np.ndarray
-                Grid points at which interpolation templates exist
-            bin_edges: np.ndarray
-                Edges of the data binning
-            bin_contents: np.ndarray
-                Content of each bin in bin_edges for
-                each point in grid_points. First dimesion has to correspond to number
-                of grid_points, the dimension indicated by axis has to correspond to number
-                of bins for the quantity that should be interpolated
-                (e.g. the Migra axis for EDisp)
-            axis: int
-                Interpolation axis
-            quantile_resolution: float
-                Spacing between quantiles
+        grid_points: np.ndarray
+            Grid points at which interpolation templates exist
+        bin_edges: np.ndarray
+            Edges of the data binning
+        bin_contents: np.ndarray
+            Content of each bin in bin_edges for
+            each point in grid_points. First dimesion has to correspond to number
+            of grid_points, the dimension indicated by axis has to correspond to number
+            of bins for the quantity that should be interpolated
+            (e.g. the Migra axis for EDisp)
+        axis: int
+            Interpolation axis
+        quantile_resolution: float
+            Spacing between quantiles
 
         Raises
         ------
-            TypeError:
-                When bin_edges is not a np.ndarray
-            TypeError:
-                When bin_content is not a np.ndarray
-            ValueError:
-                When number of bins in bin_edges and contents bin_contents is
-                not matching
-            ValueError:
-                When number of histograms in bin_contents and points in grid_points
-                is not matching
+        TypeError:
+            When bin_edges is not a np.ndarray
+        TypeError:
+            When bin_content is not a np.ndarray
+        ValueError:
+            When number of bins in bin_edges and contents bin_contents is
+            not matching
+        ValueError:
+            When number of histograms in bin_contents and points in grid_points
+            is not matching
 
         Note
         ----
@@ -225,6 +225,8 @@ class QuantileInterpolator(BinnedInterpolator):
         Instead of following this method closely, it implements different approaches to the
         steps shown in Fig. 5 of [1].
 
+        Parameters
+        ----------
         target_point: numpy.ndarray, shape=(O)
             Value for which the interpolation is performed (target point)
 
