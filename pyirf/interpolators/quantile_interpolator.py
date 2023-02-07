@@ -23,8 +23,14 @@ def ppf_values(bin_mids, cdfs, quantiles):
 
     Parameters
     ----------
+    bin_mids: numpy.ndarray, shape=(M)
+        Bin-mids for each bin along interpolation axis
+
     cdfs: numpy.ndarray, shape=(N,...,M)
         Corresponding cdf-values for all quantiles
+
+    quantiles: numpy.ndarray, shape=(L)
+        Quantiles for which the ppf-values should be estimated
 
     Returns
     -------
@@ -83,10 +89,16 @@ def pdf_from_ppf(bin_edges, interp_ppfs, quantiles):
 
     Parameters
     ----------
+    bin_edges: numpy.ndarray, shape=(M+1)
+        Edges of the bins in which the final pdf should be binned
+
     interp_ppfs: numpy.ndarray, shape=(1,...,L)
         Corresponding ppf-values for all self.quantiles at the target_point,
-        not to be confused with self.ppfs, the ppfs computed from the
-        input distributions.
+        not to be confused with QunatileInterpolators self.ppfs, the ppfs
+        computed from the input distributions.
+
+    quantiles: numpy.ndarray, shape=(L)
+        Quantiles corresponding to the ppf-values in interp_ppfs
 
     Returns
     -------
@@ -194,7 +206,9 @@ class QuantileInterpolator(BinnedInterpolator):
             0, 1, int(np.round(1 / quantile_resolution, decimals=0))
         )
 
-        super().__init__(grid_points, bin_edges, bin_contents)
+        super().__init__(
+            grid_points=grid_points, bin_edges=bin_edges, bin_contents=bin_contents
+        )
 
         # Compute CDF values
         self.cdfs = cdf_values(self.bin_contents)
@@ -211,28 +225,11 @@ class QuantileInterpolator(BinnedInterpolator):
         Instead of following this method closely, it implements different approaches to the
         steps shown in Fig. 5 of [1].
 
-        Parameters
-        ----------
-        edges: numpy.ndarray, shape=(M+1)
-            Common array of bin-edges (along the abscissal ("x") axis) for the M bins of the input templates
-
-        binned_pdfs: numpy.ndarray, shape=(N,...,M,...)
-            Array of M bin-heights (along the ordinate ("y") axis) for each of the N input templates.
-            The distributions to be interpolated (e.g. MigraEnerg for the IRFs Energy Dispersion) is expected to
-            be given at the dimension specified by axis.
-
-        grid_points: numpy.ndarray, shape=(N, O)
-            Array of the N O-dimensional morphing parameter values corresponding to the N input templates. The pdf's quantiles
-            are expected to vary linearly between these two reference points.
-
         target_point: numpy.ndarray, shape=(O)
             Value for which the interpolation is performed (target point)
 
-        axis: int
-            Axis along which the pdfs used for interpolation are located
-
-        quantile_resolution: float
-            Spacing between the quantiles that are computed in the interpolation. Defaults to 1e-3.
+        **kwargs:
+            Currently ignored
 
         Returns
         -------
@@ -257,8 +254,6 @@ class QuantileInterpolator(BinnedInterpolator):
 
         # Renormalize pdf to sum of 1
         normed_interpolated_pdfs = norm_pdf(interpolated_pdfs)
-
-        print(normed_interpolated_pdfs)
 
         # Re-swap axes and set all nans to zero
         return np.swapaxes(
