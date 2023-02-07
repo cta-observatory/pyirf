@@ -216,7 +216,7 @@ class QuantileInterpolator(BinnedInterpolator):
         # compute ppf values at quantiles, determine quantile step of [1]
         self.ppfs = ppf_values(self.bin_mids, self.cdfs, self.quantiles)
 
-    def _interpolate(self, target_point, **kwargs):
+    def interpolate(self, target_point, **kwargs):
         """
         Takes a grid of binned pdfs for a bunch of different parameters
         and interpolates it to given value of those parameters.

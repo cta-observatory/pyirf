@@ -2,9 +2,10 @@
 import numpy as np
 from pyirf.binning import bin_center
 from scipy.spatial import Delaunay, QhullError
+from abc import ABCMeta, abstractmethod
 
 
-class BaseInterpolator:
+class BaseInterpolator(metaclass=ABCMeta):
     """
     Base class for all interpolators, only knowing grid-points,
     providing a common __call__-interface and doing sanity checks.
@@ -57,9 +58,10 @@ class BaseInterpolator:
             except QhullError:
                 raise
 
-    def _interpolate(self, target_point, **kwargs):
+    @abstractmethod
+    def interpolate(self, target_point, **kwargs):
         """Overridable function for the actual interpolation code"""
-        raise NotImplementedError
+        pass
 
     def _target_in_grid(self, target_point):
         """Check wether target_point lies within grids convex hull"""
@@ -114,7 +116,7 @@ class BaseInterpolator:
             )
 
         if self._target_in_grid(target_point):
-            return self._interpolate(target_point, **kwargs)
+            return self.interpolate(target_point, **kwargs)
         elif extrapolator is not None:
             print(f"Trying to extrapolate for point {target_point}.")
             try:

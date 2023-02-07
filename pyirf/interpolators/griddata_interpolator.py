@@ -13,23 +13,23 @@ class GridDataInterpolator(ParametrizedInterpolator):
 
         Parameters
         ----------
-            grid_points: np.ndarray, shape=(N, O) 
+            grid_points: np.ndarray, shape=(N, O)
                 Grid points at which interpolation templates exist
-            params: np.ndarray, shape=(N, ...) 
-                Structured array of corresponding parameter values at each 
-                point in grid_points. 
+            params: np.ndarray, shape=(N, ...)
+                Structured array of corresponding parameter values at each
+                point in grid_points.
                 First dimesion has to correspond to number of grid_points
 
         Raises
         ------
-            TypeError: 
+            TypeError:
                 When params is not a np.ndarray
-            ValueError: 
+            ValueError:
                 When number of points grid_points and params is not matching
         """
         super().__init__(grid_points, params)
 
-    def _interpolate(self, target_point, **kwargs):
+    def interpolate(self, target_point, **kwargs):
         """
         Wrapper around scipy.interpolate.griddata [1]
 
@@ -37,9 +37,9 @@ class GridDataInterpolator(ParametrizedInterpolator):
         ----------
             target_point: np.ndarray, shape=(1, O)
                 Target point for interpolation
-            **kwargs: 
+            **kwargs:
                 Passed to scipy.interpolate.griddata [1]
-        
+
         Returns
         -------
             interpolant: np.ndarray

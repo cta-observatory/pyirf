@@ -15,18 +15,25 @@ def test_BaseInterpolator_datastructure_checks():
     grid_points2D_bad = np.array([[1, 1], [2, 1], [1.5]], dtype="object")
     target2D_bad = [1.25, 1.25]
 
+    with pytest.raises(TypeError):  # Abstract class, cannot be instanciated
+        BaseInterpolator(grid_points1D_good)
+
+    class DummyBaseInterpolator(BaseInterpolator):
+        def interpolate(self, target, **kwargs):
+            raise NotImplementedError
+
     with pytest.raises(TypeError):  # Grid is a list
-        BaseInterpolator(grid_points1D_bad)
+        DummyBaseInterpolator(grid_points1D_bad)
 
     with pytest.raises(TypeError):  # Grid is an array with dtype object
-        BaseInterpolator(grid_points2D_bad)
+        DummyBaseInterpolator(grid_points2D_bad)
 
     with pytest.raises(TypeError):  # Target is an integer
-        Interp = BaseInterpolator(grid_points1D_good)
+        Interp = DummyBaseInterpolator(grid_points1D_good)
         Interp(target1D_bad)
 
     with pytest.raises(TypeError):  # Target is a list
-        Interp = BaseInterpolator(grid_points2D_good)
+        Interp = DummyBaseInterpolator(grid_points2D_good)
         Interp(target2D_bad)
 
 
@@ -44,33 +51,37 @@ def test_BaseInterpolator_sanity_checks():
     target2D_outofGrid = np.array([0.5, 0.5])
     target2D_twopoints = np.array([[1.25, 1.25], [1.25, 1.25]])
 
+    class DummyBaseInterpolator(BaseInterpolator):
+        def interpolate(self, target, **kwargs):
+            raise NotImplementedError
+
     with pytest.raises(ValueError):  # Target out of grid
-        interp = BaseInterpolator(grid_points1D_good)
+        interp = DummyBaseInterpolator(grid_points1D_good)
         interp(target1D_outofGrid)
 
     with pytest.raises(ValueError):  # To few grid points
-        BaseInterpolator(grid_points2D_toofew)
+        DummyBaseInterpolator(grid_points2D_toofew)
 
     with pytest.raises(ValueError):  # Two target points
-        interp = BaseInterpolator(grid_points2D_good)
+        interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target2D_twopoints)
 
     with pytest.raises(ValueError):  # Target out of grid
-        interp = BaseInterpolator(grid_points2D_good)
+        interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target2D_outofGrid)
 
     with pytest.raises(ValueError):  # 1D target in 2D grid
-        interp = BaseInterpolator(grid_points2D_good)
+        interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target1D_inGrid)
 
     with pytest.raises(NotImplementedError):
         # Everything ok but _interpolate not implemented
-        interp = BaseInterpolator(grid_points1D_good)
+        interp = DummyBaseInterpolator(grid_points1D_good)
         interp(target1D_inGrid)
 
     with pytest.raises(NotImplementedError):
         # Everything ok but _interpolate not implemented
-        interp = BaseInterpolator(grid_points2D_good)
+        interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target2D_inGrid)
 
 
@@ -81,6 +92,10 @@ def test_BaseInterpolator_extrapolation():
     def dummy_extrapolator(target_point):
         return np.sum(target_point)
 
+    class DummyBaseInterpolator(BaseInterpolator):
+        def interpolate(self, target, **kwargs):
+            raise NotImplementedError
+
     grid_points1D_good = np.array([1, 2, 3])
     target1D_outofGrid = np.array([0.5])
 
@@ -88,13 +103,13 @@ def test_BaseInterpolator_extrapolation():
     target2D_outofGrid = np.array([0.5, 0.5])
 
     # 1D target out of grid but extrapolator given
-    interp1D = BaseInterpolator(grid_points1D_good)
+    interp1D = DummyBaseInterpolator(grid_points1D_good)
     assert interp1D(target1D_outofGrid, extrapolator=dummy_extrapolator) == np.sum(
         target1D_outofGrid
     )
 
     # 2D target out of grid but extrapolator given
-    interp2D = BaseInterpolator(grid_points2D_good)
+    interp2D = DummyBaseInterpolator(grid_points2D_good)
     assert interp2D(target2D_outofGrid, extrapolator=dummy_extrapolator) == np.sum(
         target2D_outofGrid
     )
@@ -108,13 +123,20 @@ def test_ParametrizedInterpolator():
     params_good = np.array([[1], [2], [3]])
     params_shape_missmatch = np.array([[1], [2]])
 
+    with pytest.raises(TypeError):  # Abstract class, cannot be instanciated
+        ParametrizedInterpolator(grid_points, params_good)
+
+    class DummyParametrizedInterpolator(ParametrizedInterpolator):
+        def interpolate(self, target, **kwargs):
+            raise NotImplementedError
+
     with pytest.raises(TypeError):  # parameters not a np.ndarray
-        ParametrizedInterpolator(grid_points, params_good.tolist())
+        DummyParametrizedInterpolator(grid_points, params_good.tolist())
 
     with pytest.raises(ValueError):  # Fewer parameters then grid_points
-        ParametrizedInterpolator(grid_points, params_shape_missmatch)
+        DummyParametrizedInterpolator(grid_points, params_shape_missmatch)
 
-    interp = ParametrizedInterpolator(grid_points, params_good)
+    interp = DummyParametrizedInterpolator(grid_points, params_good)
 
     with pytest.raises(NotImplementedError):
         # Everything ok but _interpolate not implemented
@@ -131,20 +153,27 @@ def test_BinnedInterpolator():
     bin_content_bad_nhist = np.ones(shape=(len(grid_points) - 1, len(bin_edges) - 1))
     bin_content_bad_nbins = np.ones(shape=(len(grid_points), len(bin_edges)))
 
+    with pytest.raises(TypeError):  # Abstract class, cannot be instanciated
+        BinnedInterpolator(grid_points, bin_edges, bin_content_good_shape)
+
+    class DummyBinnedInterpolator(BinnedInterpolator):
+        def interpolate(self, target, **kwargs):
+            raise NotImplementedError
+
     with pytest.raises(TypeError):  # bin_edges are not a np.ndarray
-        BinnedInterpolator(grid_points, bin_edges.tolist(), bin_content_good_shape)
+        DummyBinnedInterpolator(grid_points, bin_edges.tolist(), bin_content_good_shape)
 
     with pytest.raises(TypeError):  # bin_contents are not a np.ndarray
-        BinnedInterpolator(grid_points, bin_edges, bin_content_good_shape.tolist())
+        DummyBinnedInterpolator(grid_points, bin_edges, bin_content_good_shape.tolist())
 
     with pytest.raises(ValueError):  # Fewer entries in bin_contents then grid_points
-        BinnedInterpolator(grid_points, bin_edges, bin_content_bad_nhist)
+        DummyBinnedInterpolator(grid_points, bin_edges, bin_content_bad_nhist)
 
     with pytest.raises(ValueError):
         # Fewer entries per bin-content then indicated by bin_edges
-        BinnedInterpolator(grid_points, bin_edges, bin_content_bad_nbins)
+        DummyBinnedInterpolator(grid_points, bin_edges, bin_content_bad_nbins)
 
-    interp = BinnedInterpolator(grid_points, bin_edges, bin_content_good_shape)
+    interp = DummyBinnedInterpolator(grid_points, bin_edges, bin_content_good_shape)
 
     with pytest.raises(NotImplementedError):
         # Everything ok but _interpolate not implemented
