@@ -4,6 +4,8 @@ from pyirf.binning import bin_center
 from scipy.spatial import Delaunay, QhullError
 from abc import ABCMeta, abstractmethod
 
+__all__ = ["BaseInterpolator", "ParametrizedInterpolator", "BinnedInterpolator"]
+
 
 class BaseInterpolator(metaclass=ABCMeta):
     """

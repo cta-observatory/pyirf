@@ -3,6 +3,8 @@ from scipy.interpolate import interp1d, griddata
 
 import numpy as np
 
+__all__ = ["QuantileInterpolator"]
+
 
 def cdf_values(bin_contents):
     """

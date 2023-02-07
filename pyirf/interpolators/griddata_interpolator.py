@@ -6,6 +6,8 @@ from .base_interpolators import ParametrizedInterpolator
 from scipy.interpolate import griddata
 import numpy as np
 
+__all__ = ["GridDataInterpolator"]
+
 
 class GridDataInterpolator(ParametrizedInterpolator):
     def __init__(self, grid_points, params):
