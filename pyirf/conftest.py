@@ -3,11 +3,17 @@ import pathlib
 import pytest
 from gammapy.irf import load_irf_dict_from_file
 
-PROD5_IRF_PATH = pathlib.Path(__file__).parent / "resources/irfs/"
+PROD5_IRF_PATH = pathlib.Path(__file__).parent.parent / "irfs/"
 
 
 @pytest.fixture(scope="session")
 def prod5_irfs():
+    if not PROD5_IRF_PATH.exists():
+        pytest.fail(
+            "Test IRF files missing, you need to download them using " 
+            "`python download_irfs.py` in pyirfs root directory."
+            )
+
     irfs = [
         load_irf_dict_from_file(irf_file)
         for irf_file in PROD5_IRF_PATH.glob("*.fits.gz")
