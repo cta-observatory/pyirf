@@ -1,0 +1,21 @@
+import pathlib
+
+import pytest
+from gammapy.irf import load_irf_dict_from_file
+
+PROD5_IRF_PATH = pathlib.Path(__file__).parent / "resources/irfs/"
+
+
+@pytest.fixture(scope="session")
+def prod5_irfs():
+    irfs = [
+        load_irf_dict_from_file(irf_file)
+        for irf_file in PROD5_IRF_PATH.glob("*.fits.gz")
+    ]
+
+    assert len(irfs) == 3
+    for key in ["aeff", "psf", "edisp"]:
+        for irf in irfs:
+            assert key in irf
+
+    return irfs
