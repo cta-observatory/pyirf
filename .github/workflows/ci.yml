@@ -29,7 +29,7 @@ jobs:
         id: cache-irfs
         with:
           path: ./irfs
-          key: irf-cache-${{ hashFiles('**/*.fits.gz') }}
+          key: irf-cache
 
       # make sure we have version info
       - run: git fetch --tags
