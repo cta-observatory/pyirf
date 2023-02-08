@@ -10,9 +10,9 @@ PROD5_IRF_PATH = pathlib.Path(__file__).parent.parent / "irfs/"
 def prod5_irfs():
     if not PROD5_IRF_PATH.exists():
         pytest.fail(
-            "Test IRF files missing, you need to download them using " 
+            "Test IRF files missing, you need to download them using "
             "`python download_irfs.py` in pyirfs root directory."
-            )
+        )
 
     irfs = [
         load_irf_dict_from_file(irf_file)
