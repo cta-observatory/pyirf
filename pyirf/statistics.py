@@ -19,7 +19,7 @@ def li_ma_significance(n_on, n_off, alpha=0.2):
     ----------
     n_on: integer or array like
         Number of events for the on observations
-    n_off: integer of array like
+    n_off: integer or array like
         Number of events for the off observations
     alpha: float
         Ratio between the on region and the off region size or obstime.
