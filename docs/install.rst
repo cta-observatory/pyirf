@@ -21,7 +21,7 @@ To install a released version, just install the ``pyirf`` package using
 
 .. code-block:: bash
 
-    pip install pyirf
+    $ pip install pyirf
 
 or add it to the dependencies of your project.
 
@@ -38,7 +38,7 @@ These requirements can also be enabled by installing the ``all`` extra:
 
 .. code-block:: bash
 
-    pip install -e '.[all]'  # or [docs,tests] to install them separately
+    $ pip install -e '.[all]'  # or [docs,tests] to install them separately
 
 
 You should isolate your pyirf development environment from the rest of your system.
@@ -47,6 +47,21 @@ Either by using a virtual environment or by using ``conda`` environments.
 
 .. code-block:: bash
 
-   conda env create -f environment.yml
-   conda activate pyirf
-   pip install -e '.[all]'
+   $ conda env create -f environment.yml
+   $ conda activate pyirf
+   $ pip install -e '.[all]'
+
+In order to have passing unit-tests you have to download some CTA IRFs 
+from `zenodo <https://zenodo.org/record/5499840>`. Simply run 
+
+.. code-block:: bash 
+
+   $ python download_irfs.py 
+
+which will download and unpack three IRF files to ``irfs/``.
+
+Run the tests to make sure everything is OK: 
+
+.. code-block:: bash
+
+   $ pytest

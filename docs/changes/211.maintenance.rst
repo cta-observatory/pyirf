@@ -1,0 +1,8 @@
+Add a fixture containing three IRFs from `the prod5 IRF data-release <https://zenodo.org/record/5499840>`
+for unit testing. Specifically the fixture contains the contents of:
+* Prod5-North-20deg-AverageAz-4LSTs.180000s-v0.1.fits.gz.
+* Prod5-North-40deg-AverageAz-4LSTs.180000s-v0.1.fits.gz
+* Prod5-North-60deg-AverageAz-4LSTs.180000s-v0.1.fits.gz
+
+The user has to download these irfs to ``irfs/`` using ``download_irfs.py``,
+github's CI does so automatically and caches them for convenience.

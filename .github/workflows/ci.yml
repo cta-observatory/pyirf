@@ -25,6 +25,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - uses: actions/cache@v3 
+        id: cache-irfs
+        with:
+          path: ./irfs
+          key: irf-cache
+
       # make sure we have version info
       - run: git fetch --tags
 
@@ -43,6 +49,10 @@ jobs:
       - name: Check README
         run: |
           rst-lint README.rst
+
+      - name: Get IRF Files
+        if: steps.cache-irfs.outputs.cache-hit != 'true'
+        run: python download_irfs.py
 
       - name: Tests
         run: |
