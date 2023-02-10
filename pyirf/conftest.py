@@ -19,7 +19,7 @@ def prod5_irfs():
 
     # Get dict of {ZEN_PNT, IRF} pairs for each file in ./irfs
     irfs = {
-        Quantity(re.search("\d{2}deg", str(irf_file)).group()): load_irf_dict_from_file(
+        Quantity(re.search(r"\d{2}deg", str(irf_file)).group()): load_irf_dict_from_file(
             irf_file
         )
         for irf_file in PROD5_IRF_PATH.glob("*.fits.gz")
