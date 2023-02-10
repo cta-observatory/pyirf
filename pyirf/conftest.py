@@ -17,6 +17,7 @@ def prod5_irfs():
             "`python download_irfs.py` in pyirfs root directory."
         )
 
+    # Get dict of {ZEN_PNT, IRF} pairs for each file in ./irfs
     irfs = {
         Quantity(re.search("\d{2}deg", str(irf_file)).group()): load_irf_dict_from_file(
             irf_file
@@ -29,4 +30,5 @@ def prod5_irfs():
         for irf in irfs.values():
             assert key in irf
 
-    return irfs
+    # Sort dict by zenith angle
+    return dict(sorted(irfs.items()))
