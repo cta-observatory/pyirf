@@ -1,4 +1,6 @@
 """Tests for base interpolator classes"""
+import re
+
 import numpy as np
 import pytest
 
@@ -23,20 +25,24 @@ def test_BaseInterpolator_datastructure_checks():
         def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
-    with pytest.raises(TypeError):  # Grid is a list
+    with pytest.raises(TypeError, match="Input grid_points is not a numpy array."):
         DummyBaseInterpolator(grid_points1D_bad)
 
-    with pytest.raises(TypeError):  # Grid is an array with dtype object
+    with pytest.raises(
+        TypeError, match="Input grid_points array cannot be of dtype object."
+    ):
         DummyBaseInterpolator(grid_points2D_bad_obj)
 
-    with pytest.raises(TypeError):  # Grid is an array of strings
+    with pytest.raises(
+        TypeError, match="Input grid_points dtype incompatible with float."
+    ):
         DummyBaseInterpolator(grid_points2D_bad_str)
 
-    with pytest.raises(TypeError):  # Target is an integer
+    with pytest.raises(TypeError, match="Target point is not a numpy array."):
         Interp = DummyBaseInterpolator(grid_points1D_good)
         Interp(target1D_bad)
 
-    with pytest.raises(TypeError):  # Target is a list
+    with pytest.raises(TypeError, match="Target point is not a numpy array."):
         Interp = DummyBaseInterpolator(grid_points2D_good)
         Interp(target2D_bad)
 
@@ -59,32 +65,40 @@ def test_BaseInterpolator_sanity_checks():
         def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
-    with pytest.raises(ValueError):  # Target out of grid
+    with pytest.raises(
+        ValueError,
+        match="Target point outside grids convex hull and no extrapolator given.",
+    ):
         interp = DummyBaseInterpolator(grid_points1D_good)
         interp(target1D_outofGrid)
 
-    with pytest.raises(ValueError):  # To few grid points
+    with pytest.raises(ValueError, match="To few points for grid dimension"):
         DummyBaseInterpolator(grid_points2D_toofew)
 
-    with pytest.raises(ValueError):  # Two target points
+    with pytest.raises(ValueError, match="Only one target_point per call supported."):
         interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target2D_twopoints)
 
-    with pytest.raises(ValueError):  # Target out of grid
+    with pytest.raises(
+        ValueError,
+        match="Target point outside grids convex hull and no extrapolator given.",
+    ):
         interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target2D_outofGrid)
 
-    with pytest.raises(ValueError):  # 1D target in 2D grid
+    with pytest.raises(
+        ValueError, match="Missmatch between target-point and grid dimension."
+    ):
         interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target1D_inGrid)
 
     with pytest.raises(NotImplementedError):
-        # Everything ok but _interpolate not implemented
+        # Everything ok but interpolate not implemented
         interp = DummyBaseInterpolator(grid_points1D_good)
         interp(target1D_inGrid)
 
     with pytest.raises(NotImplementedError):
-        # Everything ok but _interpolate not implemented
+        # Everything ok but interpolate not implemented
         interp = DummyBaseInterpolator(grid_points2D_good)
         interp(target2D_inGrid)
 
@@ -134,16 +148,19 @@ def test_ParametrizedInterpolator():
         def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
-    with pytest.raises(TypeError):  # parameters not a np.ndarray
+    with pytest.raises(TypeError, match="Input params is not a numpy array."):
         DummyParametrizedInterpolator(grid_points, params_good.tolist())
 
-    with pytest.raises(ValueError):  # Fewer parameters then grid_points
+    with pytest.raises(
+        ValueError,
+        match="Shape missmatch, number of grid_points and rows in params not matching.",
+    ):
         DummyParametrizedInterpolator(grid_points, params_shape_missmatch)
 
     interp = DummyParametrizedInterpolator(grid_points, params_good)
 
     with pytest.raises(NotImplementedError):
-        # Everything ok but _interpolate not implemented
+        # Everything ok but interpolate not implemented
         interp(np.array([1]))
 
 
@@ -164,21 +181,32 @@ def test_BinnedInterpolator():
         def interpolate(self, target_point, **kwargs):
             raise NotImplementedError
 
-    with pytest.raises(TypeError):  # bin_edges are not a np.ndarray
+    with pytest.raises(TypeError, match="Input bin_edges is not a numpy array."):
         DummyBinnedInterpolator(grid_points, bin_edges.tolist(), bin_content_good_shape)
 
-    with pytest.raises(TypeError):  # bin_contents are not a np.ndarray
+    with pytest.raises(TypeError, match="Input bin_contents is not a numpy array."):
         DummyBinnedInterpolator(grid_points, bin_edges, bin_content_good_shape.tolist())
 
-    with pytest.raises(ValueError):  # Fewer entries in bin_contents then grid_points
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Shape missmatch, number of grid_points (3) and "
+            "number of histograms in bin_contents (2) not matching."
+        ),
+    ):
         DummyBinnedInterpolator(grid_points, bin_edges, bin_content_bad_nhist)
 
-    with pytest.raises(ValueError):
-        # Fewer entries per bin-content then indicated by bin_edges
+    with pytest.raises(
+        ValueError,
+        match=re.escape(
+            "Shape missmatch, bin_edges (10 bins) "
+            "and bin_contents (11 bins) not matching."
+        ),
+    ):
         DummyBinnedInterpolator(grid_points, bin_edges, bin_content_bad_nbins)
 
     interp = DummyBinnedInterpolator(grid_points, bin_edges, bin_content_good_shape)
 
     with pytest.raises(NotImplementedError):
-        # Everything ok but _interpolate not implemented
+        # Everything ok but interpolate not implemented
         interp(np.array([1]))
