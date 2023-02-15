@@ -2,7 +2,7 @@
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
-from scipy.spatial import Delaunay, QhullError
+from scipy.spatial import Delaunay
 
 from pyirf.binning import bin_center
 
@@ -59,15 +59,11 @@ class BaseInterpolator(metaclass=ABCMeta):
         # Build triangulation to check if target is inside of the grid for
         # more then 1 dimension
         if self.grid_dim > 1:
-            try:
-                self.Triangulation = Delaunay(self.grid_points)
-            except QhullError:
-                raise
+            self.triangulation = Delaunay(self.grid_points)
 
     @abstractmethod
     def interpolate(self, target_point, **kwargs):
         """Overridable function for the actual interpolation code"""
-        pass
 
     def _target_in_grid(self, target_point):
         """Check wether target_point lies within grids convex hull"""
@@ -77,7 +73,7 @@ class BaseInterpolator(metaclass=ABCMeta):
             )
         else:
             # Delaunay.find_simplex() returns -1 for points outside the grids convex hull
-            simplex_ind = self.Triangulation.find_simplex(target_point)
+            simplex_ind = self.triangulation.find_simplex(target_point)
             return simplex_ind >= 0
 
     def __call__(self, target_point, extrapolator=None, **kwargs):
@@ -125,10 +121,7 @@ class BaseInterpolator(metaclass=ABCMeta):
             return self.interpolate(target_point, **kwargs)
         elif extrapolator is not None:
             print(f"Trying to extrapolate for point {target_point}.")
-            try:
-                return extrapolator(target_point, **kwargs)
-            except:
-                raise
+            return extrapolator(target_point, **kwargs)
         else:
             raise ValueError(
                 "Target point outside grids convex hull and no extrapolator given."
@@ -176,7 +169,7 @@ class ParametrizedInterpolator(BaseInterpolator):
             self.params = params
 
         if self.params.ndim == 1:
-            self.params = self.params.reshape(*self.params.shape, 1)
+            self.params = self.params[..., np.newaxis]
 
 
 class BinnedInterpolator(BaseInterpolator):
@@ -226,7 +219,7 @@ class BinnedInterpolator(BaseInterpolator):
             raise TypeError("Input bin_contents is not a numpy array.")
         elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
             raise ValueError(
-                f"Shape missmatch, bin_edges ({bin_edges[0] - 1} bins) "
+                f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
                 f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
             )
         elif self.n_points != bin_contents.shape[0]:
