@@ -98,11 +98,12 @@ def test_interpolate_effective_area_per_energy_and_fov():
             pars[i_grid, :] = np.array([xx, yy])
             i_grid += 1
     aeff *= u.m**2
-    pars0 = (1, 10)
+    pars0 = np.array([1, 10])
     min_aeff = 1 * u.m**2
     aeff_interp = interp.interpolate_effective_area_per_energy_and_fov(
         aeff, pars, pars0, min_effective_area=min_aeff, method="linear"
     )
+
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
 

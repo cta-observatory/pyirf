@@ -52,13 +52,8 @@ class GridDataInterpolator(ParametrizedInterpolator):
         .. [1] Scipy Documentation, scipy.interpolate.griddata
                https://docs.scipy.org/doc/scipy/reference/generated
         """
-        # Initiate return value as structured array by copying one input array over
-        return_array = np.copy(self.params[0])
+        interpolant = griddata(
+            self.grid_points, self.params, target_point, **kwargs
+        ).squeeze()
 
-        # Intependently interpolate all parameters
-        for param_name in self.params.dtype.names:
-            return_array[param_name] = griddata(
-                self.grid_points, self.params[param_name], target_point, **kwargs
-            )
-
-        return return_array
+        return interpolant.reshape(1, *self.params.shape[1:])

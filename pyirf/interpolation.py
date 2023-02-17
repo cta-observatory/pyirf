@@ -2,9 +2,8 @@
 
 import astropy.units as u
 import numpy as np
-from scipy.interpolate import griddata
 
-from pyirf.interpolators import QuantileInterpolator
+from pyirf.interpolators import QuantileInterpolator, GridDataInterpolator
 from pyirf.utils import cone_solid_angle
 
 __all__ = [
@@ -55,7 +54,11 @@ def interpolate_effective_area_per_energy_and_fov(
     effective_area = np.log(effective_area)
 
     # interpolation
-    aeff_interp = griddata(grid_points, effective_area, target_point, method=method).T
+    interp = GridDataInterpolator(
+        grid_points=grid_points,
+        params=effective_area,
+    )
+    aeff_interp = interp(target_point, method=method)
     # exp it and set to zero too low values
     aeff_interp = np.exp(aeff_interp)
     # 1.1 to correct for numerical uncertainty and interpolation
@@ -189,4 +192,5 @@ def interpolate_rad_max(
     .. [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html
     """
 
-    return griddata(grid_points, rad_max, target_point, method=method)
+    interp = GridDataInterpolator(grid_points=grid_points, params=rad_max)
+    return interp(target_point, method=method)
