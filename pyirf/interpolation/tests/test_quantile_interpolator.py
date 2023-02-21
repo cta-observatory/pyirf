@@ -27,7 +27,7 @@ def data():
 
 
 def test_cdf_values(data):
-    from pyirf.interpolators.quantile_interpolator import cdf_values
+    from pyirf.interpolation.quantile_interpolator import cdf_values
 
     cdf_est = cdf_values(data["binned_pdfs"][0])
 
@@ -45,7 +45,7 @@ def test_cdf_values(data):
 
 
 def test_ppf_values(data):
-    from pyirf.interpolators.quantile_interpolator import (cdf_values,
+    from pyirf.interpolation.quantile_interpolator import (cdf_values,
                                                            ppf_values)
 
     # Create quantiles, ignore the 0% and 100% quantile as they are analytically +- inf
@@ -64,7 +64,7 @@ def test_ppf_values(data):
 
 
 def test_pdf_from_ppf(data):
-    from pyirf.interpolators.quantile_interpolator import (cdf_values,
+    from pyirf.interpolation.quantile_interpolator import (cdf_values,
                                                            pdf_from_ppf,
                                                            ppf_values)
 
@@ -84,14 +84,14 @@ def test_pdf_from_ppf(data):
 
 
 def test_norm_pdf(data):
-    from pyirf.interpolators.quantile_interpolator import norm_pdf
+    from pyirf.interpolation.quantile_interpolator import norm_pdf
 
     assert np.allclose(norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0])
     assert np.allclose(norm_pdf(np.zeros(5)), 0)
 
 
 def test_interpolate_binned_pdf(data):
-    from pyirf.interpolators import QuantileInterpolator
+    from pyirf.interpolation import QuantileInterpolator
 
     interpolator = QuantileInterpolator(
         grid_points=data["grid_points"][[0, 2]],

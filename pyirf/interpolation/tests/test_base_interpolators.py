@@ -7,7 +7,7 @@ import pytest
 
 def test_BaseInterpolator_datastructure_checks():
     """Test checks performed to enforce correct data structure"""
-    from pyirf.interpolators.base_interpolators import BaseInterpolator
+    from pyirf.interpolation.base_interpolators import BaseInterpolator
 
     grid_points1D_good = np.array([1, 2, 3])
     grid_points1D_bad = [1, 2, 3]
@@ -49,7 +49,7 @@ def test_BaseInterpolator_datastructure_checks():
 
 def test_BaseInterpolator_sanity_checks():
     """Test checks performed to enforce correct data values"""
-    from pyirf.interpolators.base_interpolators import BaseInterpolator
+    from pyirf.interpolation.base_interpolators import BaseInterpolator
 
     grid_points1D_good = np.array([1, 2, 3])
     target1D_inGrid = np.array([1.5])
@@ -105,7 +105,7 @@ def test_BaseInterpolator_sanity_checks():
 
 def test_BaseInterpolator_extrapolation():
     """Test extrapolators are correctly passed"""
-    from pyirf.interpolators.base_interpolators import BaseInterpolator
+    from pyirf.interpolation.base_interpolators import BaseInterpolator
 
     def dummy_extrapolator(target_point):
         return np.sum(target_point)
@@ -135,7 +135,7 @@ def test_BaseInterpolator_extrapolation():
 
 def test_ParametrizedInterpolator():
     """Test ParametrizedInterpolator initialization and sanity checks"""
-    from pyirf.interpolators.base_interpolators import ParametrizedInterpolator
+    from pyirf.interpolation.base_interpolators import ParametrizedInterpolator
 
     grid_points = np.array([1, 2, 3])
     params_good = np.array([[1], [2], [3]])
@@ -166,7 +166,7 @@ def test_ParametrizedInterpolator():
 
 def test_BinnedInterpolator():
     """Test BinnedInterpolator initialization and sanity checks"""
-    from pyirf.interpolators.base_interpolators import BinnedInterpolator
+    from pyirf.interpolation.base_interpolators import BinnedInterpolator
 
     grid_points = np.array([1, 2, 3])
     bin_edges = np.linspace(-1, 1, 11)

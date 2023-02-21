@@ -3,7 +3,8 @@
 import astropy.units as u
 import numpy as np
 
-from pyirf.interpolators import QuantileInterpolator, GridDataInterpolator
+from .griddata_interpolator import GridDataInterpolator
+from .quantile_interpolator import QuantileInterpolator
 from pyirf.utils import cone_solid_angle
 
 __all__ = [

@@ -1,3 +1,2 @@
 Migrating the interpolation methods from ``pyirf.interpolation`` to interpolator 
-objects in ``pyirf.interpolators``, allowing for later inheritance for new 
-algorithms and reusability.
+objects, allowing for later inheritance for new algorithms and reusability.

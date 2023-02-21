@@ -186,7 +186,7 @@ class QuantileInterpolator(BinnedInterpolator):
 
         Note
         ----
-            Also calls pyirf.interpolators.BaseInterpolators.__call__
+            Also calls pyirf.interpolation.BaseInterpolators.__call__
         """
         self.axis = axis
 

@@ -4,7 +4,7 @@ import numpy as np
 
 def test_GridDataInterpolator_1DGrid():
     """Test checks performed to enforce correct data structure"""
-    from pyirf.interpolators import GridDataInterpolator
+    from pyirf.interpolation import GridDataInterpolator
 
     grid_points = np.array([[0], [1]])
     target_point = np.array([[0.5]])
@@ -28,7 +28,7 @@ def test_GridDataInterpolator_1DGrid():
 
 def test_GridDataInterpolator_2DGrid():
     """Test checks performed to enforce correct data structure"""
-    from pyirf.interpolators import GridDataInterpolator
+    from pyirf.interpolation import GridDataInterpolator
 
     grid_points = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
     target_point = np.array([[0.5, 0.5]])

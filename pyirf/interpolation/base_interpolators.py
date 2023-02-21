@@ -130,9 +130,10 @@ class BaseInterpolator(metaclass=ABCMeta):
 
 class ParametrizedInterpolator(BaseInterpolator):
     """
-    Base class for all interpolators used with parametrized IRF components like 3Gauss,
-    extending BaseInterpolators sanity checks.
-    Derived from pyirf.interpolators.BaseInterpolator
+    Base class for all interpolators used with IRF components that can be 
+    independently interpolated, e.g. parametrized ones like 3Gauss
+    but also AEff, extending BaseInterpolators sanity checks.
+    Derived from pyirf.interpolation.BaseInterpolator
     """
 
     def __init__(self, grid_points, params):
@@ -155,7 +156,7 @@ class ParametrizedInterpolator(BaseInterpolator):
 
         Note
         ----
-            Also calls pyirf.interpolators.BaseInterpolators.__call__
+            Also calls pyirf.interpolation.BaseInterpolators.__call__
         """
         super().__init__(grid_points)
 
@@ -176,7 +177,7 @@ class BinnedInterpolator(BaseInterpolator):
     """
     Base class for all interpolators used with binned IRF components like EDisp,
     extending BaseInterpolators sanity checks.
-    Derived from pyirf.interpolators.BaseInterpolator
+    Derived from pyirf.interpolation.BaseInterpolator
     """
 
     def __init__(self, grid_points, bin_edges, bin_contents):
@@ -209,7 +210,7 @@ class BinnedInterpolator(BaseInterpolator):
 
         Note
         ----
-            Also calls pyirf.interpolators.BaseInterpolators.__call__
+            Also calls pyirf.interpolation.BaseInterpolators.__call__
         """
         super().__init__(grid_points)
 
