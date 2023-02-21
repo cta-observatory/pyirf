@@ -1,8 +1,8 @@
-import pyirf.interpolation as interp
 import numpy as np
-import astropy.units as u
 import pytest
 from scipy.stats import norm
+
+from pyirf.binning import bin_center
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def data():
 
 
 def test_cdf_values(data):
-    from pyirf.interpolation import cdf_values
+    from pyirf.interpolation.quantile_interpolator import cdf_values
 
     cdf_est = cdf_values(data["binned_pdfs"][0])
 
@@ -45,58 +45,65 @@ def test_cdf_values(data):
 
 
 def test_ppf_values(data):
-    from pyirf.interpolation import ppf_values, cdf_values
+    from pyirf.interpolation.quantile_interpolator import (cdf_values,
+                                                           ppf_values)
 
     # Create quantiles, ignore the 0% and 100% quantile as they are analytically +- inf
     quantiles = np.linspace(0, 1, 10)[1:-2]
 
     # True ppf-values
     ppf_true = data["distributions"][0].ppf(quantiles)
+    bin_mids = bin_center(data["bin_edges"])
 
     # Estimated ppf-values
     cdf_est = cdf_values(data["binned_pdfs"][0])
-    ppf_est = ppf_values(cdf_est, data["bin_edges"], quantiles)
+    ppf_est = ppf_values(bin_mids, cdf_est, quantiles)
 
     # Assert truth and estimation match allowing for +- bin_width deviation
     assert np.allclose(ppf_true, ppf_est, atol=np.diff(data["bin_edges"])[0])
 
 
 def test_pdf_from_ppf(data):
-    from pyirf.interpolation import ppf_values, cdf_values, pdf_from_ppf
+    from pyirf.interpolation.quantile_interpolator import (cdf_values,
+                                                           pdf_from_ppf,
+                                                           ppf_values)
 
     # Create quantiles
     quantiles = np.linspace(0, 1, 1000)
+    bin_mids = bin_center(data["bin_edges"])
 
     # Estimate ppf-values
     cdf_est = cdf_values(data["binned_pdfs"][0])
-    ppf_est = ppf_values(cdf_est, data["bin_edges"], quantiles)
+    ppf_est = ppf_values(bin_mids, cdf_est, quantiles)
 
     # Compute pdf_values
-    pdf_est = pdf_from_ppf(quantiles, ppf_est, data["bin_edges"])
+    pdf_est = pdf_from_ppf(data["bin_edges"], ppf_est, quantiles)
 
     # Assert pdf-values matching true pdf within +-1%
     assert np.allclose(pdf_est, data["binned_pdfs"][0], atol=1e-2)
 
 
 def test_norm_pdf(data):
-    from pyirf.interpolation import norm_pdf
+    from pyirf.interpolation.quantile_interpolator import norm_pdf
 
     assert np.allclose(norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0])
     assert np.allclose(norm_pdf(np.zeros(5)), 0)
 
 
 def test_interpolate_binned_pdf(data):
-    from pyirf.interpolation import interpolate_binned_pdf
-    from pyirf.binning import bin_center
+    from pyirf.interpolation import QuantileInterpolator
 
-    interp = interpolate_binned_pdf(
-        edges=data["bin_edges"],
-        binned_pdfs=data["binned_pdfs"][[0, 2], :],
+    interpolator = QuantileInterpolator(
         grid_points=data["grid_points"][[0, 2]],
-        target_point=data["grid_points"][1],
-        axis=-1,
+        bin_edges=data["bin_edges"],
+        bin_contents=data["binned_pdfs"][[0, 2], :],
         quantile_resolution=1e-3,
+        axis=-1,
     )
+
+    interp = interpolator(
+        target_point=np.array([data["grid_points"][1]]),
+    ).squeeze()
 
     bin_mids = bin_center(data["bin_edges"])
     bin_width = np.diff(data["bin_edges"])[0]
@@ -108,55 +115,3 @@ def test_interpolate_binned_pdf(data):
     # Assert they match the truth within one bin of uncertainty
     assert np.isclose(interp_mean, data["means"][1], atol=bin_width)
     assert np.isclose(interp_std, data["stds"][1], atol=bin_width)
-
-
-def test_interpolate_effective_area_per_energy_and_fov():
-    """Test of interpolating of effective area using dummy model files."""
-    n_en = 20
-    n_th = 1
-    en = np.logspace(-2, 2, n_en)
-    # applying a simple sigmoid function
-    aeff0 = 1.0e4 / (1 + 1 / en ** 2) * u.Unit("m2")
-
-    # assume that for parameters 'x' and 'y' the Aeff scales x*y*Aeff0
-    x = [0.9, 1.1]
-    y = [8.0, 11.5]
-    n_grid = len(x) * len(y)
-    aeff = np.empty((n_grid, n_th, n_en))
-    pars = np.empty((n_grid, 2))
-    i_grid = 0
-    for xx in x:
-        for yy in y:
-            aeff[i_grid, 0, :] = aeff0 * xx * yy / 10
-            pars[i_grid, :] = np.array([xx, yy])
-            i_grid += 1
-    aeff *= u.Unit("m2")
-    pars0 = (1, 10)
-    min_aeff = 1 * u.Unit("m2")
-    aeff_interp = interp.interpolate_effective_area_per_energy_and_fov(
-        aeff, pars, pars0, min_effective_area=min_aeff, method="linear"
-    )
-    # allowing for 3% accuracy except of close to the minimum value of Aeff
-    assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
-
-
-def test_interpolate_rad_max():
-    from pyirf.interpolation import interpolate_rad_max
-
-    # linear test case
-    rad_max_1 = np.array([[0, 0], [1, 0], [2, 1], [3, 2]])
-    rad_max_2 = 2 * rad_max_1
-    rad_max = np.array([rad_max_1, rad_max_2])
-
-    grid_points = np.array([[0], [1]])
-    target_point = np.array([0.5])
-
-    interp = interpolate_rad_max(
-        rad_max=rad_max,
-        grid_points=grid_points,
-        target_point=target_point,
-        method="linear",
-    )
-
-    assert interp.shape == (1, *rad_max_1.shape)
-    assert np.allclose(interp, 1.5 * rad_max_1)

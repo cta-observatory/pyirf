@@ -4,16 +4,17 @@ Interpolation of IRFs
 =====================
 
 This module contains functions to interpolate from a set of IRFs for different
-conditions to a new IRF.
+conditions to a new IRF. Implementations of interpolation algorithms exist as interpolator
+classes and are applied by top-level functions to IRF components.
 
 This can e.g. be used to interpolate IRFs for zenith angles of 20° and 40°
 to 30°.
 
-The functions support an arbitrary number of interpolation dimensions.
+Most functions support an arbitrary number of interpolation dimensions although it 
+is strongly advised to limit those for resonable results.
 
 
 Reference/API
 -------------
 
 .. automodapi:: pyirf.interpolation
-   :no-inheritance-diagram:
