@@ -4,9 +4,8 @@ Interpolation of IRFs
 =====================
 
 This module contains functions to interpolate from a set of IRFs for different
-conditions to a new IRF. While ``pyirf.interpolation`` contains the implementations 
-of interpolation algorithms as interpolators as well as scripts applying those to 
-IRF components.
+conditions to a new IRF. Implementations of interpolation algorithms exist as interpolator
+objects and are applied by top-level scripts to IRF components.
 
 This can e.g. be used to interpolate IRFs for zenith angles of 20° and 40°
 to 30°.
