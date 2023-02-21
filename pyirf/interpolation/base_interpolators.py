@@ -130,7 +130,7 @@ class BaseInterpolator(metaclass=ABCMeta):
 
 class ParametrizedInterpolator(BaseInterpolator):
     """
-    Base class for all interpolators used with IRF components that can be 
+    Base class for all interpolators used with IRF components that can be
     independently interpolated, e.g. parametrized ones like 3Gauss
     but also AEff, extending BaseInterpolators sanity checks.
     Derived from pyirf.interpolation.BaseInterpolator

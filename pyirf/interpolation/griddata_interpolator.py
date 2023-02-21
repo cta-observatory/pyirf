@@ -1,8 +1,6 @@
 """
 Simple wrapper around scipy.interpolate.griddata to interpolate parametrized quantities
 """
-
-import numpy as np
 from scipy.interpolate import griddata
 
 from .base_interpolators import ParametrizedInterpolator
