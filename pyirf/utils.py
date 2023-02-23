@@ -1,9 +1,8 @@
-import numpy as np
 import astropy.units as u
+import numpy as np
 from astropy.coordinates.angle_utilities import angular_separation
 
 from .exceptions import MissingColumns, WrongColumnUnit
-
 
 __all__ = [
     "is_scalar",
@@ -11,6 +10,10 @@ __all__ = [
     "calculate_source_fov_offset",
     "check_histograms",
     "cone_solid_angle",
+    "normalize_multigauss",
+    "normalize_gadf3gauss",
+    "multigauss_to_gadf3gauss",
+    "gadf3gauss_to_multigauss",
 ]
 
 
@@ -160,3 +163,175 @@ def check_table(table, required_columns=None, required_units=None):
             unit = table[col].unit
             if not expected.is_equivalent(unit):
                 raise WrongColumnUnit(col, unit, expected)
+
+
+def gadf3gauss_to_multigauss(gadf3gauss):
+    """
+    Convert a GADF 3Gauss format PSF [1] to the sum of three gausians
+
+    Parameters
+    ----------
+    gadf3gauss: numpy.recarray
+        Array containing GADF 3Gauss parameters specified in
+        [1] as fields.
+
+    Returns
+    -------
+    multigauss: numpy.recarray
+        Array containing multi gauss parameters as fields named
+        p_i and sigma_i with i = {1, 2, 3}. Result is normalized.
+
+    References
+    ----------
+    .. [1] https://gamma-astro-data-formats.readthedocs.io/en/v0.3/irfs/full_enclosure/psf/psf_3gauss/index.html
+    """
+    multigauss = np.recarray(gadf3gauss.shape, dtype=gadf3gauss.dtype)
+
+    multigauss.dtype.names = (
+        "sigma_1",
+        "sigma_2",
+        "sigma_3",
+        "p_1",
+        "p_2",
+        "p_3",
+    )
+
+    for key in ["sigma_1", "sigma_2", "sigma_3"]:
+        multigauss[key] = gadf3gauss[key]
+
+    multigauss["p_1"] = np.nan_to_num(
+        (2 * (gadf3gauss["sigma_1"] * u.deg) ** 2 * gadf3gauss["scale"] * 1 / u.sr).to(
+            u.dimensionless_unscaled
+        )
+    )
+
+    multigauss["p_2"] = np.nan_to_num(
+        (
+            2
+            * (gadf3gauss["sigma_2"] * u.deg) ** 2
+            * gadf3gauss["scale"]
+            * 1
+            / u.sr
+            * gadf3gauss["ampl_2"]
+        )
+    ).to(u.dimensionless_unscaled)
+
+    multigauss["p_3"] = np.nan_to_num(
+        (
+            2
+            * (gadf3gauss["sigma_3"] * u.deg) ** 2
+            * gadf3gauss["scale"]
+            * 1
+            / u.sr
+            * gadf3gauss["ampl_3"]
+        )
+    ).to(u.dimensionless_unscaled)
+
+    multigauss = normalize_multigauss(multigauss)
+
+    return multigauss.view(np.recarray)
+
+
+def multigauss_to_gadf3gauss(multigauss):
+    """
+    Convert the sum of three gaussians to GADF 3Gauss format PSF [1]
+
+    Parameters
+    ----------
+    multigauss: numpy.recarray
+        Array containing multi gauss parameters as fields named
+        p_i and sigma_i with i = {1, 2, 3}
+
+    Returns
+    -------
+    gadf3gauss: numpy.recarray
+        Array containing GADF 3Gauss parameters specified in
+        [1] as fields. Result is normalized.
+
+    References
+    ----------
+    .. [1] https://gamma-astro-data-formats.readthedocs.io/en/v0.3/irfs/full_enclosure/psf/psf_3gauss/index.html
+    """
+    multigauss = normalize_multigauss(multigauss)
+
+    gadf3gauss = np.recarray(multigauss.shape, dtype=multigauss.dtype)
+
+    gadf3gauss.dtype.names = (
+        "scale",
+        "ampl_2",
+        "ampl_3",
+        "sigma_1",
+        "sigma_2",
+        "sigma_3",
+    )
+
+    for key in ["sigma_1", "sigma_2", "sigma_3"]:
+        gadf3gauss[key] = multigauss[key]
+
+    scale = (multigauss["p_1"] / (2 * (multigauss["sigma_1"] * u.deg) ** 2)).to(
+        1 / u.sr
+    )
+
+    gadf3gauss["scale"] = np.nan_to_num(scale)
+
+    gadf3gauss["ampl_2"] = np.nan_to_num(
+        (multigauss["p_2"] / (2 * scale * (multigauss["sigma_2"] * u.deg) ** 2))
+    ).to(u.dimensionless_unscaled)
+
+    gadf3gauss["ampl_3"] = np.nan_to_num(
+        (multigauss["p_3"] / (2 * scale * (multigauss["sigma_3"] * u.deg) ** 2))
+    ).to(u.dimensionless_unscaled)
+
+    return gadf3gauss.view(np.recarray)
+
+
+def normalize_multigauss(multigauss):
+    """Normalizes the sum of three gaussians centered at zero
+
+    Parameters
+    ----------
+    multigauss: numpy.recarray
+        Array containing multi gauss parameters as fields named
+        p_i and sigma_i with i = {1, 2, 3}
+
+    Returns
+    -------
+    normalized_multigauss: numpy.recarray
+        Mutligauss with normalized parameters p_i
+    """
+
+    normed_gauss = multigauss.copy()
+
+    norm = np.nansum([normed_gauss[p] for p in ["p_1", "p_2", "p_3"]])
+
+    for p in ["p_1", "p_2", "p_3"]:
+        normed_gauss[p] = np.nan_to_num(normed_gauss[p] / norm)
+
+    return normed_gauss.view(np.recarray)
+
+
+def normalize_gadf3gauss(gadf3gauss):
+    """Normalizes an energy dependent 3Gauss PSF in GADF format [1]
+
+    Parameters
+    ----------
+    gadf3gauss: numpy.recarray
+        Array containing GADF 3Gauss parameters specified in
+        [1] as fields
+
+    Returns
+    -------
+    normalized_gadf3gauss: numpy.recarray
+        GADF 3Gauss with normalized parameter values scale, ampl_2 and ampl_3
+
+    References
+    ----------
+    .. [1] https://gamma-astro-data-formats.readthedocs.io/en/v0.3/irfs/full_enclosure/psf/psf_3gauss/index.html
+    """
+    multigauss = gadf3gauss_to_multigauss(gadf3gauss)
+
+    normed_multigauss = normalize_multigauss(multigauss)
+
+    normed_gadf3gauss = multigauss_to_gadf3gauss(normed_multigauss)
+
+    return normed_gadf3gauss.view(np.recarray)
