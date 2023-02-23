@@ -3,6 +3,7 @@ import numpy as np
 from scipy.stats import expon
 
 import pyirf.interpolation as interp
+from gammapy.irf.psf.parametric import get_sigmas_and_norms
 from pyirf.utils import cone_solid_angle
 
 
@@ -128,3 +129,27 @@ def test_interpolate_rad_max():
 
     assert interp.shape == (1, *rad_max_1.shape)
     assert np.allclose(interp, 1.5 * rad_max_1)
+
+
+def test_interpolate_energy_dependent_multi_gauss_psf(prod5_irfs):
+    from pyirf.interpolation import interpolate_energy_dependent_multi_gauss_psf
+    from pyirf.utils import normalize_gadf3gauss
+
+    zen_pnt = np.array([key.value for key in prod5_irfs.keys()])
+    gadf_3gauss = np.array([irf["psf"].data for irf in prod5_irfs.values()]).view(
+        np.recarray
+    )
+
+    gadf_3gauss = normalize_gadf3gauss(gadf_3gauss)
+
+    interp = interpolate_energy_dependent_multi_gauss_psf(
+        gadf_3gauss=gadf_3gauss[[0, 2]],
+        grid_points=zen_pnt[[0, 2]],
+        target_point=zen_pnt[[1]],
+        method="linear",
+    )
+
+    assert interp.shape == gadf_3gauss[[1]].shape
+
+    for name in gadf_3gauss.dtype.names:
+        assert np.all(np.isfinite(interp[name]))

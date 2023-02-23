@@ -10,6 +10,7 @@ from .base_interpolators import (
 from .griddata_interpolator import GridDataInterpolator
 from .interpolate_irfs import (
     interpolate_effective_area_per_energy_and_fov,
+    interpolate_energy_dependent_multi_gauss_psf,
     interpolate_energy_dispersion,
     interpolate_psf_table,
     interpolate_rad_max,
@@ -24,6 +25,7 @@ __all__ = [
     "QuantileInterpolator",
     "interpolate_effective_area_per_energy_and_fov",
     "interpolate_energy_dispersion",
+    "interpolate_energy_dependent_multi_gauss_psf",
     "interpolate_psf_table",
     "interpolate_rad_max",
 ]

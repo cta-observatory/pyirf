@@ -3,9 +3,10 @@
 import astropy.units as u
 import numpy as np
 
+from pyirf.utils import cone_solid_angle, normalize_gadf3gauss
+
 from .griddata_interpolator import GridDataInterpolator
 from .quantile_interpolator import QuantileInterpolator
-from pyirf.utils import cone_solid_angle
 
 __all__ = [
     "interpolate_effective_area_per_energy_and_fov",
@@ -195,3 +196,54 @@ def interpolate_rad_max(
 
     interp = GridDataInterpolator(grid_points=grid_points, params=rad_max)
     return interp(target_point, method=method)
+
+
+def interpolate_energy_dependent_multi_gauss_psf(
+    gadf_3gauss, grid_points, target_point, **kwargs
+):
+    """
+    Interpolates a grid of 3Gauss PSFs to a target-point
+    Wrapper around scipy.interpolate.griddata [1].
+    Normalizes input and output.
+
+    Parameters
+    ----------
+    gadf_3gauss: numpy.recarray, shape=(N, M, ...)
+        3Gauss parameters (Scale, ) as recarray.
+        Shape (N:n_grid_points, M:n_energy_bins, n_fov_offset_bins)
+
+    grid_points: numpy.ndarray, shape=(N, O)
+        Array of the N O-dimensional morphing parameter values corresponding to the N input templates.
+
+    target_point: numpy.ndarray, shape=(O)
+        Value for which the interpolation is performed (target point)
+
+    **kwargs:
+        kwargs passed to interpolation method cipy.interpolate.griddata [1].
+
+    Returns
+    -------
+    gadf_3gauss_interp: numpy.recdarray, shape=(1, M, ...)
+        3Gauss parameters target grid-point, shape (1, M:n_energy_bins, n_fov_offset_bins)
+
+    References
+    ----------
+    .. [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html
+    """
+
+    gadf_3gauss = normalize_gadf3gauss(gadf_3gauss)
+
+    interpolators = {
+        name: GridDataInterpolator(grid_points=grid_points, params=gadf_3gauss[name])
+        for name in gadf_3gauss.dtype.names
+    }
+
+    return_array = np.recarray(
+        shape=(1, *gadf_3gauss.shape[1:]), dtype=gadf_3gauss.dtype
+    )
+
+    for name, interp in interpolators.items():
+        return_array[name] = np.nan_to_num(interp(target_point, **kwargs))
+    return_array = return_array.view(np.recarray)
+
+    return normalize_gadf3gauss(return_array)
