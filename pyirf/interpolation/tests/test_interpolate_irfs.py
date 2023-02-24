@@ -108,6 +108,35 @@ def test_interpolate_effective_area_per_energy_and_fov():
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
 
 
+def test_interpolate_effective_area_per_energy_and_fov_prod5(prod5_irfs):
+    """Test of interpolation of effective are on prod5 irfs"""
+    from pyirf.interpolation import interpolate_effective_area_per_energy_and_fov
+
+    zen_pnt = np.array([key.value for key in prod5_irfs.keys()])
+    aeffs = np.array([irf["aeff"].data for irf in prod5_irfs.values()])
+
+    interp = interpolate_effective_area_per_energy_and_fov(
+        effective_area=aeffs[[0, 2]] * u.m**2,
+        grid_points=zen_pnt[[0, 2]],
+        target_point=zen_pnt[[1]],
+        min_effective_area=1 * u.m**2,
+    ).value
+
+    assert np.all(np.isfinite(interp))
+    assert interp.shape == aeffs[[1]].shape
+    assert np.all(interp >= 0)
+
+    assert np.all(
+        np.logical_or(
+            np.logical_or(
+                np.logical_and(aeffs[[0]] <= interp, interp <= aeffs[[2]]),
+                np.logical_and(aeffs[[2]] <= interp, interp <= aeffs[[0]]),
+            ),
+            interp == 0,
+        )
+    )
+
+
 def test_interpolate_rad_max():
     from pyirf.interpolation import interpolate_rad_max
 
