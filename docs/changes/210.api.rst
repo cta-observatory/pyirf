@@ -1,2 +1,0 @@
-Migrating the interpolation methods from ``pyirf.interpolation`` to interpolator 
-objects, allowing for later inheritance for new algorithms and reusability.

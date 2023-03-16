@@ -15,6 +15,7 @@ extras_require = {
         "awkward1",
         "notebook",
         "tables",
+        "towncrier",
         gammapy,
     ],
     "tests": [
