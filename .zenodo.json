@@ -14,14 +14,19 @@
   "access_right": "open",
   "creators": [
     {
+      "name": "Maximilian Linhoff",
       "affiliation": "Department of Physics, TU Dortmund University, Otto-Hahn-Str. 4, 44221 Dortmund, Germany",
-      "name": "Maximilian N\u00f6the",
       "orcid": "0000-0001-7993-8189"
     },
     {
-      "affiliation": "AIM, CEA, CNRS, Universite Paris-Saclay, Universite Paris Diderot, Sorbonne Paris Cite, F-91191 Gif-sur-Yvette, France",
       "name": "Michele Peresano",
+      "affiliation": "AIM, CEA, CNRS, Universite Paris-Saclay, Universite Paris Diderot, Sorbonne Paris Cite, F-91191 Gif-sur-Yvette, France",
       "orcid": "0000-0002-7537-7334"
+    },
+    {
+      "name": "Rune Michael Dominik",
+      "affiliation": "Department of Physics, TU Dortmund University, Otto-Hahn-Str. 4, 44221 Dortmund, Germany",
+      "orcid": "0000-0003-4168-7200"
     },
     {
       "name": "Julian Sitarek",
@@ -29,29 +34,38 @@
       "orcid": "0000-0002-1659-5374"
     },
     {
-      "affiliation": "Laboratoire d’Annecy de Physique des Particules, Univ. Grenoble Alpes, Univ. Savoie Mont Blanc, CNRS, LAPP, 74000 Annecy, France",
       "name": "Thomas Vuillaume",
+      "affiliation": "Laboratoire d’Annecy de Physique des Particules, Univ. Grenoble Alpes, Univ. Savoie Mont Blanc, CNRS, LAPP, 74000 Annecy, France",
       "orcid": "0000-0002-5686-2078"
     },
     {
-      "affiliation": "Department of Physics, TU Dortmund University, Otto-Hahn-Str. 4, 44221 Dortmund, Germany",
-      "name": "Lukas Nickel"
+      "name": "Michael Punch"
+    },
+    {
+      "name": "Lukas Nickel",
+      "affiliation": "Department of Physics, TU Dortmund University, Otto-Hahn-Str. 4, 44221 Dortmund, Germany"
     },
     {
       "affiliation": "Department of Physics, TU Dortmund University, Otto-Hahn-Str. 4, 44221 Dortmund, Germany",
       "name": "Noah Biederbeck"
     },
     {
-      "affiliation": "Institut de Fisica d'Altes Energies (IFAE), The Barcelona Institute of Science and Technology, Campus UAB, 08193 Bellaterra (Barcelona), Spain",
-      "name": "Lea Jouvin"
+      "name": "Gernot Maier"
+    },
+    {
+      "name": "Abelardo Moralejo",
+      "affiliation": "Institut de Fisica d'Altes Energies (IFAE), The Barcelona Institute of Science and Technology, Campus UAB, 08193 Bellaterra (Barcelona), Spain"
+    },
+    {
+      "name": "Lea Jouvin",
+      "affiliation": "Institut de Fisica d'Altes Energies (IFAE), The Barcelona Institute of Science and Technology, Campus UAB, 08193 Bellaterra (Barcelona), Spain"
     },
     {
       "affiliation": "Aix Marseille Univ, CNRS/IN2P3, CPPM, Marseille, France",
       "name": "Gaia Verna"
     },
     {
-      "name": "Abelardo Moralejo",
-      "affiliation": "Institut de Fisica d'Altes Energies (IFAE), The Barcelona Institute of Science and Technology, Campus UAB, 08193 Bellaterra (Barcelona), Spain"
+      "name": "Hugo van Kemenade"
     }
   ]
 }
