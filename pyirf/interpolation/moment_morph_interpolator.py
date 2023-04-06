@@ -270,7 +270,12 @@ class Base1DMomentMorphInterpolator(BaseMomentMorphInterpolator):
 
 
 class MomentMorphInterpolator(BinnedInterpolator):
-    def __init__(self, grid_points, bin_edges, bin_contents):
+    def __init__(self, grid_points, bin_edges, bin_contents, axis):
+        self.axis = axis
+
+        # To ease compuation, the actual histograms have to be at index -1
+        bin_contents = np.swapaxes(bin_contents, self.axis, -1)
+
         super().__init__(grid_points, bin_edges, bin_contents)
 
         if self.grid_dim > 2:
@@ -302,6 +307,8 @@ class MomentMorphInterpolator(BinnedInterpolator):
 
     def interpolate(self, target_point, **kwargs):
         if self.grid_dim == 1:
-            return self._interpolate1D(target_point, **kwargs)
+            interpolant = self._interpolate1D(target_point, **kwargs)
         elif self.grid_dim == 2:
-            return self._interpolate2D(target_point, **kwargs)
+            interpolant = self._interpolate2D(target_point, **kwargs)
+
+        return np.swapaxes(interpolant, -1, self.axis)

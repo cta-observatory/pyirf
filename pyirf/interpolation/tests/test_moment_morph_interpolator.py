@@ -438,7 +438,10 @@ def test_MomentMorphInterpolator_simple_1DGrid(bins):
     bin_contents /= bin_contents.sum(axis=1)[:, np.newaxis]
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid,
+        bin_edges=bins,
+        bin_contents=bin_contents,
+        axis=-1,
     )
 
     res = interp(target)
@@ -495,7 +498,7 @@ def test_MomentMorphInterpolator_extended_1DGrid(bins):
     bin_contents /= bin_contents.sum(axis=-1)[..., np.newaxis]
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, bin_contents=bin_contents, axis=-1
     )
 
     truth = np.array(
@@ -559,7 +562,10 @@ def test_MomentMorphInterpolator_simple_2DGrid(bins):
     bin_contents /= bin_contents.sum(axis=1)[:, np.newaxis]
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid,
+        bin_edges=bins,
+        bin_contents=bin_contents,
+        axis=-1,
     )
 
     res = interp(target)
@@ -622,7 +628,10 @@ def test_MomentMorphInterpolator_extended_2DGrid(bins):
     bin_contents /= bin_contents.sum(axis=-1)[..., np.newaxis]
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid,
+        bin_edges=bins,
+        bin_contents=bin_contents,
+        axis=-1,
     )
 
     truth = np.array(
@@ -682,5 +691,8 @@ def test_MomentMorphInterpolator_3D_Grid():
         match="Interpolation in more then two dimension not impemented.",
     ):
         MomentMorphInterpolator(
-            grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+            grid_points=grid,
+            bin_edges=bins,
+            bin_contents=bin_contents,
+            axis=-1,
         )
