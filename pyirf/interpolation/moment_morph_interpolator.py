@@ -15,7 +15,7 @@ __all__ = [
 class BaseMomentMorphInterpolator(BinnedInterpolator, metaclass=ABCMeta):
     def __init__(self, grid_points, bin_edges, bin_contents):
         """
-        Abstract base class implementing the MomentMorphInterpolation. 
+        Abstract base class implementing the MomentMorphInterpolation.
 
         Parameters
         ----------
@@ -70,7 +70,9 @@ class BaseMomentMorphInterpolator(BinnedInterpolator, metaclass=ABCMeta):
         # bin_content!=0
         mask = std == 0
         if np.any(mask):
+            # Create array of bin_widths and clone for each template
             width = np.diff(self.bin_edges) / 2
+            width = np.repeat(width[np.newaxis, :], self.n_points, axis=0)
             std[mask] = width[self.bin_contents[mask, :] != 0]
 
         return mean, std
@@ -198,7 +200,7 @@ class BaseMomentMorphInterpolator(BinnedInterpolator, metaclass=ABCMeta):
 class Base2DTriangularMomentMorphInterpolator(BaseMomentMorphInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents):
         """
-        Base class implementing the MomentMorphInterpolation in a 2D triangle. 
+        Base class implementing the MomentMorphInterpolation in a 2D triangle.
 
         Parameters
         ----------
@@ -220,6 +222,13 @@ class Base2DTriangularMomentMorphInterpolator(BaseMomentMorphInterpolator):
             raise ValueError("This base class can only interpolate in a triangle.")
 
         super().__init__(grid_points, bin_edges, bin_contents)
+
+    def _target_in_grid(self, target_point):
+        """
+        Override target_in_grid-check of parent class so this BaseClass can natively
+        be used to extrapolate
+        """
+        return True
 
     def get_interpolation_coefficients(self, target_point):
         """
@@ -268,7 +277,7 @@ class Base2DTriangularMomentMorphInterpolator(BaseMomentMorphInterpolator):
 class Base1DMomentMorphInterpolator(BaseMomentMorphInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents):
         """
-        Base class implementing the MomentMorphInterpolation between two points. 
+        Base class implementing the MomentMorphInterpolation between two points.
 
         Parameters
         ----------
@@ -290,6 +299,13 @@ class Base1DMomentMorphInterpolator(BaseMomentMorphInterpolator):
             raise ValueError("This base class can only interpolate between two points.")
 
         super().__init__(grid_points, bin_edges, bin_contents)
+
+    def _target_in_grid(self, target_point):
+        """
+        Override target_in_grid-check of parent class so this BaseClass can natively
+        be used to extrapolate
+        """
+        return True
 
     def get_interpolation_coefficients(self, target_point):
         """
@@ -329,7 +345,7 @@ class Base1DMomentMorphInterpolator(BaseMomentMorphInterpolator):
 class MomentMorphInterpolator(BinnedInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents, axis):
         """
-        Actual interpolator class utilizing MomentMorphInterpolations. 
+        Actual interpolator class utilizing MomentMorphInterpolations.
 
         Parameters
         ----------
@@ -342,7 +358,7 @@ class MomentMorphInterpolator(BinnedInterpolator):
             each point in grid_points. First dimesion has to correspond to number
             of grid_points. Interpolation dimension, meaning the
             the quantity that should be interpolated (e.g. the Migra axis for EDisp)
-            has to be at axis specified by axis-keyword as well as having entries 
+            has to be at axis specified by axis-keyword as well as having entries
             corresponding to the number of bins given through bin_edges keyword.
         axis:
             Location of the interpolation axis, see bin_contents keyword doc.
@@ -364,8 +380,8 @@ class MomentMorphInterpolator(BinnedInterpolator):
             )
 
     def _interpolate1D(self, target_point, **kwargs):
-        """ 
-        Function to find target inside 1D self.grid_points and creating a Base1DMomentMorphInterpolator 
+        """
+        Function to find target inside 1D self.grid_points and creating a Base1DMomentMorphInterpolator
         on this subset.
         """
         target_bin = np.digitize(target_point.squeeze(), self.grid_points.squeeze())
@@ -379,8 +395,8 @@ class MomentMorphInterpolator(BinnedInterpolator):
         return Interpolator(target_point, **kwargs)
 
     def _interpolate2D(self, target_point, **kwargs):
-        """ 
-        Function to find target inside 2D self.grid_points and creating a Base2DTriangularMomentMorphInterpolator 
+        """
+        Function to find target inside 2D self.grid_points and creating a Base2DTriangularMomentMorphInterpolator
         on this subset.
         """
         simplex_inds = self.triangulation.simplices[
@@ -397,7 +413,7 @@ class MomentMorphInterpolator(BinnedInterpolator):
         """
         Takes a grid of binned pdfs for a bunch of different parameters
         and interpolates it to given value of those parameters.
-        This function calls implementations of the moment morphing interpolation 
+        This function calls implementations of the moment morphing interpolation
         pocedure introduced in [1].
 
         Parameters

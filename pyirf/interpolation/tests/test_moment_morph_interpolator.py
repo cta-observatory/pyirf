@@ -2,6 +2,10 @@ import numpy as np
 import pytest
 from scipy.stats import norm
 
+from pyirf.interpolation.moment_morph_interpolator import (
+    Base2DTriangularMomentMorphInterpolator,
+)
+
 
 def expected_mean(a, b):
     return 5 + (a / 5) + (b / 15)
@@ -696,3 +700,22 @@ def test_MomentMorphInterpolator_3D_Grid():
             bin_contents=bin_contents,
             axis=-1,
         )
+
+
+def test_Base1DMomentMorphInterpolator_dirac_delta_input():
+    from pyirf.interpolation import Base1DMomentMorphInterpolator
+
+    grid = np.array([[1], [3]])
+    bin_edges = np.array([0, 1, 2, 3, 4])
+    bin_contents = np.array(
+        [
+            [[0, 1, 0, 0], [0.25, 0.25, 0.25, 0.25]],
+            [[0, 0, 0, 1], [0.25, 0.25, 0.25, 0.25]],
+        ]
+    )
+    target = np.array([2])
+
+    interp = Base1DMomentMorphInterpolator(grid, bin_edges, bin_contents)
+    res = interp(target)
+
+    assert np.allclose(res, np.array([[0, 0, 1, 0], [0.25, 0.25, 0.25, 0.25]]))
