@@ -14,6 +14,25 @@ __all__ = [
 
 class BaseMomentMorphInterpolator(BinnedInterpolator, metaclass=ABCMeta):
     def __init__(self, grid_points, bin_edges, bin_contents):
+        """
+        Abstract base class implementing the MomentMorphInterpolation. 
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(N, ...)
+            Grid points at which interpolation templates exist
+        bin_edges: np.ndarray, shape=(M+1)
+            Edges of the data binning
+        bin_content: np.ndarray, shape=(N, ..., M)
+            Content of each bin in bin_edges for
+            each point in grid_points. First dimesion has to correspond to number
+            of grid_points, last dimension has to correspond to number of bins for
+            the quantity that should be interpolated (e.g. the Migra axis for EDisp)
+
+        Note
+        ----
+            Also calls BinnedInterpolator's __init__.
+        """
         super().__init__(grid_points, bin_edges, bin_contents)
 
     @abstractmethod
@@ -178,6 +197,25 @@ class BaseMomentMorphInterpolator(BinnedInterpolator, metaclass=ABCMeta):
 
 class Base2DTriangularMomentMorphInterpolator(BaseMomentMorphInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents):
+        """
+        Base class implementing the MomentMorphInterpolation in a 2D triangle. 
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(3, 2)
+            Grid points at which interpolation templates exist
+        bin_edges: np.ndarray, shape=(M+1)
+            Edges of the data binning
+        bin_content: np.ndarray, shape=(3, ..., M)
+            Content of each bin in bin_edges for
+            each point in grid_points. First dimesion has to correspond to number
+            of grid_points, last dimension has to correspond to number of bins for
+            the quantity that should be interpolated (e.g. the Migra axis for EDisp)
+
+        Note
+        ----
+            Also calls BaseMomentMorphInterpolator's __init__.
+        """
         if grid_points.shape != (3, 2):
             raise ValueError("This base class can only interpolate in a triangle.")
 
@@ -229,6 +267,25 @@ class Base2DTriangularMomentMorphInterpolator(BaseMomentMorphInterpolator):
 
 class Base1DMomentMorphInterpolator(BaseMomentMorphInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents):
+        """
+        Base class implementing the MomentMorphInterpolation between two points. 
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(2)
+            Grid points at which interpolation templates exist
+        bin_edges: np.ndarray, shape=(M+1)
+            Edges of the data binning
+        bin_content: np.ndarray, shape=(2, ..., M)
+            Content of each bin in bin_edges for
+            each point in grid_points. First dimesion has to correspond to number
+            of grid_points, last dimension has to correspond to number of bins for
+            the quantity that should be interpolated (e.g. the Migra axis for EDisp)
+
+        Note
+        ----
+            Also calls BaseMomentMorphInterpolator's __init__.
+        """
         if grid_points.shape != (2, 1):
             raise ValueError("This base class can only interpolate between two points.")
 
@@ -271,6 +328,29 @@ class Base1DMomentMorphInterpolator(BaseMomentMorphInterpolator):
 
 class MomentMorphInterpolator(BinnedInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents, axis):
+        """
+        Actual interpolator class utilizing MomentMorphInterpolations. 
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(N, ...)
+            Grid points at which interpolation templates exist. May be one ot two dimensional.
+        bin_edges: np.ndarray, shape=(M+1)
+            Edges of the data binning
+        bin_content: np.ndarray, shape=(N, ..., M, ...)
+            Content of each bin in bin_edges for
+            each point in grid_points. First dimesion has to correspond to number
+            of grid_points. Interpolation dimension, meaning the
+            the quantity that should be interpolated (e.g. the Migra axis for EDisp)
+            has to be at axis specified by axis-keyword as well as having entries 
+            corresponding to the number of bins given through bin_edges keyword.
+        axis:
+            Location of the interpolation axis, see bin_contents keyword doc.
+
+        Note
+        ----
+            Also calls BinnedInterpolator's __init__.
+        """
         self.axis = axis
 
         # To ease compuation, the actual histograms have to be at index -1
@@ -284,6 +364,10 @@ class MomentMorphInterpolator(BinnedInterpolator):
             )
 
     def _interpolate1D(self, target_point, **kwargs):
+        """ 
+        Function to find target inside 1D self.grid_points and creating a Base1DMomentMorphInterpolator 
+        on this subset.
+        """
         target_bin = np.digitize(target_point.squeeze(), self.grid_points.squeeze())
         segment_inds = np.array([target_bin - 1, target_bin], "int")
         Interpolator = Base1DMomentMorphInterpolator(
@@ -295,6 +379,10 @@ class MomentMorphInterpolator(BinnedInterpolator):
         return Interpolator(target_point, **kwargs)
 
     def _interpolate2D(self, target_point, **kwargs):
+        """ 
+        Function to find target inside 2D self.grid_points and creating a Base2DTriangularMomentMorphInterpolator 
+        on this subset.
+        """
         simplex_inds = self.triangulation.simplices[
             self.triangulation.find_simplex(target_point)
         ].squeeze()
@@ -306,6 +394,31 @@ class MomentMorphInterpolator(BinnedInterpolator):
         return Interpolator(target_point, **kwargs)
 
     def interpolate(self, target_point, **kwargs):
+        """
+        Takes a grid of binned pdfs for a bunch of different parameters
+        and interpolates it to given value of those parameters.
+        This function calls implementations of the moment morphing interpolation 
+        pocedure introduced in [1].
+
+        Parameters
+        ----------
+        target_point: numpy.ndarray
+            Value for which the interpolation is performed (target point)
+
+        **kwargs:
+            Currently ignored
+
+        Returns
+        -------
+        f_new: numpy.ndarray, shape=(1,...,M,...)
+            Interpolated and binned pdf
+
+        References
+        ----------
+        .. [1] M. Baak, S. Gadatsch, R. Harrington and W. Verkerke (2015). Interpolation between
+               multi-dimensional histograms using a new non-linear moment morphing method
+               Nucl. Instrum. Methods Phys. Res. A 771, 39-48. https://doi.org/10.1016/j.nima.2014.10.033
+        """
         if self.grid_dim == 1:
             interpolant = self._interpolate1D(target_point, **kwargs)
         elif self.grid_dim == 2:
