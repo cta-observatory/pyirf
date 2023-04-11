@@ -250,10 +250,9 @@ class Base2DTriangularMomentMorphInterpolator(BaseMomentMorphInterpolator):
 
         References
         ----------
-            .. [1] https://codeplea.com/triangular-interpolation
+        .. [1] https://codeplea.com/triangular-interpolation
         """
         # Compute distance vectors between the grid points
-        d12 = self.grid_points[0, :] - self.grid_points[1, :]
         d13 = self.grid_points[0, :] - self.grid_points[2, :]
         d23 = self.grid_points[1, :] - self.grid_points[2, :]
 
@@ -327,7 +326,7 @@ class Base1DMomentMorphInterpolator(BaseMomentMorphInterpolator):
 
         References
         ----------
-            .. [1] M. Baak, S. Gadatsch, R. Harrington and W. Verkerke (2015). Interpolation between
+        .. [1] M. Baak, S. Gadatsch, R. Harrington and W. Verkerke (2015). Interpolation between
                multi-dimensional histograms using a new non-linear moment morphing method
                Nucl. Instrum. Methods Phys. Res. A 771, 39-48. https://doi.org/10.1016/j.nima.2014.10.033
         """
