@@ -177,8 +177,6 @@ class BaseMomentMorphInterpolator(BinnedInterpolator, metaclass=ABCMeta):
 
         transf_hist = self._lookup(transf_mids)
 
-
-
         f_new = np.sum(
             np.expand_dims(cs, -1) * transf_hist * np.expand_dims(aij, -1), axis=0
         )

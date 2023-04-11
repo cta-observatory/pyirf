@@ -2,10 +2,6 @@ import numpy as np
 import pytest
 from scipy.stats import norm
 
-from pyirf.interpolation.moment_morph_interpolator import (
-    Base2DTriangularMomentMorphInterpolator,
-)
-
 
 def expected_mean(a, b):
     return 5 + (a / 5) + (b / 15)
