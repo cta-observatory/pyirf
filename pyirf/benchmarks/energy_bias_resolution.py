@@ -55,7 +55,7 @@ def energy_bias_resolution(
     events,
     energy_bins,
     energy_type="true",
-    bias_function=np.median,
+    bias_function=np.nanmedian,
     resolution_function=inter_quantile_distance,
 ):
     """
