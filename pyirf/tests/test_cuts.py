@@ -143,8 +143,8 @@ def test_calculate_percentile_cuts_weights():
     values = np.append(np.sort(dist1.rvs(size=N)), np.sort(dist2.rvs(size=N))) * u.deg
     bin_values = np.append(np.zeros(N), np.ones(N)) * u.m
     weights = np.append(
-        np.concatenate((68 / (N / 2), 32 / (N / 2))),
-        np.concatenate((68 / (N / 2), 32 / (N / 2))),
+        np.concatenate((68 * np.ones(N / 2), 32 * np.ones(N / 2))),
+        np.concatenate((68 * np.ones(N / 2), 32 * np.ones(N / 2))),
     )
     # add some values outside of binning to test that under/overflow are ignored
     bin_values[10] = 5 * u.m
