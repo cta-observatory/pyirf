@@ -17,6 +17,31 @@ def events():
     )
 
 
+def test_weighted_quantile():
+    from pyirf.cuts import weighted_quantile
+
+    vals = np.arange(1, 5)
+    unequal_weights = np.array([1, 1, 1, 3])
+    equal_weights = np.ones(4)
+    weights_too_long = np.ones(5)
+    assert np.allclose(
+        weighted_quantile(vals, equal_weights, quantiles=0.5, interpolate=False), 2.0
+    )
+    assert np.allclose(
+        weighted_quantile(vals, equal_weights, quantiles=0.5, interpolate=True), 2.5
+    )
+
+    assert np.allclose(
+        weighted_quantile(vals, unequal_weights, quantiles=0.5, interpolate=False), 3.0
+    )
+    assert np.allclose(
+        weighted_quantile(vals, unequal_weights, quantiles=0.5, interpolate=True), 3.25
+    )
+
+    with pytest.raises(AssertionError):
+        weighted_quantile(vals, weights_too_long)
+
+
 def test_calculate_percentile_cuts():
     from pyirf.cuts import calculate_percentile_cut
 
@@ -93,7 +118,9 @@ def test_calculate_percentile_cuts_smoothing():
     bin_values = np.append(np.zeros(N), np.ones(N)) * u.m
     bins = [-0.5, 0.5, 1.5] * u.m
 
-    cuts = calculate_percentile_cut(values, bin_values, bins, fill_value=np.nan, smoothing=1)
+    cuts = calculate_percentile_cut(
+        values, bin_values, bins, fill_value=np.nan, smoothing=1
+    )
     assert np.all(cuts["low"] == bins[:-1])
     assert np.all(cuts["high"] == bins[1:])
 
@@ -104,10 +131,50 @@ def test_calculate_percentile_cuts_smoothing():
     )
 
 
+def test_calculate_percentile_cuts_weights():
+    from pyirf.cuts import calculate_percentile_cut
+
+    np.random.seed(0)
+
+    dist1 = norm(0, 1)
+    dist2 = norm(10, 1)
+    N = int(1e4)
+
+    values = np.append(np.sort(dist1.rvs(size=N)), np.sort(dist2.rvs(size=N))) * u.deg
+    bin_values = np.append(np.zeros(N), np.ones(N)) * u.m
+    weights = np.append(
+        np.concatenate((68 / (N / 2), 32 / (N / 2))),
+        np.concatenate((68 / (N / 2), 32 / (N / 2))),
+    )
+    # add some values outside of binning to test that under/overflow are ignored
+    bin_values[10] = 5 * u.m
+    bin_values[30] = -1 * u.m
+
+    bins = [-0.5, 0.5, 1.5] * u.m
+
+    cuts = calculate_percentile_cut(
+        values, bin_values, bins, weights=weights, fill_value=np.nan * u.deg
+    )
+    assert np.all(cuts["low"] == bins[:-1])
+    assert np.all(cuts["high"] == bins[1:])
+
+    assert np.allclose(
+        cuts["cut"].to_value(u.deg),
+        [0, 10],
+        rtol=0.1,
+    )
+
+
 def test_evaluate_binned_cut():
     from pyirf.cuts import evaluate_binned_cut
 
-    cuts = QTable({"low": [0, 1], "high": [1, 2], "cut": [100, 1000],})
+    cuts = QTable(
+        {
+            "low": [0, 1],
+            "high": [1, 2],
+            "cut": [100, 1000],
+        }
+    )
 
     survived = evaluate_binned_cut(
         np.array([500, 1500, 50, 2000, 25, 800]),
@@ -119,7 +186,11 @@ def test_evaluate_binned_cut():
 
     # test with quantity
     cuts = QTable(
-        {"low": [0, 1] * u.TeV, "high": [1, 2] * u.TeV, "cut": [100, 1000] * u.m,}
+        {
+            "low": [0, 1] * u.TeV,
+            "high": [1, 2] * u.TeV,
+            "cut": [100, 1000] * u.m,
+        }
     )
 
     survived = evaluate_binned_cut(
@@ -135,6 +206,7 @@ def test_compare_irf_cuts():
     """Tests compare_irf_cuts."""
 
     from pyirf.cuts import compare_irf_cuts
+
     # first create some dummy cuts
     enbins = np.logspace(-2, 3) * u.TeV
     thcuts1 = np.linspace(0.5, 0.1) * u.deg
@@ -151,7 +223,7 @@ def test_compare_irf_cuts():
 
 
 def test_calculate_percentile_cuts_table():
-    '''Test that calculate percentile cuts does not modify input table'''
+    """Test that calculate percentile cuts does not modify input table"""
     from pyirf.cuts import calculate_percentile_cut
 
     np.random.seed(0)
@@ -160,10 +232,12 @@ def test_calculate_percentile_cuts_table():
     dist2 = norm(10, 1)
     N = int(1e4)
 
-    table = QTable({
-        "foo": np.append(dist1.rvs(size=N), dist2.rvs(size=N)) * u.deg,
-        "bar": np.append(np.zeros(N), np.ones(N)) * u.m,
-    })
+    table = QTable(
+        {
+            "foo": np.append(dist1.rvs(size=N), dist2.rvs(size=N)) * u.deg,
+            "bar": np.append(np.zeros(N), np.ones(N)) * u.m,
+        }
+    )
 
     bins = [-0.5, 0.5, 1.5] * u.m
     cuts = calculate_percentile_cut(
