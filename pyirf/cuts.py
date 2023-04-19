@@ -33,8 +33,8 @@ def weighted_quantile(values, weights, quantiles=0.5, interpolate=False):
         Quantile
     """
     assert len(values) == len(weights), "values and weights must be of the same length"
-    values = [values[~np.isnan(values)]]
-    weights = [weights[~np.isnan(values)]]
+    values = values[~np.isnan(values)]
+    weights = weights[~np.isnan(values)]
 
     i = values.argsort()
     sorted_weights = weights[i]
