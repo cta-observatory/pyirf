@@ -13,38 +13,39 @@ __all__ = [
 ]
 
 
-def _weighted_quantile_arg(values, weights, q=0.5):
-    """Helper function for weighted quantile
-    Returns:
-    index of the weighted quantile
+def weighted_quantile(values, weights, quantiles=0.5, interpolate=False):
     """
-    values = values[~np.isnan(values)]
-    weights = weights[~np.isnan(values)]
-    indices = np.argsort(values)
-    sorted_indices = np.arange(len(values))[indices]
-    medianidx = (weights[indices].cumsum() / weights[indices].sum()).searchsorted(q)
-    if (0 <= medianidx) and (medianidx < len(values)):
-        return sorted_indices[medianidx]
-    else:
-        return np.nan
+    Calculate weighted quantiles.
 
+    Parameters
+    ----------
+    values : np.array
+    weights : np.array
+        Has to be of same length as ```values```.
+    quantiles : float or array[float], optional, between (0,1)
+        By default 0.5, i.e. Median
+    interpolate : bool, optional
+        Interpolate between values?, by default False
 
-def weighted_quantile(values, weights, q=0.5):
-    """Calculate weighted quantile
-    Args:
-    values , data array
-    weights, weight array
-    q, Quantile from (0,1)
-    Returns:
-    weighted quantile
+    Returns
+    -------
+    float
+        Quantile
     """
-    if len(values) != len(weights):
-        raise ValueError("shape of values and weights doesn't match!")
-    index = _weighted_quantile_arg(values, weights, q=q)
-    if index != np.nan:
-        return values[index]
+    assert len(values) == len(weights), "values and weights must be of the same length"
+    values = [values[~np.isnan(values)]]
+    weights = [weights[~np.isnan(values)]]
+
+    i = values.argsort()
+    sorted_weights = weights[i]
+    sorted_values = values[i]
+    Sn = sorted_weights.cumsum()
+
+    if interpolate:
+        Pn = (Sn - sorted_weights / 2) / Sn[-1]
+        return np.interp(quantiles, Pn, sorted_values)
     else:
-        return np.nan
+        return sorted_values[np.searchsorted(Sn, quantiles * Sn[-1])]
 
 
 def calculate_percentile_cut(
@@ -130,7 +131,7 @@ def calculate_percentile_cut(
             cut_table["cut"][bin_idx] = fill_value
         else:
             value = weighted_quantile(
-                group["values"], group["weights"], percentile / 100
+                group["values"], group["weights"], percentile / 100, interpolate=True
             )
             if min_value is not None or max_value is not None:
                 value = np.clip(value, min_value, max_value)
