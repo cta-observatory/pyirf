@@ -3,7 +3,7 @@ import warnings
 
 import numpy as np
 from pyirf.interpolation.base_interpolators import (
-    BinnedInterpolator,
+    DiscretePDFInterpolator,
     ParametrizedInterpolator,
 )
 from pyirf.interpolation.griddata_interpolator import GridDataInterpolator
@@ -220,9 +220,9 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         if extrapolator_kwargs is None:
             extrapolator_kwargs = {}
 
-        if not issubclass(interpolator_cls, BinnedInterpolator):
+        if not issubclass(interpolator_cls, DiscretePDFInterpolator):
             raise TypeError(
-                f"interpolator_cls must be a BinnedInterpolator subclass, got {interpolator_cls}"
+                f"interpolator_cls must be a DiscretePDFInterpolator subclass, got {interpolator_cls}"
             )
 
         self.interpolator = interpolator_cls(

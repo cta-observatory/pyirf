@@ -5,7 +5,7 @@ import numpy as np
 from pyirf.binning import bin_center
 from scipy.spatial import Delaunay
 
-__all__ = ["BaseInterpolator", "ParametrizedInterpolator", "BinnedInterpolator"]
+__all__ = ["BaseInterpolator", "ParametrizedInterpolator", "DiscretePDFInterpolator"]
 
 
 class BaseInterpolator(metaclass=ABCMeta):
@@ -80,14 +80,14 @@ class ParametrizedInterpolator(BaseInterpolator):
             self.params = self.params[..., np.newaxis]
 
 
-class BinnedInterpolator(BaseInterpolator):
+class DiscretePDFInterpolator(BaseInterpolator):
     """
     Base class for all interpolators used with binned IRF components like EDisp.
     Derived from pyirf.interpolation.BaseInterpolator
     """
 
     def __init__(self, grid_points, bin_edges, bin_contents):
-        """BinnedInterpolator
+        """DiscretePDFInterpolator
 
         Parameters
         ----------

@@ -4,7 +4,7 @@ Collection of interpolation methods
 
 from .base_interpolators import (
     BaseInterpolator,
-    BinnedInterpolator,
+    DiscretePDFInterpolator,
     ParametrizedInterpolator,
 )
 from .griddata_interpolator import GridDataInterpolator
