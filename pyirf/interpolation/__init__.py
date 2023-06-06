@@ -7,9 +7,13 @@ from .base_interpolators import (
     DiscretePDFInterpolator,
     ParametrizedInterpolator,
 )
-from .component_estimators import AEFFEstimator, RAD_MAXEstimator
+from .component_estimators import (
+    AEFFEstimator,
+    EDISP_2DEstimator,
+    PSF_TABLEEstimator,
+    RAD_MAXEstimator,
+)
 from .griddata_interpolator import GridDataInterpolator
-from .interpolate_irfs import interpolate_energy_dispersion, interpolate_psf_table
 from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
@@ -20,6 +24,6 @@ __all__ = [
     "QuantileInterpolator",
     "AEFFEstimator",
     "RAD_MAXEstimator",
-    "interpolate_energy_dispersion",
-    "interpolate_psf_table",
+    "EDISP_2DEstimator",
+    "PSF_TABLEEstimator",
 ]

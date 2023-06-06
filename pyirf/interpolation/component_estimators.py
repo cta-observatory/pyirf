@@ -9,6 +9,7 @@ from pyirf.interpolation.base_interpolators import (
 )
 from pyirf.interpolation.griddata_interpolator import GridDataInterpolator
 from pyirf.interpolation.quantile_interpolator import QuantileInterpolator
+from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
 
 __all__ = [
@@ -17,6 +18,8 @@ __all__ = [
     "ParametrizedComponentEstimator",
     "AEFFEstimator",
     "RAD_MAXEstimator",
+    "EDISP_2DEstimator",
+    "PSF_TABLEEstimator",
 ]
 
 
@@ -429,8 +432,8 @@ class RAD_MAXEstimator(ParametrizedComponentEstimator):
         extrapolator_kwargs=None,
     ):
         """
-        Estimator class for effective areas. Takes a grid of effective areas
-        for a bunch of different parameters and inter-/extrapolates (log) effective areas
+        Estimator class for RAD_MAX tables. Takes a grid of rad max values
+        for a bunch of different parameters and inter-/extrapolates rad max values
         to given value of those parameters.
 
 
@@ -472,7 +475,7 @@ class RAD_MAXEstimator(ParametrizedComponentEstimator):
 
     def __call__(self, target_point):
         """
-        Estimating effective area at target_point, inter-/extrapolates as needed and
+        Estimating rad max table at target_point, inter-/extrapolates as needed and
         specified in __init__.
 
         Parameters
@@ -489,3 +492,182 @@ class RAD_MAXEstimator(ParametrizedComponentEstimator):
         """
 
         return super().__call__(target_point)
+
+
+class EDISP_2DEstimator(DiscretePDFComponentEstimator):
+    def __init__(
+        self,
+        grid_points,
+        migra_bins,
+        energy_dispersion,
+        interpolator_cls=QuantileInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+        axis=-2,
+    ):
+        """
+        Estimator class for energy dispersions. Takes a grid of energy dispersions
+        for a bunch of different parameters and inter-/extrapolates energy dispersions
+        to given value of those parameters.
+
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(n_points, n_dims)
+            Grid points at which interpolation templates exist
+        migra_bins: np.ndarray, shape=(n_migration_bins+1)
+            Common bin edges along migration axis.
+        energy_dispersion: np.ndarray, shape=(n_points, ..., n_migration_bins, ...)
+            EDISP MATRIX. Class is EDISP_2D compatible, which would require
+            shape=(n_points, n_energy_bins, n_migration_bins, n_fov_offset_bins).
+            This is assumed as default. If these axes are in different order
+            or e.g. missing a fov_offset axis, the axis containing n_migration_bins
+            has to be specified through axis.
+        interpolator_cls:
+            pyirf interpolator class, defaults to GridDataInterpolator.
+        interpolator_kwargs: dict
+            Dict of all kwargs that are passed to the interpolator, defaults to
+            None which is the same as passing an empty dict.
+        extrapolator_cls:
+            pyirf extrapolator class. Can be and defaults to ``None``,
+            which raises an error if a target_point is outside the grid
+            and extrapolation would be needed.
+        extrapolator_kwargs: dict
+            Dict of all kwargs that are passed to the extrapolator, defaults to
+            None which is the same as passing an empty dict.
+        axis:
+            Axis, along which the actual n_migration_bins are. Input is assumed to
+            be EDISP_2D compatible, so this defaults to -2
+
+        Note
+        ----
+            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
+            and ParametrizedEstimator
+        """
+
+        self.axis = axis
+
+        super().__init__(
+            grid_points=grid_points,
+            bin_edges=migra_bins,
+            bin_contents=np.swapaxes(energy_dispersion, axis, -1),
+            interpolator_cls=interpolator_cls,
+            interpolator_kwargs=interpolator_kwargs,
+            extrapolator_cls=extrapolator_cls,
+            extrapolator_kwargs=extrapolator_kwargs,
+        )
+
+    def __call__(self, target_point):
+        """
+        Estimating energy dispersions at target_point, inter-/extrapolates as needed and
+        specified in __init__.
+
+        Parameters
+        ----------
+        target_point: np.ndarray, shape=(1, n_dims)
+            Target for inter-/extrapolation
+
+        Returns
+        -------
+        edisp_interp: np.ndarray, shape=(n_points, ..., n_migration_bins, ...)
+            Interpolated EDISP matrix with same shape as input matrices. For EDISP_2D
+            of shape (n_points, n_energy_bins, n_migration_bins, n_fov_offset_bins)
+
+        """
+
+        return np.swapaxes(super().__call__(target_point), -1, self.axis)
+
+
+class PSF_TABLEEstimator(DiscretePDFComponentEstimator):
+    @u.quantity_input(psf=u.sr**-1, source_offset_bins=u.deg)
+    def __init__(
+        self,
+        grid_points,
+        source_offset_bins,
+        psf,
+        interpolator_cls=QuantileInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+        axis=-1,
+    ):
+        """
+        Estimator class for point spread functions. Takes a grid of psfs
+        for a bunch of different parameters and inter-/extrapolates psfs
+        to given value of those parameters.
+
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(n_points, n_dims)
+            Grid points at which interpolation templates exist
+        source_offset_bins: np.ndarray, shape=(n_source_offset_bins+1) of astropy.units.Quantity[deg]
+            Common bin edges along source offset axis.
+        psf: np.ndarray, shape=(n_points, ..., n_source_offset_bins) of astropy.units.Quantity[sr**-1]
+            PSF Tables. Class is PSF_TABLE compatible, which would require
+            shape=(n_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins).
+            This is assumed as default. If these axes are in different order
+            the axis containing n_source_offset_bins has to be specified through axis.
+        interpolator_cls:
+            pyirf interpolator class, defaults to GridDataInterpolator.
+        interpolator_kwargs: dict
+            Dict of all kwargs that are passed to the interpolator, defaults to
+            None which is the same as passing an empty dict.
+        extrapolator_cls:
+            pyirf extrapolator class. Can be and defaults to ``None``,
+            which raises an error if a target_point is outside the grid
+            and extrapolation would be needed.
+        extrapolator_kwargs: dict
+            Dict of all kwargs that are passed to the extrapolator, defaults to
+            None which is the same as passing an empty dict.
+        axis:
+            Axis, along which the actual n_source_offset_bins are. Input is assumed to
+            be PSF_TABLE compatible, so this defaults to -1
+
+        Note
+        ----
+            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
+            and ParametrizedEstimator
+        """
+
+        self.axis = axis
+
+        psf = np.swapaxes(psf, axis, -1)
+
+        # Renormalize along the source offset axis to have a proper PDF
+        self.omegas = np.diff(cone_solid_angle(source_offset_bins))
+        psf_normed = psf * self.omegas
+
+        super().__init__(
+            grid_points=grid_points,
+            bin_edges=source_offset_bins,
+            bin_contents=psf_normed,
+            interpolator_cls=interpolator_cls,
+            interpolator_kwargs=interpolator_kwargs,
+            extrapolator_cls=extrapolator_cls,
+            extrapolator_kwargs=extrapolator_kwargs,
+        )
+
+    def __call__(self, target_point):
+        """
+        Estimating energy dispersions at target_point, inter-/extrapolates as needed and
+        specified in __init__.
+
+        Parameters
+        ----------
+        target_point: np.ndarray, shape=(1, n_dims)
+            Target for inter-/extrapolation
+
+        Returns
+        -------
+        psf_interp: np.ndarray, shape=(n_points, ..., n_source_offset_bins)
+            Interpolated psf table with same shape as input matrices. For PSF_TABLE
+            of shape (n_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
+
+        """
+
+        interpolated_psf_normed = super().__call__(target_point)
+
+        # Undo normalisation to get a proper PSF and return
+        return np.swapaxes(interpolated_psf_normed / self.omegas, -1, self.axis)

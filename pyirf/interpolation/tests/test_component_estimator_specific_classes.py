@@ -1,24 +1,30 @@
 import astropy.units as u
 import numpy as np
 import pyirf.interpolation as interp
+from pyirf.irf.energy_dispersion import energy_dispersion
 from pyirf.utils import cone_solid_angle
 from scipy.stats import expon
 
 
-def test_interpolate_energy_dispersion(prod5_irfs):
-    from pyirf.interpolation import interpolate_energy_dispersion
+def test_EDISP_2DEstimator(prod5_irfs):
+    from pyirf.interpolation import EDISP_2DEstimator, QuantileInterpolator
 
     zen_pnt = np.array([key.value for key in prod5_irfs.keys()])
     edisps = np.array([irf["edisp"].data for irf in prod5_irfs.values()])
     bin_edges = list(prod5_irfs.values())[0]["edisp"].axes["migra"].edges
 
-    interp = interpolate_energy_dispersion(
-        migra_bins=bin_edges,
-        edisps=edisps[[0, 2]],
+    estimator = EDISP_2DEstimator(
         grid_points=zen_pnt[[0, 2]],
-        target_point=zen_pnt[[1]],
-        quantile_resolution=1e-3,
+        migra_bins=bin_edges,
+        energy_dispersion=edisps[[0, 2]],
+        interpolator_cls=QuantileInterpolator,
+        interpolator_kwargs={"quantile_resolution": 1e-3},
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+        axis=-2,
     )
+
+    interp = estimator(target_point=zen_pnt[[1]])
 
     assert np.max(interp) <= 1
     assert np.min(interp) >= 0
@@ -32,8 +38,8 @@ def test_interpolate_energy_dispersion(prod5_irfs):
     assert interp.shape == edisps[[1]].shape
 
 
-def test_interpolate_psf_table():
-    from pyirf.interpolation import interpolate_psf_table
+def test_PSF_TABLEEstimator():
+    from pyirf.interpolation import PSF_TABLEEstimator, QuantileInterpolator
 
     # dummy psf_table with 30 bins of true energ and 6 bins of fov-offset, rad-axis
     # to be inflated later
@@ -50,17 +56,25 @@ def test_interpolate_psf_table():
 
         return normed_hist / omegas
 
-    dummy_psfs = np.array(
-        [np.apply_along_axis(hist, -1, dummy_psf_template * pnt) for pnt in zen_pnt]
+    dummy_psfs = (
+        np.array(
+            [np.apply_along_axis(hist, -1, dummy_psf_template * pnt) for pnt in zen_pnt]
+        )
+        * u.sr**-1
     )
 
-    interp = interpolate_psf_table(
-        source_offset_bins=bin_edges,
-        psfs=dummy_psfs[[0, 2]],
+    estimator = PSF_TABLEEstimator(
         grid_points=zen_pnt[[0, 2]],
-        target_point=zen_pnt[[1]],
-        quantile_resolution=1e-3,
+        source_offset_bins=bin_edges,
+        psf=dummy_psfs[[0, 2]],
+        interpolator_cls=QuantileInterpolator,
+        interpolator_kwargs={"quantile_resolution": 1e-3},
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+        axis=-1,
     )
+
+    interp = estimator(target_point=zen_pnt[[1]])
 
     interp *= omegas[np.newaxis, np.newaxis, np.newaxis, ...]
 

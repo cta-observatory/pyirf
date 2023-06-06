@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d
 
-from .base_interpolators import DiscretePDFInterpolator 
+from .base_interpolators import DiscretePDFInterpolator
 
 __all__ = ["QuantileInterpolator"]
 
@@ -149,9 +149,7 @@ def norm_pdf(pdf_values):
 
 
 class QuantileInterpolator(DiscretePDFInterpolator):
-    def __init__(
-        self, grid_points, bin_edges, bin_contents, axis, quantile_resolution=1e-3
-    ):
+    def __init__(self, grid_points, bin_edges, bin_contents, quantile_resolution=1e-3):
         """BinnedInterpolator constructor
 
         Parameters
@@ -163,40 +161,29 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         bin_contents: np.ndarray
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
-            of grid_points, the dimension indicated by axis has to correspond to number
+            of grid_points, the last axis has to correspond to number
             of bins for the quantity that should be interpolated
             (e.g. the Migra axis for EDisp)
-        axis: int
-            Interpolation axis
         quantile_resolution: float
             Spacing between quantiles
 
         Raises
         ------
-        TypeError:
-            When bin_edges is not a np.ndarray
-        TypeError:
-            When bin_content is not a np.ndarray
         ValueError:
-            When number of bins in bin_edges and contents bin_contents is
-            not matching
-        ValueError:
-            When number of histograms in bin_contents and points in grid_points
-            is not matching
+            When last axis in bin_contents and number of bins are not equal.
 
         Note
         ----
-            Also calls __init__ of pyirf.interpolation.BaseInterpolator and 
+            Also calls __init__ of pyirf.interpolation.BaseInterpolator and
             DiscretePDFInterpolator
         """
-        self.axis = axis
-
         # Remember input shape
         self.input_shape = bin_contents.shape
 
-        # To have the needed axis always at the last index, as the number of indices is
-        # not safely propageted through the interpolation but the last element remains the last element
-        bin_contents = np.swapaxes(bin_contents, self.axis, -1)
+        if self.input_shape[-1] != len(bin_edges) - 1:
+            raise ValueError(
+                "Number of bins along last axis and those specified by bin_edges not matching."
+            )
 
         # include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise
         # start at a value != 0, also extend edges with one bin to the left
@@ -258,6 +245,4 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         normed_interpolated_pdfs = norm_pdf(interpolated_pdfs)
 
         # Re-swap axes and set all nans to zero
-        return np.swapaxes(
-            np.nan_to_num(normed_interpolated_pdfs), self.axis, -1
-        ).reshape(1, *self.input_shape[1:])
+        return np.nan_to_num(normed_interpolated_pdfs).reshape(1, *self.input_shape[1:])
