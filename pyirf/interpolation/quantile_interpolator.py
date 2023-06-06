@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d
 
-from .base_interpolators import BinnedInterpolator
+from .base_interpolators import DiscretePDFInterpolator 
 
 __all__ = ["QuantileInterpolator"]
 
@@ -148,7 +148,7 @@ def norm_pdf(pdf_values):
     return normed_pdf_values
 
 
-class QuantileInterpolator(BinnedInterpolator):
+class QuantileInterpolator(DiscretePDFInterpolator):
     def __init__(
         self, grid_points, bin_edges, bin_contents, axis, quantile_resolution=1e-3
     ):
@@ -186,7 +186,8 @@ class QuantileInterpolator(BinnedInterpolator):
 
         Note
         ----
-            Also calls pyirf.interpolation.BaseInterpolators.__call__
+            Also calls __init__ of pyirf.interpolation.BaseInterpolator and 
+            DiscretePDFInterpolator
         """
         self.axis = axis
 
@@ -218,7 +219,7 @@ class QuantileInterpolator(BinnedInterpolator):
         # compute ppf values at quantiles, determine quantile step of [1]
         self.ppfs = ppf_values(self.bin_mids, self.cdfs, self.quantiles)
 
-    def interpolate(self, target_point, **kwargs):
+    def interpolate(self, target_point):
         """
         Takes a grid of binned pdfs for a bunch of different parameters
         and interpolates it to given value of those parameters.
@@ -231,9 +232,6 @@ class QuantileInterpolator(BinnedInterpolator):
         ----------
         target_point: numpy.ndarray, shape=(O)
             Value for which the interpolation is performed (target point)
-
-        **kwargs:
-            Currently ignored
 
         Returns
         -------

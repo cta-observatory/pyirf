@@ -17,6 +17,7 @@ def test_GridDataInterpolator_1DGrid():
     Interpolator = GridDataInterpolator(
         grid_points=grid_points,
         params=dummy_data,
+        griddata_kwargs={"method": "linear"}
     )
     interpolant = Interpolator(target_point)
 
@@ -43,6 +44,7 @@ def test_GridDataInterpolator_2DGrid():
     Interpolator = GridDataInterpolator(
         grid_points=grid_points,
         params=dummy_data,
+        griddata_kwargs={"method": "linear"}
     )
     interpolant = Interpolator(target_point)
 

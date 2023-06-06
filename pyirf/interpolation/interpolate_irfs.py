@@ -58,8 +58,9 @@ def interpolate_effective_area_per_energy_and_fov(
     interp = GridDataInterpolator(
         grid_points=grid_points,
         params=effective_area,
+        griddata_kwargs={"method": method}
     )
-    aeff_interp = interp(target_point, method=method)
+    aeff_interp = interp(target_point)
     # exp it and set to zero too low values
     aeff_interp = np.exp(aeff_interp)
     # 1.1 to correct for numerical uncertainty and interpolation
@@ -193,5 +194,5 @@ def interpolate_rad_max(
     .. [1] https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html
     """
 
-    interp = GridDataInterpolator(grid_points=grid_points, params=rad_max)
-    return interp(target_point, method=method)
+    interp = GridDataInterpolator(grid_points=grid_points, params=rad_max, griddata_kwargs={"method": method})
+    return interp(target_point)
