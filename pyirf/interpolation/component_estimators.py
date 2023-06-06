@@ -1,6 +1,7 @@
 """Classes to estimate (interpolate/extrapolate) actual IRF HDUs"""
 import warnings
 
+import astropy.units as u
 import numpy as np
 from pyirf.interpolation.base_interpolators import (
     DiscretePDFInterpolator,
@@ -14,6 +15,8 @@ __all__ = [
     "BaseComponentEstimator",
     "DiscretePDFComponentEstimator",
     "ParametrizedComponentEstimator",
+    "AEFFEstimator",
+    "RAD_MAXEstimator",
 ]
 
 
@@ -191,7 +194,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
 
         Note
         ----
-            Also calls pyirf.interpolator.BaseComponentInterpolator.__init__
+            Also calls pyirf.component_estimators.BaseComponentEstimator.__init__
         """
 
         super().__init__(
@@ -259,7 +262,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             Corresponding parameter values at each point in grid_points.
             First dimesion has to correspond to number of grid_points.
         interpolator_cls:
-            pyirf interpolator class, defaults to QuantileInterpolator.
+            pyirf interpolator class, defaults to GridDataInterpolator.
         interpolator_kwargs: dict
             Dict of all kwargs that are passed to the interpolator, defaults to
             None which is the same as passing an empty dict.
@@ -282,7 +285,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
 
         Note
         ----
-            Also calls pyirf.interpolator.BaseComponentInterpolator.__init__
+            Also calls pyirf.component_estimators.BaseComponentEstimator.__init__
         """
 
         super().__init__(
@@ -315,3 +318,174 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             self.extrapolator = extrapolator_cls(
                 grid_points, params, **extrapolator_kwargs
             )
+
+
+class AEFFEstimator(ParametrizedComponentEstimator):
+    @u.quantity_input(effective_area=u.m**2, min_effective_area=u.m**2)
+    def __init__(
+        self,
+        grid_points,
+        effective_area,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+        min_effective_area=1 * u.m**2,
+    ):
+        """
+        Estimator class for effective areas. Takes a grid of effective areas
+        for a bunch of different parameters and inter-/extrapolates (log) effective areas
+        to given value of those parameters.
+
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(n_points, n_dims):
+            Grid points at which interpolation templates exist
+        effective_area: np.ndarray of astropy.units.Quantity[area], shape=(n_points, ...)
+            Grid of effective area. Dimensions but the first can in principle be freely
+            chosen. Class is AEFF2D compatible, which would require
+            shape=(n_points, n_energy_bins, n_fov_offset_bins).
+        interpolator_cls:
+            pyirf interpolator class, defaults to GridDataInterpolator.
+        interpolator_kwargs: dict
+            Dict of all kwargs that are passed to the interpolator, defaults to
+            None which is the same as passing an empty dict.
+        extrapolator_cls:
+            pyirf extrapolator class. Can be and defaults to ``None``,
+            which raises an error if a target_point is outside the grid
+            and extrapolation would be needed.
+        extrapolator_kwargs: dict
+            Dict of all kwargs that are passed to the extrapolator, defaults to
+            None which is the same as passing an empty dict.
+        min_effective_area: astropy.units.Quantity[area]
+            Minimum value of effective area to be considered for interpolation. Values
+            lower then this value are set to this value. Defaults to 1 m**2.
+
+
+        Note
+        ----
+            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
+            and ParametrizedEstimator
+        """
+
+        # get rid of units
+        effective_area = effective_area.to_value(u.m**2)
+        min_effective_area = min_effective_area.to_value(u.m**2)
+
+        self.min_effective_area = min_effective_area
+
+        # remove zeros and log it
+        effective_area[
+            effective_area < self.min_effective_area
+        ] = self.min_effective_area
+        effective_area = np.log(effective_area)
+
+        super().__init__(
+            grid_points=grid_points,
+            params=effective_area,
+            interpolator_cls=interpolator_cls,
+            interpolator_kwargs=interpolator_kwargs,
+            extrapolator_cls=extrapolator_cls,
+            extrapolator_kwargs=extrapolator_kwargs,
+        )
+
+    def __call__(self, target_point):
+        """
+        Estimating effective area at target_point, inter-/extrapolates as needed and
+        specified in __init__.
+
+        Parameters
+        ----------
+        target_point: np.ndarray, shape=(1, n_dims)
+            Target for inter-/extrapolation
+
+        Returns
+        -------
+        aeff_interp: np.ndarray of (astropy.units.m)**2, shape=(n_points, ...)
+            Interpolated Effective area array with same shape as input
+            effective areas. For AEFF2D of shape (n_energy_bins, n_fov_offset_bins)
+
+        """
+
+        aeff_interp = super().__call__(target_point)
+
+        # exp it and set to zero too low values
+        aeff_interp = np.exp(aeff_interp)
+        # 1.1 to correct for numerical uncertainty and interpolation
+        aeff_interp[aeff_interp < self.min_effective_area * 1.1] = 0
+
+        return u.Quantity(aeff_interp, u.m**2, copy=False)
+
+
+class RAD_MAXEstimator(ParametrizedComponentEstimator):
+    def __init__(
+        self,
+        grid_points,
+        rad_max,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+    ):
+        """
+        Estimator class for effective areas. Takes a grid of effective areas
+        for a bunch of different parameters and inter-/extrapolates (log) effective areas
+        to given value of those parameters.
+
+
+        Parameters
+        ----------
+        grid_points: np.ndarray, shape=(n_points, n_dims):
+            Grid points at which interpolation templates exist
+        rad_max: np.ndarray, shape=(n_points, ...)
+            Grid of theta cuts. Dimensions but the first can in principle be freely
+            chosen. Class is RAD_MAX_2D compatible, which would require
+            shape=(n_points, n_energy_bins, n_fov_offset_bins).
+        interpolator_cls:
+            pyirf interpolator class, defaults to GridDataInterpolator.
+        interpolator_kwargs: dict
+            Dict of all kwargs that are passed to the interpolator, defaults to
+            None which is the same as passing an empty dict.
+        extrapolator_cls:
+            pyirf extrapolator class. Can be and defaults to ``None``,
+            which raises an error if a target_point is outside the grid
+            and extrapolation would be needed.
+        extrapolator_kwargs: dict
+            Dict of all kwargs that are passed to the extrapolator, defaults to
+            None which is the same as passing an empty dict.
+
+        Note
+        ----
+            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
+            and ParametrizedEstimator
+        """
+
+        super().__init__(
+            grid_points=grid_points,
+            params=rad_max,
+            interpolator_cls=interpolator_cls,
+            interpolator_kwargs=interpolator_kwargs,
+            extrapolator_cls=extrapolator_cls,
+            extrapolator_kwargs=extrapolator_kwargs,
+        )
+
+    def __call__(self, target_point):
+        """
+        Estimating effective area at target_point, inter-/extrapolates as needed and
+        specified in __init__.
+
+        Parameters
+        ----------
+        target_point: np.ndarray, shape=(1, n_dims)
+            Target for inter-/extrapolation
+
+        Returns
+        -------
+        rad_max_interp: np.ndarray, shape=(n_points, ...)
+            Interpolated RAD_MAX table with same shape as input
+            effective areas. For RAD_MAX_2D of shape (n_energy_bins, n_fov_offset_bins)
+
+        """
+
+        return super().__call__(target_point)

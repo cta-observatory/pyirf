@@ -9,7 +9,7 @@ __all__ = ["GridDataInterpolator"]
 
 
 class GridDataInterpolator(ParametrizedInterpolator):
-    def __init__(self, grid_points, params, griddata_kwargs=None):
+    def __init__(self, grid_points, params, **griddata_kwargs):
         """Parametrized Interpolator using scipy.interpolate.griddata
 
         Parameters
@@ -21,8 +21,8 @@ class GridDataInterpolator(ParametrizedInterpolator):
             point in grid_points.
             First dimesion has to correspond to number of grid_points
         griddata_kwargs: dict
-            Keyword-Arguments passed to scipy.griddata [1], e.g. 
-            interpolation method. Defaults to None, which uses scipy's 
+            Keyword-Arguments passed to scipy.griddata [1], e.g.
+            interpolation method. Defaults to None, which uses scipy's
             defaults
 
         Raises
@@ -40,10 +40,7 @@ class GridDataInterpolator(ParametrizedInterpolator):
         """
         super().__init__(grid_points, params)
 
-        if griddata_kwargs is None:
-            self.griddata_kwargs = {}
-        else:
-            self.griddata_kwargs = griddata_kwargs
+        self.griddata_kwargs = griddata_kwargs
 
     def interpolate(self, target_point):
         """

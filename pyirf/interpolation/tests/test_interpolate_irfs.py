@@ -1,9 +1,8 @@
 import astropy.units as u
 import numpy as np
-from scipy.stats import expon
-
 import pyirf.interpolation as interp
 from pyirf.utils import cone_solid_angle
+from scipy.stats import expon
 
 
 def test_interpolate_energy_dispersion(prod5_irfs):
@@ -77,8 +76,10 @@ def test_interpolate_psf_table():
     assert interp.shape == dummy_psfs[[1]].shape
 
 
-def test_interpolate_effective_area_per_energy_and_fov():
+def test_AEFFEstimator_sythetic_data():
     """Test of interpolating of effective area using dummy model files."""
+    from pyirf.interpolation import AEFFEstimator, GridDataInterpolator
+
     n_en = 20
     n_th = 1
     en = np.logspace(-2, 2, n_en)
@@ -100,27 +101,39 @@ def test_interpolate_effective_area_per_energy_and_fov():
     aeff *= u.m**2
     pars0 = np.array([1, 10])
     min_aeff = 1 * u.m**2
-    aeff_interp = interp.interpolate_effective_area_per_energy_and_fov(
-        aeff, pars, pars0, min_effective_area=min_aeff, method="linear"
+
+    estimator = AEFFEstimator(
+        grid_points=pars,
+        effective_area=aeff,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+        min_effective_area=min_aeff,
     )
+    aeff_interp = estimator(pars0)
 
     # allowing for 3% accuracy except of close to the minimum value of Aeff
     assert np.allclose(aeff_interp[:, 0], aeff0, rtol=0.03, atol=min_aeff)
 
 
-def test_interpolate_effective_area_per_energy_and_fov_prod5(prod5_irfs):
+def test_AEFFEstimator_prod5(prod5_irfs):
     """Test of interpolation of effective are on prod5 irfs"""
-    from pyirf.interpolation import interpolate_effective_area_per_energy_and_fov
+    from pyirf.interpolation import AEFFEstimator, GridDataInterpolator
 
     zen_pnt = np.array([key.value for key in prod5_irfs.keys()])
     aeffs = np.array([irf["aeff"].data for irf in prod5_irfs.values()])
 
-    interp = interpolate_effective_area_per_energy_and_fov(
-        effective_area=aeffs[[0, 2]] * u.m**2,
+    estimator = AEFFEstimator(
         grid_points=zen_pnt[[0, 2]],
-        target_point=zen_pnt[[1]],
+        effective_area=aeffs[[0, 2]] * u.m**2,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs={"method": "linear"},
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
         min_effective_area=1 * u.m**2,
-    ).value
+    )
+    interp = estimator(zen_pnt[[1]]).value
 
     assert np.all(np.isfinite(interp))
     assert interp.shape == aeffs[[1]].shape
@@ -138,7 +151,7 @@ def test_interpolate_effective_area_per_energy_and_fov_prod5(prod5_irfs):
 
 
 def test_interpolate_rad_max():
-    from pyirf.interpolation import interpolate_rad_max
+    from pyirf.interpolation import GridDataInterpolator, RAD_MAXEstimator
 
     # linear test case
     rad_max_1 = np.array([[0, 0], [1, 0], [2, 1], [3, 2]])
@@ -148,12 +161,15 @@ def test_interpolate_rad_max():
     grid_points = np.array([[0], [1]])
     target_point = np.array([0.5])
 
-    interp = interpolate_rad_max(
-        rad_max=rad_max,
+    estimator = RAD_MAXEstimator(
         grid_points=grid_points,
-        target_point=target_point,
-        method="linear",
+        rad_max=rad_max,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
     )
+    interp = estimator(target_point)
 
     assert interp.shape == (1, *rad_max_1.shape)
     assert np.allclose(interp, 1.5 * rad_max_1)

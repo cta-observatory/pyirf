@@ -7,23 +7,19 @@ from .base_interpolators import (
     DiscretePDFInterpolator,
     ParametrizedInterpolator,
 )
+from .component_estimators import AEFFEstimator, RAD_MAXEstimator
 from .griddata_interpolator import GridDataInterpolator
-from .interpolate_irfs import (
-    interpolate_effective_area_per_energy_and_fov,
-    interpolate_energy_dispersion,
-    interpolate_psf_table,
-    interpolate_rad_max,
-)
+from .interpolate_irfs import interpolate_energy_dispersion, interpolate_psf_table
 from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
     "BaseInterpolator",
-    "BinnedInterpolator",
+    "DiscretePDFInterpolator",
     "GridDataInterpolator",
     "ParametrizedInterpolator",
     "QuantileInterpolator",
-    "interpolate_effective_area_per_energy_and_fov",
+    "AEFFEstimator",
+    "RAD_MAXEstimator",
     "interpolate_energy_dispersion",
     "interpolate_psf_table",
-    "interpolate_rad_max",
 ]
