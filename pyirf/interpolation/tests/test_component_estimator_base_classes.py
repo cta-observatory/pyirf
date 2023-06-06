@@ -98,7 +98,7 @@ def test_BaseComponentEstimator_target_point_checks():
 
 
 def test_BaseComponentEstimator_call():
-    """Test checks for the target point perfomed by the base estimator class"""
+    """Test base_estimator's __call__ """
     from pyirf.interpolation.component_estimators import BaseComponentEstimator
 
     grid_points1D_good = np.array([1, 2, 3])
@@ -121,12 +121,6 @@ def test_BaseComponentEstimator_call():
         def __init__(self, grid_points):
             super().__init__(grid_points)
             self.interpolator = dummy_interp
-            self.extrapolator = None
-
-    class DummyEstimatorExtrap(BaseComponentEstimator):
-        def __init__(self, grid_points):
-            super().__init__(grid_points)
-            self.interpolator = dummy_interp
             self.extrapolator = dummy_extrap
 
     estim1D = DummyEstimator(grid_points1D_good)
@@ -135,15 +129,15 @@ def test_BaseComponentEstimator_call():
     estim2D = DummyEstimator(grid_points2D_good)
     assert estim2D(target2D_inGrid) == 42
 
-    estim1D = DummyEstimatorExtrap(grid_points1D_good)
+    estim1D = DummyEstimator(grid_points1D_good)
     assert estim1D(target1D_outofGrid) == 43
 
-    estim2D = DummyEstimatorExtrap(grid_points2D_good)
+    estim2D = DummyEstimator(grid_points2D_good)
     assert estim2D(target2D_outofGrid) == 43
 
 
 def test_ParametrizedComponentEstimator_checks():
-    """Test checks for the grid perfomed by the base estimator class"""
+    """Test checks for inputs perfomed by the base estimator class"""
     from pyirf.interpolation import DiscretePDFInterpolator, ParametrizedInterpolator
     from pyirf.interpolation.component_estimators import ParametrizedComponentEstimator
 
@@ -195,7 +189,7 @@ def test_ParametrizedComponentEstimator_checks():
 
 
 def test_DiscretePDFComponentEstimator_checks():
-    """Test checks for the grid perfomed by the base estimator class"""
+    """Test checks for inputs perfomed by the base estimator class"""
     from pyirf.interpolation import DiscretePDFInterpolator, ParametrizedInterpolator
     from pyirf.interpolation.component_estimators import DiscretePDFComponentEstimator
 
