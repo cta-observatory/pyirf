@@ -425,16 +425,17 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
         -------
         aeff_interp: np.ndarray of (astropy.units.m)**2, shape=(n_points, ...)
             Interpolated Effective area array with same shape as input
-            effective areas. For AEFF2D of shape (n_energy_bins, n_fov_offset_bins)
-
+            effective areas. For AEFF2D of shape (n_energy_bins, n_fov_offset_bins). 
+            Values lower or equal to __init__'s min_effective_area are set 
+            to zero.
         """
 
         aeff_interp = super().__call__(target_point)
 
         # exp it and set to zero too low values
         aeff_interp = np.exp(aeff_interp)
-        # 1.1 to correct for numerical uncertainty and interpolation
-        aeff_interp[aeff_interp < self.min_effective_area * 1.1] = 0
+        # remove entries manipulated by min_effective_area 
+        aeff_interp[aeff_interp <= self.min_effective_area] = 0
 
         return u.Quantity(aeff_interp, u.m**2, copy=False)
 
