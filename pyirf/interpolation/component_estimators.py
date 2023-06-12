@@ -16,18 +16,19 @@ __all__ = [
     "BaseComponentEstimator",
     "DiscretePDFComponentEstimator",
     "ParametrizedComponentEstimator",
-    "AEFFEstimator",
-    "RAD_MAXEstimator",
-    "EDISP_2DEstimator",
-    "PSF_TABLEEstimator",
+    "EffecitveAreaEstimator",
+    "RadMaxEstimator",
+    "EnergyDispersionEstimator",
+    "PSFTableEstimator",
 ]
 
 
 class BaseComponentEstimator:
     """
-    Base class for all Estimators working on specific IRF Components. While
-    usable, it is encuraged to use the actual class for the respective IRF
-    Component as it ensures further checks and if nessecarry e.g. unit handling.
+    Base class for all Estimators working on specific IRF components.
+
+    While usable, it is encuraged to use the actual class for the respective IRF
+    component as it ensures further checks and if nessecarry e.g. unit handling.
     """
 
     def __init__(self, grid_points):
@@ -142,6 +143,13 @@ class BaseComponentEstimator:
 
 
 class DiscretePDFComponentEstimator(BaseComponentEstimator):
+    """
+    Base class for all Estimators working on IRF components that represent discretized PDFs.
+
+    While usable, it is encuraged to use the actual class for the respective IRF
+    component as it ensures further checks and if nessecarry e.g. unit handling.
+    """
+
     def __init__(
         self,
         grid_points,
@@ -244,6 +252,14 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
 
 
 class ParametrizedComponentEstimator(BaseComponentEstimator):
+    """
+    Base class for all Estimators working on IRF components that represent parametrized
+    or scalar quantities.
+
+    While usable, it is encuraged to use the actual class for the respective IRF
+    component as it ensures further checks and if nessecarry e.g. unit handling.
+    """
+
     def __init__(
         self,
         grid_points,
@@ -323,7 +339,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             )
 
 
-class AEFFEstimator(ParametrizedComponentEstimator):
+class EffectiveAreaEstimator(ParametrizedComponentEstimator):
     @u.quantity_input(effective_area=u.m**2, min_effective_area=u.m**2)
     def __init__(
         self,
@@ -336,9 +352,11 @@ class AEFFEstimator(ParametrizedComponentEstimator):
         min_effective_area=1 * u.m**2,
     ):
         """
-        Estimator class for effective areas. Takes a grid of effective areas
-        for a bunch of different parameters and inter-/extrapolates (log) effective areas
-        to given value of those parameters.
+        Estimator class for effective areas.
+
+        Takes a grid of effective areas for a bunch of different parameters
+        and inter-/extrapolates (log) effective areas to given value of
+        those parameters.
 
 
         Parameters
@@ -421,7 +439,7 @@ class AEFFEstimator(ParametrizedComponentEstimator):
         return u.Quantity(aeff_interp, u.m**2, copy=False)
 
 
-class RAD_MAXEstimator(ParametrizedComponentEstimator):
+class RadMaxEstimator(ParametrizedComponentEstimator):
     def __init__(
         self,
         grid_points,
@@ -432,9 +450,10 @@ class RAD_MAXEstimator(ParametrizedComponentEstimator):
         extrapolator_kwargs=None,
     ):
         """
-        Estimator class for RAD_MAX tables. Takes a grid of rad max values
-        for a bunch of different parameters and inter-/extrapolates rad max values
-        to given value of those parameters.
+        Estimator class for RAD_MAX tables.
+
+        Takes a grid of rad max values for a bunch of different parameters
+        and inter-/extrapolates rad max values to given value of those parameters.
 
 
         Parameters
@@ -494,7 +513,7 @@ class RAD_MAXEstimator(ParametrizedComponentEstimator):
         return super().__call__(target_point)
 
 
-class EDISP_2DEstimator(DiscretePDFComponentEstimator):
+class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
     def __init__(
         self,
         grid_points,
@@ -507,9 +526,10 @@ class EDISP_2DEstimator(DiscretePDFComponentEstimator):
         axis=-2,
     ):
         """
-        Estimator class for energy dispersions. Takes a grid of energy dispersions
-        for a bunch of different parameters and inter-/extrapolates energy dispersions
-        to given value of those parameters.
+        Estimator class for energy dispersions.
+
+        Takes a grid of energy dispersions for a bunch of different parameters and
+        inter-/extrapolates energy dispersions to given value of those parameters.
 
 
         Parameters
@@ -579,7 +599,7 @@ class EDISP_2DEstimator(DiscretePDFComponentEstimator):
         return np.swapaxes(super().__call__(target_point), -1, self.axis)
 
 
-class PSF_TABLEEstimator(DiscretePDFComponentEstimator):
+class PSFTableEstimator(DiscretePDFComponentEstimator):
     @u.quantity_input(psf=u.sr**-1, source_offset_bins=u.deg)
     def __init__(
         self,
@@ -593,9 +613,10 @@ class PSF_TABLEEstimator(DiscretePDFComponentEstimator):
         axis=-1,
     ):
         """
-        Estimator class for point spread functions. Takes a grid of psfs
-        for a bunch of different parameters and inter-/extrapolates psfs
-        to given value of those parameters.
+        Estimator class for point spread functions.
+
+        Takes a grid of psfs or a bunch of different parameters and
+        inter-/extrapolates psfs to given value of those parameters.
 
 
         Parameters

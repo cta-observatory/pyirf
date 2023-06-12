@@ -3,7 +3,6 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 from pyirf.binning import bin_center
-from scipy.spatial import Delaunay
 
 __all__ = ["BaseInterpolator", "ParametrizedInterpolator", "DiscretePDFInterpolator"]
 

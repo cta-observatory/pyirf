@@ -8,10 +8,10 @@ from .base_interpolators import (
     ParametrizedInterpolator,
 )
 from .component_estimators import (
-    AEFFEstimator,
-    EDISP_2DEstimator,
-    PSF_TABLEEstimator,
-    RAD_MAXEstimator,
+    EffectiveAreaEstimator,
+    EnergyDispersionEstimator,
+    PSFTableEstimator,
+    RadMaxEstimator,
 )
 from .griddata_interpolator import GridDataInterpolator
 from .quantile_interpolator import QuantileInterpolator
@@ -22,8 +22,8 @@ __all__ = [
     "GridDataInterpolator",
     "ParametrizedInterpolator",
     "QuantileInterpolator",
-    "AEFFEstimator",
-    "RAD_MAXEstimator",
-    "EDISP_2DEstimator",
-    "PSF_TABLEEstimator",
+    "EffectiveAreaEstimator",
+    "RadMaxEstimator",
+    "EnergyDispersionEstimator",
+    "PSFTableEstimator",
 ]
