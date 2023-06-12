@@ -205,7 +205,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
 
         Note
         ----
-            Also calls pyirf.component_estimators.BaseComponentEstimator.__init__
+            Also calls pyirf.interpolation.BaseComponentEstimator.__init__
         """
 
         super().__init__(
@@ -304,7 +304,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
 
         Note
         ----
-            Also calls pyirf.component_estimators.BaseComponentEstimator.__init__
+            Also calls pyirf.interpolation.BaseComponentEstimator.__init__
         """
 
         super().__init__(
@@ -386,8 +386,8 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
 
         Note
         ----
-            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
-            and ParametrizedEstimator
+            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+            and pyirf.interpolation.ParametrizedEstimator
         """
 
         # get rid of units
@@ -480,8 +480,8 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
 
         Note
         ----
-            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
-            and ParametrizedEstimator
+            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+            and pyirf.interpolation.ParametrizedEstimator
         """
 
         super().__init__(
@@ -563,8 +563,8 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
 
         Note
         ----
-            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
-            and ParametrizedEstimator
+            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+            and pyirf.interpolation.ParametrizedEstimator
         """
 
         self.axis = axis
@@ -649,8 +649,8 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         Note
         ----
-            Also calls __init__ of pyirf.component_estimators.BaseComponentEstimator
-            and ParametrizedEstimator
+            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+            and pyirf.interpolation.ParametrizedEstimator
         """
 
         self.axis = axis
