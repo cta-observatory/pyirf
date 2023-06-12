@@ -16,7 +16,7 @@ __all__ = [
     "BaseComponentEstimator",
     "DiscretePDFComponentEstimator",
     "ParametrizedComponentEstimator",
-    "EffecitveAreaEstimator",
+    "EffectiveAreaEstimator",
     "RadMaxEstimator",
     "EnergyDispersionEstimator",
     "PSFTableEstimator",
