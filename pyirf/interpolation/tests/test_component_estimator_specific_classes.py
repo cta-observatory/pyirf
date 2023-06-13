@@ -135,6 +135,7 @@ def test_EffectiveAreaEstimator_prod5(prod5_irfs):
 
     zen_pnt = np.array([key.value for key in prod5_irfs.keys()])
     aeffs = np.array([irf["aeff"].data for irf in prod5_irfs.values()])
+    min_aeff = 1 * u.m**2
 
     estimator = EffectiveAreaEstimator(
         grid_points=zen_pnt[[0, 2]],
@@ -143,7 +144,7 @@ def test_EffectiveAreaEstimator_prod5(prod5_irfs):
         interpolator_kwargs={"method": "linear"},
         extrapolator_cls=None,
         extrapolator_kwargs=None,
-        min_effective_area=1 * u.m**2,
+        min_effective_area=min_aeff,
     )
     interp = estimator(zen_pnt[[1]]).value
 
@@ -157,7 +158,7 @@ def test_EffectiveAreaEstimator_prod5(prod5_irfs):
                 np.logical_and(aeffs[[0]] <= interp, interp <= aeffs[[2]]),
                 np.logical_and(aeffs[[2]] <= interp, interp <= aeffs[[0]]),
             ),
-            interp == 0,
+            np.logical_or(interp == 0, interp == min_aeff.value),
         )
     )
 
