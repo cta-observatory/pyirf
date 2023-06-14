@@ -248,8 +248,8 @@ def test_baryzentric_2D_interpolation_coefficients():
 
 def test_moment_morph_estimation1D(bins, simple_1D_data):
     from pyirf.interpolation.moment_morph_interpolator import (
+        linesegment_1D_interpolation_coefficients,
         moment_morph_estimation,
-        linesegment_1D_interpolation_coefficients
     )
 
     grid, target, bin_contents, truth = simple_1D_data.values()
@@ -266,8 +266,8 @@ def test_moment_morph_estimation1D(bins, simple_1D_data):
 
 def test_moment_morph_estimation1D(bins, simple_2D_data):
     from pyirf.interpolation.moment_morph_interpolator import (
+        baryzentric_2D_interpolation_coefficients,
         moment_morph_estimation,
-        baryzentric_2D_interpolation_coefficients
     )
 
     grid, target, bin_contents, truth = simple_2D_data.values()
