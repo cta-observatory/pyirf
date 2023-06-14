@@ -246,6 +246,42 @@ def test_baryzentric_2D_interpolation_coefficients():
     assert np.allclose(res, np.array([1, 1, 1]) / 3)
 
 
+def test_moment_morph_estimation1D(bins, simple_1D_data):
+    from pyirf.interpolation.moment_morph_interpolator import (
+        moment_morph_estimation,
+        linesegment_1D_interpolation_coefficients
+    )
+
+    grid, target, bin_contents, truth = simple_1D_data.values()
+
+    coeffs = linesegment_1D_interpolation_coefficients(grid, target)
+    res = moment_morph_estimation(bins, bin_contents, coeffs)
+
+    assert np.isclose(np.sum(res), 1)
+    assert np.all(np.isfinite(res))
+    assert res.shape == (1, len(bins) - 1)
+    # Assert truth and result matching within +- 0.1%, atol dominates comparison
+    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+
+
+def test_moment_morph_estimation1D(bins, simple_2D_data):
+    from pyirf.interpolation.moment_morph_interpolator import (
+        moment_morph_estimation,
+        baryzentric_2D_interpolation_coefficients
+    )
+
+    grid, target, bin_contents, truth = simple_2D_data.values()
+
+    coeffs = baryzentric_2D_interpolation_coefficients(grid, target)
+    res = moment_morph_estimation(bins, bin_contents, coeffs)
+
+    assert np.isclose(np.sum(res), 1)
+    assert np.all(np.isfinite(res))
+    assert res.shape == (1, len(bins) - 1)
+    # Assert truth and result matching within +- 0.1%, atol dominates comparison
+    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+
+
 def test_MomentMorphInterpolator1D(bins, simple_1D_data):
     from pyirf.interpolation import MomentMorphInterpolator
 
