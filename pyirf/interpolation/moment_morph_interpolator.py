@@ -93,6 +93,43 @@ def lookup(bin_edges, bin_contents, x):
     )
 
 
+def linesegment_1D_interpolation_coefficients(grid_points, target_point):
+    """
+    Compute 1D interpolation coefficients for moment morph interpolation,
+    as in eq. (6) of [1]
+
+    Parameters
+    ----------
+    grid_points: np.ndarray, shape=(2, 1)
+        Points spanning a triangle in which
+    target_point: numpy.ndarray, shape=(1, 1)
+        Value at which the histogram should be interpolated
+
+    Returns
+    -------
+    coefficients: numpy.ndarray, shape=(2,)
+        Interpolation coefficients for all three interpolation simplex vertices
+        to interpolate to the target_point
+
+    References
+    ----------
+    .. [1] M. Baak, S. Gadatsch, R. Harrington and W. Verkerke (2015). Interpolation between
+           multi-dimensional histograms using a new non-linear moment morphing method
+           Nucl. Instrum. Methods Phys. Res. A 771, 39-48. https://doi.org/10.1016/j.nima.2014.10.033
+    """
+    # Set zeroth grid point as reference value
+    m0 = grid_points[0, :]
+
+    # Compute matrix M as in eq. (2) of [1]
+    j = np.arange(0, grid_points.shape[0], 1)
+    m_ij = (grid_points - m0) ** j
+
+    # Compute coefficients, eq. (6) from [1]
+    return np.einsum(
+        "...j, ji -> ...i", ((target_point - m0) ** j), np.linalg.inv(m_ij)
+    )
+
+
 def baryzentric_2D_interpolation_coefficients(grid_points, target_point):
     """
     Compute baryzetric 2D interpolation coefficients for triangular
@@ -136,43 +173,6 @@ def baryzentric_2D_interpolation_coefficients(grid_points, target_point):
     coefficients = np.array([w1, w2, w3])
 
     return coefficients
-
-
-def linesegment_1D_interpolation_coefficients(grid_points, target_point):
-    """
-    Compute 1D interpolation coefficients for moment morph interpolation,
-    as in eq. (6) of [1]
-
-    Parameters
-    ----------
-    grid_points: np.ndarray, shape=(2, 1)
-        Points spanning a triangle in which
-    target_point: numpy.ndarray, shape=(1, 1)
-        Value at which the histogram should be interpolated
-
-    Returns
-    -------
-    coefficients: numpy.ndarray, shape=(2,)
-        Interpolation coefficients for all three interpolation simplex vertices
-        to interpolate to the target_point
-
-    References
-    ----------
-    .. [1] M. Baak, S. Gadatsch, R. Harrington and W. Verkerke (2015). Interpolation between
-           multi-dimensional histograms using a new non-linear moment morphing method
-           Nucl. Instrum. Methods Phys. Res. A 771, 39-48. https://doi.org/10.1016/j.nima.2014.10.033
-    """
-    # Set zeroth grid point as reference value
-    m0 = grid_points[0, :]
-
-    # Compute matrix M as in eq. (2) of [1]
-    j = np.arange(0, grid_points.shape[0], 1)
-    m_ij = (grid_points - m0) ** j
-
-    # Compute coefficients, eq. (6) from [1]
-    return np.einsum(
-        "...j, ji -> ...i", ((target_point - m0) ** j), np.linalg.inv(m_ij)
-    )
 
 
 def moment_morph_estimation(bin_edges, bin_contents, coefficients):
