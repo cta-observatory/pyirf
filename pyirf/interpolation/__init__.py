@@ -4,26 +4,32 @@ Collection of interpolation methods
 
 from .base_interpolators import (
     BaseInterpolator,
-    BinnedInterpolator,
+    DiscretePDFInterpolator,
     ParametrizedInterpolator,
 )
-from .griddata_interpolator import GridDataInterpolator
-from .interpolate_irfs import (
-    interpolate_effective_area_per_energy_and_fov,
-    interpolate_energy_dispersion,
-    interpolate_psf_table,
-    interpolate_rad_max,
+from .component_estimators import (
+    BaseComponentEstimator,
+    DiscretePDFComponentEstimator,
+    EffectiveAreaEstimator,
+    EnergyDispersionEstimator,
+    ParametrizedComponentEstimator,
+    PSFTableEstimator,
+    RadMaxEstimator,
 )
+from .griddata_interpolator import GridDataInterpolator
 from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
+    "BaseComponentEstimator",
     "BaseInterpolator",
-    "BinnedInterpolator",
+    "DiscretePDFComponentEstimator",
+    "DiscretePDFInterpolator",
     "GridDataInterpolator",
+    "ParametrizedComponentEstimator",
     "ParametrizedInterpolator",
     "QuantileInterpolator",
-    "interpolate_effective_area_per_energy_and_fov",
-    "interpolate_energy_dispersion",
-    "interpolate_psf_table",
-    "interpolate_rad_max",
+    "EffectiveAreaEstimator",
+    "RadMaxEstimator",
+    "EnergyDispersionEstimator",
+    "PSFTableEstimator",
 ]

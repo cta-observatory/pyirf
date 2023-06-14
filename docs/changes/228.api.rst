@@ -1,0 +1,6 @@
+Change the interpolation API to top-level estimator classes that instantiate 
+interp- and extrapolator objects. Drops the ``interpolate_xyz`` functions 
+originally used to interpolate a xyz IRF component in favour of a ``XYZEstimator``
+class. Moves data checks from intepolator to estimator classes. 
+
+Direct usage of interpolator objects is now discuraged, use estimator objects instead.
