@@ -9,7 +9,7 @@ __all__ = [
 ]
 
 
-def estimate_mean_std(bin_edges, bin_contents):
+def _estimate_mean_std(bin_edges, bin_contents):
     """
     Function to roughly estimate mean and standard deviation from a histogram.
 
@@ -49,7 +49,7 @@ def estimate_mean_std(bin_edges, bin_contents):
     return mean, std
 
 
-def lookup(bin_edges, bin_contents, x):
+def _lookup(bin_edges, bin_contents, x):
     """
     Function to return the bin-height at a desired point.
 
@@ -74,23 +74,22 @@ def lookup(bin_edges, bin_contents, x):
     # Find the bin where each point x is located in
     binnr = np.digitize(x, bin_edges).reshape(-1, bin_contents.shape[-1])
 
-    # np.digitize returns 0 if x is below the first and len(bins) if x is above the last bin,
-    # set these to 0 in a copy of the binnr to avoid errors later
-    binnr_copy = np.copy(binnr)
-    binnr_copy = np.where((binnr == 0) | (binnr == len(bin_edges)), 0, binnr_copy)
+    # np.digitize returns len(bins) if x is above the last bin,
+    # set these to 0 to avoid errors later
+    binnr[binnr == len(bin_edges)] = 0
 
     # Loop over every combination of input histograms and binning
     lu = np.array(
         [
-            cont[binnr]
-            for cont, binnr in zip(intermediate_bin_contentents, binnr_copy - 1)
+            cont[binnr_row]
+            for cont, binnr_row in zip(intermediate_bin_contentents, binnr - 1)
         ]
     )
 
+    lu[binnr == 0] = 0
+
     # Set under-/ overflowbins to 0, reshape to original shape
-    return np.where((binnr > 0) & (binnr < len(bin_edges)), lu, 0).reshape(
-        bin_contents.shape
-    )
+    return lu.reshape(bin_contents.shape)
 
 
 def linesegment_1D_interpolation_coefficients(grid_points, target_point):
@@ -209,7 +208,7 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
 
     # Estimate mean and std for each input template histogram. First adaption needed to extend
     # the moment morph procedure to histograms
-    mus, sigs = estimate_mean_std(bin_edges=bin_edges, bin_contents=bin_contents)
+    mus, sigs = _estimate_mean_std(bin_edges=bin_edges, bin_contents=bin_contents)
     coefficients = coefficients.reshape(
         bin_contents.shape[0], *np.ones(mus.ndim - 1, "int")
     )
@@ -232,7 +231,7 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
     # bin-mid as new value for a whole transformed bin. Second adaption needed to extend
     # the moment morph procedure to histograms, adaptes the behaviour of eq. (16)
 
-    transf_hist = lookup(bin_edges=bin_edges, bin_contents=bin_contents, x=transf_mids)
+    transf_hist = _lookup(bin_edges=bin_edges, bin_contents=bin_contents, x=transf_mids)
 
     f_new = np.sum(
         np.expand_dims(coefficients, -1) * transf_hist * np.expand_dims(aij, -1), axis=0

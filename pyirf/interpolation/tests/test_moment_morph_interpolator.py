@@ -78,7 +78,7 @@ def simple_2D_data(bins):
 
 
 def test_estimate_mean_std(bins):
-    from pyirf.interpolation.moment_morph_interpolator import estimate_mean_std
+    from pyirf.interpolation.moment_morph_interpolator import _estimate_mean_std
 
     grid = np.array([[20], [40]])
     bin_contents = np.array(
@@ -134,7 +134,7 @@ def test_estimate_mean_std(bins):
         ]
     ).squeeze()
 
-    mean, std = estimate_mean_std(bins, bin_contents)
+    mean, std = _estimate_mean_std(bins, bin_contents)
 
     # Assert estimation and truth within one bin
     assert np.allclose(mean, true_mean, atol=np.diff(bins)[0] / 2)
@@ -142,7 +142,7 @@ def test_estimate_mean_std(bins):
 
 
 def test_lookup():
-    from pyirf.interpolation.moment_morph_interpolator import lookup
+    from pyirf.interpolation.moment_morph_interpolator import _lookup
 
     bins = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5])
     bin_contents = np.array(
@@ -166,7 +166,7 @@ def test_lookup():
         ]
     )
 
-    assert np.allclose(lookup(bins, bin_contents, x), truth)
+    assert np.allclose(_lookup(bins, bin_contents, x), truth)
 
 
 def test_linesegment_1D_interpolation_coefficients():
