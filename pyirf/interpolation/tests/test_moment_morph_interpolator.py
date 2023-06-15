@@ -264,7 +264,7 @@ def test_moment_morph_estimation1D(bins, simple_1D_data):
     assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
-def test_moment_morph_estimation1D(bins, simple_2D_data):
+def test_moment_morph_estimation2D(bins, simple_2D_data):
     from pyirf.interpolation.moment_morph_interpolator import (
         baryzentric_2D_interpolation_coefficients,
         moment_morph_estimation,

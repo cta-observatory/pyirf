@@ -11,7 +11,7 @@ __all__ = [
 
 def estimate_mean_std(bin_edges, bin_contents):
     """
-    Function to roughly estimate mean and standart deviation from a histogram.
+    Function to roughly estimate mean and standard deviation from a histogram.
 
     Parameters
     ----------
@@ -25,7 +25,7 @@ def estimate_mean_std(bin_edges, bin_contents):
     mean: np.ndarray, shape=(N, ...)
         Estimated mean for each input template
     std: np.ndarray, shape=(N, ...)
-        Estimated standart deviation for each input template. Set to width/2 if only one bin in
+        Estimated standard deviation for each input template. Set to width/2 if only one bin in
         the input template is =/= 0
     """
     # Create an 2darray where the 1darray mids is repeated n_template times
@@ -216,12 +216,12 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
 
     # Transform mean and std as in eq. (11) and (12) in [1]
     # cs = np.broadcast_to(cs, mus.shape)
-    mu_strich = np.sum(coefficients * mus, axis=0)
-    sig_strich = np.sum(coefficients * sigs, axis=0)
+    mu_prime = np.sum(coefficients * mus, axis=0)
+    sig_prime = np.sum(coefficients * sigs, axis=0)
 
     # Compute slope and offset as in eq. (14) and (15) in [1]
-    aij = sigs / sig_strich
-    bij = mus - mu_strich * aij
+    aij = sigs / sig_prime
+    bij = mus - mu_prime * aij
 
     # Transformation as in eq. (13) in [1]
     mids = np.broadcast_to(bin_mids, bin_contents.shape)
@@ -257,7 +257,7 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
 class MomentMorphInterpolator(DiscretePDFInterpolator):
     def __init__(self, grid_points, bin_edges, bin_contents):
         """
-        Actual interpolator class utilizing MomentMorphInterpolations.
+        Interpolator class using moment morphing.
 
         Parameters
         ----------
@@ -288,7 +288,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
 
     def _interpolate1D(self, target_point):
         """
-        Function to find target inside 1D self.grid_points and creating a Base1DMomentMorphInterpolator
+        Function to find target inside 1D self.grid_points and interpolate 
         on this subset.
         """
         target_bin = np.digitize(target_point.squeeze(), self.grid_points.squeeze())
@@ -306,7 +306,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
 
     def _interpolate2D(self, target_point):
         """
-        Function to find target inside 2D self.grid_points and creating a Base2DTriangularMomentMorphInterpolator
+        Function to find target inside 2D self.grid_points and interpolate
         on this subset.
         """
         simplex_inds = self.triangulation.simplices[
