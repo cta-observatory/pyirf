@@ -1,5 +1,5 @@
 import numpy as np
-from pyirf.binning import bin_center
+from pyirf.binning import bin_center, calculate_bin_indices
 from scipy.spatial import Delaunay
 
 from .base_interpolators import DiscretePDFInterpolator
@@ -68,28 +68,28 @@ def _lookup(bin_edges, bin_contents, x):
         Array of the bin-heights at the M points x, set to 0 at each point outside the histogram
 
     """
-    # Create a flattend version of self.bin_contents to ease broadcasting
-    intermediate_bin_contentents = bin_contents.reshape(-1, bin_contents.shape[-1])
-
     # Find the bin where each point x is located in
-    binnr = np.digitize(x, bin_edges).reshape(-1, bin_contents.shape[-1])
+    binnr, valid = calculate_bin_indices(x, bin_edges)
 
-    # np.digitize returns len(bins) if x is above the last bin,
-    # set these to 0 to avoid errors later
-    binnr[binnr == len(bin_edges)] = 0
+    # Set under/overflow-bins (invalid bins) to 0 to avoid errors below
+    binnr[~valid] = 0
 
-    # Loop over every combination of input histograms and binning
+    # Loop over every combination of flattend input histograms and flattend binning
     lu = np.array(
         [
             cont[binnr_row]
-            for cont, binnr_row in zip(intermediate_bin_contentents, binnr - 1)
+            for cont, binnr_row in zip(
+                bin_contents.reshape(-1, bin_contents.shape[-1]),
+                binnr.reshape(-1, binnr.shape[-1]),
+            )
         ]
-    )
+    ).reshape(bin_contents.shape)
 
-    lu[binnr == 0] = 0
+    # Set all invalid bins to 0
+    lu[~valid] = 0
 
     # Set under-/ overflowbins to 0, reshape to original shape
-    return lu.reshape(bin_contents.shape)
+    return lu
 
 
 def linesegment_1D_interpolation_coefficients(grid_points, target_point):
@@ -287,7 +287,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
 
     def _interpolate1D(self, target_point):
         """
-        Function to find target inside 1D self.grid_points and interpolate 
+        Function to find target inside 1D self.grid_points and interpolate
         on this subset.
         """
         target_bin = np.digitize(target_point.squeeze(), self.grid_points.squeeze())
