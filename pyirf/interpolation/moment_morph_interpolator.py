@@ -124,9 +124,7 @@ def linesegment_1D_interpolation_coefficients(grid_points, target_point):
     m_ij = (grid_points - m0) ** j
 
     # Compute coefficients, eq. (6) from [1]
-    return np.einsum(
-        "...j, ji -> ...i", ((target_point - m0) ** j), np.linalg.inv(m_ij)
-    )
+    return np.einsum("...j, ji -> ...i", (target_point - m0) ** j, np.linalg.inv(m_ij))
 
 
 def baryzentric_2D_interpolation_coefficients(grid_points, target_point):
