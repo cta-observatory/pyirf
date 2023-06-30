@@ -11,6 +11,15 @@ def expected_std(a, b):
     return 1 + 0.05 * (a + b)
 
 
+def binned_normal_pdf(mean_std_args, bins):
+    pdf = np.diff(
+        norm(loc=expected_mean(*mean_std_args), scale=expected_std(*mean_std_args)).cdf(
+            bins
+        )
+    )
+    return pdf / pdf.sum()
+
+
 @pytest.fixture
 def bins():
     return np.linspace(-10, 40, 1001)
@@ -20,20 +29,9 @@ def bins():
 def simple_1D_data(bins):
     grid = np.array([[20], [40]])
     target = np.array([30])
-    bin_contents = np.array(
-        [
-            np.diff(norm(loc=expected_mean(x, 0), scale=expected_std(x, 0)).cdf(bins))
-            for x in grid
-        ]
-    )
+    bin_contents = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
 
-    # Assert for probability outside binning
-    bin_contents /= bin_contents.sum(axis=1)[:, np.newaxis]
-
-    truth = np.diff(
-        norm(loc=expected_mean(target, 0), scale=expected_std(target, 0)).cdf(bins)
-    )
-    truth /= truth.sum()
+    truth = binned_normal_pdf([target, 0], bins)
 
     return {
         "grid": grid,
@@ -47,27 +45,9 @@ def simple_1D_data(bins):
 def simple_2D_data(bins):
     grid = np.array([[20, 20], [60, 20], [40, 60]])
     target = np.array([25, 25])
-    bin_contents = np.array(
-        [
-            np.diff(
-                norm(loc=expected_mean(x[0], x[1]), scale=expected_std(x[0], x[1])).cdf(
-                    bins
-                )
-            )
-            for x in grid
-        ]
-    )
+    bin_contents = np.array([binned_normal_pdf(x, bins) for x in grid])
 
-    # Assert for probability outside binning
-    bin_contents /= bin_contents.sum(axis=1)[:, np.newaxis]
-
-    truth = np.diff(
-        norm(
-            loc=expected_mean(target[0], target[1]),
-            scale=expected_std(target[0], target[1]),
-        ).cdf(bins)
-    )
-    truth /= truth.sum()
+    truth = binned_normal_pdf(target, bins)
 
     return {
         "grid": grid,
@@ -84,30 +64,10 @@ def test_estimate_mean_std(bins):
     bin_contents = np.array(
         [
             [
+                [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
                 [
-                    np.diff(
-                        norm(loc=expected_mean(x, 0), scale=expected_std(x, 0)).cdf(
-                            bins
-                        )
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 1, 0), scale=expected_std(x + 1, 0)
-                        ).cdf(bins)
-                    ),
-                ],
-                [
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 1.5, 0),
-                            scale=expected_std(x + 1.5, 0),
-                        ).cdf(bins)
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 2, 0), scale=expected_std(x + 2, 0)
-                        ).cdf(bins)
-                    ),
+                    binned_normal_pdf([x + 1.5, 0], bins),
+                    binned_normal_pdf([x + 10, 0], bins),
                 ],
             ]
             for x in grid
@@ -118,7 +78,7 @@ def test_estimate_mean_std(bins):
         [
             [
                 [expected_mean(x, 0), expected_mean(x + 1, 0)],
-                [expected_mean(x + 1.5, 0), expected_mean(x + 2, 0)],
+                [expected_mean(x + 1.5, 0), expected_mean(x + 10, 0)],
             ]
             for x in grid
         ]
@@ -128,7 +88,7 @@ def test_estimate_mean_std(bins):
         [
             [
                 [expected_std(x, 0), expected_std(x + 1, 0)],
-                [expected_std(x + 1.5, 0), expected_std(x + 2, 0)],
+                [expected_std(x + 1.5, 0), expected_std(x + 10, 0)],
             ]
             for x in grid
         ]
@@ -360,37 +320,15 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     bin_contents = np.array(
         [
             [
+                [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
                 [
-                    np.diff(
-                        norm(loc=expected_mean(x, 0), scale=expected_std(x, 0)).cdf(
-                            bins
-                        )
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 1, 0), scale=expected_std(x + 1, 0)
-                        ).cdf(bins)
-                    ),
-                ],
-                [
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 1.5, 0),
-                            scale=expected_std(x + 1.5, 0),
-                        ).cdf(bins)
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 2, 0), scale=expected_std(x + 2, 0)
-                        ).cdf(bins)
-                    ),
+                    binned_normal_pdf([x + 10, 0], bins),
+                    binned_normal_pdf([x + 2, 0], bins),
                 ],
             ]
             for x in grid
         ]
     )
-
-    bin_contents /= bin_contents.sum(axis=-1)[..., np.newaxis]
 
     # Make template histograms at indizes [:, 1, 1, :] all zeroed
     bin_contents[:, 1, 1, :] = np.zeros(len(bins) - 1)
@@ -401,35 +339,15 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     truth = np.array(
         [
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target, 0), scale=expected_std(target, 0)
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target + 1, 0),
-                        scale=expected_std(target + 1, 0),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf([target, 0], bins),
+                binned_normal_pdf([target + 1, 0], bins),
             ],
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target + 1.5, 0),
-                        scale=expected_std(target + 1.5, 0),
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target + 2, 0),
-                        scale=expected_std(target + 2, 0),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf([target + 10, 0], bins),
+                binned_normal_pdf([target + 2, 0], bins),
             ],
         ]
     )
-    truth /= truth.sum(axis=-1)[..., np.newaxis]
 
     # Expect zeros for at least partially zeroed input templates
     truth[0, 0, :] = np.zeros(len(bins) - 1)
@@ -457,37 +375,15 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
     bin_contents = np.array(
         [
             [
+                [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
                 [
-                    np.diff(
-                        norm(loc=expected_mean(x, 0), scale=expected_std(x, 0)).cdf(
-                            bins
-                        )
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 1, 0), scale=expected_std(x + 1, 0)
-                        ).cdf(bins)
-                    ),
-                ],
-                [
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 1.5, 0),
-                            scale=expected_std(x + 1.5, 0),
-                        ).cdf(bins)
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x + 2, 0), scale=expected_std(x + 2, 0)
-                        ).cdf(bins)
-                    ),
+                    binned_normal_pdf([x + 10, 0], bins),
+                    binned_normal_pdf([x + 2, 0], bins),
                 ],
             ]
             for x in grid
         ]
     )
-
-    bin_contents /= bin_contents.sum(axis=-1)[..., np.newaxis]
 
     interp = MomentMorphInterpolator(
         grid_points=grid, bin_edges=bins, bin_contents=bin_contents
@@ -496,35 +392,15 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
     truth = np.array(
         [
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target, 0), scale=expected_std(target, 0)
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target + 1, 0),
-                        scale=expected_std(target + 1, 0),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf([target, 0], bins),
+                binned_normal_pdf([target + 1, 0], bins),
             ],
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target + 1.5, 0),
-                        scale=expected_std(target + 1.5, 0),
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target + 2, 0),
-                        scale=expected_std(target + 2, 0),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf([target + 10, 0], bins),
+                binned_normal_pdf([target + 2, 0], bins),
             ],
         ]
     )
-    truth /= truth.sum(axis=-1)[..., np.newaxis]
 
     res = interp(target)
 
@@ -594,40 +470,15 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     bin_contents = np.array(
         [
             [
+                [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
                 [
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0], x[1]),
-                            scale=expected_std(x[0], x[1]),
-                        ).cdf(bins)
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0] + 1, x[1]),
-                            scale=expected_std(x[0] + 1, x[1]),
-                        ).cdf(bins)
-                    ),
-                ],
-                [
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0] + 1.5, x[1]),
-                            scale=expected_std(x[0] + 1.5, x[1]),
-                        ).cdf(bins)
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0] + 2, x[1]),
-                            scale=expected_std(x[0] + 2, x[1]),
-                        ).cdf(bins)
-                    ),
+                    binned_normal_pdf([x[0] + 10, x[1]], bins),
+                    binned_normal_pdf([x[0] + 2, x[1]], bins),
                 ],
             ]
             for x in grid
         ]
     )
-
-    bin_contents /= bin_contents.sum(axis=-1)[..., np.newaxis]
 
     # Make template histograms at indizes [:, 1, 1, :] all zeroed
     bin_contents[:, 1, 1, :] = np.zeros(len(bins) - 1)
@@ -638,36 +489,15 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     truth = np.array(
         [
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0], target[1]),
-                        scale=expected_std(target[0], target[1]),
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0] + 1, target[1]),
-                        scale=expected_std(target[0] + 1, target[1]),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf(target, bins),
+                binned_normal_pdf([target[0] + 1, target[1]], bins),
             ],
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0] + 1.5, target[1]),
-                        scale=expected_std(target[0] + 1.5, target[1]),
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0] + 2, target[1]),
-                        scale=expected_std(target[0] + 2, target[1]),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf([target[0] + 10, target[1]], bins),
+                binned_normal_pdf([target[0] + 2, target[1]], bins),
             ],
         ]
     )
-    truth /= truth.sum(axis=-1)[..., np.newaxis]
 
     # Expect zeros for at least partially zeroed input templates
     truth[0, 0, :] = np.zeros(len(bins) - 1)
@@ -692,14 +522,7 @@ def test_MomentMorphInterpolator1D_extended_grid(bins):
 
     grid = np.array([[20], [40], [60], [80]])
     target = np.array([25])
-    bin_contents = np.array(
-        [
-            np.diff(norm(loc=expected_mean(x, 0), scale=expected_std(x, 0)).cdf(bins))
-            for x in grid
-        ]
-    )
-    # Assert for probability outside binning
-    bin_contents /= bin_contents.sum(axis=1)[:, np.newaxis]
+    bin_contents = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
 
     interp = MomentMorphInterpolator(
         grid_points=grid,
@@ -708,10 +531,7 @@ def test_MomentMorphInterpolator1D_extended_grid(bins):
     )
 
     res = interp(target)
-    truth = np.diff(
-        norm(loc=expected_mean(target, 0), scale=expected_std(target, 0)).cdf(bins)
-    )
-    truth /= truth.sum()
+    truth = binned_normal_pdf([target, 0], bins)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))
@@ -725,18 +545,7 @@ def test_MomentMorphInterpolator2D_extended_grid(bins):
 
     grid = np.array([[20, 20], [40, 20], [30, 40], [50, 20], [45, 40]])
     target = np.array([25, 25])
-    bin_contents = np.array(
-        [
-            np.diff(
-                norm(loc=expected_mean(x[0], x[1]), scale=expected_std(x[0], x[1])).cdf(
-                    bins
-                )
-            )
-            for x in grid
-        ]
-    )
-    # Assert for probability outside binning
-    bin_contents /= bin_contents.sum(axis=1)[:, np.newaxis]
+    bin_contents = np.array([binned_normal_pdf(x, bins) for x in grid])
 
     interp = MomentMorphInterpolator(
         grid_points=grid,
@@ -745,13 +554,7 @@ def test_MomentMorphInterpolator2D_extended_grid(bins):
     )
 
     res = interp(target)
-    truth = np.diff(
-        norm(
-            loc=expected_mean(target[0], target[1]),
-            scale=expected_std(target[0], target[1]),
-        ).cdf(bins)
-    )
-    truth /= truth.sum()
+    truth = binned_normal_pdf(target, bins)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))
@@ -768,40 +571,15 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
     bin_contents = np.array(
         [
             [
+                [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
                 [
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0], x[1]),
-                            scale=expected_std(x[0], x[1]),
-                        ).cdf(bins)
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0] + 1, x[1]),
-                            scale=expected_std(x[0] + 1, x[1]),
-                        ).cdf(bins)
-                    ),
-                ],
-                [
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0] + 1.5, x[1]),
-                            scale=expected_std(x[0] + 1.5, x[1]),
-                        ).cdf(bins)
-                    ),
-                    np.diff(
-                        norm(
-                            loc=expected_mean(x[0] + 2, x[1]),
-                            scale=expected_std(x[0] + 2, x[1]),
-                        ).cdf(bins)
-                    ),
+                    binned_normal_pdf([x[0] + 10, x[1]], bins),
+                    binned_normal_pdf([x[0] + 2, x[1]+5], bins),
                 ],
             ]
             for x in grid
         ]
     )
-
-    bin_contents /= bin_contents.sum(axis=-1)[..., np.newaxis]
 
     interp = MomentMorphInterpolator(
         grid_points=grid,
@@ -812,36 +590,15 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
     truth = np.array(
         [
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0], target[1]),
-                        scale=expected_std(target[0], target[1]),
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0] + 1, target[1]),
-                        scale=expected_std(target[0] + 1, target[1]),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf(target, bins),
+                binned_normal_pdf([target[0] + 1, target[1]], bins),
             ],
             [
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0] + 1.5, target[1]),
-                        scale=expected_std(target[0] + 1.5, target[1]),
-                    ).cdf(bins)
-                ),
-                np.diff(
-                    norm(
-                        loc=expected_mean(target[0] + 2, target[1]),
-                        scale=expected_std(target[0] + 2, target[1]),
-                    ).cdf(bins)
-                ),
+                binned_normal_pdf([target[0] + 10, target[1]], bins),
+                binned_normal_pdf([target[0] + 2, target[1]+5], bins),
             ],
         ]
     )
-    truth /= truth.sum(axis=-1)[..., np.newaxis]
 
     res = interp(target)
 
