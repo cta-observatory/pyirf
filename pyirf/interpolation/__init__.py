@@ -18,6 +18,7 @@ from .component_estimators import (
 )
 from .griddata_interpolator import GridDataInterpolator
 from .moment_morph_interpolator import MomentMorphInterpolator
+from .nearest_neighbor_searcher import NearestNeighborSearcher
 from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
@@ -34,4 +35,5 @@ __all__ = [
     "RadMaxEstimator",
     "EnergyDispersionEstimator",
     "PSFTableEstimator",
+    "NearestNeighborSearcher",
 ]
