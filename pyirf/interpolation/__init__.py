@@ -17,6 +17,7 @@ from .component_estimators import (
     RadMaxEstimator,
 )
 from .griddata_interpolator import GridDataInterpolator
+from .moment_morph_interpolator import MomentMorphInterpolator
 from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
@@ -25,6 +26,7 @@ __all__ = [
     "DiscretePDFComponentEstimator",
     "DiscretePDFInterpolator",
     "GridDataInterpolator",
+    "MomentMorphInterpolator",
     "ParametrizedComponentEstimator",
     "ParametrizedInterpolator",
     "QuantileInterpolator",
