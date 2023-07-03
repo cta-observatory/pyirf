@@ -26,6 +26,11 @@ class NearestNeighborSearcher(BaseInterpolator):
             passed to numpy.linalg.norm [1]. Defaults to 2,
             which uses the euclidean norm.
 
+        Raises
+        ------
+        TypeError:
+            If norm_ord is not non-zero integer
+
         Note
         ----
             Also calls pyirf.interpolation.BaseInterpolators.__init__
