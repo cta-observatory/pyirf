@@ -10,7 +10,9 @@ ONE_SIGMA_QUANTILE = norm.cdf(1) - norm.cdf(-1)
 
 
 def angular_resolution(
-    events, energy_bins, energy_type="true",
+    events, energy_bins,
+    energy_type="true",
+    quantile=ONE_SIGMA_QUANTILE,
 ):
     """
     Calculate the angular resolution.
@@ -27,6 +29,10 @@ def angular_resolution(
     energy_type: str
         Either "true" or "reco" energy.
         Default is "true".
+    quantile : float
+        Which quantile to use for the angular resolution,
+        by default, the containment of the 1-sigma region
+        of the normal distribution (~68%) is used.
 
     Returns
     -------
@@ -57,6 +63,6 @@ def angular_resolution(
     # use groupby operations to calculate the percentile in each bin
     by_bin = table[valid].group_by(bin_index[valid])
     for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
-        result[key][bin_idx] = np.nanquantile(group["theta"], ONE_SIGMA_QUANTILE)
+        result[key][bin_idx] = np.nanquantile(group["theta"], quantile)
         result["n_events"][bin_idx] = len(group)
     return result
