@@ -45,9 +45,6 @@ def test_BaseComponentEstimator_target_point_checks():
     def dummy_interp(target_point):
         return 42
 
-    def dummy_extrap(target_point):
-        return 43
-
     class DummyEstimator(BaseComponentEstimator):
         def __init__(self, grid_points):
             super().__init__(grid_points)
@@ -98,7 +95,7 @@ def test_BaseComponentEstimator_target_point_checks():
 
 
 def test_BaseComponentEstimator_call():
-    """Test base_estimator's __call__ """
+    """Test base_estimator's __call__"""
     from pyirf.interpolation.component_estimators import BaseComponentEstimator
 
     grid_points1D_good = np.array([1, 2, 3])
@@ -155,7 +152,7 @@ def test_ParametrizedComponentEstimator_checks():
 
     with pytest.raises(
         TypeError,
-        match="interpolator_cls must be a ParametrizedInterpolator subclass, got",
+        match="interpolator_cls must be a ParametrizedInterpolator subclass or NearestNeighborSearcher, got",
     ):
         ParametrizedComponentEstimator(
             grid_points=grid_points,
@@ -209,7 +206,7 @@ def test_DiscretePDFComponentEstimator_checks():
 
     with pytest.raises(
         TypeError,
-        match="interpolator_cls must be a DiscretePDFInterpolator subclass, got",
+        match="interpolator_cls must be a DiscretePDFInterpolator subclass or NearestNeighborSearcher, got",
     ):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
@@ -261,3 +258,119 @@ def test_DiscretePDFComponentEstimator_checks():
             bin_edges=bin_edges,
             interpolator_cls=DummyInterpolator,
         )
+
+
+def test_DiscretePDFComponentEstimator_NearestNeighbors():
+    """Test DiscretePDFComponentEstimator to be usable with NearestNeighborSearch and bin_edges
+    is ignored properly if not needed."""
+    from pyirf.interpolation.base_interpolators import DiscretePDFInterpolator
+    from pyirf.interpolation.component_estimators import DiscretePDFComponentEstimator
+    from pyirf.interpolation.nearest_neighbor_searcher import NearestNeighborSearcher
+
+    grid_points = np.array([1, 2, 3])
+    bin_edges = np.linspace(0, 1, 11)
+    bin_contents = np.array([np.full(10, x) for x in grid_points])
+
+    # NearestNeighborSearcher as interpolator, no extrapolator
+    estim = DiscretePDFComponentEstimator(
+        grid_points=grid_points,
+        bin_contents=bin_contents,
+        bin_edges=None,
+        interpolator_cls=NearestNeighborSearcher,
+        interpolator_kwargs={"norm_ord": 2},
+    )
+
+    assert np.allclose(estim(target_point=np.array([1.1])), bin_contents[0, :])
+
+    # NearestNeighborSearcher as inter- and extrapolator
+    estim = DiscretePDFComponentEstimator(
+        grid_points=grid_points,
+        bin_contents=bin_contents,
+        bin_edges=None,
+        interpolator_cls=NearestNeighborSearcher,
+        interpolator_kwargs={"norm_ord": 2},
+        extrapolator_cls=NearestNeighborSearcher,
+        extrapolator_kwargs={"norm_ord": 1},
+    )
+
+    assert np.allclose(estim(target_point=np.array([1.1])), bin_contents[0, :])
+    assert np.allclose(estim(target_point=np.array([4.1])), bin_contents[2, :])
+
+    # DummyInterpolator but NearestNeighborSeacher as extrapolaor
+    class DummyInterpolator(DiscretePDFInterpolator):
+        def interpolate(self, target_point):
+            return 42
+
+    with pytest.raises(TypeError, match="Input bin_edges is not a numpy array."):
+        DiscretePDFComponentEstimator(
+            grid_points=grid_points,
+            bin_contents=bin_contents,
+            bin_edges=None,
+            interpolator_cls=DummyInterpolator,
+            interpolator_kwargs=None,
+            extrapolator_cls=NearestNeighborSearcher,
+            extrapolator_kwargs={"norm_ord": 1},
+        )
+
+    estim = DiscretePDFComponentEstimator(
+        grid_points=grid_points,
+        bin_contents=bin_contents,
+        bin_edges=bin_edges,
+        interpolator_cls=DummyInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=NearestNeighborSearcher,
+        extrapolator_kwargs={"norm_ord": 1},
+    )
+
+    assert estim(target_point=np.array([1.1])) == 42
+    assert np.allclose(estim(target_point=np.array([4.1])), bin_contents[2, :])
+
+    # DummyExtrapolator but NearestNeighborSeacher as interpolaor
+    class DummyExtrapolator(DiscretePDFInterpolator):
+        def interpolate(self, target_point):
+            return 41
+
+    with pytest.raises(TypeError, match="Input bin_edges is not a numpy array."):
+        DiscretePDFComponentEstimator(
+            grid_points=grid_points,
+            bin_contents=bin_contents,
+            bin_edges=None,
+            interpolator_cls=NearestNeighborSearcher,
+            interpolator_kwargs={"norm_ord": 3},
+            extrapolator_cls=DummyExtrapolator,
+            extrapolator_kwargs=None,
+        )
+
+    estim = DiscretePDFComponentEstimator(
+        grid_points=grid_points,
+        bin_contents=bin_contents,
+        bin_edges=bin_edges,
+        interpolator_cls=NearestNeighborSearcher,
+        interpolator_kwargs={"norm_ord": 3},
+        extrapolator_cls=DummyExtrapolator,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(target_point=np.array([1.1])), bin_contents[0, :])
+    assert estim(target_point=np.array([4.1])) == 41
+
+
+def test_ParametrizedComponentEstimator_NearestNeighbors():
+    """Test ParametrizedComponentEstimator to be usable with NearestNeighborSearch."""
+    from pyirf.interpolation.component_estimators import ParametrizedComponentEstimator
+    from pyirf.interpolation.nearest_neighbor_searcher import NearestNeighborSearcher
+
+    grid_points = np.array([1, 2, 3])
+    params = np.array([np.full(10, x) for x in grid_points])
+
+    estim = ParametrizedComponentEstimator(
+        grid_points=grid_points,
+        params=params,
+        interpolator_cls=NearestNeighborSearcher,
+        interpolator_kwargs={"norm_ord": 2},
+        extrapolator_cls=NearestNeighborSearcher,
+        extrapolator_kwargs={"norm_ord": 1},
+    )
+
+    assert np.allclose(estim(target_point=np.array([1.1])), params[0, :])
+    assert np.allclose(estim(target_point=np.array([4.1])), params[2, :])
