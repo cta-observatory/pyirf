@@ -58,4 +58,5 @@ def angular_resolution(
     by_bin = table[valid].group_by(bin_index[valid])
     for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
         result[key][bin_idx] = np.nanquantile(group["theta"], ONE_SIGMA_QUANTILE)
+        result["n_events"][bin_idx] = len(group)
     return result

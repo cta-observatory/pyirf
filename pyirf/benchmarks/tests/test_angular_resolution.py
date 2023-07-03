@@ -45,11 +45,15 @@ def test_angular_resolution(unit):
     events["true_energy"].value[500] = np.nan
     events["true_energy"].value[1500] = np.nan
 
-    ang_res = angular_resolution(
+    table = angular_resolution(
         events,
         [1, 10, 100] * u.TeV,
-    )['angular_resolution']
+    )
 
+    ang_res = table['angular_resolution']
     assert len(ang_res) == 2
     assert u.isclose(ang_res[0], TRUE_RES_1 * u.deg, rtol=0.05)
     assert u.isclose(ang_res[1], TRUE_RES_2 * u.deg, rtol=0.05)
+
+    # one value in each bin is nan, which is ignored
+    np.testing.assert_array_equal(table["n_events"], [998, 998])
