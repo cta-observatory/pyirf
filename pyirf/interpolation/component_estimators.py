@@ -8,7 +8,10 @@ from pyirf.interpolation.base_interpolators import (
     ParametrizedInterpolator,
 )
 from pyirf.interpolation.griddata_interpolator import GridDataInterpolator
-from pyirf.interpolation.nearest_neighbor_searcher import NearestNeighborSearcher
+from pyirf.interpolation.nearest_neighbor_searcher import (
+    DiscretePDFNearestNeighborSearcher,
+    ParametrizedNearestNeighborSearcher,
+)
 from pyirf.interpolation.quantile_interpolator import QuantileInterpolator
 from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
@@ -170,10 +173,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         grid_points: np.ndarray, shape=(n_points, n_dims):
             Grid points at which interpolation templates exist
         bin_edges: np.ndarray, shape=(n_bins+1)
-            Common set of bin-edges for all discretized PDFs. Ignored if
-            interpolator_cls is NearestNeighborSearcher and, at the same time,
-            extrapolator_cls is None or NearestNeighborSearcher.
-            Can thus be e.g. None in these cases.
+            Common set of bin-edges for all discretized PDFs.
         bin_contents: np.ndarray, shape=(n_points, ..., n_bins)
             Discretized PDFs for all grid points and arbitrary further dimensions
             (in IRF term e.g. field-of-view offset bins). Actual interpolation dimension,
@@ -195,15 +195,15 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         Raises
         ------
         TypeError:
-            When bin_edges is not a np.ndarray and not ignored.
+            When bin_edges is not a np.ndarray.
         TypeError:
             When bin_content is not a np.ndarray
         TypeError:
-            When interpolator_cls is not a BinnedInterpolator subclass or
-            NearestNeighborSeacher.
+            When interpolator_cls is not a DiscretePDFInterpolator subclass or
+            DiscretePDFNearestNeighborSeacher.
         ValueError:
-            When number of bins in bin_edges and contents bin_contents is
-            not matching and bin_edges is not ignored.
+            When number of bins in bin_edges and contents in bin_contents is
+            not matching.
         ValueError:
             When number of histograms in bin_contents and points in grid_points
             is not matching
@@ -217,18 +217,6 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             grid_points,
         )
 
-        # Ignore bin_edges if both inter- and extrapolator are NearestNeighborSeacher
-        # or None (for the extrapolator)
-        if issubclass(interpolator_cls, NearestNeighborSearcher):
-            if extrapolator_cls is None:
-                ignore_edges = True
-            elif issubclass(extrapolator_cls, NearestNeighborSearcher):
-                ignore_edges = True
-            else:
-                ignore_edges = False
-        else:
-            ignore_edges = False
-
         if not isinstance(bin_contents, np.ndarray):
             raise TypeError("Input bin_contents is not a numpy array.")
         elif self.n_points != bin_contents.shape[0]:
@@ -237,14 +225,13 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
                 f"number of histograms in bin_contents ({bin_contents.shape[0]}) "
                 "not matching."
             )
-        if not ignore_edges:
-            if not isinstance(bin_edges, np.ndarray):
-                raise TypeError("Input bin_edges is not a numpy array.")
-            elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
-                raise ValueError(
-                    f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
-                    f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
-                )
+        elif not isinstance(bin_edges, np.ndarray):
+            raise TypeError("Input bin_edges is not a numpy array.")
+        elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
+            raise ValueError(
+                f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
+                f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
+            )
 
         if interpolator_kwargs is None:
             interpolator_kwargs = {}
@@ -252,26 +239,21 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         if extrapolator_kwargs is None:
             extrapolator_kwargs = {}
 
-        if issubclass(interpolator_cls, DiscretePDFInterpolator):
-            self.interpolator = interpolator_cls(
-                grid_points, bin_edges, bin_contents, **interpolator_kwargs
-            )
-        elif issubclass(interpolator_cls, NearestNeighborSearcher):
-            self.interpolator = interpolator_cls(
-                grid_points, bin_contents, **interpolator_kwargs
-            )
-        else:
+        if not (
+            issubclass(interpolator_cls, DiscretePDFInterpolator)
+            or issubclass(interpolator_cls, DiscretePDFNearestNeighborSearcher)
+        ):
             raise TypeError(
                 "interpolator_cls must be a DiscretePDFInterpolator subclass or "
-                f"NearestNeighborSearcher, got {interpolator_cls}"
+                f"DiscretePDFNearestNeighborSearcher, got {interpolator_cls}"
             )
+
+        self.interpolator = interpolator_cls(
+            grid_points, bin_edges, bin_contents, **interpolator_kwargs
+        )
 
         if extrapolator_cls is None:
             self.extrapolator = None
-        elif issubclass(extrapolator_cls, NearestNeighborSearcher):
-            self.extrapolator = extrapolator_cls(
-                grid_points, bin_contents, **extrapolator_kwargs
-            )
         else:
             self.extrapolator = extrapolator_cls(
                 grid_points, bin_edges, bin_contents, **extrapolator_kwargs
@@ -324,7 +306,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         ------
         TypeError:
             When interpolator_cls is not a ParametrizedInterpolator subclass
-            or NearestNeighborSearcher.
+            or ParametrizedNearestNeighborSearcher.
         TypeError:
             When params is not a np.ndarray
         ValueError:
@@ -354,11 +336,11 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
 
         if not (
             issubclass(interpolator_cls, ParametrizedInterpolator)
-            or issubclass(interpolator_cls, NearestNeighborSearcher)
+            or issubclass(interpolator_cls, ParametrizedNearestNeighborSearcher)
         ):
             raise TypeError(
                 "interpolator_cls must be a ParametrizedInterpolator subclass or "
-                f"NearestNeighborSearcher, got {interpolator_cls}"
+                f"ParametrizedNearestNeighborSearcher, got {interpolator_cls}"
             )
 
         self.interpolator = interpolator_cls(grid_points, params, **interpolator_kwargs)

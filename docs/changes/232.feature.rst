@@ -1,1 +1,2 @@
-This PR adds a NearestNeighborSearcher for inter-/ and extrapolation
+This PR adds a DiscretePDFNearestNeighborSearcher and a ParametrizedNearestNeighborSeacher to support nearest neighbor approaches 
+as alternatives to inter-/ and extrapolation
