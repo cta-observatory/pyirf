@@ -1,0 +1,1 @@
+Correctly fill n_events in ``angular_resolution``, was always 0 before.
