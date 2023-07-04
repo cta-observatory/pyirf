@@ -1,9 +1,9 @@
-"""Tests for base interpolator classes"""
+"""Tests for GridDataInterpolator"""
 import numpy as np
 
 
 def test_GridDataInterpolator_1DGrid():
-    """Test checks performed to enforce correct data structure"""
+    """Test GridDataInterpolator on 1D Grid"""
     from pyirf.interpolation import GridDataInterpolator
 
     grid_points = np.array([[0], [1]])
@@ -14,12 +14,10 @@ def test_GridDataInterpolator_1DGrid():
 
     dummy_data = np.array([dummy_data1, dummy_data2])
 
-    Interpolator = GridDataInterpolator(
-        grid_points=grid_points,
-        params=dummy_data,
-        method="linear"
+    interpolator = GridDataInterpolator(
+        grid_points=grid_points, params=dummy_data, method="linear"
     )
-    interpolant = Interpolator(target_point)
+    interpolant = interpolator(target_point)
 
     dummy_data_target = 1.5 * dummy_data1
 
@@ -28,7 +26,7 @@ def test_GridDataInterpolator_1DGrid():
 
 
 def test_GridDataInterpolator_2DGrid():
-    """Test checks performed to enforce correct data structure"""
+    """Test GridDataInterpolator on 2D Grid"""
     from pyirf.interpolation import GridDataInterpolator
 
     grid_points = np.array([[0, 0], [0, 1], [1, 0], [1, 1]])
@@ -41,12 +39,10 @@ def test_GridDataInterpolator_2DGrid():
 
     dummy_data = np.array([dummy_data1, dummy_data2, dummy_data3, dummy_data4])
 
-    Interpolator = GridDataInterpolator(
-        grid_points=grid_points,
-        params=dummy_data,
-        method="linear"
+    interpolator = GridDataInterpolator(
+        grid_points=grid_points, params=dummy_data, method="linear"
     )
-    interpolant = Interpolator(target_point)
+    interpolant = interpolator(target_point)
 
     dummy_data_target = 1.5 * dummy_data1
 
