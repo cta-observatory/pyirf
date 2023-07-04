@@ -1,5 +1,10 @@
 import numpy as np
-from .base_interpolators import BaseInterpolator
+
+from .base_interpolators import (
+    BaseInterpolator,
+    DiscretePDFInterpolator,
+    ParametrizedInterpolator,
+)
 
 __all__ = [
     "BaseNearestNeighborSearcher",
@@ -130,6 +135,9 @@ class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
         )
 
 
+DiscretePDFInterpolator.register(DiscretePDFNearestNeighborSearcher)
+
+
 class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
     """
     Dummy NearestNeighbor approach usable instead of
@@ -159,3 +167,6 @@ class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
         """
 
         super().__init__(grid_points=grid_points, contents=params, norm_ord=norm_ord)
+
+
+ParametrizedInterpolator.register(ParametrizedNearestNeighborSearcher)
