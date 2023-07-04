@@ -4,10 +4,16 @@ Functions and classes for calculating spectral weights
 import astropy.units as u
 import numpy as np
 from scipy.interpolate import interp1d
-from pkg_resources import resource_filename
 from astropy.table import QTable
 
 from .utils import cone_solid_angle
+import sys
+
+if sys.version_info < (3, 9):
+    from importlib_resources import files, as_file
+else:
+    from importlib.resources import files, as_file
+
 
 #: Unit of a point source flux
 #:
@@ -397,6 +403,5 @@ IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
 #: For higher energies we assume a
 #: flattening of the dF/dE*E^2.7 more or less in the middle of the large
 #: spread of the available data reported on the same proceeding.
-DAMPE_P_He_SPECTRUM = TableInterpolationSpectrum.from_file(
-    resource_filename("pyirf", "resources/dampe_p+he.ecsv")
-)
+with as_file(files("pyirf") / "resources/dampe_p+he.ecsv") as _path:
+    DAMPE_P_He_SPECTRUM = TableInterpolationSpectrum.from_file(_path)
