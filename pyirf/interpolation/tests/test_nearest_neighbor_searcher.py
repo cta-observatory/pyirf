@@ -27,7 +27,7 @@ def test_BaseNearestNeighborSearcher_1DGrid(grid_1d, contents):
 
     searcher = BaseNearestNeighborSearcher(grid_1d, contents, norm_ord=2)
 
-    target = np.array([[0]])
+    target = np.array([0])
     assert np.array_equal(searcher(target), contents[0, :])
 
     target = np.array([[1.9]])
@@ -42,7 +42,7 @@ def test_BaseNearestNeighborSearcher_2DGrid(grid_2d, contents):
     target = np.array([[0, 1]])
     assert np.array_equal(searcher(target), contents[0, :])
 
-    target = np.array([[3, 3]])
+    target = np.array([3, 3])
     assert np.array_equal(searcher(target), contents[-1, :])
 
 
