@@ -76,3 +76,18 @@ def test_DiscretePDFInterpolator_instantiation():
 
     interp2D = DummyBinnedInterpolator(grid_points2D, bin_edges, bin_content)
     assert interp2D(target2D) == 42
+
+
+def test_virtual_subclasses():
+    """Tests that corresponding nearest neighbor seacher are virtual sublasses of interpolators"""
+    from pyirf.interpolation import (
+        DiscretePDFInterpolator,
+        DiscretePDFNearestNeighborSearcher,
+        ParametrizedInterpolator,
+        ParametrizedNearestNeighborSearcher,
+    )
+
+    assert issubclass(DiscretePDFNearestNeighborSearcher, DiscretePDFInterpolator)
+    assert issubclass(ParametrizedNearestNeighborSearcher, ParametrizedInterpolator)
+    assert not issubclass(ParametrizedNearestNeighborSearcher, DiscretePDFInterpolator)
+    assert not issubclass(DiscretePDFNearestNeighborSearcher, ParametrizedInterpolator)

@@ -2,6 +2,7 @@
 from abc import ABCMeta, abstractmethod
 
 import numpy as np
+import pyirf.interpolation as pyint
 from pyirf.binning import bin_center
 
 __all__ = ["BaseInterpolator", "ParametrizedInterpolator", "DiscretePDFInterpolator"]
@@ -14,7 +15,7 @@ class BaseInterpolator(metaclass=ABCMeta):
     """
 
     def __init__(self, grid_points):
-        """BaseInterpolator  
+        """BaseInterpolator
 
         Parameters
         ----------
@@ -77,6 +78,13 @@ class ParametrizedInterpolator(BaseInterpolator):
         if self.params.ndim == 1:
             self.params = self.params[..., np.newaxis]
 
+    @classmethod
+    def __subclasshook__(cls, subclass):
+        if subclass is pyint.ParametrizedNearestNeighborSearcher:
+            return True
+        else:
+            return NotImplemented
+
 
 class DiscretePDFInterpolator(BaseInterpolator):
     """
@@ -109,3 +117,10 @@ class DiscretePDFInterpolator(BaseInterpolator):
         self.bin_edges = bin_edges
         self.bin_mids = bin_center(self.bin_edges)
         self.bin_contents = bin_contents
+
+    @classmethod
+    def __subclasshook__(cls, subclass):
+        if subclass is pyint.DiscretePDFNearestNeighborSearcher:
+            return True
+        else:
+            return NotImplemented

@@ -43,7 +43,6 @@ class BaseComponentEstimator:
         Parameters
         ----------
         grid_points: np.ndarray, shape=(n_points, n_dims):
-            Grid points at which interpolation templates exist
 
         Raises
         ------
@@ -199,8 +198,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         TypeError:
             When bin_content is not a np.ndarray
         TypeError:
-            When interpolator_cls is not a DiscretePDFInterpolator subclass or
-            DiscretePDFNearestNeighborSeacher.
+            When interpolator_cls is not a DiscretePDFInterpolator subclass.
         ValueError:
             When number of bins in bin_edges and contents in bin_contents is
             not matching.
@@ -239,13 +237,9 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         if extrapolator_kwargs is None:
             extrapolator_kwargs = {}
 
-        if not (
-            issubclass(interpolator_cls, DiscretePDFInterpolator)
-            or issubclass(interpolator_cls, DiscretePDFNearestNeighborSearcher)
-        ):
+        if not issubclass(interpolator_cls, DiscretePDFInterpolator):
             raise TypeError(
-                "interpolator_cls must be a DiscretePDFInterpolator subclass or "
-                f"DiscretePDFNearestNeighborSearcher, got {interpolator_cls}"
+                f"interpolator_cls must be a DiscretePDFInterpolator subclass, got {interpolator_cls}"
             )
 
         self.interpolator = interpolator_cls(
@@ -305,8 +299,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         Raises
         ------
         TypeError:
-            When interpolator_cls is not a ParametrizedInterpolator subclass
-            or ParametrizedNearestNeighborSearcher.
+            When interpolator_cls is not a ParametrizedInterpolator subclass.
         TypeError:
             When params is not a np.ndarray
         ValueError:
@@ -334,13 +327,9 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         if extrapolator_kwargs is None:
             extrapolator_kwargs = {}
 
-        if not (
-            issubclass(interpolator_cls, ParametrizedInterpolator)
-            or issubclass(interpolator_cls, ParametrizedNearestNeighborSearcher)
-        ):
+        if not issubclass(interpolator_cls, ParametrizedInterpolator):
             raise TypeError(
-                "interpolator_cls must be a ParametrizedInterpolator subclass or "
-                f"ParametrizedNearestNeighborSearcher, got {interpolator_cls}"
+                f"interpolator_cls must be a ParametrizedInterpolator subclass, got {interpolator_cls}"
             )
 
         self.interpolator = interpolator_cls(grid_points, params, **interpolator_kwargs)

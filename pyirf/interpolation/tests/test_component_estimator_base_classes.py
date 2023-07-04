@@ -152,7 +152,7 @@ def test_ParametrizedComponentEstimator_checks():
 
     with pytest.raises(
         TypeError,
-        match="interpolator_cls must be a ParametrizedInterpolator subclass or ParametrizedNearestNeighborSearcher, got",
+        match="interpolator_cls must be a ParametrizedInterpolator subclass, got",
     ):
         ParametrizedComponentEstimator(
             grid_points=grid_points,
@@ -206,7 +206,7 @@ def test_DiscretePDFComponentEstimator_checks():
 
     with pytest.raises(
         TypeError,
-        match="interpolator_cls must be a DiscretePDFInterpolator subclass or DiscretePDFNearestNeighborSearcher, got",
+        match="interpolator_cls must be a DiscretePDFInterpolator subclass, got",
     ):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
@@ -288,7 +288,7 @@ def test_DiscretePDFComponentEstimator_NearestNeighbors():
 
     with pytest.raises(
         TypeError,
-        match="interpolator_cls must be a DiscretePDFInterpolator subclass or DiscretePDFNearestNeighborSearcher, got",
+        match="interpolator_cls must be a DiscretePDFInterpolator subclass, got",
     ):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
@@ -326,7 +326,7 @@ def test_ParametrizedComponentEstimator_NearestNeighbors():
 
     with pytest.raises(
         TypeError,
-        match="interpolator_cls must be a ParametrizedInterpolator subclass or ParametrizedNearestNeighborSearcher, got",
+        match="interpolator_cls must be a ParametrizedInterpolator subclass, got",
     ):
         ParametrizedComponentEstimator(
             grid_points=grid_points,
