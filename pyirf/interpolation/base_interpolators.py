@@ -14,7 +14,7 @@ class BaseInterpolator(metaclass=ABCMeta):
     """
 
     def __init__(self, grid_points):
-        """BaseInterpolator  
+        """BaseInterpolator
 
         Parameters
         ----------

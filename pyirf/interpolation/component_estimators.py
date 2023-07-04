@@ -8,6 +8,10 @@ from pyirf.interpolation.base_interpolators import (
     ParametrizedInterpolator,
 )
 from pyirf.interpolation.griddata_interpolator import GridDataInterpolator
+from pyirf.interpolation.nearest_neighbor_searcher import (
+    DiscretePDFNearestNeighborSearcher,
+    ParametrizedNearestNeighborSearcher,
+)
 from pyirf.interpolation.quantile_interpolator import QuantileInterpolator
 from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
@@ -39,7 +43,6 @@ class BaseComponentEstimator:
         Parameters
         ----------
         grid_points: np.ndarray, shape=(n_points, n_dims):
-            Grid points at which interpolation templates exist
 
         Raises
         ------
@@ -169,7 +172,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         grid_points: np.ndarray, shape=(n_points, n_dims):
             Grid points at which interpolation templates exist
         bin_edges: np.ndarray, shape=(n_bins+1)
-            Common set of bin-edges for all discretized PDFs
+            Common set of bin-edges for all discretized PDFs.
         bin_contents: np.ndarray, shape=(n_points, ..., n_bins)
             Discretized PDFs for all grid points and arbitrary further dimensions
             (in IRF term e.g. field-of-view offset bins). Actual interpolation dimension,
@@ -191,14 +194,14 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         Raises
         ------
         TypeError:
-            When bin_edges is not a np.ndarray
+            When bin_edges is not a np.ndarray.
         TypeError:
             When bin_content is not a np.ndarray
         TypeError:
-            When interpolator_cls is not a BinnedInterpolator subclass.
+            When interpolator_cls is not a DiscretePDFInterpolator subclass.
         ValueError:
-            When number of bins in bin_edges and contents bin_contents is
-            not matching
+            When number of bins in bin_edges and contents in bin_contents is
+            not matching.
         ValueError:
             When number of histograms in bin_contents and points in grid_points
             is not matching
@@ -212,20 +215,20 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             grid_points,
         )
 
-        if not isinstance(bin_edges, np.ndarray):
-            raise TypeError("Input bin_edges is not a numpy array.")
-        elif not isinstance(bin_contents, np.ndarray):
+        if not isinstance(bin_contents, np.ndarray):
             raise TypeError("Input bin_contents is not a numpy array.")
-        elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
-            raise ValueError(
-                f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
-                f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
-            )
         elif self.n_points != bin_contents.shape[0]:
             raise ValueError(
                 f"Shape missmatch, number of grid_points ({self.n_points}) and "
                 f"number of histograms in bin_contents ({bin_contents.shape[0]}) "
                 "not matching."
+            )
+        elif not isinstance(bin_edges, np.ndarray):
+            raise TypeError("Input bin_edges is not a numpy array.")
+        elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
+            raise ValueError(
+                f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
+                f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
             )
 
         if interpolator_kwargs is None:
