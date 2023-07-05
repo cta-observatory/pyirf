@@ -135,16 +135,29 @@ def test_BaseComponentEstimator_call():
 
 def test_ParametrizedComponentEstimator_checks():
     """Test checks for inputs perfomed by the base estimator class"""
-    from pyirf.interpolation import DiscretePDFInterpolator, ParametrizedInterpolator
+    from pyirf.interpolation import (
+        DiscretePDFExtrapolator,
+        DiscretePDFInterpolator,
+        ParametrizedExtrapolator,
+        ParametrizedInterpolator,
+    )
     from pyirf.interpolation.component_estimators import ParametrizedComponentEstimator
 
     class DummyInterpolator(ParametrizedInterpolator):
         def interpolate(self, target_point):
             return 42
 
+    class DummyExtrapolator(ParametrizedExtrapolator):
+        def extrapolate(self, target_point):
+            return 43
+
     class WrongInterpolator(DiscretePDFInterpolator):
-        def interpolate(self, terget_point):
+        def interpolate(self, target_point):
             return 41
+
+    class WrongExtrapolator(DiscretePDFExtrapolator):
+        def extrapolate(self, target_point):
+            return 40
 
     grid_points = np.array([1, 2, 3])
     params_good = np.array([[1], [2], [3]])
@@ -177,26 +190,52 @@ def test_ParametrizedComponentEstimator_checks():
             interpolator_cls=DummyInterpolator,
         )
 
+    with pytest.raises(
+        TypeError,
+        match="extrapolator_cls must be a ParametrizedExtrapolator subclass, got",
+    ):
+        ParametrizedComponentEstimator(
+            grid_points=grid_points,
+            params=params_good,
+            interpolator_cls=DummyInterpolator,
+            extrapolator_cls=WrongExtrapolator,
+        )
+
     estim = ParametrizedComponentEstimator(
         grid_points=grid_points,
         params=params_good,
         interpolator_cls=DummyInterpolator,
+        extrapolator_cls=DummyExtrapolator,
     )
     assert estim(np.array([[1.5]])) == 42
+    assert estim(np.array([[0]])) == 43
 
 
 def test_DiscretePDFComponentEstimator_checks():
     """Test checks for inputs perfomed by the base estimator class"""
-    from pyirf.interpolation import DiscretePDFInterpolator, ParametrizedInterpolator
+    from pyirf.interpolation import (
+        DiscretePDFExtrapolator,
+        DiscretePDFInterpolator,
+        ParametrizedExtrapolator,
+        ParametrizedInterpolator,
+    )
     from pyirf.interpolation.component_estimators import DiscretePDFComponentEstimator
+
+    class DummyInterpolator(DiscretePDFInterpolator):
+        def interpolate(self, target_point):
+            return 42
+
+    class DummyExtrapolator(DiscretePDFExtrapolator):
+        def extrapolate(self, target_point):
+            return 43
 
     class WrongInterpolator(ParametrizedInterpolator):
         def interpolate(self, target_point):
             return 41
 
-    class DummyInterpolator(DiscretePDFInterpolator):
-        def interpolate(self, terget_point):
-            return 42
+    class WrongExtrapolator(ParametrizedExtrapolator):
+        def extrapolate(self, target_point):
+            return 40
 
     grid_points = np.array([1, 2, 3])
     bin_edges = np.linspace(-1, 1, 11)
@@ -259,10 +298,31 @@ def test_DiscretePDFComponentEstimator_checks():
             interpolator_cls=DummyInterpolator,
         )
 
+    with pytest.raises(
+        TypeError,
+        match="extrapolator_cls must be a DiscretePDFExtrapolator subclass, got",
+    ):
+        DiscretePDFComponentEstimator(
+            grid_points=grid_points,
+            bin_edges=bin_edges,
+            bin_contents=bin_content_good_shape,
+            interpolator_cls=DummyInterpolator,
+            extrapolator_cls=WrongExtrapolator,
+        )
+
+    estim = DiscretePDFComponentEstimator(
+        grid_points=grid_points,
+        bin_edges=bin_edges,
+        bin_contents=bin_content_good_shape,
+        interpolator_cls=DummyInterpolator,
+        extrapolator_cls=DummyExtrapolator,
+    )
+    assert estim(np.array([[1.5]])) == 42
+    assert estim(np.array([[0]])) == 43
+
 
 def test_DiscretePDFComponentEstimator_NearestNeighbors():
-    """Test DiscretePDFComponentEstimator to be usable with NearestNeighborSearch and bin_edges
-    is ignored properly if not needed."""
+    """Test DiscretePDFComponentEstimator to be usable with NearestNeighborSearch."""
     from pyirf.interpolation.component_estimators import DiscretePDFComponentEstimator
     from pyirf.interpolation.nearest_neighbor_searcher import (
         DiscretePDFNearestNeighborSearcher,

@@ -1,5 +1,5 @@
 """
-Collection of interpolation methods
+Collection of interpolation and extrapolation methods
 """
 
 from .base_extrapolators import (
@@ -28,6 +28,7 @@ from .nearest_neighbor_searcher import (
     DiscretePDFNearestNeighborSearcher,
     ParametrizedNearestNeighborSearcher,
 )
+from .nearest_simplex_extrapolator import ParametrizedNearestSimplexExtrapolator
 from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
@@ -45,6 +46,7 @@ __all__ = [
     "ParametrizedComponentEstimator",
     "ParametrizedInterpolator",
     "ParametrizedNearestNeighborSearcher",
+    "ParametrizedNearestSimplexExtrapolator",
     "QuantileInterpolator",
     "EffectiveAreaEstimator",
     "RadMaxEstimator",

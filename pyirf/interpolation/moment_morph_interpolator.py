@@ -127,9 +127,9 @@ def linesegment_1D_interpolation_coefficients(grid_points, target_point):
     return np.einsum("...j, ji -> ...i", (target_point - m0) ** j, np.linalg.inv(m_ij))
 
 
-def baryzentric_2D_interpolation_coefficients(grid_points, target_point):
+def barycentric_2D_interpolation_coefficients(grid_points, target_point):
     """
-    Compute baryzetric 2D interpolation coefficients for triangular
+    Compute barycetric 2D interpolation coefficients for triangular
     interpolation, see e.g. [1]
 
     Parameters
@@ -137,7 +137,7 @@ def baryzentric_2D_interpolation_coefficients(grid_points, target_point):
     grid_points: np.ndarray, shape=(3, 2)
         Points spanning a triangle in which
     target_point: np.ndarray, shape=(1, 2)
-        Value at which baryzentric interpolation is needed
+        Value at which barycentric interpolation is needed
 
     Returns
     -------
@@ -309,7 +309,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
         simplex_inds = self.triangulation.simplices[
             self.triangulation.find_simplex(target_point)
         ].squeeze()
-        coefficients = baryzentric_2D_interpolation_coefficients(
+        coefficients = barycentric_2D_interpolation_coefficients(
             grid_points=self.grid_points[simplex_inds],
             target_point=target_point,
         )

@@ -3,18 +3,13 @@ import warnings
 
 import astropy.units as u
 import numpy as np
-from pyirf.interpolation.base_interpolators import (
-    DiscretePDFInterpolator,
-    ParametrizedInterpolator,
-)
-from pyirf.interpolation.griddata_interpolator import GridDataInterpolator
-from pyirf.interpolation.nearest_neighbor_searcher import (
-    DiscretePDFNearestNeighborSearcher,
-    ParametrizedNearestNeighborSearcher,
-)
-from pyirf.interpolation.quantile_interpolator import QuantileInterpolator
 from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
+
+from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
+from .base_interpolators import DiscretePDFInterpolator, ParametrizedInterpolator
+from .griddata_interpolator import GridDataInterpolator
+from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
     "BaseComponentEstimator",
@@ -196,15 +191,17 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         TypeError:
             When bin_edges is not a np.ndarray.
         TypeError:
-            When bin_content is not a np.ndarray
+            When bin_content is not a np.ndarray..
         TypeError:
             When interpolator_cls is not a DiscretePDFInterpolator subclass.
+        TypeError:
+            When extrapolator_cls is not a DiscretePDFExtrapolator subclass.
         ValueError:
             When number of bins in bin_edges and contents in bin_contents is
             not matching.
         ValueError:
             When number of histograms in bin_contents and points in grid_points
-            is not matching
+            is not matching.
 
         Note
         ----
@@ -248,6 +245,10 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
 
         if extrapolator_cls is None:
             self.extrapolator = None
+        elif not issubclass(extrapolator_cls, DiscretePDFExtrapolator):
+            raise TypeError(
+                f"extrapolator_cls must be a DiscretePDFExtrapolator subclass, got {extrapolator_cls}"
+            )
         else:
             self.extrapolator = extrapolator_cls(
                 grid_points, bin_edges, bin_contents, **extrapolator_kwargs
@@ -301,9 +302,11 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         TypeError:
             When interpolator_cls is not a ParametrizedInterpolator subclass.
         TypeError:
-            When params is not a np.ndarray
+            When extrapolator_cls is not a ParametrizedExtrapolator subclass.
+        TypeError:
+            When params is not a np.ndarray.
         ValueError:
-            When number of points grid_points and params is not matching
+            When number of points grid_points and params is not matching.
 
         Note
         ----
@@ -336,6 +339,10 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
 
         if extrapolator_cls is None:
             self.extrapolator = None
+        elif not issubclass(extrapolator_cls, ParametrizedExtrapolator):
+            raise TypeError(
+                f"extrapolator_cls must be a ParametrizedExtrapolator subclass, got {extrapolator_cls}"
+            )
         else:
             self.extrapolator = extrapolator_cls(
                 grid_points, params, **extrapolator_kwargs
