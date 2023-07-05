@@ -17,7 +17,7 @@ def test_BaseExtrapolator_instantiation():
         BaseExtrapolator(grid_points1D)
 
     class DummyBaseExtrapolator(BaseExtrapolator):
-        def extrapolate(self, target_point, **kwargs):
+        def extrapolate(self, target_point):
             return 42
 
     interp1D = DummyBaseExtrapolator(grid_points1D)
@@ -42,7 +42,7 @@ def test_ParametrizedExtrapolator_instantiation():
         ParametrizedExtrapolator(grid_points1D, params)
 
     class DummyParametrizedExtrapolator(ParametrizedExtrapolator):
-        def extrapolate(self, target_point, **kwargs):
+        def extrapolate(self, target_point):
             return 42
 
     interp1D = DummyParametrizedExtrapolator(grid_points1D, params)
@@ -50,6 +50,11 @@ def test_ParametrizedExtrapolator_instantiation():
 
     interp2D = DummyParametrizedExtrapolator(grid_points2D, params)
     assert interp2D(target2D) == 42
+
+    # If only one param per point exists and param.shape is not (n_points, 1)
+    # they should be broadcasted internally
+    interp1D = DummyParametrizedExtrapolator(grid_points1D, params.squeeze())
+    assert interp1D(target1D) == 42
 
 
 def test_DiscretePDFExtrapolator_instantiation():
@@ -68,7 +73,7 @@ def test_DiscretePDFExtrapolator_instantiation():
         DiscretePDFExtrapolator(grid_points1D, bin_edges, bin_content)
 
     class DummyBinnedExtrapolator(DiscretePDFExtrapolator):
-        def extrapolate(self, target_point, **kwargs):
+        def extrapolate(self, target_point):
             return 42
 
     interp1D = DummyBinnedExtrapolator(grid_points1D, bin_edges, bin_content)
