@@ -2,6 +2,11 @@
 Collection of interpolation methods
 """
 
+from .base_extrapolators import (
+    BaseExtrapolator,
+    DiscretePDFExtrapolator,
+    ParametrizedExtrapolator,
+)
 from .base_interpolators import (
     BaseInterpolator,
     DiscretePDFInterpolator,
@@ -29,6 +34,9 @@ __all__ = [
     "BaseComponentEstimator",
     "BaseInterpolator",
     "BaseNearestNeighborSearcher",
+    "BaseExtrapolator",
+    "DiscretePDFExtrapolator",
+    "ParametrizedExtrapolator",
     "DiscretePDFComponentEstimator",
     "DiscretePDFInterpolator",
     "DiscretePDFNearestNeighborSearcher",

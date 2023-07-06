@@ -1,5 +1,6 @@
 import numpy as np
 
+from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
 from .base_interpolators import (
     BaseInterpolator,
     DiscretePDFInterpolator,
@@ -136,6 +137,7 @@ class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
 
 
 DiscretePDFInterpolator.register(DiscretePDFNearestNeighborSearcher)
+DiscretePDFExtrapolator.register(DiscretePDFNearestNeighborSearcher)
 
 
 class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
@@ -170,3 +172,4 @@ class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
 
 
 ParametrizedInterpolator.register(ParametrizedNearestNeighborSearcher)
+ParametrizedExtrapolator.register(ParametrizedNearestNeighborSearcher)
