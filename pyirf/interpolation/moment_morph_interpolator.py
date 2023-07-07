@@ -129,7 +129,7 @@ def linesegment_1D_interpolation_coefficients(grid_points, target_point):
 
 def barycentric_2D_interpolation_coefficients(grid_points, target_point):
     """
-    Compute barycetric 2D interpolation coefficients for triangular
+    Compute barycentric 2D interpolation coefficients for triangular
     interpolation, see e.g. [1]
 
     Parameters

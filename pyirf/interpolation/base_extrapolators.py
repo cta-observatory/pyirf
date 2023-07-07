@@ -30,7 +30,7 @@ class BaseExtrapolator(metaclass=ABCMeta):
 
     @abstractmethod
     def extrapolate(self, target_point):
-        """Overridable function for the actual interpolation code"""
+        """Overridable function for the actual extrapolation code"""
 
     def __call__(self, target_point):
         """Providing a common __call__ interface
@@ -96,7 +96,7 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, last dimension has to correspond to number of bins for
-            the quantity that should be interpolated (e.g. the Migra axis for EDisp)
+            the quantity that should be extrapolated (e.g. the Migra axis for EDisp)
 
 
         Note
