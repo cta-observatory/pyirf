@@ -165,43 +165,43 @@ def test_linesegment_1D_interpolation_coefficients():
     assert np.all(np.logical_and(res < 1, res > 0))
 
 
-def test_baryzentric_2D_interpolation_coefficients():
+def test_barycentric_2D_interpolation_coefficients():
     from pyirf.interpolation.moment_morph_interpolator import (
-        baryzentric_2D_interpolation_coefficients,
+        barycentric_2D_interpolation_coefficients,
     )
 
     grid_points = np.array([[20, 20], [60, 20], [40, 60]])
     target_point = np.array([20, 20])
 
     assert np.allclose(
-        baryzentric_2D_interpolation_coefficients(grid_points, target_point),
+        barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([1, 0, 0]),
     )
 
     target_point = np.array([60, 20])
 
     assert np.allclose(
-        baryzentric_2D_interpolation_coefficients(grid_points, target_point),
+        barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([0, 1, 0]),
     )
 
     target_point = np.array([40, 60])
 
     assert np.allclose(
-        baryzentric_2D_interpolation_coefficients(grid_points, target_point),
+        barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([0, 0, 1]),
     )
 
     target_point = np.array([40, 20])
 
     assert np.allclose(
-        baryzentric_2D_interpolation_coefficients(grid_points, target_point),
+        barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([0.5, 0.5, 0]),
     )
 
     # Barycenter of triangle
     target_point = np.array([40, 100 / 3])
-    res = baryzentric_2D_interpolation_coefficients(grid_points, target_point)
+    res = barycentric_2D_interpolation_coefficients(grid_points, target_point)
 
     assert np.allclose(res, np.array([1, 1, 1]) / 3)
 
@@ -226,13 +226,13 @@ def test_moment_morph_estimation1D(bins, simple_1D_data):
 
 def test_moment_morph_estimation2D(bins, simple_2D_data):
     from pyirf.interpolation.moment_morph_interpolator import (
-        baryzentric_2D_interpolation_coefficients,
+        barycentric_2D_interpolation_coefficients,
         moment_morph_estimation,
     )
 
     grid, target, bin_contents, truth = simple_2D_data.values()
 
-    coeffs = baryzentric_2D_interpolation_coefficients(grid, target)
+    coeffs = barycentric_2D_interpolation_coefficients(grid, target)
     res = moment_morph_estimation(bins, bin_contents, coeffs)
 
     assert np.isclose(np.sum(res), 1)
