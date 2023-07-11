@@ -238,10 +238,6 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
     # Reset interpolation resolts for those templates with partially zero entries from above to 0
     f_new[zero_templates] = np.zeros(len(bin_mids))
 
-    # If used normally, all values are stricktly positive, if used for extrapolation, some values can
-    # become slightly negative as the mean/std estimation is not exact.
-    f_new[f_new < 0] = 0
-
     # Re-Normalize, needed, as the estimation of the std used above is not exact but the result is scaled with
     # the estimated std
     norm = np.expand_dims(np.sum(f_new, axis=-1), -1)

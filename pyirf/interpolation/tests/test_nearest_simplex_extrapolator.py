@@ -317,3 +317,35 @@ def test_MomentMorphNearestSimplexExtrapolator_3DGrid():
         MomentMorphNearestSimplexExtrapolator(
             grid_points=grid_points, bin_contents=dummy_data, bin_edges=bin_edges
         )
+
+
+def test_MomentMorphNearestSimplexExtrapolator_below_zero_warning(bins):
+    """
+    Tests if ParametrizedNearestSimplexExtrapolator detects below-zero
+    bin entries that arise with high extrapolation distances, cuts them off
+    and renormalizes the extrapolation result after issuing a warning
+    """
+    from pyirf.interpolation import MomentMorphNearestSimplexExtrapolator
+
+    grid_points = np.array([[30], [40]])
+    bins = np.linspace(-10, 40, 51)
+
+    bin_contents = np.array(
+        [
+            [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 10, 0], bins)]
+            for x in grid_points
+        ]
+    )
+
+    extrap = MomentMorphNearestSimplexExtrapolator(
+        grid_points=grid_points, bin_contents=bin_contents, bin_edges=bins
+    )
+
+    with pytest.warns(
+        match="Some bin-entries where below zero after extrapolation and "
+        "thus cut off. Check result carefully."
+    ):
+        res = extrap(np.array([0]))
+
+    assert np.allclose(np.sum(res, axis=-1), 1)
+    assert np.all(res >= 0)
