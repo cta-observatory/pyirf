@@ -1,0 +1,1 @@
+Fixes a bug, where the nearest simplex in NearestSimplexExtrapolator was not computed correct on a 2D grid.
