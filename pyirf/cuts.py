@@ -115,6 +115,37 @@ def calculate_percentile_cut(
     return cut_table
 
 
+def evaluate_binned_cut_by_index(values, bin_index, valid, cut_table, op):
+    """
+    Evaluate a binned cut as defined in cut_table on given events.
+
+    Events with bin_values outside the bin edges defined in cut table
+    will be set to False.
+
+    Parameters
+    ----------
+    values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``
+        The values on which the cut should be evaluated
+    cut_table: ``~astropy.table.Table``
+        A table describing the binned cuts, e.g. as created by
+        ``~pyirf.cuts.calculate_percentile_cut``.
+        Required columns:
+        - `low`: lower edges of the bins
+        - `high`: upper edges of the bins,
+        - `cut`: cut value
+    op: callable(a, b) -> bool
+        A function taking two arguments, comparing element-wise and
+        returning an array of booleans.
+        Must support vectorized application.
+    """
+    if not isinstance(cut_table, QTable):
+        raise ValueError('cut_table needs to be an astropy.table.QTable')
+
+    result = np.zeros(len(bin_index), dtype=bool)
+    result[valid] = op(values[valid], cut_table["cut"][bin_index[valid]])
+    return result
+
+
 def evaluate_binned_cut(values, bin_values, cut_table, op):
     """
     Evaluate a binned cut as defined in cut_table on given events.
@@ -152,10 +183,7 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
 
     bins = np.append(cut_table["low"], cut_table["high"][-1])
     bin_index, valid = calculate_bin_indices(bin_values, bins)
-
-    result = np.zeros(len(values), dtype=bool)
-    result[valid] = op(values[valid], cut_table["cut"][bin_index[valid]])
-    return result
+    return evaluate_binned_cut_by_index(values, bin_index, valid, cut_table, op)
 
 
 def compare_irf_cuts(cuts):
