@@ -5,9 +5,9 @@ import astropy.units as u
 from tqdm.auto import tqdm
 import operator
 
-from .cuts import evaluate_binned_cut, calculate_percentile_cut
+from .cuts import evaluate_binned_cut_by_index, calculate_percentile_cut
 from .sensitivity import calculate_sensitivity, estimate_background
-from .binning import create_histogram_table, bin_center
+from .binning import create_histogram_table, bin_center, calculate_bin_indices
 
 
 __all__ = [
@@ -77,6 +77,13 @@ def optimize_cuts(
     n_gh_cuts = len(gh_cut_efficiencies)
     n_cuts = len(multiplicity_cuts) * n_theta_cuts * n_gh_cuts
 
+    signal_bin_index, signal_valid = calculate_bin_indices(
+        signal['reco_energy'], reco_energy_bins,
+    )
+    background_bin_index, background_valid = calculate_bin_indices(
+        background['reco_energy'], reco_energy_bins,
+    )
+
     with tqdm(total=n_cuts, disable=not progress) as bar:
         for multiplicity_index, multiplicity_cut in enumerate(multiplicity_cuts):
 
@@ -107,20 +114,20 @@ def optimize_cuts(
                 # apply the current cuts
                 theta_cut = theta_cuts.copy()
                 theta_cut["cut"] = theta_cuts["cut"][:, theta_index]
-                signal_mask_theta = evaluate_binned_cut(
-                    signal["theta"], signal["reco_energy"], theta_cut, operator.le,
+                signal_mask_theta = evaluate_binned_cut_by_index(
+                    signal["theta"], signal_bin_index, signal_valid, theta_cut, operator.le,
                 )
 
                 gh_cut = gh_cuts.copy()
                 gh_cut["cut"] = gh_cuts["cut"][:, gh_index]
-                signal_mask_gh = evaluate_binned_cut(
-                    signal["gh_score"], signal["reco_energy"], gh_cut, operator.ge,
+                signal_mask_gh = evaluate_binned_cut_by_index(
+                    signal["gh_score"], signal_bin_index, signal_valid, gh_cut, operator.ge,
                 )
 
                 signal_selected = signal_mask_gh & signal_mask_theta & signal_mask_multiplicity
 
-                background_mask_gh = evaluate_binned_cut(
-                    background["gh_score"], background["reco_energy"], gh_cut, operator.ge,
+                background_mask_gh = evaluate_binned_cut_by_index(
+                    background["gh_score"], background_bin_index, background_valid, gh_cut, operator.ge,
                 )
                 background_selected = background_mask_gh & background_mask_multiplicity
 
