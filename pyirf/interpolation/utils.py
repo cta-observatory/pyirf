@@ -3,8 +3,8 @@ import numpy as np
 
 def plumb_point_dist(line, target):
     """
-    Compute minimal distance between target and line under the constrain, that it has
-    to lay between the points building the line and not on the extention of it.
+    Compute minimal distance between target and line under the constraint, that it has
+    to lay between the points building the line and not on the extension of it.
 
     Parameters
     ----------
@@ -23,9 +23,10 @@ def plumb_point_dist(line, target):
     P = target
 
     # Costruct the footpoint/plumb point of the target projected onto
-    # both  lines F1 = OA + r1*AB and F2 = OB + r1*BA
-    F1 = A + (B - A) * np.dot(P - A, B - A) / np.dot(B - A, B - A)
-    F2 = B + (A - B) * np.dot(P - B, A - B) / np.dot(A - B, A - B)
+    # both lines OA + r1*AB (F1) and OB + r1*BA (F2), for details see
+    # https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Vector_formulation
+    F1 = A + np.dot(P - A, B - A) * (B - A) / np.dot(B - A, B - A)
+    F2 = B + np.dot(P - B, A - B) * (A - B) / np.dot(A - B, A - B)
 
     # Find, at which parameter value r1/r2 the plumb point lies on line F1/F2
     if B[0] - A[0] == 0:
@@ -45,7 +46,8 @@ def plumb_point_dist(line, target):
     if np.isclose(np.abs(r1) + np.abs(r2), 1) and not (
         np.isclose(r1, 0) or np.isclose(r2, 0)
     ):
-        # Compute distance of plumb point to line
+        # Compute distance of plumb point to line, for details see
+        # https://en.wikipedia.org/wiki/Distance_from_a_point_to_a_line#Another_vector_formulation
         return np.linalg.norm(np.cross(P - A, B - A)) / np.linalg.norm(B - A)
     # If not, the nearest point A <= x <= B is one A and B, thus the searched distance
     # is the one to this nearest point
@@ -72,6 +74,7 @@ def point_facet_angle(line, target):
     PB = line[1] - target
     PA = line[0] - target
 
+    # For details see https://en.wikipedia.org/wiki/Angle#Dot_product_and_generalisations
     return np.dot(PB, PA) / (np.linalg.norm(PA) * np.linalg.norm(PB))
 
 
