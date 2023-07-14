@@ -34,7 +34,8 @@ def test_effective_area_per_energy():
         energy_max=true_energy_bins[-1],
         max_impact=100 / np.sqrt(np.pi) * u.m,  # this should give a nice round area
         spectral_index=-2,
-        viewcone=0 * u.deg,
+        viewcone_min=0 * u.deg,
+        viewcone_max=0 * u.deg,
     )
 
     area = effective_area_per_energy(selected_events, simulation_info, true_energy_bins)
@@ -80,7 +81,8 @@ def test_effective_area_energy_fov():
         energy_max=true_energy_bins[-1],
         max_impact=100 / np.sqrt(np.pi) * u.m,  # this should give a nice round area
         spectral_index=-2,
-        viewcone=fov_offset_bins[-1],
+        viewcone_min=0 * u.deg,
+        viewcone_max=fov_offset_bins[-1],
     )
 
     area = effective_area_per_energy_and_fov(

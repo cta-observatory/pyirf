@@ -12,7 +12,8 @@ def test_integrate_energy():
         energy_max=10 * u.TeV,
         max_impact=500 * u.m,
         spectral_index=-2,
-        viewcone=10 * u.deg,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
     )
     # simplest case, no bins  outside e_min, e_max
     energy_bins = np.geomspace(info.energy_min, info.energy_max, 20)
@@ -52,7 +53,8 @@ def test_integrate_energy_fov():
         energy_max=10 * u.TeV,
         max_impact=500 * u.m,
         spectral_index=-2,
-        viewcone=10 * u.deg,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
     )
 
     fov_bins = [0, 10, 20] * u.deg
@@ -70,7 +72,8 @@ def test_integrate_energy_fov():
         energy_max=10 * u.TeV,
         max_impact=500 * u.m,
         spectral_index=-2,
-        viewcone=10 * u.deg,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
     )
 
     fov_bins = [0, 9, 11, 20] * u.deg
@@ -78,7 +81,7 @@ def test_integrate_energy_fov():
     n_events = info.calculate_n_showers_per_energy_and_fov(energy_bins, fov_bins)
 
     assert np.all(n_events[:, 1:2] > 0)
-    assert np.all(n_events[:, 2:] == 0)
+    np.testing.assert_equal(n_events[:, 2:], 0)
     assert np.isclose(np.sum(n_events), int(1e6))
 
 
@@ -91,7 +94,8 @@ def test_integrate_energy_fov_pointlike():
         energy_max=10 * u.TeV,
         max_impact=500 * u.m,
         spectral_index=-2,
-        viewcone=0 * u.deg,
+        viewcone_min=0 * u.deg,
+        viewcone_max=0 * u.deg,
     )
 
     fov_bins = [0, 9, 11, 20] * u.deg
