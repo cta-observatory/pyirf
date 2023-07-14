@@ -10,6 +10,7 @@ from .moment_morph_interpolator import (
     barycentric_2D_interpolation_coefficients,
     linesegment_1D_interpolation_coefficients,
 )
+from .utils import find_nearest_simplex
 
 __all__ = ["ParametrizedNearestSimplexExtrapolator"]
 
@@ -103,8 +104,9 @@ class ParametrizedNearestSimplexExtrapolator(ParametrizedExtrapolator):
 
             extrapolant = self._extrapolate1D(segment_inds, target_point)
         elif self.grid_dim == 2:
-            dists = self.triangulation.plane_distance(target_point)
-            nearest_simplex_ind = np.argmax(dists)
+            nearest_simplex_ind = find_nearest_simplex(
+                self.triangulation, target_point.squeeze()
+            )
             simplex_indices = self.triangulation.simplices[nearest_simplex_ind]
 
             extrapolant = self._extrapolate2D(simplex_indices, target_point)
