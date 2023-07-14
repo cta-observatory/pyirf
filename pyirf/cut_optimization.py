@@ -5,7 +5,8 @@ import astropy.units as u
 from tqdm.auto import tqdm
 import operator
 
-from .cuts import evaluate_binned_cut_by_index, calculate_percentile_cut
+
+from .cuts import evaluate_binned_cut_by_index, calculate_percentile_cut, evaluate_binned_cut
 from .sensitivity import calculate_sensitivity, estimate_background
 from .binning import create_histogram_table, bin_center, calculate_bin_indices
 
