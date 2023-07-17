@@ -14,6 +14,7 @@ def test_plumb_point_distance():
     """Test line-segment to point distance computation"""
     from pyirf.interpolation.utils import plumb_point_dist
 
+    # Test vertical line
     line = np.array([[0, 0], [0, 1]])
 
     # Plumb point between end-points
@@ -24,11 +25,34 @@ def test_plumb_point_distance():
     assert plumb_point_dist(line, np.array([0, 2.1])) == 1.1
     assert plumb_point_dist(line, np.array([0, -1])) == 1
 
-    # Plumb point not between end-points
-    # nearest point is (0, 0)
+    # Plumb point not between end-points, nearest point is (0, 0)
     assert plumb_point_dist(line, np.array([-1, -1])) == np.sqrt(2)
-    # nearest point is (0, 1)
+    # Nearest point is (0, 1)
     assert plumb_point_dist(line, np.array([3, 3])) == np.sqrt(13)
+
+    # Test horzontal line
+    line = np.array([[0, 0], [1, 0]])
+
+    # Plumb point between end-points
+    assert plumb_point_dist(line, np.array([0.5, 0.5])) == 0.5
+
+    # Plumb point in extention of line, nearest point is (1, 0)
+    assert plumb_point_dist(line, np.array([2, 0])) == 1
+
+    # Plumb point on end point
+    assert plumb_point_dist(line, np.array([1, 1])) == 1
+
+    # Nearest point is (0, 0)
+    assert plumb_point_dist(line, np.array([-1, -1])) == np.sqrt(2)
+
+    # Test arbitrary line
+    line = np.array([[1, 1], [-1, -1]])
+    # isclose needed here, as there is a small numerical deviation
+    # of +/- eps in this case. Plumb point between end-points
+    assert np.isclose(plumb_point_dist(line, np.array([-1, 1])), np.sqrt(2))
+
+    # Nearest point is (-1, -1)
+    assert plumb_point_dist(line, np.array([-2, -3])) == np.sqrt(5)
 
 
 def test_point_facet_angle():
