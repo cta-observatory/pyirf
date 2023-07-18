@@ -67,10 +67,6 @@ def _relative_sensitivity(
         )
         return np.nan
 
-    # less than min_sigma
-    if relative_flux > 1:
-        return np.nan
-
     # scale to achieved flux level
     n_signal = n_signal * relative_flux
     min_excess = min_excess_over_background * n_background
