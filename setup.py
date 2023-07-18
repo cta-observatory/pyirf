@@ -48,7 +48,6 @@ setup(
         "numpy>=1.18",
         "scipy",
         "tqdm",
-        "importlib_resources ; python_version < '3.9'"
     ],
     include_package_data=True,
     extras_require=extras_require,

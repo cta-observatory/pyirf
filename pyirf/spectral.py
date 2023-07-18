@@ -1,24 +1,20 @@
 """
 Functions and classes for calculating spectral weights
 """
+import sys
+from importlib.resources import as_file, files
+
 import astropy.units as u
 import numpy as np
-from scipy.interpolate import interp1d
 from astropy.table import QTable
+from scipy.interpolate import interp1d
 
 from .utils import cone_solid_angle
-import sys
-
-if sys.version_info < (3, 9):
-    from importlib_resources import files, as_file
-else:
-    from importlib.resources import files, as_file
-
 
 #: Unit of a point source flux
 #:
 #: Number of particles per Energy, time and area
-POINT_SOURCE_FLUX_UNIT = (1 / u.TeV / u.s / u.m ** 2).unit
+POINT_SOURCE_FLUX_UNIT = (1 / u.TeV / u.s / u.m**2).unit
 
 #: Unit of a diffuse flux
 #:
@@ -98,7 +94,7 @@ class PowerLaw:
     def __init__(self, normalization, index, e_ref=1 * u.TeV):
         """Create a new PowerLaw spectrum"""
         if index > 0:
-            raise ValueError(f'Index must be < 0, got {index}')
+            raise ValueError(f"Index must be < 0, got {index}")
 
         self.normalization = normalization
         self.index = index
@@ -129,13 +125,17 @@ class PowerLaw:
             solid_angle = 1
             unit = POINT_SOURCE_FLUX_UNIT
 
-        A = np.pi * simulated_event_info.max_impact ** 2
+        A = np.pi * simulated_event_info.max_impact**2
 
         delta = e_max ** (index + 1) - e_min ** (index + 1)
-        nom = (index + 1) * e_ref ** index * n_showers
+        nom = (index + 1) * e_ref**index * n_showers
         denom = (A * obstime * solid_angle) * delta
 
-        return cls(normalization=(nom / denom).to(unit), index=index, e_ref=e_ref,)
+        return cls(
+            normalization=(nom / denom).to(unit),
+            index=index,
+            e_ref=e_ref,
+        )
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**{self.index})"
@@ -167,7 +167,6 @@ class PowerLaw:
             index=self.index,
             e_ref=self.e_ref,
         )
-
 
 
 class LogParabola:
@@ -317,7 +316,7 @@ class TableInterpolationSpectrum:
         y = self.interp(x)
 
         if self.log_flux:
-            y = 10 ** y
+            y = 10**y
 
         return u.Quantity(y, self.flux_unit, copy=False)
 
@@ -351,7 +350,9 @@ class TableInterpolationSpectrum:
 #: Aharonian et al, 2004, ApJ 614.2
 #: doi.org/10.1086/423931
 CRAB_HEGRA = PowerLaw(
-    normalization=2.83e-11 / (u.TeV * u.cm ** 2 * u.s), index=-2.62, e_ref=1 * u.TeV,
+    normalization=2.83e-11 / (u.TeV * u.cm**2 * u.s),
+    index=-2.62,
+    e_ref=1 * u.TeV,
 )
 
 #: Log-Parabola parametrization of the Crab Nebula spectrum as published by MAGIC
@@ -360,7 +361,9 @@ CRAB_HEGRA = PowerLaw(
 #: Aleksìc et al., 2015, JHEAP
 #: https://doi.org/10.1016/j.jheap.2015.01.002
 CRAB_MAGIC_JHEAP2015 = LogParabola(
-    normalization=3.23e-11 / (u.TeV * u.cm ** 2 * u.s), a=-2.47, b=-0.24,
+    normalization=3.23e-11 / (u.TeV * u.cm**2 * u.s),
+    a=-2.47,
+    b=-0.24,
 )
 
 
@@ -369,7 +372,9 @@ CRAB_MAGIC_JHEAP2015 = LogParabola(
 #: (30.2) from "The Review of Particle Physics (2020)"
 #: https://pdg.lbl.gov/2020/reviews/rpp2020-rev-cosmic-rays.pdf
 PDG_ALL_PARTICLE = PowerLaw(
-    normalization=1.8e4 / (u.GeV * u.m ** 2 * u.s * u.sr), index=-2.7, e_ref=1 * u.GeV,
+    normalization=1.8e4 / (u.GeV * u.m**2 * u.s * u.sr),
+    index=-2.7,
+    e_ref=1 * u.GeV,
 )
 
 #: Proton spectrum definition defined in the CTA Prod3b IRF Document
@@ -377,7 +382,7 @@ PDG_ALL_PARTICLE = PowerLaw(
 #: From "Description of CTA Instrument Response Functions (Production 3b Simulation)", section 4.3.1
 #: https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description
 IRFDOC_PROTON_SPECTRUM = PowerLaw(
-    normalization=9.8e-6 / (u.cm ** 2 * u.s * u.TeV * u.sr),
+    normalization=9.8e-6 / (u.cm**2 * u.s * u.TeV * u.sr),
     index=-2.62,
     e_ref=1 * u.TeV,
 )
@@ -387,7 +392,7 @@ IRFDOC_PROTON_SPECTRUM = PowerLaw(
 #: From "Description of CTA Instrument Response Functions (Production 3b Simulation)", section 4.3.1
 #: https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description
 IRFDOC_ELECTRON_SPECTRUM = PowerLawWithExponentialGaussian(
-    normalization=2.385e-9 / (u.TeV * u.cm ** 2 * u.s * u.sr),
+    normalization=2.385e-9 / (u.TeV * u.cm**2 * u.s * u.sr),
     index=-3.43,
     e_ref=1 * u.TeV,
     mu=-0.101,
