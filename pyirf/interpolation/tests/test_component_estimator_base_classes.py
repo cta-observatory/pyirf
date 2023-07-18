@@ -396,3 +396,71 @@ def test_ParametrizedComponentEstimator_NearestNeighbors():
             extrapolator_cls=ParametrizedNearestNeighborSearcher,
             extrapolator_kwargs=None,
         )
+
+
+def test_DiscretePDFComponentEstimator_1Dsorting():
+    """Test DiscretePDFComponentEstimator sorts 1D-grid input in increasing order."""
+    from pyirf.interpolation.base_extrapolators import DiscretePDFExtrapolator
+    from pyirf.interpolation.base_interpolators import DiscretePDFInterpolator
+    from pyirf.interpolation.component_estimators import DiscretePDFComponentEstimator
+
+    grid_points = np.array([[3], [1], [2]])
+    bin_edges = np.linspace(0, 1, 11)
+    bin_contents = np.array([np.full(10, x) for x in grid_points])
+
+    class DummyInterpolator(DiscretePDFInterpolator):
+        def interpolate(self, target_point):
+            return 42
+
+    class DummyExtrapolator(DiscretePDFExtrapolator):
+        def extrapolate(self, target_point):
+            if target_point < self.grid_points.min():
+                return self.bin_contents[0]
+            elif target_point > self.grid_points.max():
+                return self.bin_contents[-1]
+
+    estim = DiscretePDFComponentEstimator(
+        grid_points=grid_points,
+        bin_contents=bin_contents,
+        bin_edges=bin_edges,
+        interpolator_cls=DummyInterpolator,
+        extrapolator_cls=DummyExtrapolator,
+    )
+
+    # Nearest neighbor is grid_point 1 at the index 1 of the original bin_contents
+    assert np.allclose(estim(target_point=np.array([0])), bin_contents[1, :])
+    # Nearest neighbor is grid_point 3 at the index 0 of the original bin_contents
+    assert np.allclose(estim(target_point=np.array([4])), bin_contents[0, :])
+
+
+def test_ParametrizedComponentEstimator_1Dsorting():
+    """Test ParametrizedComponentEstimator sorts 1D-grid input in increasing order."""
+    from pyirf.interpolation.base_extrapolators import ParametrizedExtrapolator
+    from pyirf.interpolation.base_interpolators import ParametrizedInterpolator
+    from pyirf.interpolation.component_estimators import ParametrizedComponentEstimator
+
+    grid_points = np.array([[3], [1], [2]])
+    params = np.array([np.full(10, x) for x in grid_points])
+
+    class DummyInterpolator(ParametrizedInterpolator):
+        def interpolate(self, target_point):
+            return 42
+
+    class DummyExtrapolator(ParametrizedExtrapolator):
+        def extrapolate(self, target_point):
+            if target_point < self.grid_points.min():
+                return self.params[0]
+            elif target_point > self.grid_points.max():
+                return self.params[-1]
+
+    estim = ParametrizedComponentEstimator(
+        grid_points=grid_points,
+        params=params,
+        interpolator_cls=DummyInterpolator,
+        extrapolator_cls=DummyExtrapolator,
+    )
+
+    # Nearest neighbor is grid_point 1 at the index 1 of the original bin_contents
+    assert np.allclose(estim(target_point=np.array([0])), params[1, :])
+    # Nearest neighbor is grid_point 3 at the index 0 of the original bin_contents
+    assert np.allclose(estim(target_point=np.array([4])), params[0, :])
