@@ -28,7 +28,10 @@ from .nearest_neighbor_searcher import (
     DiscretePDFNearestNeighborSearcher,
     ParametrizedNearestNeighborSearcher,
 )
-from .nearest_simplex_extrapolator import ParametrizedNearestSimplexExtrapolator
+from .nearest_simplex_extrapolator import (
+    MomentMorphNearestSimplexExtrapolator,
+    ParametrizedNearestSimplexExtrapolator,
+)
 from .quantile_interpolator import QuantileInterpolator
 
 __all__ = [
@@ -43,6 +46,7 @@ __all__ = [
     "DiscretePDFNearestNeighborSearcher",
     "GridDataInterpolator",
     "MomentMorphInterpolator",
+    "MomentMorphNearestSimplexExtrapolator",
     "ParametrizedComponentEstimator",
     "ParametrizedInterpolator",
     "ParametrizedNearestNeighborSearcher",
