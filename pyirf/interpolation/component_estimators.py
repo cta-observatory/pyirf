@@ -228,6 +228,13 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
                 f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
             )
 
+        # Make sure that 1D input is sorted in increasing order
+        if self.grid_dim == 1:
+            sorting_inds = np.argsort(self.grid_points.squeeze())
+            
+            self.grid_points = self.grid_points[sorting_inds]
+            bin_contents = bin_contents[sorting_inds]
+
         if interpolator_kwargs is None:
             interpolator_kwargs = {}
 
@@ -240,7 +247,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             )
 
         self.interpolator = interpolator_cls(
-            grid_points, bin_edges, bin_contents, **interpolator_kwargs
+            self.grid_points, bin_edges, bin_contents, **interpolator_kwargs
         )
 
         if extrapolator_cls is None:
@@ -251,7 +258,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             )
         else:
             self.extrapolator = extrapolator_cls(
-                grid_points, bin_edges, bin_contents, **extrapolator_kwargs
+                self.grid_points, bin_edges, bin_contents, **extrapolator_kwargs
             )
 
 
@@ -324,6 +331,13 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
                 "Shape missmatch, number of grid_points and rows in params not matching."
             )
 
+        # Make sure that 1D input is sorted in increasing order
+        if self.grid_dim == 1:
+            sorting_inds = np.argsort(self.grid_points.squeeze())
+            
+            self.grid_points = self.grid_points[sorting_inds]
+            params = params[sorting_inds]
+
         if interpolator_kwargs is None:
             interpolator_kwargs = {}
 
@@ -335,7 +349,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
                 f"interpolator_cls must be a ParametrizedInterpolator subclass, got {interpolator_cls}"
             )
 
-        self.interpolator = interpolator_cls(grid_points, params, **interpolator_kwargs)
+        self.interpolator = interpolator_cls(self.grid_points, params, **interpolator_kwargs)
 
         if extrapolator_cls is None:
             self.extrapolator = None
@@ -345,7 +359,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             )
         else:
             self.extrapolator = extrapolator_cls(
-                grid_points, params, **extrapolator_kwargs
+                self.grid_points, params, **extrapolator_kwargs
             )
 
 
