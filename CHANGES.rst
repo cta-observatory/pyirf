@@ -1,3 +1,55 @@
+Pyirf 0.9.0 (2023-07-19)
+========================
+
+
+API Changes
+-----------
+
+- Change the interpolation API to top-level estimator classes that instantiate
+  inter- and extrapolator objects. Drops the ``interpolate_xyz`` functions
+  originally used to interpolate a xyz IRF component in favour of a ``XYZEstimator``
+  class. Moves data checks from intepolator to estimator classes.
+
+  Direct usage of interpolator objects is now discuraged, use estimator objects instead. [`#228 <https://github.com/cta-observatory/pyirf/pull/228>`__]
+
+
+Bug Fixes
+---------
+
+- Correctly fill n_events in ``angular_resolution``, was always 0 before. [`#231 <https://github.com/cta-observatory/pyirf/pull/231>`__]
+
+- Remove condition that relative sensitivity must be > 1.
+  This condition was added by error and resulted in returning
+  nan if the flux needed to fulfill the conditions is larger than
+  the reference flux used to weight the events. [`#241 <https://github.com/cta-observatory/pyirf/pull/241>`__]
+
+
+New Features
+------------
+
+- Add moment morphing as second interpolation method able to handle discretized PDF 
+  components of IRFs. [`#229 <https://github.com/cta-observatory/pyirf/pull/229>`__]
+
+- Add a base structure for extrapolators similar to the interpolation case
+  as well as a first extrapolator for parametrized components, extrapolating from the
+  nearest simplex in one or two dimensions. [`#236 <https://github.com/cta-observatory/pyirf/pull/236>`__]
+
+- Add an extrapolator for discretized PDF components, extrapolating from the
+  nearest simplex in one or two dimensions utilizing the same approach moment morphing
+  interpolation uses. [`#237 <https://github.com/cta-observatory/pyirf/pull/237>`__]
+
+- Add a ``DiscretePDFNearestNeighborSearcher`` and a ``ParametrizedNearestNeighborSearcher`` to support nearest neighbor approaches 
+  as alternatives to inter-/ and extrapolation [`#232 <https://github.com/cta-observatory/pyirf/pull/232>`__]
+
+
+
+Maintenance
+-----------
+
+- Drop python 3.8 support in accordance with `NEP 29 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`_ [`#243 <https://github.com/cta-observatory/pyirf/pull/243>`__]
+
+
+
 pyirf 0.8.1 (2023-03-16)
 ========================
 
