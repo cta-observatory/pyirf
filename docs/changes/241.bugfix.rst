@@ -1,4 +1,0 @@
-Remove condition that relative sensitivity must be > 1.
-This condition was added by error and resulted in returning
-nan if the flux needed to fulfill the conditions is larger than
-the reference flux used to weight the events.

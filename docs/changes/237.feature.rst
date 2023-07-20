@@ -1,3 +1,0 @@
-This PR adds an extrapolator for discretized PDF components, extrapolating from the 
-nearest simplex in one or two dimensions utilizing the same approach, moment mophing 
-interpolation uses.
