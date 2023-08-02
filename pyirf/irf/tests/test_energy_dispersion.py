@@ -50,35 +50,31 @@ def test_energy_dispersion():
     )
 
     assert result.shape == (3, 1000, 2)
-    assert np.isclose(result.sum(), 6.0)
 
-    cumulative_sum = np.cumsum(result, axis=1)
+    bin_width = np.diff(migration_bins)
     bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
+    # edisp shape is (N_E, N_MIGRA, N_FOV), we need to integrate over migration axis
+    integral = (result * bin_width[np.newaxis, :, np.newaxis]).sum(axis=1)
+    np.testing.assert_allclose(integral, 1.0)
+
+    cdf = np.cumsum(result * bin_width[np.newaxis, :, np.newaxis], axis=1)
+
+    def ppf(cdf, bins, value):
+        return np.interp(value, cdf, bins[1:])
+
     assert np.isclose(
         TRUE_SIGMA_1,
-        (
-            bin_centers[np.where(cumulative_sum[0, :, :] >= 0.84)[0][0]]
-            - bin_centers[np.where(cumulative_sum[0, :, :] >= 0.16)[0][0]]
-        )
-        / 2,
+        0.5 * (ppf(cdf[0, :, 0], migration_bins, 0.84) - ppf(cdf[0, :, 0], migration_bins, 0.16)),
         rtol=0.1,
     )
     assert np.isclose(
         TRUE_SIGMA_2,
-        (
-            bin_centers[np.where(cumulative_sum[1, :, :] >= 0.84)[0][0]]
-            - bin_centers[np.where(cumulative_sum[1, :, :] >= 0.16)[0][0]]
-        )
-        / 2,
+        0.5 * (ppf(cdf[1, :, 0], migration_bins, 0.84) - ppf(cdf[1, :, 0], migration_bins, 0.16)),
         rtol=0.1,
     )
     assert np.isclose(
         TRUE_SIGMA_3,
-        (
-            bin_centers[np.where(cumulative_sum[2, :, :] >= 0.84)[0][0]]
-            - bin_centers[np.where(cumulative_sum[2, :, :] >= 0.16)[0][0]]
-        )
-        / 2,
+        0.5 * (ppf(cdf[2, :, 0], migration_bins, 0.84) - ppf(cdf[2, :, 0], migration_bins, 0.16)),
         rtol=0.1,
     )
 
