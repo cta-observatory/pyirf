@@ -96,7 +96,7 @@ def test_interpolate_binned_pdf(data):
     interpolator = QuantileInterpolator(
         grid_points=data["grid_points"][[0, 2]],
         bin_edges=data["bin_edges"],
-        bin_contents=data["binned_pdfs"][[0, 2], :],
+        binned_pdf=data["binned_pdfs"][[0, 2], :],
         quantile_resolution=1e-3,
     )
 

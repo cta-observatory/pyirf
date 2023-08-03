@@ -13,7 +13,7 @@ def grid_2d():
 
 
 @pytest.fixture
-def contents(grid_1d):
+def values(grid_1d):
     return np.array(
         [
             [[np.full(10, x), np.full(10, x / 2)], [np.full(10, 2 * x), np.zeros(10)]]
@@ -22,83 +22,83 @@ def contents(grid_1d):
     )
 
 
-def test_BaseNearestNeighborSearcher_1DGrid(grid_1d, contents):
+def test_BaseNearestNeighborSearcher_1DGrid(grid_1d, binned_pdf):
     from pyirf.interpolation import BaseNearestNeighborSearcher
 
-    searcher = BaseNearestNeighborSearcher(grid_1d, contents, norm_ord=2)
+    searcher = BaseNearestNeighborSearcher(grid_1d, binned_pdf, norm_ord=2)
 
     target = np.array([0])
-    assert np.array_equal(searcher(target), contents[0, :])
+    assert np.array_equal(searcher(target), binned_pdf[0, :])
 
     target = np.array([[1.9]])
-    assert np.array_equal(searcher(target), contents[1, :])
+    assert np.array_equal(searcher(target), binned_pdf[1, :])
 
 
-def test_BaseNearestNeighborSearcher_2DGrid(grid_2d, contents):
+def test_BaseNearestNeighborSearcher_2DGrid(grid_2d, binned_pdf):
     from pyirf.interpolation import BaseNearestNeighborSearcher
 
-    searcher = BaseNearestNeighborSearcher(grid_2d, contents, norm_ord=2)
+    searcher = BaseNearestNeighborSearcher(grid_2d, binned_pdf, norm_ord=2)
 
     target = np.array([[0, 1]])
-    assert np.array_equal(searcher(target), contents[0, :])
+    assert np.array_equal(searcher(target), binned_pdf[0, :])
 
     target = np.array([3, 3])
-    assert np.array_equal(searcher(target), contents[-1, :])
+    assert np.array_equal(searcher(target), binned_pdf[-1, :])
 
 
-def test_BaseNearestNeighborSearcher_manhatten_norm(grid_2d, contents):
+def test_BaseNearestNeighborSearcher_manhatten_norm(grid_2d, binned_pdf):
     from pyirf.interpolation import BaseNearestNeighborSearcher
 
-    searcher = BaseNearestNeighborSearcher(grid_2d, contents, norm_ord=1)
+    searcher = BaseNearestNeighborSearcher(grid_2d, binned_pdf, norm_ord=1)
 
     target = np.array([[0, 1]])
-    assert np.array_equal(searcher(target), contents[0, :])
+    assert np.array_equal(searcher(target), binned_pdf[0, :])
 
     target = np.array([[3, 3]])
-    assert np.array_equal(searcher(target), contents[-1, :])
+    assert np.array_equal(searcher(target), binned_pdf[-1, :])
 
 
-def test_BaseNearestNeighborSearcher_wrong_norm(grid_1d, contents):
+def test_BaseNearestNeighborSearcher_wrong_norm(grid_1d, binned_pdf):
     from pyirf.interpolation import BaseNearestNeighborSearcher
 
     with pytest.raises(ValueError, match="Only positiv integers allowed for norm_ord"):
-        BaseNearestNeighborSearcher(grid_1d, contents, norm_ord=-2)
+        BaseNearestNeighborSearcher(grid_1d, binned_pdf, norm_ord=-2)
 
     with pytest.raises(ValueError, match="Only positiv integers allowed for norm_ord"):
-        BaseNearestNeighborSearcher(grid_1d, contents, norm_ord=1.5)
+        BaseNearestNeighborSearcher(grid_1d, binned_pdf, norm_ord=1.5)
 
     with pytest.raises(ValueError, match="Only positiv integers allowed for norm_ord"):
-        BaseNearestNeighborSearcher(grid_1d, contents, norm_ord=np.inf)
+        BaseNearestNeighborSearcher(grid_1d, binned_pdf, norm_ord=np.inf)
 
     with pytest.raises(ValueError, match="Only positiv integers allowed for norm_ord"):
-        BaseNearestNeighborSearcher(grid_1d, contents, norm_ord="nuc")
+        BaseNearestNeighborSearcher(grid_1d, binned_pdf, norm_ord="nuc")
 
 
-def test_DiscretePDFNearestNeighborSearcher(grid_2d, contents):
+def test_DiscretePDFNearestNeighborSearcher(grid_2d, binned_pdf):
     from pyirf.interpolation import DiscretePDFNearestNeighborSearcher
 
-    bin_edges = np.linspace(0, 1, contents.shape[-1] + 1)
+    bin_edges = np.linspace(0, 1, binned_pdf.shape[-1] + 1)
 
     searcher = DiscretePDFNearestNeighborSearcher(
-        grid_points=grid_2d, bin_edges=bin_edges, bin_contents=contents, norm_ord=1
+        grid_points=grid_2d, bin_edges=bin_edges, binned_pdf=binned_pdf, norm_ord=1
     )
 
     target = np.array([[0, 1]])
-    assert np.array_equal(searcher(target), contents[0, :])
+    assert np.array_equal(searcher(target), binned_pdf[0, :])
 
     target = np.array([[3, 3]])
-    assert np.array_equal(searcher(target), contents[-1, :])
+    assert np.array_equal(searcher(target), binned_pdf[-1, :])
 
 
-def test_ParametrizedNearestNeighborSearcher(grid_2d, contents):
+def test_ParametrizedNearestNeighborSearcher(grid_2d, binned_pdf):
     from pyirf.interpolation import ParametrizedNearestNeighborSearcher
 
     searcher = ParametrizedNearestNeighborSearcher(
-        grid_points=grid_2d, params=contents, norm_ord=1
+        grid_points=grid_2d, params=binned_pdf, norm_ord=1
     )
 
     target = np.array([[0, 1]])
-    assert np.array_equal(searcher(target), contents[0, :])
+    assert np.array_equal(searcher(target), binned_pdf[0, :])
 
     target = np.array([[3, 3]])
-    assert np.array_equal(searcher(target), contents[-1, :])
+    assert np.array_equal(searcher(target), binned_pdf[-1, :])

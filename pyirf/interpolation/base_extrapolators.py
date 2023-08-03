@@ -83,7 +83,7 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
     Derived from pyirf.interpolation.BaseExtrapolator
     """
 
-    def __init__(self, grid_points, bin_edges, bin_contents):
+    def __init__(self, grid_points, bin_edges, binned_pdf):
         """DiscretePDFExtrapolator
 
         Parameters
@@ -92,7 +92,7 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
             Grid points at which templates exist
         bin_edges: np.ndarray, shape=(n_bins+1)
             Edges of the data binning
-        bin_content: np.ndarray, shape=(n_points, ..., n_bins)
+        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, last dimension has to correspond to number of bins for
@@ -107,4 +107,4 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
 
         self.bin_edges = bin_edges
         self.bin_mids = bin_center(self.bin_edges)
-        self.bin_contents = bin_contents
+        self.binned_pdf = binned_pdf

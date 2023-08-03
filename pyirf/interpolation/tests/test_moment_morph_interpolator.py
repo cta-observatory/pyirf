@@ -29,14 +29,14 @@ def bins():
 def simple_1D_data(bins):
     grid = np.array([[20], [40]])
     target = np.array([30])
-    bin_contents = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
 
     truth = binned_normal_pdf([target, 0], bins)
 
     return {
         "grid": grid,
         "target": target,
-        "bin_contents": bin_contents,
+        "binned_pdf": binned_pdf,
         "truth": truth,
     }
 
@@ -45,14 +45,14 @@ def simple_1D_data(bins):
 def simple_2D_data(bins):
     grid = np.array([[20, 20], [60, 20], [40, 60]])
     target = np.array([25, 25])
-    bin_contents = np.array([binned_normal_pdf(x, bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf(x, bins) for x in grid])
 
     truth = binned_normal_pdf(target, bins)
 
     return {
         "grid": grid,
         "target": target,
-        "bin_contents": bin_contents,
+        "binned_pdf": binned_pdf,
         "truth": truth,
     }
 
@@ -61,7 +61,7 @@ def test_estimate_mean_std(bins):
     from pyirf.interpolation.moment_morph_interpolator import _estimate_mean_std
 
     grid = np.array([[20], [40]])
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [
                 [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
@@ -94,7 +94,7 @@ def test_estimate_mean_std(bins):
         ]
     ).squeeze()
 
-    mean, std = _estimate_mean_std(bins, bin_contents)
+    mean, std = _estimate_mean_std(bins, binned_pdf)
 
     # Assert estimation and truth within one bin
     assert np.allclose(mean, true_mean, atol=np.diff(bins)[0] / 2)
@@ -105,7 +105,7 @@ def test_lookup():
     from pyirf.interpolation.moment_morph_interpolator import _lookup
 
     bins = np.array([0, 0.1, 0.2, 0.3, 0.4, 0.5])
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [[1, 2, 3, 4, 5], [6, 7, 8, 9, 10]],
             [[6, 7, 8, 9, 10], [1, 2, 3, 4, 5]],
@@ -126,7 +126,7 @@ def test_lookup():
         ]
     )
 
-    assert np.allclose(_lookup(bins, bin_contents, x), truth)
+    assert np.allclose(_lookup(bins, binned_pdf, x), truth)
 
 
 def test_linesegment_1D_interpolation_coefficients():
@@ -212,10 +212,10 @@ def test_moment_morph_estimation1D(bins, simple_1D_data):
         moment_morph_estimation,
     )
 
-    grid, target, bin_contents, truth = simple_1D_data.values()
+    grid, target, binned_pdf, truth = simple_1D_data.values()
 
     coeffs = linesegment_1D_interpolation_coefficients(grid, target)
-    res = moment_morph_estimation(bins, bin_contents, coeffs)
+    res = moment_morph_estimation(bins, binned_pdf, coeffs)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))
@@ -230,10 +230,10 @@ def test_moment_morph_estimation2D(bins, simple_2D_data):
         moment_morph_estimation,
     )
 
-    grid, target, bin_contents, truth = simple_2D_data.values()
+    grid, target, binned_pdf, truth = simple_2D_data.values()
 
     coeffs = barycentric_2D_interpolation_coefficients(grid, target)
-    res = moment_morph_estimation(bins, bin_contents, coeffs)
+    res = moment_morph_estimation(bins, binned_pdf, coeffs)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))
@@ -245,10 +245,10 @@ def test_moment_morph_estimation2D(bins, simple_2D_data):
 def test_MomentMorphInterpolator1D(bins, simple_1D_data):
     from pyirf.interpolation import MomentMorphInterpolator
 
-    grid, target, bin_contents, truth = simple_1D_data.values()
+    grid, target, binned_pdf, truth = simple_1D_data.values()
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -265,7 +265,7 @@ def test_MomentMorphInterpolator1D_dirac_delta_input():
 
     grid = np.array([[1], [3]])
     bin_edges = np.array([0, 1, 2, 3, 4])
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [[0, 1, 0, 0], [0.25, 0.25, 0.25, 0.25]],
             [[0, 0, 0, 1], [0.25, 0.25, 0.25, 0.25]],
@@ -273,7 +273,7 @@ def test_MomentMorphInterpolator1D_dirac_delta_input():
     )
     target = np.array([2])
 
-    interp = MomentMorphInterpolator(grid, bin_edges, bin_contents)
+    interp = MomentMorphInterpolator(grid, bin_edges, binned_pdf)
     res = interp(target)
 
     assert np.allclose(res, np.array([[0, 0, 1, 0], [0.25, 0.25, 0.25, 0.25]]))
@@ -283,10 +283,10 @@ def test_MomentMorphInterpolator1D_all_empty(bins, simple_1D_data):
     from pyirf.interpolation import MomentMorphInterpolator
 
     grid, target, _, _ = simple_1D_data.values()
-    bin_contents = np.array([np.zeros(len(bins) - 1) for _ in grid])
+    binned_pdf = np.array([np.zeros(len(bins) - 1) for _ in grid])
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -297,12 +297,12 @@ def test_MomentMorphInterpolator1D_all_empty(bins, simple_1D_data):
 def test_MomentMorphInterpolator1D_partially_empty(bins, simple_1D_data):
     from pyirf.interpolation import MomentMorphInterpolator
 
-    grid, target, bin_contents, _ = simple_1D_data.values()
+    grid, target, binned_pdf, _ = simple_1D_data.values()
 
-    bin_contents[0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[0, :] = np.zeros(len(bins) - 1)
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -317,7 +317,7 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     target = np.array([30])
 
     # Create template histograms
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [
                 [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
@@ -331,10 +331,10 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     )
 
     # Make template histograms at indizes [:, 1, 1, :] all zeroed
-    bin_contents[:, 1, 1, :] = np.zeros(len(bins) - 1)
+    binned_pdf[:, 1, 1, :] = np.zeros(len(bins) - 1)
 
     # Zero template histogram at index [1, 0, 0, :]
-    bin_contents[1, 0, 0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[1, 0, 0, :] = np.zeros(len(bins) - 1)
 
     truth = np.array(
         [
@@ -354,7 +354,7 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     truth[1, 1, :] = np.zeros(len(bins) - 1)
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -362,7 +362,7 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     expected_norms = np.array([[0, 1], [1, 0]])
     assert np.allclose(np.sum(res, axis=-1), expected_norms)
     assert np.all(np.isfinite(res))
-    assert res.shape == (1, *bin_contents.shape[1:])
+    assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
@@ -372,7 +372,7 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
 
     grid = np.array([[20], [40], [60], [80]])
     target = np.array([25])
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [
                 [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
@@ -386,7 +386,7 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
     )
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     truth = np.array(
@@ -406,7 +406,7 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
 
     assert np.allclose(np.sum(res, axis=-1), 1)
     assert np.all(np.isfinite(res))
-    assert res.shape == (1, *bin_contents.shape[1:])
+    assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res.squeeze(), truth, atol=1e-4, rtol=1e-5)
 
@@ -414,10 +414,10 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
 def test_MomentMorphInterpolator2D(bins, simple_2D_data):
     from pyirf.interpolation import MomentMorphInterpolator
 
-    grid, target, bin_contents, truth = simple_2D_data.values()
+    grid, target, binned_pdf, truth = simple_2D_data.values()
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -432,12 +432,12 @@ def test_MomentMorphInterpolator2D(bins, simple_2D_data):
 def test_MomentMorphInterpolator2D_partially_empty(bins, simple_2D_data):
     from pyirf.interpolation import MomentMorphInterpolator
 
-    grid, target, bin_contents, _ = simple_2D_data.values()
+    grid, target, binned_pdf, _ = simple_2D_data.values()
 
-    bin_contents[0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[0, :] = np.zeros(len(bins) - 1)
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -449,10 +449,10 @@ def test_MomentMorphInterpolator2D_all_empty(bins, simple_2D_data):
     from pyirf.interpolation import MomentMorphInterpolator
 
     grid, target, _, _ = simple_2D_data.values()
-    bin_contents = np.array([np.zeros(len(bins) - 1) for _ in grid])
+    binned_pdf = np.array([np.zeros(len(bins) - 1) for _ in grid])
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -467,7 +467,7 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     target = np.array([25, 25])
 
     # Create template histograms
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [
                 [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
@@ -481,10 +481,10 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     )
 
     # Make template histograms at indizes [:, 1, 1, :] all zeroed
-    bin_contents[:, 1, 1, :] = np.zeros(len(bins) - 1)
+    binned_pdf[:, 1, 1, :] = np.zeros(len(bins) - 1)
 
     # Zero template histogram at index [1, 0, 0, :]
-    bin_contents[1, 0, 0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[1, 0, 0, :] = np.zeros(len(bins) - 1)
 
     truth = np.array(
         [
@@ -504,7 +504,7 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     truth[1, 1, :] = np.zeros(len(bins) - 1)
 
     interp = MomentMorphInterpolator(
-        grid_points=grid, bin_edges=bins, bin_contents=bin_contents
+        grid_points=grid, bin_edges=bins, binned_pdf=binned_pdf
     )
 
     res = interp(target)
@@ -512,7 +512,7 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     expected_norms = np.array([[0, 1], [1, 0]])
     assert np.allclose(np.sum(res, axis=-1), expected_norms)
     assert np.all(np.isfinite(res))
-    assert res.shape == (1, *bin_contents.shape[1:])
+    assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
@@ -522,12 +522,12 @@ def test_MomentMorphInterpolator1D_extended_grid(bins):
 
     grid = np.array([[20], [40], [60], [80]])
     target = np.array([25])
-    bin_contents = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
 
     interp = MomentMorphInterpolator(
         grid_points=grid,
         bin_edges=bins,
-        bin_contents=bin_contents,
+        binned_pdf=binned_pdf,
     )
 
     res = interp(target)
@@ -545,12 +545,12 @@ def test_MomentMorphInterpolator2D_extended_grid(bins):
 
     grid = np.array([[20, 20], [40, 20], [30, 40], [50, 20], [45, 40]])
     target = np.array([25, 25])
-    bin_contents = np.array([binned_normal_pdf(x, bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf(x, bins) for x in grid])
 
     interp = MomentMorphInterpolator(
         grid_points=grid,
         bin_edges=bins,
-        bin_contents=bin_contents,
+        binned_pdf=binned_pdf,
     )
 
     res = interp(target)
@@ -568,7 +568,7 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
 
     grid = np.array([[20, 20], [40, 20], [30, 40], [50, 20], [45, 40]])
     target = np.array([25, 25])
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [
                 [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
@@ -584,7 +584,7 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
     interp = MomentMorphInterpolator(
         grid_points=grid,
         bin_edges=bins,
-        bin_contents=bin_contents,
+        binned_pdf=binned_pdf,
     )
 
     truth = np.array(
@@ -604,7 +604,7 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
 
     assert np.allclose(np.sum(res, axis=-1), 1)
     assert np.all(np.isfinite(res))
-    assert res.shape == (1, *bin_contents.shape[1:])
+    assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
@@ -616,7 +616,7 @@ def test_MomentMorphInterpolator3D():
 
     grid = np.array([[0, 0, 0], [0, 20, 0], [20, 0, 0], [20, 20, 0], [10, 10, 10]])
 
-    bin_contents = np.array([np.ones(len(bins) - 1) / (len(bins) - 1) for _ in grid])
+    binned_pdf = np.array([np.ones(len(bins) - 1) / (len(bins) - 1) for _ in grid])
 
     with pytest.raises(
         NotImplementedError,
@@ -625,5 +625,5 @@ def test_MomentMorphInterpolator3D():
         MomentMorphInterpolator(
             grid_points=grid,
             bin_edges=bins,
-            bin_contents=bin_contents,
+            binned_pdf=binned_pdf,
         )

@@ -6,11 +6,11 @@ from .base_interpolators import DiscretePDFInterpolator
 __all__ = ["QuantileInterpolator"]
 
 
-def cdf_values(bin_contents):
+def cdf_values(binned_pdf, bin_edges):
     """
     compute cdf values and assure they are normed to unity
     """
-    cdfs = np.cumsum(bin_contents, axis=-1)
+    cdfs = np.cumsum(binned_pdf * bin_edges, axis=-1)
 
     # assure the last cdf value is 1, ignore errors for empty pdfs as they are reset to 0 by nan_to_num
     with np.errstate(invalid="ignore"):
@@ -149,7 +149,7 @@ def norm_pdf(pdf_values):
 
 
 class QuantileInterpolator(DiscretePDFInterpolator):
-    def __init__(self, grid_points, bin_edges, bin_contents, quantile_resolution=1e-3):
+    def __init__(self, grid_points, bin_edges, binned_pdf, quantile_resolution=1e-3):
         """BinnedInterpolator constructor
 
         Parameters
@@ -158,7 +158,7 @@ class QuantileInterpolator(DiscretePDFInterpolator):
             Grid points at which interpolation templates exist
         bin_edges: np.ndarray
             Edges of the data binning
-        bin_contents: np.ndarray
+        binned_pdf: np.ndarray
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, the last axis has to correspond to number
@@ -170,7 +170,7 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         Raises
         ------
         ValueError:
-            When last axis in bin_contents and number of bins are not equal.
+            When last axis in binned_pdf and number of bins are not equal.
 
         Note
         ----
@@ -178,7 +178,7 @@ class QuantileInterpolator(DiscretePDFInterpolator):
             DiscretePDFInterpolator
         """
         # Remember input shape
-        self.input_shape = bin_contents.shape
+        self.input_shape = binned_pdf.shape
 
         if self.input_shape[-1] != len(bin_edges) - 1:
             raise ValueError(
@@ -187,8 +187,8 @@ class QuantileInterpolator(DiscretePDFInterpolator):
 
         # include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise
         # start at a value != 0, also extend edges with one bin to the left
-        fill_zeros = np.zeros(shape=bin_contents.shape[:-1])[..., np.newaxis]
-        bin_contents = np.concatenate((fill_zeros, bin_contents), axis=-1)
+        fill_zeros = np.zeros(shape=binned_pdf.shape[:-1])[..., np.newaxis]
+        binned_pdf = np.concatenate((fill_zeros, binned_pdf), axis=-1)
         bin_edges = np.append(bin_edges[0] - np.diff(bin_edges)[0], bin_edges)
 
         # compute quantiles from quantile_resolution
@@ -197,11 +197,11 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         )
 
         super().__init__(
-            grid_points=grid_points, bin_edges=bin_edges, bin_contents=bin_contents
+            grid_points=grid_points, bin_edges=bin_edges, binned_pdf=binned_pdf
         )
 
         # Compute CDF values
-        self.cdfs = cdf_values(self.bin_contents)
+        self.cdfs = cdf_values(self.binned_pdf)
 
         # compute ppf values at quantiles, determine quantile step of [1]
         self.ppfs = ppf_values(self.bin_mids, self.cdfs, self.quantiles)

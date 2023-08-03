@@ -138,7 +138,7 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     grid_points = np.array([[20], [30], [40]])
 
     # Create template histograms
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [
                 [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
@@ -153,16 +153,16 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     )
 
     # Include dirac-delta moving with grid_point x at [:, 2, 0, x]
-    bin_contents[0, 2, 0, 20] = 1
-    bin_contents[1, 2, 0, 30] = 1
-    bin_contents[2, 2, 0, 40] = 1
+    binned_pdf[0, 2, 0, 20] = 1
+    binned_pdf[1, 2, 0, 30] = 1
+    binned_pdf[2, 2, 0, 40] = 1
 
     # Zero template histogram at index [0, 0, 0, :], extrapolations "lower"
     # then this bin has consequently to be zero in these bins.
-    bin_contents[0, 0, 0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[0, 0, 0, :] = np.zeros(len(bins) - 1)
 
     extrap = MomentMorphNearestSimplexExtrapolator(
-        grid_points=grid_points, bin_contents=bin_contents, bin_edges=bins
+        grid_points=grid_points, binned_pdf=binned_pdf, bin_edges=bins
     )
 
     target1 = np.array([10])
@@ -190,7 +190,7 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     expected_norms1 = np.array([[0, 1], [1, 0], [1, 1]])
     assert np.allclose(np.sum(res1, axis=-1), expected_norms1)
     assert np.all(np.isfinite(res1))
-    assert res1.shape == (1, *bin_contents.shape[1:])
+    assert res1.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res1.squeeze(), truth1, atol=1e-3, rtol=1e-5)
 
@@ -218,7 +218,7 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     expected_norms2 = np.array([[1, 1], [1, 0], [1, 1]])
     assert np.allclose(np.sum(res2, axis=-1), expected_norms2)
     assert np.all(np.isfinite(res2))
-    assert res2.shape == (1, *bin_contents.shape[1:])
+    assert res2.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res2.squeeze(), truth2, atol=1e-3, rtol=1e-5)
 
@@ -230,7 +230,7 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     grid_points = np.array([[20, 20], [30, 10], [40, 20], [50, 10]])
 
     # Create template histograms
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [
                 [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
@@ -245,10 +245,10 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
 
     # Zero template histogram at index [0, 0, 0, :] (the [20, 20] point),
     # so that targets interpolated from left simplex should also be zero at [0, 0, :]
-    bin_contents[0, 0, 0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[0, 0, 0, :] = np.zeros(len(bins) - 1)
 
     extrap = MomentMorphNearestSimplexExtrapolator(
-        grid_points=grid_points, bin_contents=bin_contents, bin_edges=bins
+        grid_points=grid_points, binned_pdf=binned_pdf, bin_edges=bins
     )
 
     target1 = np.array([25, 10])
@@ -272,7 +272,7 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     expected_norms1 = np.array([[0, 1], [1, 0]])
     assert np.allclose(np.sum(res1, axis=-1), expected_norms1)
     assert np.all(np.isfinite(res1))
-    assert res1.shape == (1, *bin_contents.shape[1:])
+    assert res1.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res1.squeeze(), truth1, atol=1e-3, rtol=1e-5)
 
@@ -296,7 +296,7 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     expected_norms2 = np.array([[1, 1], [1, 0]])
     assert np.allclose(np.sum(res2, axis=-1), expected_norms2)
     assert np.all(np.isfinite(res2))
-    assert res2.shape == (1, *bin_contents.shape[1:])
+    assert res2.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
     assert np.allclose(res2.squeeze(), truth2, atol=1e-3, rtol=1e-5)
 
@@ -315,7 +315,7 @@ def test_MomentMorphNearestSimplexExtrapolator_3DGrid():
         match="Extrapolation in more then two dimension not impemented.",
     ):
         MomentMorphNearestSimplexExtrapolator(
-            grid_points=grid_points, bin_contents=dummy_data, bin_edges=bin_edges
+            grid_points=grid_points, binned_pdf=dummy_data, bin_edges=bin_edges
         )
 
 
@@ -330,7 +330,7 @@ def test_MomentMorphNearestSimplexExtrapolator_below_zero_warning(bins):
     grid_points = np.array([[30], [40]])
     bins = np.linspace(-10, 40, 51)
 
-    bin_contents = np.array(
+    binned_pdf = np.array(
         [
             [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 10, 0], bins)]
             for x in grid_points
@@ -338,7 +338,7 @@ def test_MomentMorphNearestSimplexExtrapolator_below_zero_warning(bins):
     )
 
     extrap = MomentMorphNearestSimplexExtrapolator(
-        grid_points=grid_points, bin_contents=bin_contents, bin_edges=bins
+        grid_points=grid_points, binned_pdf=binned_pdf, bin_edges=bins
     )
 
     with pytest.warns(

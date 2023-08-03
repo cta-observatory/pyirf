@@ -122,7 +122,7 @@ class ParametrizedNearestSimplexExtrapolator(ParametrizedExtrapolator):
 
 
 class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
-    def __init__(self, grid_points, bin_edges, bin_contents):
+    def __init__(self, grid_points, bin_edges, binned_pdf):
         """
         Extrapolator class extending/reusing parts of Moment Morphing
         by allowing for negative extrapolation coefficients computed
@@ -136,7 +136,7 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
             Have to be sorted in accending order for 1D.
         bin_edges: np.ndarray, shape=(M+1)
             Edges of the data binning
-        bin_content: np.ndarray, shape=(N, ..., M)
+        binned_pdf: np.ndarray, shape=(N, ..., M)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points. Extrapolation dimension, meaning the
@@ -148,7 +148,7 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
         ----
             Also calls pyirf.interpolation.DiscretePDFExtrapolator.__init__.
         """
-        super().__init__(grid_points, bin_edges, bin_contents)
+        super().__init__(grid_points, bin_edges, binned_pdf)
 
         if self.grid_dim == 2:
             self.triangulation = Delaunay(self.grid_points)
@@ -169,7 +169,7 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
 
         return moment_morph_estimation(
             bin_edges=self.bin_edges,
-            bin_contents=self.bin_contents[segment_inds],
+            binned_pdf=self.binned_pdf[segment_inds],
             coefficients=coefficients,
         )
 
@@ -185,7 +185,7 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
 
         return moment_morph_estimation(
             bin_edges=self.bin_edges,
-            bin_contents=self.bin_contents[simplex_inds],
+            binned_pdf=self.binned_pdf[simplex_inds],
             coefficients=coefficients,
         )
 
@@ -231,6 +231,6 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
             norm = np.expand_dims(np.sum(extrapolant, axis=-1), -1)
             return np.divide(
                 extrapolant, norm, out=np.zeros_like(extrapolant), where=norm != 0
-            ).reshape(1, *self.bin_contents.shape[1:])
+            ).reshape(1, *self.binned_pdf.shape[1:])
         else:
             return extrapolant
