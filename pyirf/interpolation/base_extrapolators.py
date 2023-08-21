@@ -3,6 +3,7 @@ from abc import ABCMeta, abstractmethod
 
 import numpy as np
 from pyirf.binning import bin_center
+from pyirf.interpolation.base_interpolators import PDFNormalization
 
 __all__ = ["BaseExtrapolator", "ParametrizedExtrapolator", "DiscretePDFExtrapolator"]
 
@@ -83,7 +84,7 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
     Derived from pyirf.interpolation.BaseExtrapolator
     """
 
-    def __init__(self, grid_points, bin_edges, binned_pdf):
+    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
         """DiscretePDFExtrapolator
 
         Parameters
@@ -105,6 +106,7 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
         """
         super().__init__(grid_points)
 
+        self.normalization = normalization
         self.bin_edges = bin_edges
         self.bin_mids = bin_center(self.bin_edges)
         self.binned_pdf = binned_pdf

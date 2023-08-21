@@ -2,6 +2,8 @@ import numpy as np
 import pytest
 from scipy.stats import norm
 
+from pyirf.interpolation.base_interpolators import PDFNormalization
+
 
 def expected_mean(a, b):
     return 5 + (a / 5) + (b / 15)
@@ -29,7 +31,7 @@ def bins():
 def simple_1D_data(bins):
     grid = np.array([[20], [40]])
     target = np.array([30])
-    binned_pdf = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf(x, 0, bins) for x in grid])
 
     truth = binned_normal_pdf(target, 0, bins)
 
@@ -94,7 +96,7 @@ def test_estimate_mean_std(bins):
         ]
     ).squeeze()
 
-    mean, std = _estimate_mean_std(bins, binned_pdf)
+    mean, std = _estimate_mean_std(bins, binned_pdf, PDFNormalization.AREA)
 
     # Assert estimation and truth within one bin
     np.testing.assert_allclose(mean, true_mean, atol=np.diff(bins)[0] / 2)
@@ -139,14 +141,14 @@ def test_linesegment_1D_interpolation_coefficients():
 
     np.testing.assert_allclose(
         linesegment_1D_interpolation_coefficients(grid_points, target_point),
-        np.array([1, 0]),
+        np.array([[1, 0]]),
     )
 
     target_point = np.array([[40]])
 
     np.testing.assert_allclose(
         linesegment_1D_interpolation_coefficients(grid_points, target_point),
-        np.array([0, 1]),
+        np.array([[0, 1]]),
     )
 
     target_point = np.array([[25]])
@@ -215,7 +217,7 @@ def test_moment_morph_estimation1D(bins, simple_1D_data):
     grid, target, binned_pdf, truth = simple_1D_data.values()
 
     coeffs = linesegment_1D_interpolation_coefficients(grid, target)
-    res = moment_morph_estimation(bins, binned_pdf, coeffs)
+    res = moment_morph_estimation(bins, binned_pdf, coeffs, PDFNormalization.AREA)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))
@@ -233,7 +235,7 @@ def test_moment_morph_estimation2D(bins, simple_2D_data):
     grid, target, binned_pdf, truth = simple_2D_data.values()
 
     coeffs = barycentric_2D_interpolation_coefficients(grid, target)
-    res = moment_morph_estimation(bins, binned_pdf, coeffs)
+    res = moment_morph_estimation(bins, binned_pdf, coeffs, PDFNormalization.AREA)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))

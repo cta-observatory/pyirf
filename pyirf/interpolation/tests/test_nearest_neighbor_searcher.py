@@ -13,7 +13,7 @@ def grid_2d():
 
 
 @pytest.fixture
-def values(grid_1d):
+def binned_pdf(grid_1d):
     return np.array(
         [
             [[np.full(10, x), np.full(10, x / 2)], [np.full(10, 2 * x), np.zeros(10)]]

@@ -55,7 +55,7 @@ def test_ParametrizedNearestSimplexExtrapolator_1DGrid():
 
     dummy_data_target2 = -2.5 * slope + 1
 
-    assert np.allclose(interpolant2, dummy_data_target2)
+    np.testing.assert_allclose(interpolant2, dummy_data_target2)
     assert interpolant2.shape == (1, *dummy_data.shape[1:])
 
 
@@ -96,7 +96,7 @@ def test_ParametrizedNearestSimplexExtrapolator_2DGrid():
         ]
     ).squeeze()
 
-    assert np.allclose(interpolant1.squeeze(), dummy_data_target1)
+    np.testing.assert_allclose(interpolant1.squeeze(), dummy_data_target1)
     assert interpolant1.shape == (1, *dummy_data.shape[1:])
 
     target_point2 = np.array([[-2.5, -5.5]])
@@ -109,7 +109,7 @@ def test_ParametrizedNearestSimplexExtrapolator_2DGrid():
         ]
     ).squeeze()
 
-    assert np.allclose(interpolant2, dummy_data_target2)
+    np.testing.assert_allclose(interpolant2, dummy_data_target2)
     assert interpolant2.shape == (1, *dummy_data.shape[1:])
 
 
@@ -188,11 +188,11 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     res1 = extrap(target1)
 
     expected_norms1 = np.array([[0, 1], [1, 0], [1, 1]])
-    assert np.allclose(np.sum(res1, axis=-1), expected_norms1)
+    np.testing.assert_allclose(np.sum(res1, axis=-1), expected_norms1)
     assert np.all(np.isfinite(res1))
     assert res1.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res1.squeeze(), truth1, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res1.squeeze(), truth1, atol=1e-3, rtol=1e-5)
 
     target2 = np.array([45])
 
@@ -216,11 +216,11 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     res2 = extrap(target2)
 
     expected_norms2 = np.array([[1, 1], [1, 0], [1, 1]])
-    assert np.allclose(np.sum(res2, axis=-1), expected_norms2)
+    np.testing.assert_allclose(np.sum(res2, axis=-1), expected_norms2)
     assert np.all(np.isfinite(res2))
     assert res2.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res2.squeeze(), truth2, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res2.squeeze(), truth2, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
@@ -267,11 +267,11 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     res1 = extrap(target1)
 
     expected_norms1 = np.array([[0, 1], [1, 0]])
-    assert np.allclose(np.sum(res1, axis=-1), expected_norms1)
+    np.testing.assert_allclose(np.sum(res1, axis=-1), expected_norms1)
     assert np.all(np.isfinite(res1))
     assert res1.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res1.squeeze(), truth1, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res1.squeeze(), truth1, atol=1e-3, rtol=1e-5)
 
     target2 = np.array([45, 20])
 
@@ -291,11 +291,11 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     res2 = extrap(target2)
 
     expected_norms2 = np.array([[1, 1], [1, 0]])
-    assert np.allclose(np.sum(res2, axis=-1), expected_norms2)
+    np.testing.assert_allclose(np.sum(res2, axis=-1), expected_norms2)
     assert np.all(np.isfinite(res2))
     assert res2.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res2.squeeze(), truth2, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res2.squeeze(), truth2, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphNearestSimplexExtrapolator_3DGrid():
@@ -344,5 +344,5 @@ def test_MomentMorphNearestSimplexExtrapolator_below_zero_warning(bins):
     ):
         res = extrap(np.array([0]))
 
-    assert np.allclose(np.sum(res, axis=-1), 1)
+    np.testing.assert_allclose(np.sum(res, axis=-1), 1)
     assert np.all(res >= 0)

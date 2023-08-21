@@ -177,7 +177,7 @@ def barycentric_2D_interpolation_coefficients(grid_points, target_point):
     return coefficients
 
 
-def moment_morph_estimation(bin_edges, binned_pdf, coefficients):
+def moment_morph_estimation(bin_edges, binned_pdf, coefficients, normalization):
     """
     Function that wraps up the moment morph procedure [1] adopted for histograms.
 
@@ -211,7 +211,7 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients):
 
     # Estimate mean and std for each input template histogram. First adaption needed to extend
     # the moment morph procedure to histograms
-    mus, sigs = _estimate_mean_std(bin_edges=bin_edges, binned_pdf=binned_pdf)
+    mus, sigs = _estimate_mean_std(bin_edges=bin_edges, binned_pdf=binned_pdf, normalization=normalization)
     coefficients = coefficients.reshape(
         binned_pdf.shape[0], *np.ones(mus.ndim - 1, "int")
     )
@@ -302,6 +302,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
             bin_edges=self.bin_edges,
             binned_pdf=self.binned_pdf[segment_inds],
             coefficients=coefficients,
+            normalization=self.normalization,
         )
 
     def _interpolate2D(self, target_point):
@@ -321,6 +322,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
             bin_edges=self.bin_edges,
             binned_pdf=self.binned_pdf[simplex_inds],
             coefficients=coefficients,
+            normalization=self.normalization,
         )
 
     def interpolate(self, target_point):

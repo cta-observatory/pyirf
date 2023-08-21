@@ -7,7 +7,7 @@ import warnings
 import numpy as np
 from scipy.spatial import Delaunay
 
-from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
+from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator, PDFNormalization
 from .moment_morph_interpolator import (
     barycentric_2D_interpolation_coefficients,
     linesegment_1D_interpolation_coefficients,
@@ -122,7 +122,7 @@ class ParametrizedNearestSimplexExtrapolator(ParametrizedExtrapolator):
 
 
 class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
-    def __init__(self, grid_points, bin_edges, binned_pdf):
+    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
         """
         Extrapolator class extending/reusing parts of Moment Morphing
         by allowing for negative extrapolation coefficients computed
@@ -148,7 +148,7 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
         ----
             Also calls pyirf.interpolation.DiscretePDFExtrapolator.__init__.
         """
-        super().__init__(grid_points, bin_edges, binned_pdf)
+        super().__init__(grid_points, bin_edges, binned_pdf, normalization)
 
         if self.grid_dim == 2:
             self.triangulation = Delaunay(self.grid_points)
@@ -171,6 +171,7 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
             bin_edges=self.bin_edges,
             binned_pdf=self.binned_pdf[segment_inds],
             coefficients=coefficients,
+            normalization=self.normalization,
         )
 
     def _extrapolate2D(self, simplex_inds, target_point):
@@ -187,6 +188,7 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
             bin_edges=self.bin_edges,
             binned_pdf=self.binned_pdf[simplex_inds],
             coefficients=coefficients,
+            normalization=self.normalization,
         )
 
     def extrapolate(self, target_point):
