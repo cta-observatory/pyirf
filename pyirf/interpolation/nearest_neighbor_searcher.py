@@ -129,9 +129,7 @@ class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
             Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
         """
 
-        super().__init__(
-            grid_points=grid_points, values=binned_pdf, norm_ord=norm_ord
-        )
+        super().__init__(grid_points=grid_points, values=binned_pdf, norm_ord=norm_ord)
 
 
 DiscretePDFInterpolator.register(DiscretePDFNearestNeighborSearcher)

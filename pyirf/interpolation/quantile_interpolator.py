@@ -150,7 +150,14 @@ def norm_pdf(pdf_values):
 
 
 class QuantileInterpolator(DiscretePDFInterpolator):
-    def __init__(self, grid_points, bin_edges, binned_pdf, quantile_resolution=1e-3, normalization=PDFNormalization.AREA):
+    def __init__(
+        self,
+        grid_points,
+        bin_edges,
+        binned_pdf,
+        quantile_resolution=1e-3,
+        normalization=PDFNormalization.AREA,
+    ):
         """BinnedInterpolator constructor
 
         Parameters
@@ -168,7 +175,7 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         quantile_resolution : float
             Spacing between quantiles
         normalization : PDFNormalization
-            How the discrete PDF is normalized 
+            How the discrete PDF is normalized
 
         Raises
         ------

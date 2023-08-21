@@ -33,9 +33,18 @@ def test_cdf_values(data):
     from pyirf.interpolation.quantile_interpolator import cdf_values
 
     # Assert empty histograms result in cdf containing zeros
-    np.testing.assert_array_equal(cdf_values(np.zeros_like(data["binned_pdfs"])[0], data["bin_edges"], PDFNormalization.AREA), 0)
+    np.testing.assert_array_equal(
+        cdf_values(
+            np.zeros_like(data["binned_pdfs"])[0],
+            data["bin_edges"],
+            PDFNormalization.AREA,
+        ),
+        0,
+    )
 
-    cdf_est = cdf_values(data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA)
+    cdf_est = cdf_values(
+        data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA
+    )
     # Assert cdf is increasing or constant for actual pdfs
     assert np.all(np.diff(cdf_est) >= 0)
 
@@ -58,7 +67,9 @@ def test_ppf_values(data):
     bin_mids = bin_center(data["bin_edges"])
 
     # Estimated ppf-values
-    cdf_est = cdf_values(data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA)
+    cdf_est = cdf_values(
+        data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA
+    )
     ppf_est = ppf_values(bin_mids, cdf_est, quantiles)
 
     # Assert truth and estimation match allowing for +- bin_width deviation
@@ -77,7 +88,9 @@ def test_pdf_from_ppf(data):
     bin_mids = bin_center(data["bin_edges"])
 
     # Estimate ppf-values
-    cdf_est = cdf_values(data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA)
+    cdf_est = cdf_values(
+        data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA
+    )
     ppf_est = ppf_values(bin_mids, cdf_est, quantiles)
 
     # Compute pdf_values
@@ -90,7 +103,9 @@ def test_pdf_from_ppf(data):
 def test_norm_pdf(data):
     from pyirf.interpolation.quantile_interpolator import norm_pdf
 
-    np.testing.assert_allclose(norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0])
+    np.testing.assert_allclose(
+        norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0]
+    )
     np.testing.assert_allclose(norm_pdf(np.zeros(5)), 0)
 
 

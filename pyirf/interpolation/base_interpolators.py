@@ -7,11 +7,18 @@ import numpy as np
 from ..binning import bin_center
 from ..utils import cone_solid_angle
 
-__all__ = ["BaseInterpolator", "ParametrizedInterpolator", "DiscretePDFInterpolator", "PDFNormalization", "get_bin_width"]
+__all__ = [
+    "BaseInterpolator",
+    "ParametrizedInterpolator",
+    "DiscretePDFInterpolator",
+    "PDFNormalization",
+    "get_bin_width",
+]
 
 
 class PDFNormalization(enum.Enum):
     """How a discrete PDF is normalized"""
+
     #: PDF is normalized to a "normal" area integral of 1
     AREA = enum.auto()
     #: PDF is normalized to 1 over the solid angle integral where the bin
@@ -25,7 +32,7 @@ def get_bin_width(bin_edges, normalization):
 
     if normalization is PDFNormalization.CONE_SOLID_ANGLE:
         return np.diff(cone_solid_angle(bin_edges))
-    
+
     raise ValueError(f"Invalid PDF normalization: {normalization}")
 
 
@@ -106,7 +113,9 @@ class DiscretePDFInterpolator(BaseInterpolator):
     Derived from pyirf.interpolation.BaseInterpolator
     """
 
-    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
+    def __init__(
+        self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA
+    ):
         """DiscretePDFInterpolator
 
         Parameters

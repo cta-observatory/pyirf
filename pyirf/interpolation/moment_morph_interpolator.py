@@ -38,7 +38,7 @@ def _estimate_mean_std(bin_edges, binned_pdf, normalization):
     # Weighted averages to compute mean and std
     mean = np.average(mids, weights=probability, axis=-1)
     std = np.sqrt(
-        np.average((mids - mean[..., np.newaxis])**2, weights=probability, axis=-1)
+        np.average((mids - mean[..., np.newaxis]) ** 2, weights=probability, axis=-1)
     )
 
     # Set std to 0.5*width for all those templates that have only one bin =/= 0. In those
@@ -253,7 +253,9 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients):
 
 
 class MomentMorphInterpolator(DiscretePDFInterpolator):
-    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
+    def __init__(
+        self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA
+    ):
         """
         Interpolator class using moment morphing.
 

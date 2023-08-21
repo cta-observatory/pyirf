@@ -7,7 +7,11 @@ from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
 
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
-from .base_interpolators import DiscretePDFInterpolator, PDFNormalization, ParametrizedInterpolator
+from .base_interpolators import (
+    DiscretePDFInterpolator,
+    PDFNormalization,
+    ParametrizedInterpolator,
+)
 from .griddata_interpolator import GridDataInterpolator
 from .quantile_interpolator import QuantileInterpolator
 
@@ -231,7 +235,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         # Make sure that 1D input is sorted in increasing order
         if self.grid_dim == 1:
             sorting_inds = np.argsort(self.grid_points.squeeze())
-            
+
             self.grid_points = self.grid_points[sorting_inds]
             binned_pdf = binned_pdf[sorting_inds]
 
@@ -334,7 +338,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         # Make sure that 1D input is sorted in increasing order
         if self.grid_dim == 1:
             sorting_inds = np.argsort(self.grid_points.squeeze())
-            
+
             self.grid_points = self.grid_points[sorting_inds]
             params = params[sorting_inds]
 
@@ -349,7 +353,9 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
                 f"interpolator_cls must be a ParametrizedInterpolator subclass, got {interpolator_cls}"
             )
 
-        self.interpolator = interpolator_cls(self.grid_points, params, **interpolator_kwargs)
+        self.interpolator = interpolator_cls(
+            self.grid_points, params, **interpolator_kwargs
+        )
 
         if extrapolator_cls is None:
             self.extrapolator = None
@@ -691,8 +697,12 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         if extrapolator_kwargs is None:
             extrapolator_kwargs = {}
 
-        interpolator_kwargs.setdefault("normalization", PDFNormalization.CONE_SOLID_ANGLE)
-        extrapolator_kwargs.setdefault("normalization", PDFNormalization.CONE_SOLID_ANGLE)
+        interpolator_kwargs.setdefault(
+            "normalization", PDFNormalization.CONE_SOLID_ANGLE
+        )
+        extrapolator_kwargs.setdefault(
+            "normalization", PDFNormalization.CONE_SOLID_ANGLE
+        )
 
         super().__init__(
             grid_points=grid_points,
