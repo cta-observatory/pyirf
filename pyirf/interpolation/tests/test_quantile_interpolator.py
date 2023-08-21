@@ -3,6 +3,8 @@ import pytest
 from pyirf.binning import bin_center
 from scipy.stats import norm
 
+from pyirf.interpolation.base_interpolators import PDFNormalization
+
 
 @pytest.fixture
 def data():
@@ -12,6 +14,8 @@ def data():
 
     # create binned pdfs by interpolation of bin content
     binned_pdfs = np.array([np.diff(dist.cdf(bin_edges)) for dist in distributions])
+    bin_width = np.diff(bin_edges)
+    binned_pdfs /= bin_width[np.newaxis, :]
 
     dataset = {
         "bin_edges": bin_edges,
@@ -28,11 +32,10 @@ def data():
 def test_cdf_values(data):
     from pyirf.interpolation.quantile_interpolator import cdf_values
 
-    cdf_est = cdf_values(data["binned_pdfs"][0])
-
     # Assert empty histograms result in cdf containing zeros
-    assert np.all(cdf_values(np.zeros(shape=5)) == 0)
+    np.testing.assert_array_equal(cdf_values(np.zeros_like(data["binned_pdfs"])[0], data["bin_edges"], PDFNormalization.AREA), 0)
 
+    cdf_est = cdf_values(data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA)
     # Assert cdf is increasing or constant for actual pdfs
     assert np.all(np.diff(cdf_est) >= 0)
 
@@ -40,7 +43,8 @@ def test_cdf_values(data):
     assert np.max(cdf_est) == 1
 
     # Assert estimated and true cdf are matching
-    assert np.allclose(cdf_est, data["distributions"][0].cdf(data["bin_edges"][1:]))
+    true_cdf = data["distributions"][0].cdf(data["bin_edges"][1:])
+    np.testing.assert_allclose(cdf_est, true_cdf, atol=1e-12)
 
 
 def test_ppf_values(data):
@@ -54,11 +58,11 @@ def test_ppf_values(data):
     bin_mids = bin_center(data["bin_edges"])
 
     # Estimated ppf-values
-    cdf_est = cdf_values(data["binned_pdfs"][0])
+    cdf_est = cdf_values(data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA)
     ppf_est = ppf_values(bin_mids, cdf_est, quantiles)
 
     # Assert truth and estimation match allowing for +- bin_width deviation
-    assert np.allclose(ppf_true, ppf_est, atol=np.diff(data["bin_edges"])[0])
+    np.testing.assert_allclose(ppf_true, ppf_est, atol=np.diff(data["bin_edges"])[0])
 
 
 def test_pdf_from_ppf(data):
@@ -73,21 +77,21 @@ def test_pdf_from_ppf(data):
     bin_mids = bin_center(data["bin_edges"])
 
     # Estimate ppf-values
-    cdf_est = cdf_values(data["binned_pdfs"][0])
+    cdf_est = cdf_values(data["binned_pdfs"][0], data["bin_edges"], PDFNormalization.AREA)
     ppf_est = ppf_values(bin_mids, cdf_est, quantiles)
 
     # Compute pdf_values
     pdf_est = pdf_from_ppf(data["bin_edges"], ppf_est, quantiles)
 
     # Assert pdf-values matching true pdf within +-1%
-    assert np.allclose(pdf_est, data["binned_pdfs"][0], atol=1e-2)
+    np.testing.assert_allclose(pdf_est, data["binned_pdfs"][0], atol=1e-2)
 
 
 def test_norm_pdf(data):
     from pyirf.interpolation.quantile_interpolator import norm_pdf
 
-    assert np.allclose(norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0])
-    assert np.allclose(norm_pdf(np.zeros(5)), 0)
+    np.testing.assert_allclose(norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0])
+    np.testing.assert_allclose(norm_pdf(np.zeros(5)), 0)
 
 
 def test_interpolate_binned_pdf(data):

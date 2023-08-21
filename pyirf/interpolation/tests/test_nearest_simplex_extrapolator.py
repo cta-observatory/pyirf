@@ -47,7 +47,7 @@ def test_ParametrizedNearestSimplexExtrapolator_1DGrid():
 
     dummy_data_target1 = 3 * slope + 1
 
-    assert np.allclose(interpolant1, dummy_data_target1)
+    np.testing.assert_allclose(interpolant1, dummy_data_target1)
     assert interpolant1.shape == (1, *dummy_data.shape[1:])
 
     target_point2 = np.array([[-2.5]])

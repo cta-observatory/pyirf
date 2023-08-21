@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d
-import enum
 
 from ..utils import cone_solid_angle
 from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
@@ -8,18 +7,21 @@ from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
 __all__ = ["QuantileInterpolator"]
 
 
+def get_bin_width(bin_edges, normalization):
+    if normalization is PDFNormalization.AREA:
+        return np.diff(bin_edges)
+
+    if normalization is PDFNormalization.CONE_SOLID_ANGLE:
+        return np.diff(cone_solid_angle(bin_edges))
+    
+    raise ValueError(f"Invalid PDF normalization: {normalization}")
+
+
 def cdf_values(binned_pdf, bin_edges, normalization):
     """
     compute cdf values and assure they are normed to unity
     """
-
-    if normalization is PDFNormalization.AREA:
-        bin_widths = np.diff(bin_edges)
-    elif normalization is PDFNormalization.CONE_SOLID_ANGLE:
-        bin_widths = np.diff(cone_solid_angle(bin_edges))
-    else:
-        raise ValueError(f"Invalid PDF normalization: {normalization}")
-
+    bin_widths = get_bin_width(bin_edges, normalization)
     cdfs = np.cumsum(binned_pdf * bin_widths, axis=-1)
 
     # assure the last cdf value is 1, ignore errors for empty pdfs as they are reset to 0 by nan_to_num
@@ -105,7 +107,7 @@ def pdf_from_ppf(bin_edges, interp_ppfs, quantiles):
         Edges of the bins in which the final pdf should be binned
 
     interp_ppfs: numpy.ndarray, shape=(1,...,L)
-        Corresponding ppf-values for all self.quantiles at the target_point,
+        Corresponding ppf-values for all quantiles at the target_point,
         not to be confused with QunatileInterpolators self.ppfs, the ppfs
         computed from the input distributions.
 
@@ -132,7 +134,7 @@ def pdf_from_ppf(bin_edges, interp_ppfs, quantiles):
         pdf = xy[len(xy) // 2 :]
         interpolate = interp1d(ppf, pdf, bounds_error=False, fill_value=(0, 0))
         result = np.nan_to_num(interpolate(bin_edges[:-1]))
-        return np.diff(bin_edges) * result
+        return result
 
     # Interpolate pdf samples and evaluate at bin edges, weight with the bin_width to estimate
     # correct bin height via the midpoint rule formulation of the trapezoidal rule

@@ -97,8 +97,8 @@ def test_estimate_mean_std(bins):
     mean, std = _estimate_mean_std(bins, binned_pdf)
 
     # Assert estimation and truth within one bin
-    assert np.allclose(mean, true_mean, atol=np.diff(bins)[0] / 2)
-    assert np.allclose(std, true_std, atol=np.diff(bins)[0] / 2)
+    np.testing.assert_allclose(mean, true_mean, atol=np.diff(bins)[0] / 2)
+    np.testing.assert_allclose(std, true_std, atol=np.diff(bins)[0] / 2)
 
 
 def test_lookup():
@@ -126,7 +126,7 @@ def test_lookup():
         ]
     )
 
-    assert np.allclose(_lookup(bins, binned_pdf, x), truth)
+    np.testing.assert_allclose(_lookup(bins, binned_pdf, x), truth)
 
 
 def test_linesegment_1D_interpolation_coefficients():
@@ -137,14 +137,14 @@ def test_linesegment_1D_interpolation_coefficients():
     grid_points = np.array([[20], [40]])
     target_point = np.array([[20]])
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         linesegment_1D_interpolation_coefficients(grid_points, target_point),
         np.array([1, 0]),
     )
 
     target_point = np.array([[40]])
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         linesegment_1D_interpolation_coefficients(grid_points, target_point),
         np.array([0, 1]),
     )
@@ -160,7 +160,7 @@ def test_linesegment_1D_interpolation_coefficients():
 
     res = linesegment_1D_interpolation_coefficients(grid_points, target_point)
 
-    assert np.allclose(res, cs)
+    np.testing.assert_allclose(res, cs)
     assert np.sum(res) == 1
     assert np.all(np.logical_and(res < 1, res > 0))
 
@@ -173,28 +173,28 @@ def test_barycentric_2D_interpolation_coefficients():
     grid_points = np.array([[20, 20], [60, 20], [40, 60]])
     target_point = np.array([20, 20])
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([1, 0, 0]),
     )
 
     target_point = np.array([60, 20])
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([0, 1, 0]),
     )
 
     target_point = np.array([40, 60])
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([0, 0, 1]),
     )
 
     target_point = np.array([40, 20])
 
-    assert np.allclose(
+    np.testing.assert_allclose(
         barycentric_2D_interpolation_coefficients(grid_points, target_point),
         np.array([0.5, 0.5, 0]),
     )
@@ -203,7 +203,7 @@ def test_barycentric_2D_interpolation_coefficients():
     target_point = np.array([40, 100 / 3])
     res = barycentric_2D_interpolation_coefficients(grid_points, target_point)
 
-    assert np.allclose(res, np.array([1, 1, 1]) / 3)
+    np.testing.assert_allclose(res, np.array([1, 1, 1]) / 3)
 
 
 def test_moment_morph_estimation1D(bins, simple_1D_data):
@@ -221,7 +221,7 @@ def test_moment_morph_estimation1D(bins, simple_1D_data):
     assert np.all(np.isfinite(res))
     assert res.shape == (1, len(bins) - 1)
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_moment_morph_estimation2D(bins, simple_2D_data):
@@ -239,7 +239,7 @@ def test_moment_morph_estimation2D(bins, simple_2D_data):
     assert np.all(np.isfinite(res))
     assert res.shape == (1, len(bins) - 1)
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator1D(bins, simple_1D_data):
@@ -257,7 +257,7 @@ def test_MomentMorphInterpolator1D(bins, simple_1D_data):
     assert np.all(np.isfinite(res))
     assert res.shape == (1, len(bins) - 1)
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator1D_dirac_delta_input():
@@ -276,7 +276,7 @@ def test_MomentMorphInterpolator1D_dirac_delta_input():
     interp = MomentMorphInterpolator(grid, bin_edges, binned_pdf)
     res = interp(target)
 
-    assert np.allclose(res, np.array([[0, 0, 1, 0], [0.25, 0.25, 0.25, 0.25]]))
+    np.testing.assert_allclose(res, np.array([[0, 0, 1, 0], [0.25, 0.25, 0.25, 0.25]]))
 
 
 def test_MomentMorphInterpolator1D_all_empty(bins, simple_1D_data):
@@ -291,7 +291,7 @@ def test_MomentMorphInterpolator1D_all_empty(bins, simple_1D_data):
 
     res = interp(target)
 
-    assert np.allclose(res, 0)
+    np.testing.assert_allclose(res, 0)
 
 
 def test_MomentMorphInterpolator1D_partially_empty(bins, simple_1D_data):
@@ -307,7 +307,7 @@ def test_MomentMorphInterpolator1D_partially_empty(bins, simple_1D_data):
 
     res = interp(target)
 
-    assert np.allclose(res, 0)
+    np.testing.assert_allclose(res, 0)
 
 
 def test_MomentMorphInterpolator1D_mixed_data(bins):
@@ -357,11 +357,11 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     res = interp(target)
 
     expected_norms = np.array([[0, 1], [1, 0]])
-    assert np.allclose(np.sum(res, axis=-1), expected_norms)
+    np.testing.assert_allclose(np.sum(res, axis=-1), expected_norms)
     assert np.all(np.isfinite(res))
     assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
@@ -401,11 +401,11 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
 
     res = interp(target)
 
-    assert np.allclose(np.sum(res, axis=-1), 1)
+    np.testing.assert_allclose(np.sum(res, axis=-1), 1)
     assert np.all(np.isfinite(res))
     assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-4, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-4, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator2D(bins, simple_2D_data):
@@ -423,7 +423,7 @@ def test_MomentMorphInterpolator2D(bins, simple_2D_data):
     assert np.all(np.isfinite(res))
     assert res.shape == (1, len(bins) - 1)
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator2D_partially_empty(bins, simple_2D_data):
@@ -439,7 +439,7 @@ def test_MomentMorphInterpolator2D_partially_empty(bins, simple_2D_data):
 
     res = interp(target)
 
-    assert np.allclose(res, 0)
+    np.testing.assert_allclose(res, 0)
 
 
 def test_MomentMorphInterpolator2D_all_empty(bins, simple_2D_data):
@@ -454,7 +454,7 @@ def test_MomentMorphInterpolator2D_all_empty(bins, simple_2D_data):
 
     res = interp(target)
 
-    assert np.allclose(res, 0)
+    np.testing.assert_allclose(res, 0)
 
 
 def test_MomentMorphInterpolator2D_mixed(bins):
@@ -504,11 +504,11 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     res = interp(target)
 
     expected_norms = np.array([[0, 1], [1, 0]])
-    assert np.allclose(np.sum(res, axis=-1), expected_norms)
+    np.testing.assert_allclose(np.sum(res, axis=-1), expected_norms)
     assert np.all(np.isfinite(res))
     assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator1D_extended_grid(bins):
@@ -531,7 +531,7 @@ def test_MomentMorphInterpolator1D_extended_grid(bins):
     assert np.all(np.isfinite(res))
     assert res.shape == (1, len(bins) - 1)
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator2D_extended_grid(bins):
@@ -554,7 +554,7 @@ def test_MomentMorphInterpolator2D_extended_grid(bins):
     assert np.all(np.isfinite(res))
     assert res.shape == (1, len(bins) - 1)
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
@@ -591,18 +591,18 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
             ],
             [
                 binned_normal_pdf(a + 10, b, bins),
-                binned_normal_pdf(a + 2, b + 5], bins),
+                binned_normal_pdf(a + 2, b + 5, bins),
             ],
         ]
     )
 
     res = interp(target)
 
-    assert np.allclose(np.sum(res, axis=-1), 1)
+    np.testing.assert_allclose(np.sum(res, axis=-1), 1)
     assert np.all(np.isfinite(res))
     assert res.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    assert np.allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res.squeeze(), truth, atol=1e-3, rtol=1e-5)
 
 
 def test_MomentMorphInterpolator3D():

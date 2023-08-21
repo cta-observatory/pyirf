@@ -7,7 +7,7 @@ from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
 
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
-from .base_interpolators import DiscretePDFInterpolator, ParametrizedInterpolator
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization, ParametrizedInterpolator
 from .griddata_interpolator import GridDataInterpolator
 from .quantile_interpolator import QuantileInterpolator
 
@@ -684,6 +684,15 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         # Renormalize along the source offset axis to have a proper PDF
         self.omegas = np.diff(cone_solid_angle(source_offset_bins))
         psf_normed = psf * self.omegas
+
+        if interpolator_kwargs is None:
+            interpolator_kwargs = {}
+
+        if extrapolator_kwargs is None:
+            extrapolator_kwargs = {}
+
+        interpolator_kwargs.setdefault("normalization", PDFNormalization.CONE_SOLID_ANGLE)
+        extrapolator_kwargs.setdefault("normalization", PDFNormalization.CONE_SOLID_ANGLE)
 
         super().__init__(
             grid_points=grid_points,
