@@ -1,16 +1,26 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d
+import enum
 
-from .base_interpolators import DiscretePDFInterpolator
+from ..utils import cone_solid_angle
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
 
 __all__ = ["QuantileInterpolator"]
 
 
-def cdf_values(binned_pdf, bin_edges):
+def cdf_values(binned_pdf, bin_edges, normalization):
     """
     compute cdf values and assure they are normed to unity
     """
-    cdfs = np.cumsum(binned_pdf * bin_edges, axis=-1)
+
+    if normalization is PDFNormalization.AREA:
+        bin_widths = np.diff(bin_edges)
+    elif normalization is PDFNormalization.CONE_SOLID_ANGLE:
+        bin_widths = np.diff(cone_solid_angle(bin_edges))
+    else:
+        raise ValueError(f"Invalid PDF normalization: {normalization}")
+
+    cdfs = np.cumsum(binned_pdf * bin_widths, axis=-1)
 
     # assure the last cdf value is 1, ignore errors for empty pdfs as they are reset to 0 by nan_to_num
     with np.errstate(invalid="ignore"):
@@ -149,23 +159,25 @@ def norm_pdf(pdf_values):
 
 
 class QuantileInterpolator(DiscretePDFInterpolator):
-    def __init__(self, grid_points, bin_edges, binned_pdf, quantile_resolution=1e-3):
+    def __init__(self, grid_points, bin_edges, binned_pdf, quantile_resolution=1e-3, normalization=PDFNormalization.AREA):
         """BinnedInterpolator constructor
 
         Parameters
         ----------
-        grid_points: np.ndarray
+        grid_points : np.ndarray
             Grid points at which interpolation templates exist
-        bin_edges: np.ndarray
+        bin_edges : np.ndarray
             Edges of the data binning
-        binned_pdf: np.ndarray
+        binned_pdf : np.ndarray
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, the last axis has to correspond to number
             of bins for the quantity that should be interpolated
             (e.g. the Migra axis for EDisp)
-        quantile_resolution: float
+        quantile_resolution : float
             Spacing between quantiles
+        normalization : PDFNormalization
+            How the discrete PDF is normalized 
 
         Raises
         ------
@@ -197,11 +209,14 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         )
 
         super().__init__(
-            grid_points=grid_points, bin_edges=bin_edges, binned_pdf=binned_pdf
+            grid_points=grid_points,
+            bin_edges=bin_edges,
+            binned_pdf=binned_pdf,
+            normalization=normalization,
         )
 
         # Compute CDF values
-        self.cdfs = cdf_values(self.binned_pdf)
+        self.cdfs = cdf_values(self.binned_pdf, self.bin_edges, self.normalization)
 
         # compute ppf values at quantiles, determine quantile step of [1]
         self.ppfs = ppf_values(self.bin_mids, self.cdfs, self.quantiles)

@@ -1,10 +1,20 @@
 """Base classes for interpolators"""
 from abc import ABCMeta, abstractmethod
+import enum
 
 import numpy as np
 from pyirf.binning import bin_center
 
 __all__ = ["BaseInterpolator", "ParametrizedInterpolator", "DiscretePDFInterpolator"]
+
+
+class PDFNormalization(enum.Enum):
+    """How a discrete PDF is normalized"""
+    #: PDF is normalized to a "normal" area integral of 1
+    AREA = enum.auto()
+    #: PDF is normalized to 1 over the solid angle integral where the bin
+    #: edges represent the opening angles of cones in radean.
+    CONE_SOLID_ANGLE = enum.auto()
 
 
 class BaseInterpolator(metaclass=ABCMeta):
@@ -84,21 +94,22 @@ class DiscretePDFInterpolator(BaseInterpolator):
     Derived from pyirf.interpolation.BaseInterpolator
     """
 
-    def __init__(self, grid_points, bin_edges, binned_pdf):
+    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
         """DiscretePDFInterpolator
 
         Parameters
         ----------
-        grid_points: np.ndarray, shape=(n_points, n_dims)
+        grid_points : np.ndarray, shape=(n_points, n_dims)
             Grid points at which interpolation templates exist
-        bin_edges: np.ndarray, shape=(n_bins+1)
+        bin_edges : np.ndarray, shape=(n_bins+1)
             Edges of the data binning
-        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
+        binned_pdf : np.ndarray, shape=(n_points, ..., n_bins)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, last dimension has to correspond to number of bins for
             the quantity that should be interpolated (e.g. the Migra axis for EDisp)
-
+        normalization : PDFNormalization
+            How the PDF is normalized
 
         Note
         ----
@@ -109,3 +120,4 @@ class DiscretePDFInterpolator(BaseInterpolator):
         self.bin_edges = bin_edges
         self.bin_mids = bin_center(self.bin_edges)
         self.binned_pdf = binned_pdf
+        self.normalization = normalization

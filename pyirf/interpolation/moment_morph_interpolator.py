@@ -2,7 +2,7 @@ import numpy as np
 from pyirf.binning import bin_center, calculate_bin_indices
 from scipy.spatial import Delaunay
 
-from .base_interpolators import DiscretePDFInterpolator
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
 
 __all__ = [
     "MomentMorphInterpolator",
@@ -252,7 +252,7 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients):
 
 
 class MomentMorphInterpolator(DiscretePDFInterpolator):
-    def __init__(self, grid_points, bin_edges, binned_pdf):
+    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
         """
         Interpolator class using moment morphing.
 
@@ -274,7 +274,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
         ----
             Also calls pyirf.interpolation.DiscretePDFInterpolator.__init__.
         """
-        super().__init__(grid_points, bin_edges, binned_pdf)
+        super().__init__(grid_points, bin_edges, binned_pdf, normalization)
 
         if self.grid_dim == 2:
             self.triangulation = Delaunay(self.grid_points)
