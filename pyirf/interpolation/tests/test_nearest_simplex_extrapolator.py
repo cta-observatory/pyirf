@@ -11,13 +11,13 @@ def expected_std(a, b):
     return 1 + 0.05 * (a + b)
 
 
-def binned_normal_pdf(mean_std_args, bins):
-    pdf = np.diff(
-        norm(loc=expected_mean(*mean_std_args), scale=expected_std(*mean_std_args)).cdf(
-            bins
-        )
+def binned_normal_pdf(a, b, bins):
+    dist = norm(
+        loc=expected_mean(a, b),
+        scale=expected_std(a, b),
     )
-    return pdf / pdf.sum()
+    pdf = np.diff(dist.cdf(bins))
+    return pdf / np.diff(bins)
 
 
 @pytest.fixture
@@ -141,9 +141,9 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     binned_pdf = np.array(
         [
             [
-                [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
+                [binned_normal_pdf(x, 0, bins), binned_normal_pdf(x + 1, 0, bins)],
                 [
-                    binned_normal_pdf([x + 10, 0], bins),
+                    binned_normal_pdf(x + 10, 0, bins),
                     np.zeros(len(bins) - 1),
                 ],
                 [np.zeros(len(bins) - 1), np.ones(len(bins) - 1) / (len(bins) - 1)],
@@ -172,10 +172,10 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
         [
             [
                 np.zeros(len(bins) - 1),
-                binned_normal_pdf([target1 + 1, 0], bins),
+                binned_normal_pdf(target1 + 1, 0, bins),
             ],
             [
-                binned_normal_pdf([target1 + 10, 0], bins),
+                binned_normal_pdf(target1 + 10, 0, bins),
                 np.zeros(len(bins) - 1),
             ],
             [np.zeros(len(bins) - 1), np.ones(len(bins) - 1) / (len(bins) - 1)],
@@ -199,11 +199,11 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     truth2 = np.array(
         [
             [
-                binned_normal_pdf([target2, 0], bins),
-                binned_normal_pdf([target2 + 1, 0], bins),
+                binned_normal_pdf(target2, 0, bins),
+                binned_normal_pdf(target2 + 1, 0, bins),
             ],
             [
-                binned_normal_pdf([target2 + 10, 0], bins),
+                binned_normal_pdf(target2 + 10, 0, bins),
                 np.zeros(len(bins) - 1),
             ],
             [np.zeros(len(bins) - 1), np.ones(len(bins) - 1) / (len(bins) - 1)],
@@ -233,13 +233,10 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     binned_pdf = np.array(
         [
             [
-                [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
-                [
-                    binned_normal_pdf([x[0] + 10, x[1]], bins),
-                    np.zeros(len(bins) - 1),
-                ],
+                [binned_normal_pdf(a, b, bins), binned_normal_pdf(a + 1, b, bins)],
+                [binned_normal_pdf(a + 10, b, bins), np.zeros(len(bins) - 1)],
             ]
-            for x in grid_points
+            for a, b in grid_points
         ]
     )
 
@@ -258,10 +255,10 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
         [
             [
                 np.zeros(len(bins) - 1),
-                binned_normal_pdf([target1[0] + 1, target1[1]], bins),
+                binned_normal_pdf(target1[0] + 1, target1[1], bins),
             ],
             [
-                binned_normal_pdf([target1[0] + 10, target1[1]], bins),
+                binned_normal_pdf(target1[0] + 10, target1[1], bins),
                 np.zeros(len(bins) - 1),
             ],
         ]
@@ -281,11 +278,11 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     truth2 = np.array(
         [
             [
-                binned_normal_pdf(target2, bins),
-                binned_normal_pdf([target2[0] + 1, target2[1]], bins),
+                binned_normal_pdf(*target2, bins),
+                binned_normal_pdf(target2[0] + 1, target2[1], bins),
             ],
             [
-                binned_normal_pdf([target2[0] + 10, target2[1]], bins),
+                binned_normal_pdf(target2[0] + 10, target2[1], bins),
                 np.zeros(len(bins) - 1),
             ],
         ]
@@ -332,7 +329,7 @@ def test_MomentMorphNearestSimplexExtrapolator_below_zero_warning(bins):
 
     binned_pdf = np.array(
         [
-            [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 10, 0], bins)]
+            [binned_normal_pdf(x, 0, bins), binned_normal_pdf(x + 10, 0, bins)]
             for x in grid_points
         ]
     )

@@ -11,13 +11,13 @@ def expected_std(a, b):
     return 1 + 0.05 * (a + b)
 
 
-def binned_normal_pdf(mean_std_args, bins):
-    pdf = np.diff(
-        norm(loc=expected_mean(*mean_std_args), scale=expected_std(*mean_std_args)).cdf(
-            bins
-        )
+def binned_normal_pdf(a, b, bins):
+    dist = norm(
+        loc=expected_mean(a, b),
+        scale=expected_std(a, b),
     )
-    return pdf / pdf.sum()
+    pdf = np.diff(dist.cdf(bins))
+    return pdf / np.diff(bins)
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def simple_1D_data(bins):
     target = np.array([30])
     binned_pdf = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
 
-    truth = binned_normal_pdf([target, 0], bins)
+    truth = binned_normal_pdf(target, 0, bins)
 
     return {
         "grid": grid,
@@ -45,9 +45,9 @@ def simple_1D_data(bins):
 def simple_2D_data(bins):
     grid = np.array([[20, 20], [60, 20], [40, 60]])
     target = np.array([25, 25])
-    binned_pdf = np.array([binned_normal_pdf(x, bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf(*x, bins) for x in grid])
 
-    truth = binned_normal_pdf(target, bins)
+    truth = binned_normal_pdf(*target, bins)
 
     return {
         "grid": grid,
@@ -64,10 +64,10 @@ def test_estimate_mean_std(bins):
     binned_pdf = np.array(
         [
             [
-                [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
+                [binned_normal_pdf(x, 0, bins), binned_normal_pdf(x + 1, 0, bins)],
                 [
-                    binned_normal_pdf([x + 1.5, 0], bins),
-                    binned_normal_pdf([x + 10, 0], bins),
+                    binned_normal_pdf(x + 1.5, 0, bins),
+                    binned_normal_pdf(x + 10, 0, bins),
                 ],
             ]
             for x in grid
@@ -320,11 +320,8 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     binned_pdf = np.array(
         [
             [
-                [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
-                [
-                    binned_normal_pdf([x + 10, 0], bins),
-                    binned_normal_pdf([x + 2, 0], bins),
-                ],
+                [binned_normal_pdf(x, 0, bins), binned_normal_pdf(x + 1, 0, bins)],
+                [binned_normal_pdf(x + 10, 0, bins), binned_normal_pdf(x + 2, 0, bins)],
             ]
             for x in grid
         ]
@@ -339,12 +336,12 @@ def test_MomentMorphInterpolator1D_mixed_data(bins):
     truth = np.array(
         [
             [
-                binned_normal_pdf([target, 0], bins),
-                binned_normal_pdf([target + 1, 0], bins),
+                binned_normal_pdf(target, 0, bins),
+                binned_normal_pdf(target + 1, 0, bins),
             ],
             [
-                binned_normal_pdf([target + 10, 0], bins),
-                binned_normal_pdf([target + 2, 0], bins),
+                binned_normal_pdf(target + 10, 0, bins),
+                binned_normal_pdf(target + 2, 0, bins),
             ],
         ]
     )
@@ -375,10 +372,10 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
     binned_pdf = np.array(
         [
             [
-                [binned_normal_pdf([x, 0], bins), binned_normal_pdf([x + 1, 0], bins)],
+                [binned_normal_pdf(x, 0, bins), binned_normal_pdf(x + 1, 0, bins)],
                 [
-                    binned_normal_pdf([x + 10, 0], bins),
-                    binned_normal_pdf([x + 2, 0], bins),
+                    binned_normal_pdf(x + 10, 0, bins),
+                    binned_normal_pdf(x + 2, 0, bins),
                 ],
             ]
             for x in grid
@@ -392,12 +389,12 @@ def test_MomentMorphInterpolator1D_extended_grid_extradims(bins):
     truth = np.array(
         [
             [
-                binned_normal_pdf([target, 0], bins),
-                binned_normal_pdf([target + 1, 0], bins),
+                binned_normal_pdf(target, 0, bins),
+                binned_normal_pdf(target + 1, 0, bins),
             ],
             [
-                binned_normal_pdf([target + 10, 0], bins),
-                binned_normal_pdf([target + 2, 0], bins),
+                binned_normal_pdf(target + 10, 0, bins),
+                binned_normal_pdf(target + 2, 0, bins),
             ],
         ]
     )
@@ -470,13 +467,10 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     binned_pdf = np.array(
         [
             [
-                [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
-                [
-                    binned_normal_pdf([x[0] + 10, x[1]], bins),
-                    binned_normal_pdf([x[0] + 2, x[1]], bins),
-                ],
+                [binned_normal_pdf(a, b, bins), binned_normal_pdf(a + 1, b, bins)],
+                [binned_normal_pdf(a + 10, b, bins), binned_normal_pdf(a + 2, b, bins)],
             ]
-            for x in grid
+            for a, b in grid
         ]
     )
 
@@ -489,12 +483,12 @@ def test_MomentMorphInterpolator2D_mixed(bins):
     truth = np.array(
         [
             [
-                binned_normal_pdf(target, bins),
-                binned_normal_pdf([target[0] + 1, target[1]], bins),
+                binned_normal_pdf(*target, bins),
+                binned_normal_pdf(target[0] + 1, target[1], bins),
             ],
             [
-                binned_normal_pdf([target[0] + 10, target[1]], bins),
-                binned_normal_pdf([target[0] + 2, target[1]], bins),
+                binned_normal_pdf(target[0] + 10, target[1], bins),
+                binned_normal_pdf(target[0] + 2, target[1], bins),
             ],
         ]
     )
@@ -522,7 +516,7 @@ def test_MomentMorphInterpolator1D_extended_grid(bins):
 
     grid = np.array([[20], [40], [60], [80]])
     target = np.array([25])
-    binned_pdf = np.array([binned_normal_pdf([x, 0], bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf(x, 0, bins) for x in grid])
 
     interp = MomentMorphInterpolator(
         grid_points=grid,
@@ -531,7 +525,7 @@ def test_MomentMorphInterpolator1D_extended_grid(bins):
     )
 
     res = interp(target)
-    truth = binned_normal_pdf([target, 0], bins)
+    truth = binned_normal_pdf(target, 0, bins)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))
@@ -545,7 +539,7 @@ def test_MomentMorphInterpolator2D_extended_grid(bins):
 
     grid = np.array([[20, 20], [40, 20], [30, 40], [50, 20], [45, 40]])
     target = np.array([25, 25])
-    binned_pdf = np.array([binned_normal_pdf(x, bins) for x in grid])
+    binned_pdf = np.array([binned_normal_pdf(a, b, bins) for a, b in grid])
 
     interp = MomentMorphInterpolator(
         grid_points=grid,
@@ -554,7 +548,7 @@ def test_MomentMorphInterpolator2D_extended_grid(bins):
     )
 
     res = interp(target)
-    truth = binned_normal_pdf(target, bins)
+    truth = binned_normal_pdf(*target, bins)
 
     assert np.isclose(np.sum(res), 1)
     assert np.all(np.isfinite(res))
@@ -567,17 +561,19 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
     from pyirf.interpolation import MomentMorphInterpolator
 
     grid = np.array([[20, 20], [40, 20], [30, 40], [50, 20], [45, 40]])
-    target = np.array([25, 25])
+    a = 25
+    b = 25
+    target = np.array([a, b])
     binned_pdf = np.array(
         [
             [
-                [binned_normal_pdf(x, bins), binned_normal_pdf([x[0] + 1, x[1]], bins)],
+                [binned_normal_pdf(a, b, bins), binned_normal_pdf(a + 1, b, bins)],
                 [
-                    binned_normal_pdf([x[0] + 10, x[1]], bins),
-                    binned_normal_pdf([x[0] + 2, x[1]+5], bins),
+                    binned_normal_pdf(a + 10, b, bins),
+                    binned_normal_pdf(a + 2, b + 5, bins),
                 ],
             ]
-            for x in grid
+            for a, b in grid
         ]
     )
 
@@ -590,12 +586,12 @@ def test_MomentMorphInterpolator2D_extended_grid_extradims(bins):
     truth = np.array(
         [
             [
-                binned_normal_pdf(target, bins),
-                binned_normal_pdf([target[0] + 1, target[1]], bins),
+                binned_normal_pdf(a, b, bins),
+                binned_normal_pdf(a + 1, b, bins),
             ],
             [
-                binned_normal_pdf([target[0] + 10, target[1]], bins),
-                binned_normal_pdf([target[0] + 2, target[1]+5], bins),
+                binned_normal_pdf(a + 10, b, bins),
+                binned_normal_pdf(a + 2, b + 5], bins),
             ],
         ]
     )
