@@ -1,20 +1,9 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d
 
-from ..utils import cone_solid_angle
-from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization, get_bin_width
 
 __all__ = ["QuantileInterpolator"]
-
-
-def get_bin_width(bin_edges, normalization):
-    if normalization is PDFNormalization.AREA:
-        return np.diff(bin_edges)
-
-    if normalization is PDFNormalization.CONE_SOLID_ANGLE:
-        return np.diff(cone_solid_angle(bin_edges))
-    
-    raise ValueError(f"Invalid PDF normalization: {normalization}")
 
 
 def cdf_values(binned_pdf, bin_edges, normalization):

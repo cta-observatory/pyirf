@@ -2,14 +2,14 @@ import numpy as np
 from pyirf.binning import bin_center, calculate_bin_indices
 from scipy.spatial import Delaunay
 
-from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization, get_bin_width
 
 __all__ = [
     "MomentMorphInterpolator",
 ]
 
 
-def _estimate_mean_std(bin_edges, binned_pdf):
+def _estimate_mean_std(bin_edges, binned_pdf, normalization):
     """
     Function to roughly estimate mean and standard deviation from a histogram.
 
@@ -30,10 +30,11 @@ def _estimate_mean_std(bin_edges, binned_pdf):
     """
     # Create an 2darray where the 1darray mids is repeated n_template times
     mids = np.broadcast_to(bin_center(bin_edges), binned_pdf.shape)
-    width = np.diff(bin_edges)
+
+    width = get_bin_width(bin_edges, normalization)
 
     # integrate pdf to get probability in each bin
-    probability = binned_pdf * width 
+    probability = binned_pdf * width
     # Weighted averages to compute mean and std
     mean = np.average(mids, weights=probability, axis=-1)
     std = np.sqrt(
