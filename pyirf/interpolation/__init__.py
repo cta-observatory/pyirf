@@ -11,6 +11,7 @@ from .base_interpolators import (
     BaseInterpolator,
     DiscretePDFInterpolator,
     ParametrizedInterpolator,
+    PDFNormalization,
 )
 from .component_estimators import (
     BaseComponentEstimator,
@@ -39,6 +40,7 @@ __all__ = [
     "BaseInterpolator",
     "BaseNearestNeighborSearcher",
     "BaseExtrapolator",
+    "PDFNormalization",
     "DiscretePDFExtrapolator",
     "ParametrizedExtrapolator",
     "DiscretePDFComponentEstimator",

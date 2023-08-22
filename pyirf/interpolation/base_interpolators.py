@@ -1,19 +1,16 @@
 """Base classes for interpolators"""
 from abc import ABCMeta, abstractmethod
 import enum
-import astropy.units as u
 
 import numpy as np
 
 from ..binning import bin_center
-from ..utils import cone_solid_angle
 
 __all__ = [
     "BaseInterpolator",
     "ParametrizedInterpolator",
     "DiscretePDFInterpolator",
     "PDFNormalization",
-    "get_bin_width",
 ]
 
 
@@ -25,16 +22,6 @@ class PDFNormalization(enum.Enum):
     #: PDF is normalized to 1 over the solid angle integral where the bin
     #: edges represent the opening angles of cones in radian.
     CONE_SOLID_ANGLE = enum.auto()
-
-
-def get_bin_width(bin_edges, normalization):
-    if normalization is PDFNormalization.AREA:
-        return np.diff(bin_edges)
-
-    if normalization is PDFNormalization.CONE_SOLID_ANGLE:
-        return np.diff(cone_solid_angle(bin_edges).to_value(u.sr))
-
-    raise ValueError(f"Invalid PDF normalization: {normalization}")
 
 
 class BaseInterpolator(metaclass=ABCMeta):

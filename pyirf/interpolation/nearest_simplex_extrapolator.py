@@ -7,7 +7,6 @@ import warnings
 import numpy as np
 from scipy.spatial import Delaunay
 
-from pyirf.interpolation.base_interpolators import get_bin_width
 
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator, PDFNormalization
 from .moment_morph_interpolator import (
@@ -15,7 +14,7 @@ from .moment_morph_interpolator import (
     linesegment_1D_interpolation_coefficients,
     moment_morph_estimation,
 )
-from .utils import find_nearest_simplex
+from .utils import find_nearest_simplex, get_bin_width
 
 __all__ = [
     "MomentMorphNearestSimplexExtrapolator",
@@ -145,6 +144,8 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
             the quantity that should be interpolated (e.g. the Migra axis for EDisp)
             has to be at the last axis as well as having entries
             corresponding to the number of bins given through bin_edges keyword.
+        normalization : PDFNormalization
+            How the PDF is normalized
 
         Note
         ----

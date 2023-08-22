@@ -1,4 +1,18 @@
+import astropy.units as u
 import numpy as np
+
+from ..utils import cone_solid_angle
+from .base_interpolators import PDFNormalization
+
+
+def get_bin_width(bin_edges, normalization):
+    if normalization is PDFNormalization.AREA:
+        return np.diff(bin_edges)
+
+    if normalization is PDFNormalization.CONE_SOLID_ANGLE:
+        return np.diff(cone_solid_angle(bin_edges).to_value(u.sr))
+
+    raise ValueError(f"Invalid PDF normalization: {normalization}")
 
 
 def plumb_point_dist(line, target):

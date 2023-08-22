@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d
 
-from .base_interpolators import DiscretePDFInterpolator, PDFNormalization, get_bin_width
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
+from .utils import get_bin_width
 
 __all__ = ["QuantileInterpolator"]
 

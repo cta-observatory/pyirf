@@ -147,3 +147,15 @@ def test_find_nearest_simplex(non_rect_grid):
     assert find_nearest_simplex(non_rect_grid, np.array([-10, -10])) == 0
     assert find_nearest_simplex(non_rect_grid, np.array([10, 30])) == 1
     assert find_nearest_simplex(non_rect_grid, np.array([20.00000000001, -10])) == 2
+
+
+def test_get_bin_width():
+    from pyirf.interpolation.utils import get_bin_width
+    from pyirf.interpolation import PDFNormalization
+
+    bins = np.array([0, 1, 3])
+    np.testing.assert_allclose(get_bin_width(bins, PDFNormalization.AREA), [1, 2])
+
+    bins = np.array([0, np.pi / 3, np.pi / 2])
+    width = get_bin_width(bins, PDFNormalization.CONE_SOLID_ANGLE)
+    np.testing.assert_allclose(width, [np.pi, np.pi])

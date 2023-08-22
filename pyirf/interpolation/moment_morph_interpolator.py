@@ -2,7 +2,8 @@ import numpy as np
 from pyirf.binning import bin_center, calculate_bin_indices
 from scipy.spatial import Delaunay
 
-from .base_interpolators import DiscretePDFInterpolator, PDFNormalization, get_bin_width
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
+from .utils import get_bin_width
 
 __all__ = [
     "MomentMorphInterpolator",
@@ -19,6 +20,8 @@ def _estimate_mean_std(bin_edges, binned_pdf, normalization):
         Array of common bin-edges for binned_pdf
     binned_pdf: np.ndarray, shape=(N, ..., M)
         PDF values from which to compute mean and std
+    normalization : PDFNormalization
+        How the PDF is normalized
 
     Returns
     -------
@@ -189,6 +192,8 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients, normalization):
         Array of bin-entries, actual
     coefficients: np.ndarray, shape=(N)
         Estimation coefficients for each entry in binned_pdf
+    normalization : PDFNormalization
+        How the PDF is normalized
 
     Returns
     -------
@@ -273,6 +278,8 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
             the quantity that should be interpolated (e.g. the Migra axis for EDisp)
             has to be at axis specified by axis-keyword as well as having entries
             corresponding to the number of bins given through bin_edges keyword.
+        normalization : PDFNormalization
+            How the PDF is normalized
 
         Note
         ----

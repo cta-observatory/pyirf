@@ -89,16 +89,17 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
 
         Parameters
         ----------
-        grid_points: np.ndarray, shape=(n_points, n_dims)
+        grid_points : np.ndarray, shape=(n_points, n_dims)
             Grid points at which templates exist
-        bin_edges: np.ndarray, shape=(n_bins+1)
+        bin_edges : np.ndarray, shape=(n_bins+1)
             Edges of the data binning
-        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
+        binned_pdf : np.ndarray, shape=(n_points, ..., n_bins)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, last dimension has to correspond to number of bins for
             the quantity that should be extrapolated (e.g. the Migra axis for EDisp)
-
+        normalization : PDFNormalization
+            How the PDF is normalized
 
         Note
         ----
