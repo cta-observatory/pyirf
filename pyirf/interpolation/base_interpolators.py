@@ -23,7 +23,7 @@ class PDFNormalization(enum.Enum):
     #: PDF is normalized to a "normal" area integral of 1
     AREA = enum.auto()
     #: PDF is normalized to 1 over the solid angle integral where the bin
-    #: edges represent the opening angles of cones in radean.
+    #: edges represent the opening angles of cones in radian.
     CONE_SOLID_ANGLE = enum.auto()
 
 
