@@ -127,10 +127,12 @@ def test_BaseComponentEstimator_call():
     assert estim2D(target2D_inGrid) == 42
 
     estim1D = DummyEstimator(grid_points1D_good)
-    assert estim1D(target1D_outofGrid) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim1D(target1D_outofGrid) == 43
 
     estim2D = DummyEstimator(grid_points2D_good)
-    assert estim2D(target2D_outofGrid) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim2D(target2D_outofGrid) == 43
 
 
 def test_ParametrizedComponentEstimator_checks():
@@ -208,7 +210,8 @@ def test_ParametrizedComponentEstimator_checks():
         extrapolator_cls=DummyExtrapolator,
     )
     assert estim(np.array([[1.5]])) == 42
-    assert estim(np.array([[0]])) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim(np.array([[0]])) == 43
 
 
 def test_DiscretePDFComponentEstimator_checks():
@@ -239,9 +242,9 @@ def test_DiscretePDFComponentEstimator_checks():
 
     grid_points = np.array([1, 2, 3])
     bin_edges = np.linspace(-1, 1, 11)
-    bin_content_good_shape = np.ones(shape=(len(grid_points), len(bin_edges) - 1))
-    bin_content_bad_nhist = np.ones(shape=(len(grid_points) - 1, len(bin_edges) - 1))
-    bin_content_bad_nbins = np.ones(shape=(len(grid_points), len(bin_edges)))
+    binned_pdf_good_shape = np.ones(shape=(len(grid_points), len(bin_edges) - 1))
+    binned_pdf_bad_nhist = np.ones(shape=(len(grid_points) - 1, len(bin_edges) - 1))
+    binned_pdf_bad_nbins = np.ones(shape=(len(grid_points), len(bin_edges)))
 
     with pytest.raises(
         TypeError,
@@ -249,7 +252,7 @@ def test_DiscretePDFComponentEstimator_checks():
     ):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
-            bin_contents=bin_content_good_shape,
+            binned_pdf=binned_pdf_good_shape,
             bin_edges=bin_edges,
             interpolator_cls=WrongInterpolator,
         )
@@ -257,15 +260,15 @@ def test_DiscretePDFComponentEstimator_checks():
     with pytest.raises(TypeError, match="Input bin_edges is not a numpy array."):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
-            bin_contents=bin_content_good_shape,
+            binned_pdf=binned_pdf_good_shape,
             bin_edges=bin_edges.tolist(),
             interpolator_cls=DummyInterpolator,
         )
 
-    with pytest.raises(TypeError, match="Input bin_contents is not a numpy array."):
+    with pytest.raises(TypeError, match="Input binned_pdf is not a numpy array."):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
-            bin_contents=bin_content_good_shape.tolist(),
+            binned_pdf=binned_pdf_good_shape.tolist(),
             bin_edges=bin_edges,
             interpolator_cls=DummyInterpolator,
         )
@@ -274,12 +277,12 @@ def test_DiscretePDFComponentEstimator_checks():
         ValueError,
         match=re.escape(
             "Shape missmatch, number of grid_points (3) and "
-            "number of histograms in bin_contents (2) not matching."
+            "number of histograms in binned_pdf (2) not matching."
         ),
     ):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
-            bin_contents=bin_content_bad_nhist,
+            binned_pdf=binned_pdf_bad_nhist,
             bin_edges=bin_edges,
             interpolator_cls=DummyInterpolator,
         )
@@ -288,12 +291,12 @@ def test_DiscretePDFComponentEstimator_checks():
         ValueError,
         match=re.escape(
             "Shape missmatch, bin_edges (10 bins) "
-            "and bin_contents (11 bins) not matching."
+            "and binned_pdf (11 bins) not matching."
         ),
     ):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
-            bin_contents=bin_content_bad_nbins,
+            binned_pdf=binned_pdf_bad_nbins,
             bin_edges=bin_edges,
             interpolator_cls=DummyInterpolator,
         )
@@ -305,7 +308,7 @@ def test_DiscretePDFComponentEstimator_checks():
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
             bin_edges=bin_edges,
-            bin_contents=bin_content_good_shape,
+            binned_pdf=binned_pdf_good_shape,
             interpolator_cls=DummyInterpolator,
             extrapolator_cls=WrongExtrapolator,
         )
@@ -313,12 +316,13 @@ def test_DiscretePDFComponentEstimator_checks():
     estim = DiscretePDFComponentEstimator(
         grid_points=grid_points,
         bin_edges=bin_edges,
-        bin_contents=bin_content_good_shape,
+        binned_pdf=binned_pdf_good_shape,
         interpolator_cls=DummyInterpolator,
         extrapolator_cls=DummyExtrapolator,
     )
     assert estim(np.array([[1.5]])) == 42
-    assert estim(np.array([[0]])) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim(np.array([[0]])) == 43
 
 
 def test_DiscretePDFComponentEstimator_NearestNeighbors():
@@ -331,11 +335,11 @@ def test_DiscretePDFComponentEstimator_NearestNeighbors():
 
     grid_points = np.array([1, 2, 3])
     bin_edges = np.linspace(0, 1, 11)
-    bin_contents = np.array([np.full(10, x) for x in grid_points])
+    binned_pdf = np.array([np.full(10, x) for x in grid_points])
 
     estim = DiscretePDFComponentEstimator(
         grid_points=grid_points,
-        bin_contents=bin_contents,
+        binned_pdf=binned_pdf,
         bin_edges=bin_edges,
         interpolator_cls=DiscretePDFNearestNeighborSearcher,
         interpolator_kwargs={"norm_ord": 2},
@@ -343,8 +347,9 @@ def test_DiscretePDFComponentEstimator_NearestNeighbors():
         extrapolator_kwargs={"norm_ord": 1},
     )
 
-    assert np.allclose(estim(target_point=np.array([1.1])), bin_contents[0, :])
-    assert np.allclose(estim(target_point=np.array([4.1])), bin_contents[2, :])
+    assert np.allclose(estim(target_point=np.array([1.1])), binned_pdf[0, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4.1])), binned_pdf[2, :])
 
     with pytest.raises(
         TypeError,
@@ -352,7 +357,7 @@ def test_DiscretePDFComponentEstimator_NearestNeighbors():
     ):
         DiscretePDFComponentEstimator(
             grid_points=grid_points,
-            bin_contents=bin_contents,
+            binned_pdf=binned_pdf,
             bin_edges=bin_edges,
             interpolator_cls=ParametrizedNearestNeighborSearcher,
             interpolator_kwargs={"norm_ord": 3},
@@ -382,7 +387,8 @@ def test_ParametrizedComponentEstimator_NearestNeighbors():
     )
 
     assert np.allclose(estim(target_point=np.array([1.1])), params[0, :])
-    assert np.allclose(estim(target_point=np.array([4.1])), params[2, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4.1])), params[2, :])
 
     with pytest.raises(
         TypeError,
@@ -406,7 +412,7 @@ def test_DiscretePDFComponentEstimator_1Dsorting():
 
     grid_points = np.array([[3], [1], [2]])
     bin_edges = np.linspace(0, 1, 11)
-    bin_contents = np.array([np.full(10, x) for x in grid_points])
+    binned_pdf = np.array([np.full(10, x) for x in grid_points])
 
     class DummyInterpolator(DiscretePDFInterpolator):
         def interpolate(self, target_point):
@@ -415,22 +421,24 @@ def test_DiscretePDFComponentEstimator_1Dsorting():
     class DummyExtrapolator(DiscretePDFExtrapolator):
         def extrapolate(self, target_point):
             if target_point < self.grid_points.min():
-                return self.bin_contents[0]
+                return self.binned_pdf[0]
             elif target_point > self.grid_points.max():
-                return self.bin_contents[-1]
+                return self.binned_pdf[-1]
 
     estim = DiscretePDFComponentEstimator(
         grid_points=grid_points,
-        bin_contents=bin_contents,
+        binned_pdf=binned_pdf,
         bin_edges=bin_edges,
         interpolator_cls=DummyInterpolator,
         extrapolator_cls=DummyExtrapolator,
     )
 
-    # Nearest neighbor is grid_point 1 at the index 1 of the original bin_contents
-    assert np.allclose(estim(target_point=np.array([0])), bin_contents[1, :])
-    # Nearest neighbor is grid_point 3 at the index 0 of the original bin_contents
-    assert np.allclose(estim(target_point=np.array([4])), bin_contents[0, :])
+    # Nearest neighbor is grid_point 1 at the index 1 of the original binned_pdf
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([0])), binned_pdf[1, :])
+    # Nearest neighbor is grid_point 3 at the index 0 of the original binned_pdf
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4])), binned_pdf[0, :])
 
 
 def test_ParametrizedComponentEstimator_1Dsorting():
@@ -460,7 +468,9 @@ def test_ParametrizedComponentEstimator_1Dsorting():
         extrapolator_cls=DummyExtrapolator,
     )
 
-    # Nearest neighbor is grid_point 1 at the index 1 of the original bin_contents
-    assert np.allclose(estim(target_point=np.array([0])), params[1, :])
-    # Nearest neighbor is grid_point 3 at the index 0 of the original bin_contents
-    assert np.allclose(estim(target_point=np.array([4])), params[0, :])
+    # Nearest neighbor is grid_point 1 at the index 1 of the original binned_pdf
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([0])), params[1, :])
+    # Nearest neighbor is grid_point 3 at the index 0 of the original binned_pdf
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4])), params[0, :])

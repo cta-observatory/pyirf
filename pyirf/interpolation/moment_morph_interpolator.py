@@ -2,23 +2,23 @@ import numpy as np
 from pyirf.binning import bin_center, calculate_bin_indices
 from scipy.spatial import Delaunay
 
-from .base_interpolators import DiscretePDFInterpolator
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization, get_bin_width
 
 __all__ = [
     "MomentMorphInterpolator",
 ]
 
 
-def _estimate_mean_std(bin_edges, bin_contents):
+def _estimate_mean_std(bin_edges, binned_pdf, normalization):
     """
     Function to roughly estimate mean and standard deviation from a histogram.
 
     Parameters
     ----------
     bin_edges: np.ndarray, shape=(M+1)
-        Array of common bin-edges for bin_contents
-    bin_contents: np.ndarray, shape=(N, ..., M)
-        Array of bin-entries, actual
+        Array of common bin-edges for binned_pdf
+    binned_pdf: np.ndarray, shape=(N, ..., M)
+        PDF values from which to compute mean and std
 
     Returns
     -------
@@ -29,35 +29,40 @@ def _estimate_mean_std(bin_edges, bin_contents):
         the input template is =/= 0
     """
     # Create an 2darray where the 1darray mids is repeated n_template times
-    mids = np.broadcast_to(bin_center(bin_edges), bin_contents.shape)
+    mids = np.broadcast_to(bin_center(bin_edges), binned_pdf.shape)
+
+    width = get_bin_width(bin_edges, normalization)
+
+    # integrate pdf to get probability in each bin
+    probability = binned_pdf * width
     # Weighted averages to compute mean and std
-    mean = np.average(mids, weights=bin_contents, axis=-1)
+    mean = np.average(mids, weights=probability, axis=-1)
     std = np.sqrt(
-        np.average((mids - mean[..., np.newaxis]) ** 2, weights=bin_contents, axis=-1)
+        np.average((mids - mean[..., np.newaxis]) ** 2, weights=probability, axis=-1)
     )
 
     # Set std to 0.5*width for all those templates that have only one bin =/= 0. In those
     # cases mids-mean = 0 and therefore std = 0. Uses the width of the one bin with
-    # bin_content!=0
+    # binned_pdf!=0
     mask = std == 0
     if np.any(mask):
-        # Create array of bin_widths and clone for each template
-        width = np.diff(bin_edges) / 2
-        width = np.repeat(width[np.newaxis, :], bin_contents.shape[0], axis=0)
-        std[mask] = width[bin_contents[mask, :] != 0]
+        width = np.diff(bin_edges)
+        # std of a uniform distribution inside the bin
+        uniform_std = np.broadcast_to(np.sqrt(1/12) * width, binned_pdf[mask].shape)
+        std[mask] = uniform_std[binned_pdf[mask, :] != 0]
 
     return mean, std
 
 
-def _lookup(bin_edges, bin_contents, x):
+def _lookup(bin_edges, binned_pdf, x):
     """
     Function to return the bin-height at a desired point.
 
     Parameters
     ----------
     bin_edges: np.ndarray, shape=(M+1)
-        Array of common bin-edges for bin_contents
-    bin_contents: np.ndarray, shape=(N, ..., M)
+        Array of common bin-edges for binned_pdf
+    binned_pdf: np.ndarray, shape=(N, ..., M)
         Array of bin-entries, actual
     x: numpy.ndarray, shape=(N, ..., M)
         Array of M points for each input template, where the histogram-value (bin-height) should be found
@@ -79,11 +84,11 @@ def _lookup(bin_edges, bin_contents, x):
         [
             cont[binnr_row]
             for cont, binnr_row in zip(
-                bin_contents.reshape(-1, bin_contents.shape[-1]),
+                binned_pdf.reshape(-1, binned_pdf.shape[-1]),
                 binnr.reshape(-1, binnr.shape[-1]),
             )
         ]
-    ).reshape(bin_contents.shape)
+    ).reshape(binned_pdf.shape)
 
     # Set all invalid bins to 0
     lu[~valid] = 0
@@ -172,18 +177,18 @@ def barycentric_2D_interpolation_coefficients(grid_points, target_point):
     return coefficients
 
 
-def moment_morph_estimation(bin_edges, bin_contents, coefficients):
+def moment_morph_estimation(bin_edges, binned_pdf, coefficients, normalization):
     """
     Function that wraps up the moment morph procedure [1] adopted for histograms.
 
     Parameters
     ----------
     bin_edges: np.ndarray, shape=(M+1)
-        Array of common bin-edges for bin_contents
-    bin_contents: np.ndarray, shape=(N, ..., M)
+        Array of common bin-edges for binned_pdf
+    binned_pdf: np.ndarray, shape=(N, ..., M)
         Array of bin-entries, actual
     coefficients: np.ndarray, shape=(N)
-        Estimation coefficients for each entry in bin_contents
+        Estimation coefficients for each entry in binned_pdf
 
     Returns
     -------
@@ -199,16 +204,16 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
     bin_mids = bin_center(bin_edges)
 
     # Catch all those templates, where at least one template histogram is all zeros.
-    zero_templates = ~np.all(~np.isclose(np.sum(bin_contents, axis=-1), 0), 0)
+    zero_templates = ~np.all(~np.isclose(np.sum(binned_pdf, axis=-1), 0), 0)
 
     # Manipulate those templates so that computations pass without error
-    bin_contents[:, zero_templates] = np.full(len(bin_mids), 1 / len(bin_mids))
+    binned_pdf[:, zero_templates] = np.full(len(bin_mids), 1 / len(bin_mids))
 
     # Estimate mean and std for each input template histogram. First adaption needed to extend
     # the moment morph procedure to histograms
-    mus, sigs = _estimate_mean_std(bin_edges=bin_edges, bin_contents=bin_contents)
+    mus, sigs = _estimate_mean_std(bin_edges=bin_edges, binned_pdf=binned_pdf, normalization=normalization)
     coefficients = coefficients.reshape(
-        bin_contents.shape[0], *np.ones(mus.ndim - 1, "int")
+        binned_pdf.shape[0], *np.ones(mus.ndim - 1, "int")
     )
 
     # Transform mean and std as in eq. (11) and (12) in [1]
@@ -221,7 +226,7 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
     bij = mus - mu_prime * aij
 
     # Transformation as in eq. (13) in [1]
-    mids = np.broadcast_to(bin_mids, bin_contents.shape)
+    mids = np.broadcast_to(bin_mids, binned_pdf.shape)
     transf_mids = aij[..., np.newaxis] * mids + bij[..., np.newaxis]
 
     # Compute the morphed historgram according to eq. (18) in [1]. The function "lookup" "resamples"
@@ -229,7 +234,7 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
     # bin-mid as new value for a whole transformed bin. Second adaption needed to extend
     # the moment morph procedure to histograms, adaptes the behaviour of eq. (16)
 
-    transf_hist = _lookup(bin_edges=bin_edges, bin_contents=bin_contents, x=transf_mids)
+    transf_hist = _lookup(bin_edges=bin_edges, binned_pdf=binned_pdf, x=transf_mids)
 
     f_new = np.sum(
         np.expand_dims(coefficients, -1) * transf_hist * np.expand_dims(aij, -1), axis=0
@@ -240,15 +245,18 @@ def moment_morph_estimation(bin_edges, bin_contents, coefficients):
 
     # Re-Normalize, needed, as the estimation of the std used above is not exact but the result is scaled with
     # the estimated std
-    norm = np.expand_dims(np.sum(f_new, axis=-1), -1)
+    bin_widths = get_bin_width(bin_edges, normalization)
+    norm = np.expand_dims(np.sum(f_new * bin_widths, axis=-1), -1)
 
     return np.divide(f_new, norm, out=np.zeros_like(f_new), where=norm != 0).reshape(
-        1, *bin_contents.shape[1:]
+        1, *binned_pdf.shape[1:]
     )
 
 
 class MomentMorphInterpolator(DiscretePDFInterpolator):
-    def __init__(self, grid_points, bin_edges, bin_contents):
+    def __init__(
+        self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA
+    ):
         """
         Interpolator class using moment morphing.
 
@@ -258,7 +266,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
             Grid points at which interpolation templates exist. May be one ot two dimensional.
         bin_edges: np.ndarray, shape=(M+1)
             Edges of the data binning
-        bin_content: np.ndarray, shape=(N, ..., M)
+        binned_pdf: np.ndarray, shape=(N, ..., M)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points. Interpolation dimension, meaning the
@@ -270,7 +278,7 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
         ----
             Also calls pyirf.interpolation.DiscretePDFInterpolator.__init__.
         """
-        super().__init__(grid_points, bin_edges, bin_contents)
+        super().__init__(grid_points, bin_edges, binned_pdf, normalization)
 
         if self.grid_dim == 2:
             self.triangulation = Delaunay(self.grid_points)
@@ -293,8 +301,9 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
 
         return moment_morph_estimation(
             bin_edges=self.bin_edges,
-            bin_contents=self.bin_contents[segment_inds],
+            binned_pdf=self.binned_pdf[segment_inds],
             coefficients=coefficients,
+            normalization=self.normalization,
         )
 
     def _interpolate2D(self, target_point):
@@ -312,8 +321,9 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
 
         return moment_morph_estimation(
             bin_edges=self.bin_edges,
-            bin_contents=self.bin_contents[simplex_inds],
+            binned_pdf=self.binned_pdf[simplex_inds],
             coefficients=coefficients,
+            normalization=self.normalization,
         )
 
     def interpolate(self, target_point):

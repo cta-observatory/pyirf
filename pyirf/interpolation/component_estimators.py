@@ -7,7 +7,11 @@ from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
 
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
-from .base_interpolators import DiscretePDFInterpolator, ParametrizedInterpolator
+from .base_interpolators import (
+    DiscretePDFInterpolator,
+    PDFNormalization,
+    ParametrizedInterpolator,
+)
 from .griddata_interpolator import GridDataInterpolator
 from .quantile_interpolator import QuantileInterpolator
 
@@ -152,7 +156,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         self,
         grid_points,
         bin_edges,
-        bin_contents,
+        binned_pdf,
         interpolator_cls=QuantileInterpolator,
         interpolator_kwargs=None,
         extrapolator_cls=None,
@@ -168,7 +172,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             Grid points at which interpolation templates exist
         bin_edges: np.ndarray, shape=(n_bins+1)
             Common set of bin-edges for all discretized PDFs.
-        bin_contents: np.ndarray, shape=(n_points, ..., n_bins)
+        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Discretized PDFs for all grid points and arbitrary further dimensions
             (in IRF term e.g. field-of-view offset bins). Actual interpolation dimension,
             meaning the dimensions that contains actual histograms, has to be along
@@ -191,16 +195,16 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         TypeError:
             When bin_edges is not a np.ndarray.
         TypeError:
-            When bin_content is not a np.ndarray..
+            When binned_pdf is not a np.ndarray..
         TypeError:
             When interpolator_cls is not a DiscretePDFInterpolator subclass.
         TypeError:
             When extrapolator_cls is not a DiscretePDFExtrapolator subclass.
         ValueError:
-            When number of bins in bin_edges and contents in bin_contents is
+            When number of bins in bin_edges and contents in binned_pdf is
             not matching.
         ValueError:
-            When number of histograms in bin_contents and points in grid_points
+            When number of histograms in binned_pdf and points in grid_points
             is not matching.
 
         Note
@@ -212,28 +216,28 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             grid_points,
         )
 
-        if not isinstance(bin_contents, np.ndarray):
-            raise TypeError("Input bin_contents is not a numpy array.")
-        elif self.n_points != bin_contents.shape[0]:
+        if not isinstance(binned_pdf, np.ndarray):
+            raise TypeError("Input binned_pdf is not a numpy array.")
+        elif self.n_points != binned_pdf.shape[0]:
             raise ValueError(
                 f"Shape missmatch, number of grid_points ({self.n_points}) and "
-                f"number of histograms in bin_contents ({bin_contents.shape[0]}) "
+                f"number of histograms in binned_pdf ({binned_pdf.shape[0]}) "
                 "not matching."
             )
         elif not isinstance(bin_edges, np.ndarray):
             raise TypeError("Input bin_edges is not a numpy array.")
-        elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
+        elif binned_pdf.shape[-1] != (bin_edges.shape[0] - 1):
             raise ValueError(
                 f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
-                f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
+                f"and binned_pdf ({binned_pdf.shape[-1]} bins) not matching."
             )
 
         # Make sure that 1D input is sorted in increasing order
         if self.grid_dim == 1:
             sorting_inds = np.argsort(self.grid_points.squeeze())
-            
+
             self.grid_points = self.grid_points[sorting_inds]
-            bin_contents = bin_contents[sorting_inds]
+            binned_pdf = binned_pdf[sorting_inds]
 
         if interpolator_kwargs is None:
             interpolator_kwargs = {}
@@ -247,7 +251,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             )
 
         self.interpolator = interpolator_cls(
-            self.grid_points, bin_edges, bin_contents, **interpolator_kwargs
+            self.grid_points, bin_edges, binned_pdf, **interpolator_kwargs
         )
 
         if extrapolator_cls is None:
@@ -258,7 +262,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             )
         else:
             self.extrapolator = extrapolator_cls(
-                self.grid_points, bin_edges, bin_contents, **extrapolator_kwargs
+                self.grid_points, bin_edges, binned_pdf, **extrapolator_kwargs
             )
 
 
@@ -334,7 +338,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         # Make sure that 1D input is sorted in increasing order
         if self.grid_dim == 1:
             sorting_inds = np.argsort(self.grid_points.squeeze())
-            
+
             self.grid_points = self.grid_points[sorting_inds]
             params = params[sorting_inds]
 
@@ -349,7 +353,9 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
                 f"interpolator_cls must be a ParametrizedInterpolator subclass, got {interpolator_cls}"
             )
 
-        self.interpolator = interpolator_cls(self.grid_points, params, **interpolator_kwargs)
+        self.interpolator = interpolator_cls(
+            self.grid_points, params, **interpolator_kwargs
+        )
 
         if extrapolator_cls is None:
             self.extrapolator = None
@@ -596,7 +602,7 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
         super().__init__(
             grid_points=grid_points,
             bin_edges=migra_bins,
-            bin_contents=np.swapaxes(energy_dispersion, axis, -1),
+            binned_pdf=np.swapaxes(energy_dispersion, axis, -1),
             interpolator_cls=interpolator_cls,
             interpolator_kwargs=interpolator_kwargs,
             extrapolator_cls=extrapolator_cls,
@@ -681,14 +687,23 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         psf = np.swapaxes(psf, axis, -1)
 
-        # Renormalize along the source offset axis to have a proper PDF
-        self.omegas = np.diff(cone_solid_angle(source_offset_bins))
-        psf_normed = psf * self.omegas
+        if interpolator_kwargs is None:
+            interpolator_kwargs = {}
+
+        if extrapolator_kwargs is None:
+            extrapolator_kwargs = {}
+
+        interpolator_kwargs.setdefault(
+            "normalization", PDFNormalization.CONE_SOLID_ANGLE
+        )
+        extrapolator_kwargs.setdefault(
+            "normalization", PDFNormalization.CONE_SOLID_ANGLE
+        )
 
         super().__init__(
             grid_points=grid_points,
-            bin_edges=source_offset_bins,
-            bin_contents=psf_normed,
+            bin_edges=source_offset_bins.to_value(u.rad),
+            binned_pdf=psf,
             interpolator_cls=interpolator_cls,
             interpolator_kwargs=interpolator_kwargs,
             extrapolator_cls=extrapolator_cls,
@@ -707,7 +722,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         Returns
         -------
-        psf_interp: np.ndarray, shape=(n_points, ..., n_source_offset_bins)
+        psf_interp: u.Quantity[sr-1], shape=(n_points, ..., n_source_offset_bins)
             Interpolated psf table with same shape as input matrices. For PSF_TABLE
             of shape (n_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
 
@@ -716,4 +731,4 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         interpolated_psf_normed = super().__call__(target_point)
 
         # Undo normalisation to get a proper PSF and return
-        return np.swapaxes(interpolated_psf_normed / self.omegas, -1, self.axis)
+        return u.Quantity(np.swapaxes(interpolated_psf_normed, -1, self.axis), u.sr**-1, copy=False)
