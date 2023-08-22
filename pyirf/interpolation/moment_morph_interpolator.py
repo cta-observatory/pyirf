@@ -46,10 +46,10 @@ def _estimate_mean_std(bin_edges, binned_pdf, normalization):
     # binned_pdf!=0
     mask = std == 0
     if np.any(mask):
-        # Create array of bin_widths and clone for each template
-        width = np.diff(bin_edges) / 2
-        width = np.repeat(width[np.newaxis, :], binned_pdf.shape[0], axis=0)
-        std[mask] = width[binned_pdf[mask, :] != 0]
+        width = np.diff(bin_edges)
+        # std of a uniform distribution inside the bin
+        uniform_std = np.broadcast_to(np.sqrt(1/12) * width, binned_pdf[mask].shape)
+        std[mask] = uniform_std[binned_pdf[mask, :] != 0]
 
     return mean, std
 
