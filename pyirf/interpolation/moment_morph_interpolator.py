@@ -245,7 +245,8 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients, normalization):
 
     # Re-Normalize, needed, as the estimation of the std used above is not exact but the result is scaled with
     # the estimated std
-    norm = np.expand_dims(np.sum(f_new, axis=-1), -1)
+    bin_widths = get_bin_width(bin_edges, normalization)
+    norm = np.expand_dims(np.sum(f_new * bin_widths, axis=-1), -1)
 
     return np.divide(f_new, norm, out=np.zeros_like(f_new), where=norm != 0).reshape(
         1, *binned_pdf.shape[1:]

@@ -132,16 +132,17 @@ def pdf_from_ppf(bin_edges, interp_ppfs, quantiles):
     return pdf_values
 
 
-def norm_pdf(pdf_values):
+def norm_pdf(pdf_values, bin_edges, normalization):
     """
     Normalize binned_pdf to a sum of 1
     """
     norm = np.sum(pdf_values, axis=-1)
+    width = get_bin_width(bin_edges, normalization)
 
     # Norm all binned_pdfs to unity that are not empty
     normed_pdf_values = np.divide(
         pdf_values,
-        norm[..., np.newaxis],
+        norm[..., np.newaxis] * width,
         out=np.zeros_like(pdf_values),
         where=norm[..., np.newaxis] != 0,
     )
@@ -255,7 +256,7 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         )[..., 1:]
 
         # Renormalize pdf to sum of 1
-        normed_interpolated_pdfs = norm_pdf(interpolated_pdfs)
+        normed_interpolated_pdfs = norm_pdf(interpolated_pdfs, self.bin_edges[1:], self.normalization)
 
         # Re-swap axes and set all nans to zero
         return np.nan_to_num(normed_interpolated_pdfs).reshape(1, *self.input_shape[1:])

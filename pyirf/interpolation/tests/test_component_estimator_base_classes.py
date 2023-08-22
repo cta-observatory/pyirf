@@ -127,10 +127,12 @@ def test_BaseComponentEstimator_call():
     assert estim2D(target2D_inGrid) == 42
 
     estim1D = DummyEstimator(grid_points1D_good)
-    assert estim1D(target1D_outofGrid) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim1D(target1D_outofGrid) == 43
 
     estim2D = DummyEstimator(grid_points2D_good)
-    assert estim2D(target2D_outofGrid) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim2D(target2D_outofGrid) == 43
 
 
 def test_ParametrizedComponentEstimator_checks():
@@ -208,7 +210,8 @@ def test_ParametrizedComponentEstimator_checks():
         extrapolator_cls=DummyExtrapolator,
     )
     assert estim(np.array([[1.5]])) == 42
-    assert estim(np.array([[0]])) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim(np.array([[0]])) == 43
 
 
 def test_DiscretePDFComponentEstimator_checks():
@@ -318,7 +321,8 @@ def test_DiscretePDFComponentEstimator_checks():
         extrapolator_cls=DummyExtrapolator,
     )
     assert estim(np.array([[1.5]])) == 42
-    assert estim(np.array([[0]])) == 43
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert estim(np.array([[0]])) == 43
 
 
 def test_DiscretePDFComponentEstimator_NearestNeighbors():
@@ -344,7 +348,8 @@ def test_DiscretePDFComponentEstimator_NearestNeighbors():
     )
 
     assert np.allclose(estim(target_point=np.array([1.1])), binned_pdf[0, :])
-    assert np.allclose(estim(target_point=np.array([4.1])), binned_pdf[2, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4.1])), binned_pdf[2, :])
 
     with pytest.raises(
         TypeError,
@@ -382,7 +387,8 @@ def test_ParametrizedComponentEstimator_NearestNeighbors():
     )
 
     assert np.allclose(estim(target_point=np.array([1.1])), params[0, :])
-    assert np.allclose(estim(target_point=np.array([4.1])), params[2, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4.1])), params[2, :])
 
     with pytest.raises(
         TypeError,
@@ -428,9 +434,11 @@ def test_DiscretePDFComponentEstimator_1Dsorting():
     )
 
     # Nearest neighbor is grid_point 1 at the index 1 of the original binned_pdf
-    assert np.allclose(estim(target_point=np.array([0])), binned_pdf[1, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([0])), binned_pdf[1, :])
     # Nearest neighbor is grid_point 3 at the index 0 of the original binned_pdf
-    assert np.allclose(estim(target_point=np.array([4])), binned_pdf[0, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4])), binned_pdf[0, :])
 
 
 def test_ParametrizedComponentEstimator_1Dsorting():
@@ -461,6 +469,8 @@ def test_ParametrizedComponentEstimator_1Dsorting():
     )
 
     # Nearest neighbor is grid_point 1 at the index 1 of the original binned_pdf
-    assert np.allclose(estim(target_point=np.array([0])), params[1, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([0])), params[1, :])
     # Nearest neighbor is grid_point 3 at the index 0 of the original binned_pdf
-    assert np.allclose(estim(target_point=np.array([4])), params[0, :])
+    with pytest.warns(UserWarning, match="has to be extrapolated"):
+        assert np.allclose(estim(target_point=np.array([4])), params[0, :])

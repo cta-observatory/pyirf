@@ -687,10 +687,6 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         psf = np.swapaxes(psf, axis, -1)
 
-        # Renormalize along the source offset axis to have a proper PDF
-        self.omegas = np.diff(cone_solid_angle(source_offset_bins))
-        psf_normed = psf * self.omegas
-
         if interpolator_kwargs is None:
             interpolator_kwargs = {}
 
@@ -706,8 +702,8 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         super().__init__(
             grid_points=grid_points,
-            bin_edges=source_offset_bins,
-            binned_pdf=psf_normed,
+            bin_edges=source_offset_bins.to_value(u.rad),
+            binned_pdf=psf,
             interpolator_cls=interpolator_cls,
             interpolator_kwargs=interpolator_kwargs,
             extrapolator_cls=extrapolator_cls,
@@ -726,7 +722,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         Returns
         -------
-        psf_interp: np.ndarray, shape=(n_points, ..., n_source_offset_bins)
+        psf_interp: u.Quantity[sr-1], shape=(n_points, ..., n_source_offset_bins)
             Interpolated psf table with same shape as input matrices. For PSF_TABLE
             of shape (n_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
 
@@ -735,4 +731,4 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         interpolated_psf_normed = super().__call__(target_point)
 
         # Undo normalisation to get a proper PSF and return
-        return np.swapaxes(interpolated_psf_normed / self.omegas, -1, self.axis)
+        return u.Quantity(np.swapaxes(interpolated_psf_normed, -1, self.axis), u.sr**-1, copy=False)

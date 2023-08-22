@@ -1,6 +1,7 @@
 """Base classes for interpolators"""
 from abc import ABCMeta, abstractmethod
 import enum
+import astropy.units as u
 
 import numpy as np
 
@@ -31,7 +32,7 @@ def get_bin_width(bin_edges, normalization):
         return np.diff(bin_edges)
 
     if normalization is PDFNormalization.CONE_SOLID_ANGLE:
-        return np.diff(cone_solid_angle(bin_edges))
+        return np.diff(cone_solid_angle(bin_edges).to_value(u.sr))
 
     raise ValueError(f"Invalid PDF normalization: {normalization}")
 

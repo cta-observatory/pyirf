@@ -7,6 +7,8 @@ import warnings
 import numpy as np
 from scipy.spatial import Delaunay
 
+from pyirf.interpolation.base_interpolators import get_bin_width
+
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator, PDFNormalization
 from .moment_morph_interpolator import (
     barycentric_2D_interpolation_coefficients,
@@ -230,7 +232,8 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
 
             # cut off values below 0 and re-normalize
             extrapolant[extrapolant < 0] = 0
-            norm = np.expand_dims(np.sum(extrapolant, axis=-1), -1)
+            bin_width = get_bin_width(self.bin_edges, self.normalization)
+            norm = np.expand_dims(np.sum(extrapolant * bin_width, axis=-1), -1)
             return np.divide(
                 extrapolant, norm, out=np.zeros_like(extrapolant), where=norm != 0
             ).reshape(1, *self.binned_pdf.shape[1:])

@@ -103,10 +103,23 @@ def test_pdf_from_ppf(data):
 def test_norm_pdf(data):
     from pyirf.interpolation.quantile_interpolator import norm_pdf
 
-    np.testing.assert_allclose(
-        norm_pdf(2 * data["binned_pdfs"][0]), data["binned_pdfs"][0]
+    result = norm_pdf(
+        2 * data["binned_pdfs"][0],
+        data["bin_edges"],
+        PDFNormalization.AREA,
     )
-    np.testing.assert_allclose(norm_pdf(np.zeros(5)), 0)
+    np.testing.assert_allclose(np.sum(result * np.diff(data["bin_edges"])), 1)
+    np.testing.assert_allclose(
+        result,
+        data["binned_pdfs"][0],
+    )
+
+    result = norm_pdf(
+        np.zeros(len(data["bin_edges"]) - 1),
+        data["bin_edges"],
+        PDFNormalization.AREA,
+    )
+    np.testing.assert_allclose(result, 0)
 
 
 def test_interpolate_binned_pdf(data):

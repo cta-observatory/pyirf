@@ -45,7 +45,7 @@ def test_ParametrizedNearestSimplexExtrapolator_1DGrid():
     target_point1 = np.array([3])
     interpolant1 = interpolator(target_point1)
 
-    dummy_data_target1 = 3 * slope + 1
+    dummy_data_target1 = (3 * slope + 1)[np.newaxis, :]
 
     np.testing.assert_allclose(interpolant1, dummy_data_target1)
     assert interpolant1.shape == (1, *dummy_data.shape[1:])
@@ -53,7 +53,7 @@ def test_ParametrizedNearestSimplexExtrapolator_1DGrid():
     target_point2 = np.array([[-2.5]])
     interpolant2 = interpolator(target_point2)
 
-    dummy_data_target2 = -2.5 * slope + 1
+    dummy_data_target2 = (-2.5 * slope + 1)[np.newaxis, :]
 
     np.testing.assert_allclose(interpolant2, dummy_data_target2)
     assert interpolant2.shape == (1, *dummy_data.shape[1:])
@@ -104,10 +104,12 @@ def test_ParametrizedNearestSimplexExtrapolator_2DGrid():
 
     dummy_data_target2 = np.array(
         [
-            np.dot((m.T * target_point2 + n), np.array([1, 1]))
-            for m, n in zip(slope, intercept)
+            [
+                np.dot((m.T * target_point2 + n), np.array([1, 1]))
+                for m, n in zip(slope, intercept)
+            ]
         ]
-    ).squeeze()
+    )
 
     np.testing.assert_allclose(interpolant2, dummy_data_target2)
     assert interpolant2.shape == (1, *dummy_data.shape[1:])
@@ -137,6 +139,9 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
 
     grid_points = np.array([[20], [30], [40]])
 
+    n_bins = len(bins) - 1
+    bin_width = np.diff(bins)
+
     # Create template histograms
     binned_pdf = np.array(
         [
@@ -144,22 +149,21 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
                 [binned_normal_pdf(x, 0, bins), binned_normal_pdf(x + 1, 0, bins)],
                 [
                     binned_normal_pdf(x + 10, 0, bins),
-                    np.zeros(len(bins) - 1),
+                    np.zeros(n_bins),
                 ],
-                [np.zeros(len(bins) - 1), np.ones(len(bins) - 1) / (len(bins) - 1)],
+                [np.zeros(n_bins), np.ones(n_bins) / n_bins / bin_width],
             ]
             for x in grid_points
         ]
     )
 
     # Include dirac-delta moving with grid_point x at [:, 2, 0, x]
-    binned_pdf[0, 2, 0, 20] = 1
-    binned_pdf[1, 2, 0, 30] = 1
-    binned_pdf[2, 2, 0, 40] = 1
+    for i, bin_idx in enumerate(grid_points.ravel()):
+        binned_pdf[i, 2, 0, bin_idx] = 1 / bin_width[bin_idx]
 
     # Zero template histogram at index [0, 0, 0, :], extrapolations "lower"
     # then this bin has consequently to be zero in these bins.
-    binned_pdf[0, 0, 0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[0, 0, 0, :] = 0.0
 
     extrap = MomentMorphNearestSimplexExtrapolator(
         grid_points=grid_points, binned_pdf=binned_pdf, bin_edges=bins
@@ -171,28 +175,31 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
     truth1 = np.array(
         [
             [
-                np.zeros(len(bins) - 1),
+                np.zeros(n_bins),
                 binned_normal_pdf(target1 + 1, 0, bins),
             ],
             [
                 binned_normal_pdf(target1 + 10, 0, bins),
-                np.zeros(len(bins) - 1),
+                np.zeros_like(bin_width),
             ],
-            [np.zeros(len(bins) - 1), np.ones(len(bins) - 1) / (len(bins) - 1)],
+            [np.zeros(n_bins), np.ones(n_bins) / n_bins / bin_width],
         ]
     )
 
     # Inlcude dirac-delta
-    truth1[2, 0, 10] = 1
+    delta = np.zeros(len(bins) - 1)
+    delta[target1[0]] = 1
+    delta /= bin_width
+    truth1[2, 0] = delta
 
     res1 = extrap(target1)
 
-    expected_norms1 = np.array([[0, 1], [1, 0], [1, 1]])
-    np.testing.assert_allclose(np.sum(res1, axis=-1), expected_norms1)
+    expected_norms1 = np.array([[[0, 1], [1, 0], [1, 1]]])
+    np.testing.assert_allclose(np.sum(res1 * np.diff(bins), axis=-1), expected_norms1)
     assert np.all(np.isfinite(res1))
     assert res1.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
-    np.testing.assert_allclose(res1.squeeze(), truth1, atol=1e-3, rtol=1e-5)
+    np.testing.assert_allclose(res1.squeeze(), truth1, atol=4e-3, rtol=1e-5)
 
     target2 = np.array([45])
 
@@ -204,19 +211,19 @@ def test_MomentMorphNearestSimplexExtrapolator_1DGrid(bins):
             ],
             [
                 binned_normal_pdf(target2 + 10, 0, bins),
-                np.zeros(len(bins) - 1),
+                np.zeros(n_bins),
             ],
-            [np.zeros(len(bins) - 1), np.ones(len(bins) - 1) / (len(bins) - 1)],
+            [np.zeros(n_bins), np.ones(n_bins) / n_bins / bin_width],
         ]
     )
 
     # Inlcude dirac-delta
-    truth2[2, 0, 45] = 1
+    truth2[2, 0, 45] = 1 / bin_width[45]
 
     res2 = extrap(target2)
 
-    expected_norms2 = np.array([[1, 1], [1, 0], [1, 1]])
-    np.testing.assert_allclose(np.sum(res2, axis=-1), expected_norms2)
+    expected_norms2 = np.array([[[1, 1], [1, 0], [1, 1]]])
+    np.testing.assert_allclose(np.sum(res2 * bin_width, axis=-1), expected_norms2)
     assert np.all(np.isfinite(res2))
     assert res2.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
@@ -227,6 +234,8 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     """Test ParametrizedNearestSimplexExtrapolator on a 2D Grid"""
     from pyirf.interpolation import MomentMorphNearestSimplexExtrapolator
 
+    n_bins = len(bins) - 1
+    bin_width = np.diff(bins)
     grid_points = np.array([[20, 20], [30, 10], [40, 20], [50, 10]])
 
     # Create template histograms
@@ -234,7 +243,7 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
         [
             [
                 [binned_normal_pdf(a, b, bins), binned_normal_pdf(a + 1, b, bins)],
-                [binned_normal_pdf(a + 10, b, bins), np.zeros(len(bins) - 1)],
+                [binned_normal_pdf(a + 10, b, bins), np.zeros(n_bins)],
             ]
             for a, b in grid_points
         ]
@@ -242,7 +251,7 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
 
     # Zero template histogram at index [0, 0, 0, :] (the [20, 20] point),
     # so that targets interpolated from left simplex should also be zero at [0, 0, :]
-    binned_pdf[0, 0, 0, :] = np.zeros(len(bins) - 1)
+    binned_pdf[0, 0, 0, :] = np.zeros(n_bins)
 
     extrap = MomentMorphNearestSimplexExtrapolator(
         grid_points=grid_points, binned_pdf=binned_pdf, bin_edges=bins
@@ -254,20 +263,20 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
     truth1 = np.array(
         [
             [
-                np.zeros(len(bins) - 1),
+                np.zeros(n_bins),
                 binned_normal_pdf(target1[0] + 1, target1[1], bins),
             ],
             [
                 binned_normal_pdf(target1[0] + 10, target1[1], bins),
-                np.zeros(len(bins) - 1),
+                np.zeros(n_bins),
             ],
         ]
     )
 
     res1 = extrap(target1)
 
-    expected_norms1 = np.array([[0, 1], [1, 0]])
-    np.testing.assert_allclose(np.sum(res1, axis=-1), expected_norms1)
+    expected_norms1 = np.array([[[0, 1], [1, 0]]])
+    np.testing.assert_allclose(np.sum(res1 * bin_width, axis=-1), expected_norms1)
     assert np.all(np.isfinite(res1))
     assert res1.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
@@ -283,15 +292,15 @@ def test_MomentMorphNearestSimplexExtrapolator_2DGrid(bins):
             ],
             [
                 binned_normal_pdf(target2[0] + 10, target2[1], bins),
-                np.zeros(len(bins) - 1),
+                np.zeros(n_bins),
             ],
         ]
     )
 
     res2 = extrap(target2)
 
-    expected_norms2 = np.array([[1, 1], [1, 0]])
-    np.testing.assert_allclose(np.sum(res2, axis=-1), expected_norms2)
+    expected_norms2 = np.array([[[1, 1], [1, 0]]])
+    np.testing.assert_allclose(np.sum(res2 * bin_width, axis=-1), expected_norms2)
     assert np.all(np.isfinite(res2))
     assert res2.shape == (1, *binned_pdf.shape[1:])
     # Assert truth and result matching within +- 0.1%, atol dominates comparison
