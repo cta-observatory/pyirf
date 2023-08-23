@@ -194,7 +194,7 @@ def _powerlaw_pdf_integral(index, e_low, e_high, e_min, e_max):
 
 
 def _viewcone_pdf_integral(viewcone_min, viewcone_max, fov_low, fov_high):
-    scalar = np.isscalar(fov_low)
+    scalar = np.asanyarray(fov_low).ndim == 0
 
     fov_low = np.atleast_1d(fov_low)
     fov_high = np.atleast_1d(fov_high)

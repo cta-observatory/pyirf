@@ -104,3 +104,22 @@ def test_integrate_energy_fov_pointlike():
     # make sure we raise an error on invalid input
     with pytest.raises(ValueError):
         info.calculate_n_showers_per_energy_and_fov(energy_bins, fov_bins)
+
+
+def test_viewcone_integral():
+    from pyirf.simulations import _viewcone_pdf_integral
+
+    vmin = 1 * u.deg
+    vmax = 5 * u.deg
+
+    # completely outside viewcone range
+    assert _viewcone_pdf_integral(vmin, vmax, 0 * u.deg, 0.5 * u.deg) == 0 * u.one
+    assert _viewcone_pdf_integral(vmin, vmax, 5.0 * u.deg, 5.5 * u.deg) == 0 * u.one
+
+    # half inside, half outside
+    expected = _viewcone_pdf_integral(vmin, vmax, 1.0 * u.deg, 1.5 * u.deg)
+    assert _viewcone_pdf_integral(vmin, vmax, 0.5 * u.deg, 1.5 * u.deg) == expected
+    expected = _viewcone_pdf_integral(vmin, vmax, 4.5 * u.deg, 5.0 * u.deg)
+    assert _viewcone_pdf_integral(vmin, vmax, 4.5 * u.deg, 5.5 * u.deg) == expected
+
+    assert _viewcone_pdf_integral(vmin, vmax, 0 * u.deg, 0.5 * u.deg).ndim == 0
