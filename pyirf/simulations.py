@@ -23,8 +23,10 @@ class SimulatedEventsInfo:
         Maximum simulated impact parameter
     spectral_index: float
         Spectral Index of the simulated power law with sign included.
-    viewcone: u.Quantity[angle]
-        Opening angle of the viewcone
+    viewcone_min: u.Quantity[angle]
+        Inner angle of the viewcone
+    viewcone_max: u.Quantity[angle]
+        Outer angle of the viewcone
     """
 
     __slots__ = (
@@ -33,14 +35,15 @@ class SimulatedEventsInfo:
         "energy_max",
         "max_impact",
         "spectral_index",
-        "viewcone",
+        "viewcone_min",
+        "viewcone_max",
     )
 
     @u.quantity_input(
-        energy_min=u.TeV, energy_max=u.TeV, max_impact=u.m, viewcone=u.deg
+        energy_min=u.TeV, energy_max=u.TeV, max_impact=u.m, viewcone_min=u.deg, viewcone_max=u.deg
     )
     def __init__(
-        self, n_showers, energy_min, energy_max, max_impact, spectral_index, viewcone
+        self, n_showers, energy_min, energy_max, max_impact, spectral_index, viewcone_min, viewcone_max,
     ):
         #: Total number of simulated showers, if reuse was used, this must
         #: already include reuse
@@ -53,8 +56,10 @@ class SimulatedEventsInfo:
         self.max_impact = max_impact
         #: Spectral index of the simulated power law with sign included
         self.spectral_index = spectral_index
-        #: Opening angle of the viewcone
-        self.viewcone = viewcone
+        #: Inner viewcone angle
+        self.viewcone_min = viewcone_min
+        #: Outer viewcone angle
+        self.viewcone_max = viewcone_max
 
         if spectral_index > -1:
             raise ValueError("spectral index must be <= -1")
@@ -128,16 +133,7 @@ class SimulatedEventsInfo:
         fov_bins = fov_bins
         fov_low = fov_bins[:-1]
         fov_high = fov_bins[1:]
-
-        fov_integral = _viewcone_pdf_integral(self.viewcone, fov_low, fov_high)
-        viewcone = self.viewcone
-        # check if any of the bins are outside the max viewcone
-        fov_integral = np.where(fov_high <= viewcone, fov_integral, 0)
-
-        # identify the bin with the maximum viewcone inside
-        mask = (viewcone > fov_low) & (viewcone < fov_high)
-        fov_integral[mask] = _viewcone_pdf_integral(viewcone, fov_low[mask], viewcone)
-
+        fov_integral = _viewcone_pdf_integral(self.viewcone_min, self.viewcone_max, fov_low, fov_high)
         return self.n_showers * fov_integral
 
     @u.quantity_input(energy_bins=u.TeV, fov_bins=u.deg)
@@ -180,7 +176,8 @@ class SimulatedEventsInfo:
             f"energy_max={self.energy_max:.2f}, "
             f"spectral_index={self.spectral_index:.1f}, "
             f"max_impact={self.max_impact:.2f}, "
-            f"viewcone={self.viewcone}"
+            f"viewcone_min={self.viewcone_min}"
+            f"viewcone_max={self.viewcone_max}"
             ")"
         )
 
@@ -198,12 +195,32 @@ def _powerlaw_pdf_integral(index, e_low, e_high, e_min, e_max):
     return e_term * normalization
 
 
-def _viewcone_pdf_integral(viewcone, fov_low, fov_high):
-    if viewcone.value == 0:
+def _viewcone_pdf_integral(viewcone_min, viewcone_max, fov_low, fov_high):
+    """
+    CORSIKA draws particles in the viewcone uniform per solid angle between
+    viewcone_min and viewcone_max, the associated pdf is:
+
+    pdf(theta, theta_min, theta_max) = sin(theta) / (cos(theta_min) - cos(theta_max))
+    """
+    scalar = np.asanyarray(fov_low).ndim == 0
+
+    fov_low = np.atleast_1d(fov_low)
+    fov_high = np.atleast_1d(fov_high)
+
+    if (viewcone_max - viewcone_min).value == 0:
         raise ValueError("Only supported for diffuse simulations")
     else:
-        norm = 1 / (1 - np.cos(viewcone))
+        norm = 1 / (np.cos(viewcone_min) - np.cos(viewcone_max))
 
-    integral = np.cos(fov_low) - np.cos(fov_high)
+    inside = (fov_high >= viewcone_min) & (fov_low <= viewcone_max)
 
-    return norm * integral
+    integral = np.zeros(fov_low.shape)
+    lower = np.where(fov_low[inside] > viewcone_min, fov_low[inside], viewcone_min)
+    upper = np.where(fov_high[inside] < viewcone_max, fov_high[inside], viewcone_max)
+
+    integral[inside] = np.cos(lower) - np.cos(upper)
+    integral *= norm
+
+    if scalar:
+        return np.squeeze(integral)
+    return integral
