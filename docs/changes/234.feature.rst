@@ -1,1 +1,0 @@
-Add option to specify which containment to use for angular resolution.

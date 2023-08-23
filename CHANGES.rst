@@ -1,3 +1,37 @@
+Pyirf v0.10.0 (2023-08-23)
+==========================
+
+This release contains an important bug fix for the energy dispersion computation,
+it was wrongly normalized before.
+
+API Changes
+-----------
+
+- In prior versions of pyirf, the energy dispersion matrix was normalized to a
+  sum of 1 over the migration axis.
+  This is wrong, the correct normalization is to an integral of 1, which is fixed now.
+
+  The internal API of the interpolation functions had to be adapted to take in additional
+  keywords, mainly the bin edges and the kind of normalization (standard or solid angle cone sections). [`#250 <https://github.com/cta-observatory/pyirf/pull/250>`__]
+
+- Replace single ``viewcone`` argument of ``SimulationInfo`` with
+  ``viewcone_min`` and ``viewcone_max``, e.g. to correctly enable
+  ring wobble simulations. [`#239 <https://github.com/cta-observatory/pyirf/pull/239>`__]
+
+
+Bug Fixes
+---------
+
+- See above on the energy dispersion change.
+
+
+New Features
+------------
+
+- Add option to specify which containment to use for angular resolution. [`#234 <https://github.com/cta-observatory/pyirf/pull/234>`__]
+
+
+
 pyirf 0.9.0 (2023-07-19)
 ========================
 

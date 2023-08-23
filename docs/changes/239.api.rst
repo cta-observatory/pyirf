@@ -1,3 +1,0 @@
-Replace single ``viewcone`` argument of ``SimulationInfo`` with
-``viewcone_min`` and ``viewcone_max``, e.g. to correctly enable
-ring wobble simulations.
