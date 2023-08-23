@@ -33,3 +33,10 @@ build-backend = "setuptools.build_meta"
     [[tool.towncrier.section]]
         name = ""
         path = ""
+
+
+[tool.pytest.ini_options]
+filterwarnings = [
+    "ignore:pkg_resources is deprecated:DeprecationWarning",
+    "ignore:Deprecated call to `pkg_resources:DeprecationWarning",
+]

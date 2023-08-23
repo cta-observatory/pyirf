@@ -1,16 +1,18 @@
 import numpy as np
 from scipy.interpolate import griddata, interp1d
 
-from .base_interpolators import DiscretePDFInterpolator
+from .base_interpolators import DiscretePDFInterpolator, PDFNormalization
+from .utils import get_bin_width
 
 __all__ = ["QuantileInterpolator"]
 
 
-def cdf_values(bin_contents):
+def cdf_values(binned_pdf, bin_edges, normalization):
     """
     compute cdf values and assure they are normed to unity
     """
-    cdfs = np.cumsum(bin_contents, axis=-1)
+    bin_widths = get_bin_width(bin_edges, normalization)
+    cdfs = np.cumsum(binned_pdf * bin_widths, axis=-1)
 
     # assure the last cdf value is 1, ignore errors for empty pdfs as they are reset to 0 by nan_to_num
     with np.errstate(invalid="ignore"):
@@ -95,7 +97,7 @@ def pdf_from_ppf(bin_edges, interp_ppfs, quantiles):
         Edges of the bins in which the final pdf should be binned
 
     interp_ppfs: numpy.ndarray, shape=(1,...,L)
-        Corresponding ppf-values for all self.quantiles at the target_point,
+        Corresponding ppf-values for all quantiles at the target_point,
         not to be confused with QunatileInterpolators self.ppfs, the ppfs
         computed from the input distributions.
 
@@ -122,7 +124,7 @@ def pdf_from_ppf(bin_edges, interp_ppfs, quantiles):
         pdf = xy[len(xy) // 2 :]
         interpolate = interp1d(ppf, pdf, bounds_error=False, fill_value=(0, 0))
         result = np.nan_to_num(interpolate(bin_edges[:-1]))
-        return np.diff(bin_edges) * result
+        return result
 
     # Interpolate pdf samples and evaluate at bin edges, weight with the bin_width to estimate
     # correct bin height via the midpoint rule formulation of the trapezoidal rule
@@ -131,16 +133,17 @@ def pdf_from_ppf(bin_edges, interp_ppfs, quantiles):
     return pdf_values
 
 
-def norm_pdf(pdf_values):
+def norm_pdf(pdf_values, bin_edges, normalization):
     """
     Normalize binned_pdf to a sum of 1
     """
     norm = np.sum(pdf_values, axis=-1)
+    width = get_bin_width(bin_edges, normalization)
 
     # Norm all binned_pdfs to unity that are not empty
     normed_pdf_values = np.divide(
         pdf_values,
-        norm[..., np.newaxis],
+        norm[..., np.newaxis] * width,
         out=np.zeros_like(pdf_values),
         where=norm[..., np.newaxis] != 0,
     )
@@ -149,28 +152,37 @@ def norm_pdf(pdf_values):
 
 
 class QuantileInterpolator(DiscretePDFInterpolator):
-    def __init__(self, grid_points, bin_edges, bin_contents, quantile_resolution=1e-3):
+    def __init__(
+        self,
+        grid_points,
+        bin_edges,
+        binned_pdf,
+        quantile_resolution=1e-3,
+        normalization=PDFNormalization.AREA,
+    ):
         """BinnedInterpolator constructor
 
         Parameters
         ----------
-        grid_points: np.ndarray
+        grid_points : np.ndarray
             Grid points at which interpolation templates exist
-        bin_edges: np.ndarray
+        bin_edges : np.ndarray
             Edges of the data binning
-        bin_contents: np.ndarray
+        binned_pdf : np.ndarray
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, the last axis has to correspond to number
             of bins for the quantity that should be interpolated
             (e.g. the Migra axis for EDisp)
-        quantile_resolution: float
+        quantile_resolution : float
             Spacing between quantiles
+        normalization : PDFNormalization
+            How the discrete PDF is normalized
 
         Raises
         ------
         ValueError:
-            When last axis in bin_contents and number of bins are not equal.
+            When last axis in binned_pdf and number of bins are not equal.
 
         Note
         ----
@@ -178,7 +190,7 @@ class QuantileInterpolator(DiscretePDFInterpolator):
             DiscretePDFInterpolator
         """
         # Remember input shape
-        self.input_shape = bin_contents.shape
+        self.input_shape = binned_pdf.shape
 
         if self.input_shape[-1] != len(bin_edges) - 1:
             raise ValueError(
@@ -187,8 +199,8 @@ class QuantileInterpolator(DiscretePDFInterpolator):
 
         # include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise
         # start at a value != 0, also extend edges with one bin to the left
-        fill_zeros = np.zeros(shape=bin_contents.shape[:-1])[..., np.newaxis]
-        bin_contents = np.concatenate((fill_zeros, bin_contents), axis=-1)
+        fill_zeros = np.zeros(shape=binned_pdf.shape[:-1])[..., np.newaxis]
+        binned_pdf = np.concatenate((fill_zeros, binned_pdf), axis=-1)
         bin_edges = np.append(bin_edges[0] - np.diff(bin_edges)[0], bin_edges)
 
         # compute quantiles from quantile_resolution
@@ -197,11 +209,14 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         )
 
         super().__init__(
-            grid_points=grid_points, bin_edges=bin_edges, bin_contents=bin_contents
+            grid_points=grid_points,
+            bin_edges=bin_edges,
+            binned_pdf=binned_pdf,
+            normalization=normalization,
         )
 
         # Compute CDF values
-        self.cdfs = cdf_values(self.bin_contents)
+        self.cdfs = cdf_values(self.binned_pdf, self.bin_edges, self.normalization)
 
         # compute ppf values at quantiles, determine quantile step of [1]
         self.ppfs = ppf_values(self.bin_mids, self.cdfs, self.quantiles)
@@ -242,7 +257,7 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         )[..., 1:]
 
         # Renormalize pdf to sum of 1
-        normed_interpolated_pdfs = norm_pdf(interpolated_pdfs)
+        normed_interpolated_pdfs = norm_pdf(interpolated_pdfs, self.bin_edges[1:], self.normalization)
 
         # Re-swap axes and set all nans to zero
         return np.nan_to_num(normed_interpolated_pdfs).reshape(1, *self.input_shape[1:])

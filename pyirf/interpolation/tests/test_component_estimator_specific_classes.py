@@ -10,6 +10,7 @@ def test_EnergyDispersionEstimator(prod5_irfs):
     zen_pnt = np.array([key.value for key in prod5_irfs.keys()])
     edisps = np.array([irf["edisp"].data for irf in prod5_irfs.values()])
     bin_edges = list(prod5_irfs.values())[0]["edisp"].axes["migra"].edges
+    bin_width = np.diff(bin_edges)
 
     estimator = EnergyDispersionEstimator(
         grid_points=zen_pnt[[0, 2]],
@@ -24,13 +25,12 @@ def test_EnergyDispersionEstimator(prod5_irfs):
 
     interp = estimator(target_point=zen_pnt[[1]])
 
-    assert np.max(interp) <= 1
     assert np.min(interp) >= 0
     assert np.all(np.isfinite(interp))
     assert np.all(
         np.logical_or(
-            np.isclose(np.sum(interp, axis=-2), 1),
-            np.isclose(np.sum(interp, axis=-2), 0),
+            np.isclose(np.sum(interp * bin_width[:, np.newaxis], axis=-2), 1),
+            np.isclose(np.sum(interp * bin_width[:, np.newaxis], axis=-2), 0),
         )
     )
     assert interp.shape == edisps[[1]].shape
@@ -74,15 +74,15 @@ def test_PSFTableEstimator():
 
     interp = estimator(target_point=zen_pnt[[1]])
 
-    interp *= omegas[np.newaxis, np.newaxis, np.newaxis, ...]
+    probability = (interp * omegas[np.newaxis, np.newaxis, np.newaxis, ...]).to_value(u.one)
 
-    assert np.max(interp) <= 1
-    assert np.min(interp) >= 0
+    assert np.max(probability) <= 1
+    assert np.min(probability) >= 0
     assert np.all(np.isfinite(interp))
     assert np.all(
         np.logical_or(
-            np.isclose(np.sum(interp, axis=-1), 1),
-            np.isclose(np.sum(interp, axis=-1), 0),
+            np.isclose(np.sum(probability, axis=-1), 1),
+            np.isclose(np.sum(probability, axis=-1), 0),
         )
     )
     assert interp.shape == dummy_psfs[[1]].shape
