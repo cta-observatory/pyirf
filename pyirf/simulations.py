@@ -23,8 +23,10 @@ class SimulatedEventsInfo:
         Maximum simulated impact parameter
     spectral_index: float
         Spectral Index of the simulated power law with sign included.
-    viewcone: u.Quantity[angle]
-        Opening angle of the viewcone
+    viewcone_min: u.Quantity[angle]
+        Inner angle of the viewcone
+    viewcone_max: u.Quantity[angle]
+        Outer angle of the viewcone
     """
 
     __slots__ = (
