@@ -1,6 +1,0 @@
-In prior versions of pyirf, the energy dispersion matrix was normalized to a
-sum of 1 over the migration axis.
-This is wrong, the correct normalization is to an integral of 1, which is fixed now.
-
-The internal API of the interpolation functions had to be adapted to take in additional
-keywords, mainly the bin edges and the kind of normalization (standard or solid angle cone sections).
