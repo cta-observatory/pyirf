@@ -122,4 +122,16 @@ def test_viewcone_integral():
     expected = _viewcone_pdf_integral(vmin, vmax, 4.5 * u.deg, 5.0 * u.deg)
     assert _viewcone_pdf_integral(vmin, vmax, 4.5 * u.deg, 5.5 * u.deg) == expected
 
-    assert _viewcone_pdf_integral(vmin, vmax, 0 * u.deg, 0.5 * u.deg).ndim == 0
+    # whole region integrates to 1
+    assert _viewcone_pdf_integral(vmin, vmax, 1 * u.deg, 5 * u.deg) == 1.0 * u.one
+    assert _viewcone_pdf_integral(vmin, vmax, 0 * u.deg, 10 * u.deg) == 1.0 * u.one
+
+    vmin = np.pi * u.rad
+    vmax = 2 * np.pi * u.rad
+    np.testing.assert_allclose(
+        _viewcone_pdf_integral(vmin, vmax, np.pi * u.rad, 1.5 * np.pi * u.rad),
+        0.5
+    )
+
+    # test scalar inputs result in scalar output
+    assert _viewcone_pdf_integral(vmin, vmax, 0 * u.deg, 0.5 * u.deg).ndim == 0 * u.one
