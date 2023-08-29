@@ -1,7 +1,9 @@
 import numpy as np
+import pytest
 
 
 def test_find_visible_facets():
+    """Test for visible facets finding utility"""
     from pyirf.interpolation.visible_edges_extrapolator import find_visible_facets
 
     grid = np.array([[0, 0], [20, 0], [40, 0], [10, 20], [30, 20], [10, 10]])
@@ -34,6 +36,7 @@ def test_find_visible_facets():
 
 
 def test_compute_extrapolation_weights():
+    """Test for extrapolation weight computation utility"""
     from pyirf.interpolation.visible_edges_extrapolator import (
         compute_extrapolation_weights,
         find_visible_facets,
@@ -65,3 +68,168 @@ def test_compute_extrapolation_weights():
     res3 = compute_extrapolation_weights(vis_facets2, target2, m=1)
 
     np.testing.assert_array_almost_equal(res3, expected_m1)
+
+
+def test_ParametrizedVisibleEdgesExtrapolator_invalid_m():
+    """Test to assure errors are raised for invalid values of m (strings, non finite values,
+    negative values and non-integer)."""
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        ParametrizedVisibleEdgesExtrapolator,
+    )
+
+    grid = np.array([[0, 0], [20, 0], [40, 0], [10, 20], [30, 20], [10, 10]])
+
+    with pytest.raises(ValueError, match="Only positiv integers allowed for m, got a."):
+        ParametrizedVisibleEdgesExtrapolator(grid_points=grid, params=grid[:, 0], m="a")
+
+    with pytest.raises(
+        ValueError, match="Only positiv integers allowed for m, got inf."
+    ):
+        ParametrizedVisibleEdgesExtrapolator(
+            grid_points=grid, params=grid[:, 0], m=np.inf
+        )
+
+    with pytest.raises(
+        ValueError, match="Only positiv integers allowed for m, got -1."
+    ):
+        ParametrizedVisibleEdgesExtrapolator(grid_points=grid, params=grid[:, 0], m=-1)
+
+    with pytest.raises(
+        ValueError, match="Only positiv integers allowed for m, got 1.2."
+    ):
+        ParametrizedVisibleEdgesExtrapolator(grid_points=grid, params=grid[:, 0], m=1.2)
+
+
+def test_ParametrizedVisibleEdgesExtrapolator_1D_fallback():
+    """Test that Extrapolator falls back to Nearest Simplex Interpolation for 1D grids as only one simplex (line segment) can be visible by design."""
+    from pyirf.interpolation.nearest_simplex_extrapolator import (
+        ParametrizedNearestSimplexExtrapolator,
+    )
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        ParametrizedVisibleEdgesExtrapolator,
+    )
+
+    grid = np.array([[0], [20], [40]])
+
+    vis_edge_extrap = ParametrizedVisibleEdgesExtrapolator(
+        grid_points=grid, params=grid, m=1
+    )
+    nearest_simplex_extrap = ParametrizedNearestSimplexExtrapolator(
+        grid_points=grid, params=grid
+    )
+
+    target = np.array([[-10]])
+
+    assert vis_edge_extrap(target) == nearest_simplex_extrap(target)
+
+
+def test_ParametrizedVisibleEdgesExtrapolator_2D_fallback():
+    """Test that Extrapolator falls back to Nearest Simplex Interpolation for 1´2D grids where only one simplex is be visible."""
+    from pyirf.interpolation.nearest_simplex_extrapolator import (
+        ParametrizedNearestSimplexExtrapolator,
+    )
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        ParametrizedVisibleEdgesExtrapolator,
+    )
+
+    grid = np.array([[0, 0], [20, 0], [40, 0], [10, 20], [30, 20]])
+    params = grid[:, 0] + grid[:, 1]
+
+    # from target point, only the simplex spanned by points at indices 1, 3 and 4 is
+    # visible. Thus, no blending over visible edges is needed.
+    target = np.array([[20, 30]])
+
+    vis_edge_extrap = ParametrizedVisibleEdgesExtrapolator(
+        grid_points=grid, params=params, m=1
+    )
+    nearest_simplex_extrap = ParametrizedNearestSimplexExtrapolator(
+        grid_points=grid, params=params
+    )
+
+    assert vis_edge_extrap(target) == nearest_simplex_extrap(target)
+
+
+def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_linear():
+    """Test wether results resembe the truth for a linear testcase"""
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        ParametrizedVisibleEdgesExtrapolator,
+    )
+
+    grid_points = np.array([[0, 0], [2, 0], [4, 0], [1, 2], [3, 2]])
+    slope = np.array([[[0, 1], [1, 1]], [[0, 2], [2, 3]], [[3, 0], [3, 5]]])
+    intercept = np.array([[[0, 1], [1, 1]], [[0, -1], [-1, -1]], [[10, 11], [11, 11]]])
+
+    # Create 3 times 2 linear samples, each of the form (mx * px + my * py + nx + ny)
+    # with slope m, intercept n at each grid_point p
+    dummy_data = np.array(
+        [
+            np.array(
+                [
+                    np.dot((m.T * p + n), np.array([1, 1]))
+                    for m, n in zip(slope, intercept)
+                ]
+            ).squeeze()
+            for p in grid_points
+        ]
+    )
+
+    extrapolator = ParametrizedVisibleEdgesExtrapolator(
+        grid_points=grid_points,
+        params=dummy_data,
+        m=1,
+    )
+
+    target_point = np.array([1, -1])
+    extrapolant = extrapolator(target_point)
+    dummy_data_target = np.array(
+        [
+            np.dot((m.T * target_point + n), np.array([1, 1]))
+            for m, n in zip(slope, intercept)
+        ]
+    )[np.newaxis, :]
+
+    np.testing.assert_allclose(extrapolant, dummy_data_target)
+    assert extrapolant.shape == (1, *dummy_data.shape[1:])
+
+
+def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_smoothness():
+    """Test wether results are smooth for a non-linear testcase"""
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        ParametrizedVisibleEdgesExtrapolator,
+    )
+
+    grid_points = np.array([[0, 0], [2, 0], [4, 0], [1, 2], [3, 2]])
+
+    slope = np.array([[[0, 1], [1, 1]], [[0, 2], [2, 3]], [[3, 0], [3, 5]]])
+    intercept = np.array([[[0, 1], [1, 1]], [[0, -1], [-1, -1]], [[10, 11], [11, 11]]])
+
+    # Create 3 times 2 linear samples, each of the form (mx * px + my * py + nx + ny)
+    # with slope m, intercept n at each grid_point p
+    dummy_data = np.array(
+        [
+            np.array(
+                [
+                    np.dot((m.T * p + n), np.array([1, 1])) + p[0]*p[1]
+                    for m, n in zip(slope, intercept)
+                ]
+            ).squeeze()
+            for p in grid_points
+        ]
+    )
+
+    extrapolator = ParametrizedVisibleEdgesExtrapolator(
+        grid_points=grid_points,
+        params=dummy_data,
+        m=1,
+    )
+
+    # The horizontal line at x=2 seperates two domains where the nerarest simplex
+    # changes. If the Extrapolator works correctly, the transition should be smooth.
+    target_point_left = np.array([1.9999999, -1])
+    target_point_right = np.array([2.00000001, -1])
+
+    extrapolant_left = extrapolator(target_point_left)
+    extrapolant_right = extrapolator(target_point_right)
+
+    np.testing.assert_allclose(extrapolant_left, extrapolant_right)
+    
