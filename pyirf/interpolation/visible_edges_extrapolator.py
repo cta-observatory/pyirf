@@ -3,7 +3,6 @@ Extrapolators for Parametrized and DiscretePDF components blending all extrapola
 all visible simplices
 """
 import numpy as np
-
 from scipy.spatial import Delaunay
 
 from .nearest_simplex_extrapolator import ParametrizedNearestSimplexExtrapolator
@@ -13,6 +12,26 @@ __all__ = ["ParametrizedVisibleEdgesExtrapolator"]
 
 
 def find_visible_facets(grid_points, target_point):
+    """
+    Utility function to find all facets of a convex hull that are visible from
+    a point outside. To do so, this function constructs a trinangulation containing
+    the target point and returns all facets that span a trinangulation simplex with
+    the it.
+
+    Parameters
+    ----------
+    grid_points: np.ndarray, shape=(N, M)
+        Grid points at which templates exist. May be one ot two dimensional.
+        Have to be sorted in accending order for 1D.
+    target_point: numpy.ndarray, shape=(1, M)
+        Value for which the extrapolation is performed (target point)
+
+    Returns
+    -------
+    visible_facets: np.ndarray, shape=(L, M)
+        L visible facets, spanned by a simplex in M-1 dimensions
+        (thus a line for M=2)
+    """
     # Build a triangulation including the target point
     full_set = np.vstack((grid_points, target_point))
     triag = Delaunay(full_set)
@@ -39,6 +58,28 @@ def find_visible_facets(grid_points, target_point):
 
 
 def compute_extrapolation_weights(visible_facet_points, target_point, m):
+    """
+    Utility function to compute extrapolation weight according to [1].
+
+    Parameters
+    ----------
+    visible_facet_points: np.ndarray, shape=(L, M)
+        L facets visible from target_point
+    target_point: numpy.ndarray, shape=(1, M)
+        Value for which the extrapolation is performed (target point)
+
+    Returns
+    -------
+    extrapolation_weights: np.ndarray, shape=(L)
+        Weights for each visible facet, corresponding to the extrapolation
+        weight for the respective triangulation simplex. Weigths sum to unity.
+
+    References
+    ----------
+    .. [1] P. Alfred (1984). Triangular Extrapolation. Technical summary rept.,
+    Univ. of Wisconsin-Madison. https://apps.dtic.mil/sti/pdfs/ADA144660.pdf
+    """
+
     angles = np.array(
         [
             point_facet_angle(line, target_point.squeeze())
@@ -146,11 +187,15 @@ class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolato
                     *np.ones(self.params.ndim - 1, "int"),
                 )
 
+                # Function has to be copied outside list comprehention as the super() short-form
+                # cannot be used inside it (at least until python 3.11)
+                extrapolate2D = super()._extrapolate2D
+
                 simplex_extrapolations = np.array(
                     [
-                        super()._extrapolate2D(
+                        extrapolate2D(
                             self.triangulation.simplices[ind], target_point
-                        )
+                        ).squeeze()
                         for ind in visible_simplices_indices
                     ]
                 )
