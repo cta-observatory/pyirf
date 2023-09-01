@@ -1,6 +1,70 @@
 import numpy as np
 import pytest
 
+from .test_moment_morph_interpolator import (
+    binned_normal_pdf,
+    bins,
+    simple_1D_data,
+    simple_2D_data,
+)
+
+
+@pytest.fixture
+def multiple_simplices_2D_data(bins):
+    grid = np.array([[20, 20], [40, 20], [60, 20], [30, 40], [50, 40]])
+    target_1_simplex = np.array([40, 50])
+    target_2_simplices = np.array([30, 10])
+
+    binned_pdf = np.array(
+        [
+            [
+                [binned_normal_pdf(a, b, bins), binned_normal_pdf(a + 1, b, bins)],
+                [binned_normal_pdf(a + 10, b, bins), binned_normal_pdf(a + 2, b, bins)],
+            ]
+            for a, b in grid
+        ]
+    )
+
+    truth_1_simplex = np.array(
+        [
+            [
+                binned_normal_pdf(*target_1_simplex, bins),
+                binned_normal_pdf(target_1_simplex[0] + 1, target_1_simplex[1], bins),
+            ],
+            [
+                binned_normal_pdf(target_1_simplex[0] + 10, target_1_simplex[1], bins),
+                binned_normal_pdf(target_1_simplex[0] + 2, target_1_simplex[1], bins),
+            ],
+        ]
+    )
+    truth_2_simplices = np.array(
+        [
+            [
+                binned_normal_pdf(*target_2_simplices, bins),
+                binned_normal_pdf(
+                    target_2_simplices[0] + 1, target_2_simplices[1], bins
+                ),
+            ],
+            [
+                binned_normal_pdf(
+                    target_2_simplices[0] + 10, target_2_simplices[1], bins
+                ),
+                binned_normal_pdf(
+                    target_2_simplices[0] + 2, target_2_simplices[1], bins
+                ),
+            ],
+        ]
+    )
+
+    return {
+        "grid": grid,
+        "target_1_simplex": target_1_simplex,
+        "target_2_simplices": target_2_simplices,
+        "binned_pdf": binned_pdf,
+        "truth_1_simplex": truth_1_simplex,
+        "truth_2_simplices": truth_2_simplices,
+    }
+
 
 def test_find_visible_facets():
     """Test for visible facets finding utility"""
@@ -209,7 +273,7 @@ def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_smoothness():
         [
             np.array(
                 [
-                    np.dot((m.T * p + n), np.array([1, 1])) + p[0]*p[1]
+                    np.dot((m.T * p + n), np.array([1, 1])) + p[0] * p[1]
                     for m, n in zip(slope, intercept)
                 ]
             ).squeeze()
@@ -232,4 +296,147 @@ def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_smoothness():
     extrapolant_right = extrapolator(target_point_right)
 
     np.testing.assert_allclose(extrapolant_left, extrapolant_right)
-    
+
+
+def test_MomentMorphVisibleEdgesExtrapolator_invalid_m(bins, simple_1D_data):
+    """Test to assure errors are raised for invalid values of m (strings, non finite values,
+    negative values and non-integer)."""
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        MomentMorphVisibleEdgesExtrapolator,
+    )
+
+    grid = simple_1D_data["grid"]
+    binned_pdf = simple_1D_data["binned_pdf"]
+
+    with pytest.raises(ValueError, match="Only positiv integers allowed for m, got a."):
+        MomentMorphVisibleEdgesExtrapolator(
+            grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins, m="a"
+        )
+
+    with pytest.raises(
+        ValueError, match="Only positiv integers allowed for m, got inf."
+    ):
+        MomentMorphVisibleEdgesExtrapolator(
+            grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins, m=np.inf
+        )
+
+    with pytest.raises(
+        ValueError, match="Only positiv integers allowed for m, got -1."
+    ):
+        MomentMorphVisibleEdgesExtrapolator(
+            grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins, m=-1
+        )
+
+    with pytest.raises(
+        ValueError, match="Only positiv integers allowed for m, got 1.2."
+    ):
+        MomentMorphVisibleEdgesExtrapolator(
+            grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins, m=1.2
+        )
+
+
+def test_MomentMorphVisibleEdgesExtrapolator_1D_fallback(bins, simple_1D_data):
+    """Test that Extrapolator falls back to Nearest Simplex Interpolation for 1D grids as only one simplex (line segment) can be visible by design."""
+    from pyirf.interpolation.nearest_simplex_extrapolator import (
+        MomentMorphNearestSimplexExtrapolator,
+    )
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        MomentMorphVisibleEdgesExtrapolator,
+    )
+
+    grid = simple_1D_data["grid"]
+    binned_pdf = simple_1D_data["binned_pdf"]
+
+    vis_edge_extrap = MomentMorphVisibleEdgesExtrapolator(
+        grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins, m=1
+    )
+    nearest_simplex_extrap = MomentMorphNearestSimplexExtrapolator(
+        grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins
+    )
+
+    target = np.array([[-10]])
+
+    np.testing.assert_array_equal(
+        vis_edge_extrap(target), nearest_simplex_extrap(target)
+    )
+
+
+def test_MomentMorphVisibleEdgesExtrapolator_2D_fallback(
+    bins, multiple_simplices_2D_data
+):
+    """Test that Extrapolator falls back to Nearest Simplex Interpolation for 1D grids as only one simplex (line segment) can be visible by design."""
+    from pyirf.interpolation.nearest_simplex_extrapolator import (
+        MomentMorphNearestSimplexExtrapolator,
+    )
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        MomentMorphVisibleEdgesExtrapolator,
+    )
+
+    grid = multiple_simplices_2D_data["grid"]
+    binned_pdf = multiple_simplices_2D_data["binned_pdf"]
+    target = multiple_simplices_2D_data["target_1_simplex"]
+
+    vis_edge_extrap = MomentMorphVisibleEdgesExtrapolator(
+        grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins, m=1
+    )
+    nearest_simplex_extrap = MomentMorphNearestSimplexExtrapolator(
+        grid_points=grid, binned_pdf=binned_pdf, bin_edges=bins
+    )
+
+    np.testing.assert_array_equal(
+        vis_edge_extrap(target), nearest_simplex_extrap(target)
+    )
+
+
+def test_MomentMorphVisibleEdgeExtrapolator_2D_grid_linear(
+    bins, multiple_simplices_2D_data
+):
+    """Test wether results resembe the truth for a linear testcase"""
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        MomentMorphVisibleEdgesExtrapolator,
+    )
+
+    extrapolator = MomentMorphVisibleEdgesExtrapolator(
+        grid_points=multiple_simplices_2D_data["grid"],
+        binned_pdf=multiple_simplices_2D_data["binned_pdf"],
+        bin_edges=bins,
+        m=1,
+    )
+
+    extrapolant = extrapolator(multiple_simplices_2D_data["target_2_simplices"])
+
+    np.testing.assert_allclose(
+        extrapolant,
+        multiple_simplices_2D_data["truth_2_simplices"][np.newaxis, :],
+        atol=1e-3,
+        rtol=1e-5,
+    )
+    assert extrapolant.shape == (1, *multiple_simplices_2D_data["binned_pdf"].shape[1:])
+
+
+def test_MomentMorphVisibleEdgeExtrapolator_2D_grid_smoothness(
+    bins, multiple_simplices_2D_data
+):
+    """Test wether results are smooth. As even for a only linearly varying discrete PDF case the results of a MomentMorphNearestSimplexExtrapolator are not exact this can be tested without artificially introducing a non-linearity"""
+    from pyirf.interpolation.visible_edges_extrapolator import (
+        MomentMorphVisibleEdgesExtrapolator,
+    )
+
+    extrapolator = MomentMorphVisibleEdgesExtrapolator(
+        grid_points=multiple_simplices_2D_data["grid"],
+        binned_pdf=multiple_simplices_2D_data["binned_pdf"],
+        bin_edges=bins,
+        m=1,
+    )
+
+    # The horizontal line at x=40 seperates two domains where the nerarest simplex
+    # changes. If the Extrapolator works correctly, the transition should be smooth.
+    target_point_left = np.array([39.9999999, 10])
+    target_point_right = np.array([40.00000001, 10])
+
+    extrapolant_left = extrapolator(target_point_left)
+    extrapolant_right = extrapolator(target_point_right)
+
+    # Note that this does not use the otherwise usual 1e-3 atol and 1e-5 rtol
+    # but the much stricter defaults
+    np.testing.assert_allclose(extrapolant_left, extrapolant_right)
