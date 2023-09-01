@@ -232,4 +232,3 @@ def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_smoothness():
     extrapolant_right = extrapolator(target_point_right)
 
     np.testing.assert_allclose(extrapolant_left, extrapolant_right)
-    
