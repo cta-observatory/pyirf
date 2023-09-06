@@ -191,3 +191,13 @@ Base Classes
    BaseNearestNeighborSearcher
 
 
+Full API
+--------
+
+.. automodapi:: pyirf.interpolation
+   :no-heading:
+   :no-main-docstr:
+   :inherited-members:
+   :no-inheritance-diagram:
+
+
