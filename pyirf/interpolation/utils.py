@@ -22,9 +22,9 @@ def plumb_point_dist(line, target):
 
     Parameters
     ----------
-    line: np.ndarray, shape=(2, M)
-        Array of two points spanning a line segment. Might be in two or three dims M.
-    target: np.ndarray, shape=(M)
+    line: np.ndarray, shape=(2, n_dims)
+        Array of two points spanning a line segment. Might be in two or three dims n_dims.
+    target: np.ndarray, shape=(n_dims)
         Target point, of which the minimal distance to line segement is needed
 
     Returns
@@ -75,9 +75,9 @@ def point_facet_angle(line, target):
 
     Parameters
     ----------
-    line: np.ndarray, shape=(2, M)
-        Array of two points spanning a line segment. Might be in two or three dims M.
-    target: np.ndarray, shape=(M)
+    line: np.ndarray, shape=(2, n_dims)
+        Array of two points spanning a line segment. Might be in two or three dims n_dims.
+    target: np.ndarray, shape=(n_dims)
         Target point, of which the angle is needed.
 
     Returns

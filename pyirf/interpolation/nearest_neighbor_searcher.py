@@ -71,12 +71,12 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
 
         Parameters
         ----------
-        target_point: numpy.ndarray
+        target_point: numpy.ndarray, shape=(1, n_dims)
             Value for which the nearest neighbor should be found (target point)
 
         Returns
         -------
-        content_new: numpy.ndarray, shape=(1,...,M,...)
+        content_new: numpy.ndarray, shape=(1, ...)
             values at nearest neighbor
 
         Note
@@ -100,7 +100,7 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
 class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
     """
     Dummy NearestNeighbor approach usable instead of
-    actual Interpolation/Extrapolation.
+    actual interpolation/extrapolation.
     Compatible with discretized PDF IRF component API.
     """
 
@@ -139,7 +139,7 @@ DiscretePDFExtrapolator.register(DiscretePDFNearestNeighborSearcher)
 class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
     """
     Dummy NearestNeighbor approach usable instead of
-    actual Interpolation/Extrapolation
+    actual interpolation/extrapolation
     Compatible with parametrized IRF component API.
     """
 

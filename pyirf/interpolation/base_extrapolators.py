@@ -26,7 +26,7 @@ class BaseExtrapolator(metaclass=ABCMeta):
         self.grid_points = grid_points
         if self.grid_points.ndim == 1:
             self.grid_points = self.grid_points.reshape(*self.grid_points.shape, 1)
-        self.n_points = self.grid_points.shape[0]
+        self.N = self.grid_points.shape[0]
         self.grid_dim = self.grid_points.shape[1]
 
     @abstractmethod
@@ -60,7 +60,7 @@ class ParametrizedExtrapolator(BaseExtrapolator):
 
         Parameters
         ----------
-        grid_points, np.ndarray, shape=(n_points, n_dims)
+        grid_points: np.ndarray, shape=(n_points, n_dims)
             Grid points at which templates exist
         params: np.ndarray, shape=(n_points, ..., n_params)
             Corresponding parameter values at each point in grid_points.
@@ -84,21 +84,23 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
     Derived from pyirf.interpolation.BaseExtrapolator
     """
 
-    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
+    def __init__(
+        self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA
+    ):
         """DiscretePDFExtrapolator
 
         Parameters
         ----------
-        grid_points : np.ndarray, shape=(n_points, n_dims)
+        grid_points: np.ndarray, shape=(n_points, n_dims)
             Grid points at which templates exist
-        bin_edges : np.ndarray, shape=(n_bins+1)
+        bin_edges: np.ndarray, shape=(n_bins+1)
             Edges of the data binning
-        binned_pdf : np.ndarray, shape=(n_points, ..., n_bins)
+        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, last dimension has to correspond to number of bins for
             the quantity that should be extrapolated (e.g. the Migra axis for EDisp)
-        normalization : PDFNormalization
+        normalization: PDFNormalization
             How the PDF is normalized
 
         Note

@@ -9,8 +9,8 @@ from scipy.spatial import Delaunay
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
 from .base_interpolators import (
     DiscretePDFInterpolator,
-    PDFNormalization,
     ParametrizedInterpolator,
+    PDFNormalization,
 )
 from .griddata_interpolator import GridDataInterpolator
 from .quantile_interpolator import QuantileInterpolator
@@ -37,7 +37,7 @@ class BaseComponentEstimator:
     def __init__(self, grid_points):
         """
         Base __init__, doing sanity checks on the grid, building a
-        triangulated version of the grid and intantiating inter- and extrapolator.
+        triangulated version of the grid and instantiating inter- and extrapolator.
 
         Parameters
         ----------
@@ -46,7 +46,7 @@ class BaseComponentEstimator:
         Raises
         ------
         TypeError:
-            When grid_points is not a np.ndarray
+            When grid_points is not a np.ndarray of float compatible values
         TypeError:
             When grid_point has dtype object
         ValueError:
@@ -370,6 +370,8 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
 
 
 class EffectiveAreaEstimator(ParametrizedComponentEstimator):
+    """Estimator class for effective area tables (AEFF_2D)."""
+
     @u.quantity_input(effective_area=u.m**2, min_effective_area=u.m**2)
     def __init__(
         self,
@@ -382,8 +384,6 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
         min_effective_area=1 * u.m**2,
     ):
         """
-        Estimator class for effective areas.
-
         Takes a grid of effective areas for a bunch of different parameters
         and inter-/extrapolates (log) effective areas to given value of
         those parameters.
@@ -471,6 +471,8 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
 
 
 class RadMaxEstimator(ParametrizedComponentEstimator):
+    """Estimator class for rad-max tables (RAD_MAX, RAD_MAX_2D)."""
+
     def __init__(
         self,
         grid_points,
@@ -481,8 +483,6 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
         extrapolator_kwargs=None,
     ):
         """
-        Estimator class for RAD_MAX tables.
-
         Takes a grid of rad max values for a bunch of different parameters
         and inter-/extrapolates rad max values to given value of those parameters.
 
@@ -545,6 +545,8 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
 
 
 class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
+    """Estimator class for energy dispersions (EDISP_2D)."""
+
     def __init__(
         self,
         grid_points,
@@ -557,8 +559,6 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
         axis=-2,
     ):
         """
-        Estimator class for energy dispersions.
-
         Takes a grid of energy dispersions for a bunch of different parameters and
         inter-/extrapolates energy dispersions to given value of those parameters.
 
@@ -631,6 +631,8 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
 
 
 class PSFTableEstimator(DiscretePDFComponentEstimator):
+    """Estimator class for point spread function tables (PSF_TABLE)."""
+
     @u.quantity_input(psf=u.sr**-1, source_offset_bins=u.deg)
     def __init__(
         self,
@@ -644,8 +646,6 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         axis=-1,
     ):
         """
-        Estimator class for point spread functions.
-
         Takes a grid of psfs or a bunch of different parameters and
         inter-/extrapolates psfs to given value of those parameters.
 
@@ -712,7 +712,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
     def __call__(self, target_point):
         """
-        Estimating energy dispersions at target_point, inter-/extrapolates as needed and
+        Estimating psf tables at target_point, inter-/extrapolates as needed and
         specified in __init__.
 
         Parameters
@@ -731,4 +731,6 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         interpolated_psf_normed = super().__call__(target_point)
 
         # Undo normalisation to get a proper PSF and return
-        return u.Quantity(np.swapaxes(interpolated_psf_normed, -1, self.axis), u.sr**-1, copy=False)
+        return u.Quantity(
+            np.swapaxes(interpolated_psf_normed, -1, self.axis), u.sr**-1, copy=False
+        )

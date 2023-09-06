@@ -52,7 +52,7 @@ and are meant to be inter- or extrapolated.
 For parametrized components (Effective Areas and Rad-Max tables) these classes are:
 
 =============================================    ==================  ============    ==================================================================================================
-**Name**                                         **Component Type**  **Grid-Dim**    **Note**
+**Name**                                         **Type**            **Grid-Dim**    **Note**
 =============================================    ==================  ============    ==================================================================================================
 :any:`GridDataInterpolator`                      Interpolation       Arbitrary       See also :any:`scipy.interpolate.griddata`.
 :any:`ParametrizedNearestSimplexExtrapolator`    Extrapolation       1D or 2D        Linear (1D) or baryzentric (2D) extension outside the grid's convex hull from the nearest simplex.
@@ -62,7 +62,7 @@ For parametrized components (Effective Areas and Rad-Max tables) these classes a
 For components represented by discretized PDFs (PSF and EDISP tables) these classes are:
 
 =============================================    ==================  ============    ==============================================================================
-**Name**                                         **Component Type**  **Grid-Dim**    **Note**
+**Name**                                         **Type**            **Grid-Dim**    **Note**
 =============================================    ==================  ============    ==============================================================================
 :any:`QuantileInterpolator`                      Interpolation       Arbitrary       Adaption of [Hol+13]_ and [Rea99]_ to discretized PDFs.
 :any:`MomentMorphInterpolator`                   Interpolation       1D or 2D        Adaption of [Baa+15]_ to discretized PDFs.
@@ -92,8 +92,8 @@ units attached that need handling:
 .. code-block:: python
 
    import astropy.units as u
-
-   from pyirf.interpolation import DiscretePDFComponentEstimator, MomentMorphInterpolator
+   from pyirf.interpolation import (DiscretePDFComponentEstimator,
+                                    MomentMorphInterpolator)
 
    class GaussianEstimatior(DiscretePDFComponentEstimator):
       @u.quantity_input(gaussians=u.m)
@@ -141,9 +141,8 @@ case it would be needed regardless, assume the desired extrapolation method to b
 .. code-block:: python
 
    import numpy as np
-
-   from scipy.stats import norm
-   from pyirf.interpolation import MomentMorphNearestSimplexExtrapolator 
+   from pyirf.interpolation import MomentMorphNearestSimplexExtrapolator
+   from scipy.stats import norm 
 
    bins = np.linspace(-10, 10, 51)
    grid = np.array([[1], [2], [3]])

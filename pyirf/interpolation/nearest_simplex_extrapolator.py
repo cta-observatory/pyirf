@@ -7,8 +7,11 @@ import warnings
 import numpy as np
 from scipy.spatial import Delaunay
 
-
-from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator, PDFNormalization
+from .base_extrapolators import (
+    DiscretePDFExtrapolator,
+    ParametrizedExtrapolator,
+    PDFNormalization,
+)
 from .moment_morph_interpolator import (
     barycentric_2D_interpolation_coefficients,
     linesegment_1D_interpolation_coefficients,
@@ -23,17 +26,19 @@ __all__ = [
 
 
 class ParametrizedNearestSimplexExtrapolator(ParametrizedExtrapolator):
+    """Extrapolator class extending linear or baryzentric interpolation outside a grid's convex hull."""
+
     def __init__(self, grid_points, params):
         """
-        Extrapolator class using linear extrapolation in one ore two
+        Extrapolator class using linear or baryzentric extrapolation in one ore two
         grid-dimensions.
 
         Parameters
         ----------
-        grid_points: np.ndarray, shape=(N, ...)
+        grid_points: np.ndarray, shape=(n_points, n_dims)
             Grid points at which templates exist. May be one ot two dimensional.
             Have to be sorted in accending order for 1D.
-        params: np.ndarray, shape=(N, ...)
+        params: np.ndarray, shape=(n_points, ...)
             Array of corresponding parameter values at each point in grid_points.
             First dimesion has to correspond to number of grid_points
 
@@ -95,7 +100,7 @@ class ParametrizedNearestSimplexExtrapolator(ParametrizedExtrapolator):
 
         Parameters
         ----------
-        target_point: numpy.ndarray
+        target_point: numpy.ndarray, shape=(1, n_dims)
             Value for which the extrapolation is performed (target point)
 
         Returns
@@ -123,7 +128,11 @@ class ParametrizedNearestSimplexExtrapolator(ParametrizedExtrapolator):
 
 
 class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
-    def __init__(self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA):
+    """Extrapolator class extending moment morphing interpolation outside a grid's convex hull."""
+
+    def __init__(
+        self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA
+    ):
         """
         Extrapolator class extending/reusing parts of Moment Morphing
         by allowing for negative extrapolation coefficients computed
@@ -132,12 +141,12 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
 
         Parameters
         ----------
-        grid_points: np.ndarray, shape=(N, ...)
+        grid_points: np.ndarray, shape=(n_points, n_dims)
             Grid points at which templates exist. May be one ot two dimensional.
             Have to be sorted in accending order for 1D.
-        bin_edges: np.ndarray, shape=(M+1)
+        bin_edges: np.ndarray, shape=(n_bins+1)
             Edges of the data binning
-        binned_pdf: np.ndarray, shape=(N, ..., M)
+        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points. Extrapolation dimension, meaning the
@@ -201,12 +210,12 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
 
         Parameters
         ----------
-        target_point: numpy.ndarray
+        target_point: numpy.ndarray, shape=(1, n_dims)
             Value for which the extrapolation is performed (target point)
 
         Returns
         -------
-        values: numpy.ndarray, shape=(1, ..., M)
+        values: numpy.ndarray, shape=(1, ..., n_bins)
             Extrapolated discretized PDFs
 
         """
