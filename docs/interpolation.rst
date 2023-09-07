@@ -14,8 +14,8 @@ check the data for consistency.
 
 Most methods support an arbitrary number of interpolation dimensions although it 
 is strongly advised to limit those for reasonable results.
-The herein provided functionalities can e.g. be used to interpolate IRFs for zenith 
-angles of 20° and 40° to 30°.
+The herein provided functionalities can e.g. be used to interpolate the IRF
+for a zenith angle of 30° from available IRFs at 20° and 40°.
 
 
 IRF Component Estimator Classes
@@ -29,14 +29,6 @@ IRF Component Estimator Classes
    EnergyDispersionEstimator    Estimate 2D EDISPs.
    PSFTableEstimator            Estimate PSF tables.
 
-Each of them is either tailored to parametrized or discrete PDF components though 
-inheritance from the respective base class 
-
-.. autosummary::
-   :nosignatures:
-
-   ParametrizedComponentEstimator   Parametrized components 
-   DiscretePDFComponentEstimator    Discrete PDF components
  
 
 Inter- and Extrapolation Classes
@@ -79,11 +71,75 @@ For components represented by discretized PDFs (PSF and EDISP tables) these clas
     Nucl. Instrum. Methods Phys. Res. A 771, 39-48. https://doi.org/10.1016/j.nima.2014.10.033
 
 
-Usage Example
--------------
+Using Estimator Classes
+-----------------------
+
+Usage of the estimator classes is simple. 
+As an example, consider CTA's Prod5 IRFs [CTA+21]_, they can be downloaded manually or by executing 
+``download_irfs.py`` in ``pyirf's`` root directory, which downloads them to ``.../pyirf/irfs/``.
+The estimator classes can simply be used by first creating an instance of the respective class with all 
+relevant information and then using the object's ``__call__`` interface the obtain results for a specific 
+target point.
+As the energy dispersion represents one of the discretized PDF IRF components, one can use the 
+``MomentMorphInterpolator`` for interpolation and the ``DiscretePDFNearestNeighborSearcher`` 
+for extrapolation.
+
+.. code-block:: python
+
+   import numpy as np
+
+   from gammapy.irf import load_irf_dict_from_file
+   from glob import glob
+   from pyirf.interpolation import (
+      EnergyDispersionEstimator, 
+      MomentMorphInterpolator,
+      DiscretePDFNearestNeighborSearcher
+   )
+
+   # Load IRF data, replace path with actual path
+   PROD5_IRF_PATH = "pyirf/irfs/*.fits.gz"
+
+   irfs = [load_irf_dict_from_file(path) for path in sorted(glob(PROD5_IRF_PATH))]
+
+   edisps = np.array([irf["edisp"].quantity for irf in irfs])
+   bin_edges = irfs[0]["edisp"].axes["migra"].edges
+   # IRFs are for zenith distances of 20, 40 and 60 deg 
+   zen_pnt = np.array([[20], [40], [60]])
+
+   # Create estimator instance
+   edisp_estimator = EnergyDispersionEstimator(
+        grid_points=zen_pnt,
+        migra_bins=bin_edges,
+        energy_dispersion=edisps,
+        interpolator_cls=MomentMorphInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=DiscretePDFNearestNeighborSearcher,
+        extrapolator_kwargs=None,
+    )
+
+    # Estimate energy dispersions
+    interpolated_edisp = edisp_estimator(np.array([[30]]))
+    extrapolated_edisp = edisp_estimator(np.array([[10]]))
+
+
+.. [CTA+21] Cherenkov Telescope Array Observatory & Cherenkov Telescope Array Consortium. (2021).
+   CTAO Instrument Response Functions - prod5 version v0.1 (v0.1) [Data set]. Zenodo. 
+   https://doi.org/10.5281/zenodo.5499840
+
+
+Creating new Estimator Classes
+------------------------------
 
 To create a estimator class for an IRF component not yet implemented, one can simply 
 inherit from respective base class.
+There are two, tailored to either parametrized or discrete PDF components.
+
+.. autosummary::
+   :nosignatures:
+
+   ParametrizedComponentEstimator   Parametrized components 
+   DiscretePDFComponentEstimator    Discrete PDF components
+
 Consider an example, where one is interested in an estimator for simple Gaussians.
 As this is already the scope of the ``DiscretePDFComponentEstimator`` base class and 
 for the sake of this demonstration, let the Gaussians come with some 
@@ -182,6 +238,8 @@ Base Classes
    :nosignatures:
 
    BaseComponentEstimator
+   ParametrizedComponentEstimator
+   DiscretePDFComponentEstimator
    BaseInterpolator
    ParametrizedInterpolator
    DiscretePDFInterpolator
@@ -199,5 +257,3 @@ Full API
    :no-main-docstr:
    :inherited-members:
    :no-inheritance-diagram:
-
-
