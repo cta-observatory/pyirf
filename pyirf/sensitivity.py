@@ -13,7 +13,11 @@ from .utils import check_histograms, cone_solid_angle
 from .binning import create_histogram_table, bin_center
 
 
-__all__ = ["relative_sensitivity", "calculate_sensitivity"]
+__all__ = [
+    "relative_sensitivity",
+    "calculate_sensitivity",
+    "estimate_background",
+]
 
 
 log = logging.getLogger(__name__)
