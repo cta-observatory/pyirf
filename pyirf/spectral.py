@@ -116,10 +116,11 @@ class PowerLaw:
         e_max = simulated_event_info.energy_max
         index = simulated_event_info.spectral_index
         n_showers = simulated_event_info.n_showers
-        viewcone = simulated_event_info.viewcone
+        viewcone_min = simulated_event_info.viewcone_min
+        viewcone_max = simulated_event_info.viewcone_max
 
-        if viewcone.value > 0:
-            solid_angle = 2 * np.pi * (1 - np.cos(viewcone)) * u.sr
+        if (viewcone_max - viewcone_min).value > 0:
+            solid_angle = cone_solid_angle(viewcone_max) - cone_solid_angle(viewcone_min)
             unit = DIFFUSE_FLUX_UNIT
         else:
             solid_angle = 1
