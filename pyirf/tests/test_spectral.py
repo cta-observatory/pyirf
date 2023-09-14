@@ -73,3 +73,42 @@ def test_powerlaw():
     power_law = PowerLaw(1e-10 * unit, -2.65)
     assert power_law(1 * u.TeV).unit == unit
     assert power_law(1 * u.GeV).unit == unit
+
+
+def test_powerlaw_from_simulations():
+    from pyirf.simulations import SimulatedEventsInfo
+    from pyirf.spectral import PowerLaw
+
+    # calculate sensitivity between 1 and 2 degrees offset from fov center
+    obstime = 50 * u.hour
+
+    simulated_events = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=10 * u.GeV,
+        energy_max=100 * u.TeV,
+        max_impact=1 * u.km,
+        spectral_index=-2,
+        viewcone_min=0 * u.deg,
+        viewcone_max=0 * u.deg,
+    )
+
+    powerlaw = PowerLaw.from_simulation(simulated_events, obstime=obstime)
+    assert powerlaw.index == -2
+    # regression test, maybe better come up with an easy to analytically verify parameter combination?
+    assert u.isclose(powerlaw.normalization, 1.76856511e-08 / (u.TeV * u.m**2 * u.s))
+
+
+    simulated_events = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=10 * u.GeV,
+        energy_max=100 * u.TeV,
+        max_impact=1 * u.km,
+        spectral_index=-2,
+        viewcone_min=5 * u.deg,
+        viewcone_max=10 * u.deg,
+    )
+
+    powerlaw = PowerLaw.from_simulation(simulated_events, obstime=obstime)
+    assert powerlaw.index == -2
+    # regression test, maybe better come up with an easy to analytically verify parameter combination?
+    assert u.isclose(powerlaw.normalization, 2.471917427911683e-07 / (u.TeV * u.m**2 * u.s * u.sr))

@@ -1,0 +1,2 @@
+Fix ``PowerLaw.from_simulation`` for the new format of ``SimulatedEventsInformation``,
+it was broken since splitting the single ``viewcone`` into ``viewcone_min`` and ``viewcone_max``.
