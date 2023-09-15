@@ -1,3 +1,15 @@
+pyirf v0.10.1 (2023-09-15)
+==========================
+
+
+
+Bug Fixes
+---------
+
+- Fix ``PowerLaw.from_simulation`` for the new format of ``SimulatedEventsInformation``,
+  it was broken since splitting the single ``viewcone`` into ``viewcone_min`` and ``viewcone_max``. [`#258 <https://github.com/cta-observatory/pyirf/pull/258>`__]
+
+
 Pyirf v0.10.0 (2023-08-23)
 ==========================
 
