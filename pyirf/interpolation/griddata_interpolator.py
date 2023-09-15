@@ -9,14 +9,16 @@ __all__ = ["GridDataInterpolator"]
 
 
 class GridDataInterpolator(ParametrizedInterpolator):
+    """ "Wrapper arounf scipy.interpolate.griddata."""
+
     def __init__(self, grid_points, params, **griddata_kwargs):
         """Parametrized Interpolator using scipy.interpolate.griddata
 
         Parameters
         ----------
-        grid_points: np.ndarray, shape=(N, O)
+        grid_points: np.ndarray, shape=(n_points, n_dims)
             Grid points at which interpolation templates exist
-        params: np.ndarray, shape=(N, ...)
+        params: np.ndarray, shape=(n_points, ..., n_params)
             Structured array of corresponding parameter values at each
             point in grid_points.
             First dimesion has to correspond to number of grid_points
@@ -48,12 +50,13 @@ class GridDataInterpolator(ParametrizedInterpolator):
 
         Parameters
         ----------
-        target_point: np.ndarray, shape=(1, O)
+        target_point: np.ndarray, shape=(1, n_dims)
             Target point for interpolation
 
         Returns
         -------
-        interpolant: np.ndarray
+        interpolant: np.ndarray, shape=(1, ..., n_params)
+            Interpolated parameter values
 
         References
         ----------

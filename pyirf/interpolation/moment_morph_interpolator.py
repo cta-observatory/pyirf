@@ -16,18 +16,18 @@ def _estimate_mean_std(bin_edges, binned_pdf, normalization):
 
     Parameters
     ----------
-    bin_edges: np.ndarray, shape=(M+1)
+    bin_edges: np.ndarray, shape=(n_bins+1)
         Array of common bin-edges for binned_pdf
-    binned_pdf: np.ndarray, shape=(N, ..., M)
+    binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
         PDF values from which to compute mean and std
     normalization : PDFNormalization
         How the PDF is normalized
 
     Returns
     -------
-    mean: np.ndarray, shape=(N, ...)
+    mean: np.ndarray, shape=(n_points, ...)
         Estimated mean for each input template
-    std: np.ndarray, shape=(N, ...)
+    std: np.ndarray, shape=(n_points, ...)
         Estimated standard deviation for each input template. Set to width/2 if only one bin in
         the input template is =/= 0
     """
@@ -51,7 +51,7 @@ def _estimate_mean_std(bin_edges, binned_pdf, normalization):
     if np.any(mask):
         width = np.diff(bin_edges)
         # std of a uniform distribution inside the bin
-        uniform_std = np.broadcast_to(np.sqrt(1/12) * width, binned_pdf[mask].shape)
+        uniform_std = np.broadcast_to(np.sqrt(1 / 12) * width, binned_pdf[mask].shape)
         std[mask] = uniform_std[binned_pdf[mask, :] != 0]
 
     return mean, std
@@ -63,17 +63,17 @@ def _lookup(bin_edges, binned_pdf, x):
 
     Parameters
     ----------
-    bin_edges: np.ndarray, shape=(M+1)
+    bin_edges: np.ndarray, shape=(n_bins+1)
         Array of common bin-edges for binned_pdf
-    binned_pdf: np.ndarray, shape=(N, ..., M)
+    binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
         Array of bin-entries, actual
-    x: numpy.ndarray, shape=(N, ..., M)
-        Array of M points for each input template, where the histogram-value (bin-height) should be found
+    x: numpy.ndarray, shape=(n_points, ..., n_bins)
+        Array of n_bins points for each input template, where the histogram-value (bin-height) should be found
 
     Returns
     -------
-    y: numpy.ndarray, shape=(N, ..., M)
-        Array of the bin-heights at the M points x, set to 0 at each point outside the histogram
+    y: numpy.ndarray, shape=(n_points, ..., n_bins)
+        Array of the bin-heights at the n_bins points x, set to 0 at each point outside the histogram
 
     """
     # Find the bin where each point x is located in
@@ -186,18 +186,18 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients, normalization):
 
     Parameters
     ----------
-    bin_edges: np.ndarray, shape=(M+1)
+    bin_edges: np.ndarray, shape=(n_bins+1)
         Array of common bin-edges for binned_pdf
-    binned_pdf: np.ndarray, shape=(N, ..., M)
+    binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
         Array of bin-entries, actual
-    coefficients: np.ndarray, shape=(N)
+    coefficients: np.ndarray, shape=(n_points)
         Estimation coefficients for each entry in binned_pdf
     normalization : PDFNormalization
         How the PDF is normalized
 
     Returns
     -------
-    f_new: numpy.ndarray, shape=(1, M)
+    f_new: numpy.ndarray, shape=(1, n_bins)
         Interpolated histogram
 
     References
@@ -216,7 +216,9 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients, normalization):
 
     # Estimate mean and std for each input template histogram. First adaption needed to extend
     # the moment morph procedure to histograms
-    mus, sigs = _estimate_mean_std(bin_edges=bin_edges, binned_pdf=binned_pdf, normalization=normalization)
+    mus, sigs = _estimate_mean_std(
+        bin_edges=bin_edges, binned_pdf=binned_pdf, normalization=normalization
+    )
     coefficients = coefficients.reshape(
         binned_pdf.shape[0], *np.ones(mus.ndim - 1, "int")
     )
@@ -259,6 +261,8 @@ def moment_morph_estimation(bin_edges, binned_pdf, coefficients, normalization):
 
 
 class MomentMorphInterpolator(DiscretePDFInterpolator):
+    """Interpolator class providing Moment Morphing to interpolate discretized PDFs."""
+
     def __init__(
         self, grid_points, bin_edges, binned_pdf, normalization=PDFNormalization.AREA
     ):
@@ -267,11 +271,11 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
 
         Parameters
         ----------
-        grid_points: np.ndarray, shape=(N, ...)
+        grid_points: np.ndarray, shape=(n_points, n_dims)
             Grid points at which interpolation templates exist. May be one ot two dimensional.
-        bin_edges: np.ndarray, shape=(M+1)
+        bin_edges: np.ndarray, shape=(n_bins+1)
             Edges of the data binning
-        binned_pdf: np.ndarray, shape=(N, ..., M)
+        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points. Interpolation dimension, meaning the
@@ -342,12 +346,12 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
 
         Parameters
         ----------
-        target_point: numpy.ndarray
+        target_point: numpy.ndarray, shape=(1, n_dims)
             Value for which the interpolation is performed (target point)
 
         Returns
         -------
-        f_new: numpy.ndarray, shape=(1,...,M,...)
+        f_new: numpy.ndarray, shape=(1,...,n_bins)
             Interpolated and binned pdf
 
         References
