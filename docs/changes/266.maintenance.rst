@@ -1,0 +1,1 @@
+Clarified some documentation.
