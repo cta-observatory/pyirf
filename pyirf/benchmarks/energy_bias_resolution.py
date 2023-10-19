@@ -131,7 +131,8 @@ def energy_bias_resolution_from_energy_dispersion(
         Bin edges for the relative energy migration (``reco_energy / true_energy``)
     """
 
-    cdf = np.cumsum(energy_dispersion, axis=1)
+    bin_width = np.diff(migration_bins)
+    cdf = np.cumsum(energy_dispersion * bin_width[np.newaxis, :, np.newaxis], axis=1)
 
     n_energy_bins, _, n_fov_bins = energy_dispersion.shape
 

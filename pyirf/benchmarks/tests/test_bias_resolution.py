@@ -105,6 +105,8 @@ def test_energy_bias_resolution():
         cdf[energy_bin, :, fov_bin] = norm.cdf(reco_energy, mu, sigma)
 
     edisp = cdf[:, 1:, :] - cdf[:, :-1, :]
+    bin_width = np.diff(migra_bins)
+    edisp /= bin_width[np.newaxis, :, np.newaxis]
 
     bias, resolution = energy_bias_resolution_from_energy_dispersion(
         edisp,
