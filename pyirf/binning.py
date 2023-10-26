@@ -155,7 +155,8 @@ def calculate_bin_indices(data, bins):
         and `OVERFLOW_INDEX` respectively.
 
     valid: np.ndarray[bool]
-        Boolean mask indicated if a given value fell into the over- or underflow bins.
+        Boolean mask indicating if a given value belongs into one of the defined bins.
+        False indicates that an entry fell into the over- or underflow bins. 
     """
 
     if hasattr(data, "unit"):
