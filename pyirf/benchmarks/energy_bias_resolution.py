@@ -135,11 +135,13 @@ def energy_bias_resolution_from_energy_dispersion(
 
     n_energy_bins, _, n_fov_bins = energy_dispersion.shape
 
-    bias = np.zeros((n_energy_bins, n_fov_bins))
-    resolution = np.zeros((n_energy_bins, n_fov_bins))
+    bias = np.full((n_energy_bins, n_fov_bins), np.nan)
+    resolution = np.full((n_energy_bins, n_fov_bins), np.nan)
 
     for energy_bin in range(n_energy_bins):
         for fov_bin in range(n_fov_bins):
+            if np.count_nonzero(cdf[energy_bin, :, fov_bin]) == 0:
+                continue
 
             low, median, high = np.interp(
                 [NORM_LOWER_SIGMA, MEDIAN, NORM_UPPER_SIGMA],
