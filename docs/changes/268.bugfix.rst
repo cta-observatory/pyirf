@@ -1,0 +1,4 @@
+Fix ``pyirf.benchmarks.energy_bias_resolution_from_energy_dispersion``.
+This function was not adapted to the now correct normalization of the
+energy dispersion matrix, resulting in wrong results on the now correct
+matrices.
