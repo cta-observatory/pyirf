@@ -71,7 +71,6 @@ def test_energy_bias_resolution():
     assert u.isclose(resolution[1], TRUE_RES_2, rtol=0.05)
 
 
-
 def test_energy_bias_resolution():
     from pyirf.benchmarks import energy_bias_resolution_from_energy_dispersion
     from pyirf.binning import bin_center
@@ -115,3 +114,16 @@ def test_energy_bias_resolution():
 
     assert np.allclose(bias, true_bias, atol=0.01)
     assert np.allclose(resolution, true_resolution, atol=0.01)
+
+    with_empty = np.zeros((n_energy_bins + 1, n_migra_bins, n_fov_bins))
+    with_empty[1:, :, :] = edisp
+
+    bias, resolution = energy_bias_resolution_from_energy_dispersion(
+        with_empty,
+        migra_bins,
+    )
+
+    assert np.all(np.isnan(bias[0]))
+    assert np.all(np.isnan(resolution[0]))
+    assert np.allclose(bias[1:], true_bias, atol=0.01)
+    assert np.allclose(resolution[1:], true_resolution, atol=0.01)
