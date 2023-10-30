@@ -117,6 +117,13 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
         A function taking two arguments, comparing element-wise and
         returning an array of booleans.
         Must support vectorized application.
+
+
+    Returns
+    -------
+    result: np.ndarray[bool]
+        A mask for each entry in ``values`` indicating if the event
+        passes the bin specific cut given in cut table.
     """
     if not isinstance(cut_table, QTable):
         raise ValueError('cut_table needs to be an astropy.table.QTable')
