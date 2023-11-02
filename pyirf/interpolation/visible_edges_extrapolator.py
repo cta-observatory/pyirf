@@ -14,9 +14,9 @@ __all__ = ["ParametrizedVisibleEdgesExtrapolator"]
 def find_visible_facets(grid_points, target_point):
     """
     Utility function to find all facets of a convex hull that are visible from
-    a point outside. To do so, this function constructs a trinangulation containing
-    the target point and returns all facets that span a trinangulation simplex with
-    the it.
+    a point outside. To do so, this function constructs a triangulation containing
+    the target point and returns all facets that span a triangulation simplex with
+    it.
 
     Parameters
     ----------
@@ -92,6 +92,14 @@ def compute_extrapolation_weights(visible_facet_points, target_point, m):
 
 
 class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolator):
+    """
+    Extrapolator class extending the ParametrizedNearestSimplexExtrapolator.
+
+    While the ParametrizedNearestSimplexExtrapolator does not result in a smooth
+    extrapolation outside of the grid due to using only the nearest available
+    simplex, this extrapolator blends over all visible edges.
+    """
+
     def __init__(self, grid_points, params, m=1):
         """
         Extrapolator class blending extrapolations from all visible simplices
