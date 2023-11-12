@@ -18,7 +18,5 @@ class WrongColumnUnit(IRFException):
 
     def __init__(self, column, unit, expected):
         super().__init__(
-            f'Unit {unit} of column "{column}"'
-            f' has incompatible unit "{unit}", expected {expected}'
-            f" required column {column}"
+            f'Column "{column}" has incompatible unit "{unit}", expected "{expected}".'
         )

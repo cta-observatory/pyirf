@@ -1,7 +1,9 @@
-import numpy as np
 import astropy.units as u
-from astropy.table import QTable
+import numpy as np
 import pytest
+from astropy.table import QTable, Table
+
+from pyirf.exceptions import MissingColumns, WrongColumnUnit
 
 
 def test_is_scalar():
@@ -31,21 +33,105 @@ def test_cone_solid_angle():
 
 
 def test_check_table():
-    from pyirf.exceptions import MissingColumns, WrongColumnUnit
     from pyirf.utils import check_table
 
-    t = QTable({'bar': [0, 1, 2] * u.TeV})
+    # works with Table as well as QTable
+    check_table(Table({"foo": [1]}), required_columns=["foo"])
+    check_table(Table({"foo": [1] * u.m}), required_units={"foo": u.m})
+    check_table(QTable({"foo": [1] * u.m}), required_units={"foo": u.m})
 
-    with pytest.raises(MissingColumns):
-        check_table(t, required_columns=['foo'])
+    t = Table({"bar": [0, 1, 2] * u.TeV})
 
-    t = QTable({'bar': [0, 1, 2] * u.TeV})
-    with pytest.raises(WrongColumnUnit):
-        check_table(t, required_units={'bar': u.m})
+    with pytest.raises(
+        MissingColumns,
+        match="Table is missing required columns {'foo'}",
+    ):
+        check_table(t, required_columns=["foo"])
 
-    t = QTable({'bar': [0, 1, 2] * u.m})
-    with pytest.raises(MissingColumns):
-        check_table(t, required_units={'foo': u.m})
+    t = Table({"bar": [0, 1, 2] * u.TeV})
+    with pytest.raises(
+        WrongColumnUnit,
+        match='Column "bar" has incompatible unit "TeV", expected "m".',
+    ):
+        check_table(t, required_units={"bar": u.m})
+
+    t = Table({"bar": [0, 1, 2] * u.m})
+    with pytest.raises(
+        MissingColumns,
+        match="Table is missing required columns foo",
+    ):
+        check_table(t, required_units={"foo": u.m})
 
     # m is convertible
-    check_table(t, required_units={'bar': u.cm})
+    check_table(t, required_units={"bar": u.cm})
+
+    t = Table({"bar": [0, 1, 2]})
+    with pytest.raises(
+        WrongColumnUnit,
+        match='Column "bar" has incompatible unit "None", expected "cm".',
+    ):
+        check_table(t, required_units={"bar": u.cm})
+
+
+def test_calculate_theta():
+    from pyirf.utils import calculate_theta
+
+    true_az = true_alt = u.Quantity([1.0], u.deg)
+    t = QTable({"reco_alt": true_alt, "reco_az": true_az})
+
+    assert u.isclose(
+        calculate_theta(
+            events=t,
+            assumed_source_az=true_az,
+            assumed_source_alt=true_alt,
+        ),
+        0.0 * u.deg,
+    )
+
+    t = Table({"reco_alt": [1.0], "reco_az": [1.0]})
+    with pytest.raises(
+        WrongColumnUnit,
+        match='Column "reco_az" has incompatible unit "None", expected "deg".',
+    ):
+        calculate_theta(t, true_az, true_alt)
+
+
+def test_calculate_source_fov_offset():
+    from pyirf.utils import calculate_source_fov_offset
+
+    a = u.Quantity([1.0], u.deg)
+    t = QTable(
+        {
+            "pointing_az": a,
+            "pointing_alt": a,
+            "true_az": a,
+            "true_alt": a,
+        }
+    )
+
+    assert u.isclose(calculate_source_fov_offset(t), 0.0 * u.deg)
+
+
+def test_check_histograms():
+    from pyirf.binning import create_histogram_table
+    from pyirf.utils import check_histograms
+
+    events1 = QTable(
+        {
+            "reco_energy": [1, 1, 10, 100, 100, 100] * u.TeV,
+        }
+    )
+    events2 = QTable(
+        {
+            "reco_energy": [100, 100, 100] * u.TeV,
+        }
+    )
+    bins = [0.5, 5, 50, 500] * u.TeV
+
+    hist1 = create_histogram_table(events1, bins)
+    hist2 = create_histogram_table(events2, bins)
+    check_histograms(hist1, hist2)
+
+    hist3 = create_histogram_table(events1, [0, 10] * u.TeV)
+    with pytest.raises(ValueError):
+        check_histograms(hist1, hist3)

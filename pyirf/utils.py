@@ -1,9 +1,9 @@
-import numpy as np
 import astropy.units as u
+import numpy as np
 from astropy.coordinates.angle_utilities import angular_separation
+from astropy.table import QTable
 
 from .exceptions import MissingColumns, WrongColumnUnit
-
 
 __all__ = [
     "is_scalar",
@@ -50,6 +50,7 @@ def calculate_theta(events, assumed_source_az, assumed_source_alt):
         Angular separation between the assumed and reconstructed positions
         in the sky.
     """
+    check_table(events, required_units={"reco_az": u.deg, "reco_alt": u.deg})
     theta = angular_separation(
         assumed_source_az,
         assumed_source_alt,
@@ -78,6 +79,15 @@ def calculate_source_fov_offset(events, prefix="true"):
         Angular separation between the true and pointing positions
         in the sky.
     """
+    check_table(
+        events,
+        required_units={
+            f"{prefix}_az": u.deg,
+            f"{prefix}_alt": u.deg,
+            "pointing_az": u.deg,
+            "pointing_alt": u.deg,
+        },
+    )
     theta = angular_separation(
         events[f"{prefix}_az"],
         events[f"{prefix}_alt"],
@@ -133,7 +143,7 @@ def check_table(table, required_columns=None, required_units=None):
 
     Parameters
     ----------
-    table: astropy.table.QTable
+    table: astropy.table.Table
         Table to check
     required_columns: iterable[str]
         Column names that are required to be present
@@ -147,6 +157,7 @@ def check_table(table, required_columns=None, required_units=None):
         as keys in ``required_units are`` not present in the table.
     WrongColumnUnit: if any column has the wrong unit
     """
+    table = QTable(table)
     if required_columns is not None:
         missing = set(required_columns) - set(table.colnames)
         if missing:
@@ -158,5 +169,5 @@ def check_table(table, required_columns=None, required_units=None):
                 raise MissingColumns(col)
 
             unit = table[col].unit
-            if not expected.is_equivalent(unit):
+            if not unit or not expected.is_equivalent(unit):
                 raise WrongColumnUnit(col, unit, expected)
