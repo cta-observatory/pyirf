@@ -220,7 +220,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             raise TypeError("Input binned_pdf is not a numpy array.")
         elif self.n_points != binned_pdf.shape[0]:
             raise ValueError(
-                f"Shape missmatch, number of grid_points ({self.n_points}) and "
+                f"Shape mismatch, number of grid_points ({self.n_points}) and "
                 f"number of histograms in binned_pdf ({binned_pdf.shape[0]}) "
                 "not matching."
             )
@@ -228,7 +228,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             raise TypeError("Input bin_edges is not a numpy array.")
         elif binned_pdf.shape[-1] != (bin_edges.shape[0] - 1):
             raise ValueError(
-                f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
+                f"Shape mismatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
                 f"and binned_pdf ({binned_pdf.shape[-1]} bins) not matching."
             )
 

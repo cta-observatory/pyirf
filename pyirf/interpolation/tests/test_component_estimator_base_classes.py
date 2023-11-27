@@ -88,7 +88,7 @@ def test_BaseComponentEstimator_target_point_checks():
         interp(target2D_twopoints)
 
     with pytest.raises(
-        ValueError, match="Missmatch between target-point and grid dimension."
+        ValueError, match="Mismatch between target-point and grid dimension."
     ):
         interp = DummyEstimator(grid_points2D_good)
         interp(target1D_inGrid)
@@ -163,7 +163,7 @@ def test_ParametrizedComponentEstimator_checks():
 
     grid_points = np.array([1, 2, 3])
     params_good = np.array([[1], [2], [3]])
-    params_shape_missmatch = np.array([[1], [2]])
+    params_shape_mismatch = np.array([[1], [2]])
 
     with pytest.raises(
         TypeError,
@@ -184,11 +184,11 @@ def test_ParametrizedComponentEstimator_checks():
 
     with pytest.raises(
         ValueError,
-        match="Shape missmatch, number of grid_points and rows in params not matching.",
+        match="Shape mismatch, number of grid_points and rows in params not matching.",
     ):
         ParametrizedComponentEstimator(
             grid_points=grid_points,
-            params=params_shape_missmatch,
+            params=params_shape_mismatch,
             interpolator_cls=DummyInterpolator,
         )
 
@@ -276,7 +276,7 @@ def test_DiscretePDFComponentEstimator_checks():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Shape missmatch, number of grid_points (3) and "
+            "Shape mismatch, number of grid_points (3) and "
             "number of histograms in binned_pdf (2) not matching."
         ),
     ):
@@ -290,7 +290,7 @@ def test_DiscretePDFComponentEstimator_checks():
     with pytest.raises(
         ValueError,
         match=re.escape(
-            "Shape missmatch, bin_edges (10 bins) "
+            "Shape mismatch, bin_edges (10 bins) "
             "and binned_pdf (11 bins) not matching."
         ),
     ):
