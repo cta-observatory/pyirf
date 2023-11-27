@@ -576,7 +576,7 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
             or e.g. missing a fov_offset axis, the axis containing n_migration_bins
             has to be specified through axis.
         interpolator_cls:
-            pyirf interpolator class, defaults to GridDataInterpolator.
+            pyirf interpolator class, defaults to QuantileInterpolator.
         interpolator_kwargs: dict
             Dict of all kwargs that are passed to the interpolator, defaults to
             None which is the same as passing an empty dict.
@@ -662,7 +662,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
             This is assumed as default. If these axes are in different order
             the axis containing n_source_offset_bins has to be specified through axis.
         interpolator_cls:
-            pyirf interpolator class, defaults to GridDataInterpolator.
+            pyirf interpolator class, defaults to QuantileInterpolator.
         interpolator_kwargs: dict
             Dict of all kwargs that are passed to the interpolator, defaults to
             None which is the same as passing an empty dict.
