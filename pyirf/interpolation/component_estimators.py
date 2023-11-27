@@ -30,8 +30,8 @@ class BaseComponentEstimator:
     """
     Base class for all Estimators working on specific IRF components.
 
-    While usable, it is encuraged to use the actual class for the respective IRF
-    component as it ensures further checks and if nessecarry e.g. unit handling.
+    While usable, it is encouraged to use the actual class for the respective IRF
+    component as it ensures further checks and if necessary e.g. unit handling.
     """
 
     def __init__(self, grid_points):
@@ -81,7 +81,7 @@ class BaseComponentEstimator:
             self.triangulation = Delaunay(self.grid_points)
 
     def _target_in_grid(self, target_point):
-        """Check wether target_point lies within grids convex hull, uses
+        """Check whether target_point lies within grids convex hull, uses
         simple comparison for 1D and Delaunay triangulation for >1D."""
         if self.grid_dim == 1:
             return (target_point >= self.grid_points.min()) and (
@@ -128,7 +128,7 @@ class BaseComponentEstimator:
 
         if target_point.shape[1] != self.grid_dim:
             raise ValueError(
-                "Missmatch between target-point and grid dimension."
+                "Mismatch between target-point and grid dimension."
                 f" Grid has dimension {self.grid_dim}, target has dimension"
                 f" {target_point.shape[1]}."
             )
@@ -148,8 +148,8 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
     """
     Base class for all Estimators working on IRF components that represent discretized PDFs.
 
-    While usable, it is encuraged to use the actual class for the respective IRF
-    component as it ensures further checks and if nessecarry e.g. unit handling.
+    While usable, it is encouraged to use the actual class for the respective IRF
+    component as it ensures further checks and if necessary e.g. unit handling.
     """
 
     def __init__(
@@ -175,7 +175,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Discretized PDFs for all grid points and arbitrary further dimensions
             (in IRF term e.g. field-of-view offset bins). Actual interpolation dimension,
-            meaning the dimensions that contains actual histograms, has to be along
+            meaning the dimensions that contain actual histograms, have to be along
             the last axis.
         interpolator_cls:
             pyirf interpolator class, defaults to QuantileInterpolator.
@@ -195,7 +195,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         TypeError:
             When bin_edges is not a np.ndarray.
         TypeError:
-            When binned_pdf is not a np.ndarray..
+            When binned_pdf is not a np.ndarray.
         TypeError:
             When interpolator_cls is not a DiscretePDFInterpolator subclass.
         TypeError:
@@ -271,8 +271,8 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
     Base class for all Estimators working on IRF components that represent parametrized
     or scalar quantities.
 
-    While usable, it is encuraged to use the actual class for the respective IRF
-    component as it ensures further checks and if nessecarry e.g. unit handling.
+    While usable, it is encouraged to use the actual class for the respective IRF
+    component as it ensures further checks and if necessary e.g. unit handling.
     """
 
     def __init__(
@@ -294,7 +294,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             Grid points at which interpolation templates exist
         params: np.ndarray, shape=(n_points, ..., n_params)
             Corresponding parameter values at each point in grid_points.
-            First dimesion has to correspond to number of grid_points.
+            First dimension has to correspond to the number of grid_points.
         interpolator_cls:
             pyirf interpolator class, defaults to GridDataInterpolator.
         interpolator_kwargs: dict
@@ -317,7 +317,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         TypeError:
             When params is not a np.ndarray.
         ValueError:
-            When number of points grid_points and params is not matching.
+            When number of points grid_points and params do not match.
 
         Note
         ----
@@ -332,7 +332,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             raise TypeError("Input params is not a numpy array.")
         elif self.n_points != params.shape[0]:
             raise ValueError(
-                "Shape missmatch, number of grid_points and rows in params not matching."
+                "Shape mismatch, number of grid_points and rows in params not matching."
             )
 
         # Make sure that 1D input is sorted in increasing order
@@ -411,7 +411,7 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
             None which is the same as passing an empty dict.
         min_effective_area: astropy.units.Quantity[area]
             Minimum value of effective area to be considered for interpolation. Values
-            lower then this value are set to this value. Defaults to 1 m**2.
+            lower than this value are set to this value. Defaults to 1 m**2.
 
 
         Note
