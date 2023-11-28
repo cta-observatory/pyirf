@@ -79,23 +79,23 @@ def test_ParametrizedVisibleEdgesExtrapolator_invalid_m():
 
     grid = np.array([[0, 0], [20, 0], [40, 0], [10, 20], [30, 20], [10, 10]])
 
-    with pytest.raises(ValueError, match="Only positiv integers allowed for m, got a."):
+    with pytest.raises(TypeError, match="Only positive integers allowed for m, got a."):
         ParametrizedVisibleEdgesExtrapolator(grid_points=grid, params=grid[:, 0], m="a")
 
     with pytest.raises(
-        ValueError, match="Only positiv integers allowed for m, got inf."
+        ValueError, match="Only positive integers allowed for m, got inf."
     ):
         ParametrizedVisibleEdgesExtrapolator(
             grid_points=grid, params=grid[:, 0], m=np.inf
         )
 
     with pytest.raises(
-        ValueError, match="Only positiv integers allowed for m, got -1."
+        ValueError, match="Only positive integers allowed for m, got -1."
     ):
         ParametrizedVisibleEdgesExtrapolator(grid_points=grid, params=grid[:, 0], m=-1)
 
     with pytest.raises(
-        ValueError, match="Only positiv integers allowed for m, got 1.2."
+        ValueError, match="Only positive integers allowed for m, got 1.2."
     ):
         ParametrizedVisibleEdgesExtrapolator(grid_points=grid, params=grid[:, 0], m=1.2)
 
@@ -150,7 +150,7 @@ def test_ParametrizedVisibleEdgesExtrapolator_2D_fallback():
 
 
 def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_linear():
-    """Test wether results resembe the truth for a linear testcase"""
+    """Test whether results resemble the truth for a linear testcase"""
     from pyirf.interpolation.visible_edges_extrapolator import (
         ParametrizedVisibleEdgesExtrapolator,
     )
@@ -193,7 +193,7 @@ def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_linear():
 
 
 def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_smoothness():
-    """Test wether results are smooth for a non-linear testcase"""
+    """Test whether results are smooth for a non-linear testcase"""
     from pyirf.interpolation.visible_edges_extrapolator import (
         ParametrizedVisibleEdgesExtrapolator,
     )
@@ -209,7 +209,7 @@ def test_ParametrizedVisibleEdgeExtrapolator_2D_grid_smoothness():
         [
             np.array(
                 [
-                    np.dot((m.T * p + n), np.array([1, 1])) + p[0]*p[1]
+                    np.dot((m.T * p + n), np.array([1, 1])) + p[0] * p[1]
                     for m, n in zip(slope, intercept)
                 ]
             ).squeeze()

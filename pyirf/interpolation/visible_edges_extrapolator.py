@@ -97,55 +97,53 @@ class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolato
 
     While the ParametrizedNearestSimplexExtrapolator does not result in a smooth
     extrapolation outside of the grid due to using only the nearest available
-    simplex, this extrapolator blends over all visible edges.
+    simplex, this extrapolator blends over all visible edges as discussed in [1].
+    For one grid-dimension this is equal to the ParametrizedNearestSimplexExtrapolator,
+    the same holds for grids consisting of only one simplex or constellations,
+    where only one simplex is visible from a target.
+
+    Parameters
+    ----------
+    grid_points: np.ndarray, shape=(N, ...)
+        Grid points at which templates exist. May be one ot two dimensional.
+        Have to be sorted in accending order for 1D.
+    params: np.ndarray, shape=(N, ...)
+        Array of corresponding parameter values at each point in grid_points.
+        First dimesion has to correspond to number of grid_points
+    m: non-zero int >= 1
+        Degree of smoothness wanted in the extrapolation region. See [1] for
+        additional information. Defaults to 1.
+
+    Raises
+    ------
+    TypeError:
+        If m is not a number
+    ValueError:
+        If m is not a non-zero integer
+
+    Note
+    ----
+        Also calls pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.__init__.
+
+    References
+    ----------
+    .. [1] P. Alfred (1984). Triangular Extrapolation. Technical summary rept.,
+    Univ. of Wisconsin-Madison. https://apps.dtic.mil/sti/pdfs/ADA144660.pdf
+
     """
 
     def __init__(self, grid_points, params, m=1):
-        """
-        Extrapolator class blending extrapolations from all visible simplices
-        in two grid-dimensions as discussed in [1]. For one grid-dimension this
-        is equal to the ParametrizedNearestSimplexExtrapolator, the same holds
-        for grids consisting of only one simplex or constellations,
-        where only one simplex is visible from a target.
-
-        Parameters
-        ----------
-        grid_points: np.ndarray, shape=(N, ...)
-            Grid points at which templates exist. May be one ot two dimensional.
-            Have to be sorted in accending order for 1D.
-        params: np.ndarray, shape=(N, ...)
-            Array of corresponding parameter values at each point in grid_points.
-            First dimesion has to correspond to number of grid_points
-        m: non-zero int >= 1
-            Degree of smoothness wanted in the extrapolation region. See [1] for
-            additional information. Defaults to 1.
-
-        Raises
-        ------
-        ValueError:
-            If m is not a non-zero integer
-
-        Note
-        ----
-            Also calls pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.__init__.
-
-        References
-        ----------
-        .. [1] P. Alfred (1984). Triangular Extrapolation. Technical summary rept.,
-        Univ. of Wisconsin-Madison. https://apps.dtic.mil/sti/pdfs/ADA144660.pdf
-        """
-
         super().__init__(grid_points, params)
 
         # Test wether m is a number
         try:
             m > 0
         except TypeError:
-            raise ValueError(f"Only positiv integers allowed for m, got {m}.")
+            raise TypeError(f"Only positive integers allowed for m, got {m}.")
 
         # Test wether m is a finite, positive integer
         if (m <= 0) or ~np.isfinite(m) or (m != int(m)):
-            raise ValueError(f"Only positiv integers allowed for m, got {m}.")
+            raise ValueError(f"Only positive integers allowed for m, got {m}.")
 
         self.m = m
 
@@ -168,12 +166,12 @@ class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolato
 
         """
         if self.grid_dim == 1:
-            extrapolant = super().extrapolate(target_point)
+            return super().extrapolate(target_point)
         elif self.grid_dim == 2:
             visible_facet_points = find_visible_facets(self.grid_points, target_point)
 
             if visible_facet_points.shape[0] == 1:
-                extrapolant = super().extrapolate(target_point)
+                return super().extrapolate(target_point)
             else:
                 simplices_points = self.triangulation.points[
                     self.triangulation.simplices
@@ -212,4 +210,4 @@ class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolato
                     extrapolation_weigths * simplex_extrapolations, axis=0
                 )[np.newaxis, :]
 
-        return extrapolant
+                return extrapolant
