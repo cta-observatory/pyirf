@@ -12,24 +12,39 @@ def test_find_visible_facets():
     res1 = find_visible_facets(grid_points=grid, target_point=target1)
 
     # From target1 facets spanned by grid point 0 to 1 and 1 to 2 are visible
+    assert res1.shape == (2, 2, 2)
+    # Check that each visible point is present in the result
+    for p in grid[[0, 1, 2]]:
+        assert np.any((res1 == p).sum(axis=-1) == 2)
+    # Check that there are no extra points
     assert np.all((res1 == grid[0]) | (res1 == grid[1]) | (res1 == grid[2]))
 
     target2 = np.array([[20, 30]])
     res2 = find_visible_facets(grid_points=grid, target_point=target2)
 
-    # From target2 only the facet spanned by grid points 4 and 5 is visible
-    assert np.all((res2 == grid[4]) | (res2 == grid[5]))
+    # From target2 only the facet spanned by grid points 3 and 4 is visible
+    assert res2.shape == (1, 2, 2)
+    for p in grid[[3, 4]]:
+        assert np.any((res2 == p).sum(axis=-1) == 2)
+    assert np.all((res2 == grid[3]) | (res2 == grid[4]))
 
+    print(res2.shape)
     target3 = np.array([[-10, -20]])
     res3 = find_visible_facets(grid_points=grid, target_point=target3)
 
     # From target3 again facets spanned by grid point 0 to 1 and 1 to 2 are visible
+    assert res3.shape == (2, 2, 2)
+    for p in grid[[0, 1, 2]]:
+        assert np.any((res3 == p).sum(axis=-1) == 2)
     assert np.all((res3 == grid[0]) | (res3 == grid[1]) | (res3 == grid[2]))
 
     target4 = np.array([[-11, -20]])
     res4 = find_visible_facets(grid_points=grid, target_point=target4)
 
     # From target4 additional the facet spanned by points 0 and 3 becomes visible
+    assert res4.shape == (3, 2, 2)
+    for p in grid[[0, 1, 2, 3]]:
+        assert np.any((res4 == p).sum(axis=-1) == 2)
     assert np.all(
         (res4 == grid[0]) | (res4 == grid[1]) | (res4 == grid[2]) | (res4 == grid[3])
     )
