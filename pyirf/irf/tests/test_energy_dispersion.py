@@ -143,7 +143,7 @@ def test_energy_dispersion_to_migration():
     assert migration_matrix.shape[2] == dispersion_matrix.shape[2]
 
     # test that all migrations are included for central energies
-    np.allclose(migration_matrix.sum(axis=1).max(), 1, rtol=0.1)
+    assert np.isclose(migration_matrix.sum(axis=1).max(), 1, rtol=0.01)
 
     # test that migrations dont always sum to 1 (since some energies are
     # not included in the matrix)
