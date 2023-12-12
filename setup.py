@@ -16,17 +16,20 @@ extras_require = {
         "notebook",
         "tables",
         "towncrier",
+        "astropy~=5.3",  # gammapy doesn't yet support 6.0 but doesn't pin it
         gammapy,
     ],
     "tests": [
         "pytest",
         "pytest-cov",
+        "astropy~=5.3",  # gammapy doesn't yet support 6.0 but doesn't pin it
         gammapy,
         "ogadf-schema~=0.2.3",
         "uproot~=4.0",
         "awkward~=1.0",
     ],
     "gammapy": [
+        "astropy~=5.3",  # gammapy doesn't yet support 6.0 but doesn't pin it
         gammapy,
     ],
 }
@@ -43,7 +46,7 @@ setup(
     use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
     packages=find_packages(exclude=['pyirf._dev_version']),
     install_requires=[
-        "astropy>=4.0.2",
+        "astropy>=5.3",
         "matplotlib",
         "numpy>=1.18",
         "scipy",
