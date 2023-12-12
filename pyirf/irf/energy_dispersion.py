@@ -6,7 +6,8 @@ from ..binning import resample_histogram1d
 
 __all__ = [
     "energy_dispersion",
-    "energy_dispersion_to_migration"
+    "energy_migration_matrix",
+    "energy_dispersion_to_migration",
 ]
 
 
@@ -81,6 +82,56 @@ def energy_dispersion(
     energy_dispersion = _normalize_hist(energy_dispersion, migration_bins)
 
     return energy_dispersion
+
+
+@u.quantity_input(true_energy_bins=u.TeV, reco_energy_bins=u.TeV, fov_offset_bins=u.deg)
+def energy_migration_matrix(
+    events, true_energy_bins, reco_energy_bins, fov_offset_bins
+):
+    """Compute the energy migration matrix directly from the events.
+
+    Parameters
+    ----------
+    events : `~astropy.table.QTable`
+        Table of the DL2 events.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``.
+    true_energy_bins : `~astropy.units.Quantity`
+        Bin edges in true energy.
+    reco_energy_bins : `~astropy.units.Quantity`
+        Bin edges in reconstructed energy.
+
+    Returns
+    -------
+    matrix : array-like
+        Migration matrix as probabilities along the true
+        energy acis with shape
+        (n_true_energy_bins, n_reco_energy_bins, n_fov_offset_bins)
+        containing energies in TeV.
+    """
+
+    hist, _ = np.histogramdd(
+        np.column_stack(
+            [
+                events["true_energy"].to_value(u.TeV),
+                events["reco_energy"].to_value(u.TeV),
+                events["true_source_fov_offset"].to_value(u.deg),
+            ]
+        ),
+        bins=[
+            true_energy_bins.to_value(u.TeV),
+            reco_energy_bins.to_value(u.TeV),
+            fov_offset_bins.to_value(u.deg),
+        ],
+    )
+
+    with np.errstate(invalid="ignore"):
+        hist /= hist.sum(axis=1)[:, np.newaxis, :]
+        # the nans come from the fact that the sum along the reconstructed energy axis
+        # might sometimes be 0 when there are no events in that given true energy bin
+        # and fov offset bin
+        hist[np.isnan(hist)] = 0
+
+    return hist
 
 
 def energy_dispersion_to_migration(
