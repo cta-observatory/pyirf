@@ -128,7 +128,7 @@ class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolato
     References
     ----------
     .. [1] P. Alfred (1984). Triangular Extrapolation. Technical summary rept.,
-    Univ. of Wisconsin-Madison. https://apps.dtic.mil/sti/pdfs/ADA144660.pdf
+           Univ. of Wisconsin-Madison. https://apps.dtic.mil/sti/pdfs/ADA144660.pdf
 
     """
 
