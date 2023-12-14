@@ -46,9 +46,8 @@ setup(
     use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
     packages=find_packages(exclude=['pyirf._dev_version']),
     install_requires=[
-        "astropy>=5.3",
-        "matplotlib",
-        "numpy>=1.18",
+        "astropy>=5.3,<7.0.0a0",
+        "numpy>=1.21",
         "scipy",
         "tqdm",
     ],
