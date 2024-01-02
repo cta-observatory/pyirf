@@ -1,9 +1,11 @@
 '''
-Test export to GADF format
+Test export to / import from GADF format
 '''
 import astropy.units as u
 import numpy as np
 from astropy.io import fits
+from astropy.table import QTable
+from pyirf.io import gadf
 import pytest
 import tempfile
 
@@ -181,3 +183,92 @@ def test_rad_max_schema(rad_max_hdu):
 
     _, hdu = rad_max_hdu
     RAD_MAX.validate_hdu(hdu)
+
+
+def test_read_cuts():
+    """Test of reading cuts."""
+    from pyirf.io.gadf import read_irf_cuts
+
+    enbins = np.logspace(-2, 3) * u.TeV
+    thcuts = np.linspace(0.5, 0.1) * u.deg
+    names = ("Energy", "Theta2")
+    t1 = QTable([enbins, thcuts], names=names)
+    hdu = fits.BinTableHDU(t1, header=fits.Header(), name='THETA CUTS')
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+        cuts = read_irf_cuts(f.name)
+        assert u.allclose(cuts["Energy"], t1["Energy"], rtol=1.e-15)
+
+        # now check on two files
+        cuts = read_irf_cuts([f.name, f.name])[0]
+        assert u.allclose(cuts["Theta2"], t1["Theta2"], rtol=1.e-15)
+
+
+def test_compare_irf_cuts_files():
+    """Test of comparing cuts."""
+    from pyirf.io.gadf import compare_irf_cuts_in_files
+
+    enbins = np.logspace(-2, 3) * u.TeV
+    thcuts1 = np.linspace(0.5, 0.1) * u.deg
+    thcuts2 = np.linspace(0.6, 0.2) * u.deg
+    names = ("Energy", "Theta2")
+    t1 = QTable([enbins, thcuts1], names=names)
+    hdu1 = fits.BinTableHDU(t1, header=fits.Header(), name='THETA CUTS')
+    t2 = QTable([enbins, thcuts2], names=names)
+    hdu2 = fits.BinTableHDU(t2, header=fits.Header(), name='THETA CUTS')
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f1:
+        fits.HDUList([fits.PrimaryHDU(), hdu1]).writeto(f1.name)
+        with tempfile.NamedTemporaryFile(suffix='.fits') as f2:
+            fits.HDUList([fits.PrimaryHDU(), hdu2]).writeto(f2.name)
+            assert compare_irf_cuts_in_files([f1.name, f1.name])
+            assert compare_irf_cuts_in_files([f1.name, f2.name]) is False
+
+
+def test_read_write_energy_dispersion(edisp_hdus):
+    """Test consistency of reading and writing for migration matrix."""
+
+    edisp, hdus = edisp_hdus
+
+    for hdu in hdus:
+        with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+            fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+            edisp2d, e_bins, mig_bins, th_bins = gadf.read_energy_dispersion_hdu(f.name, extname="EDISP")
+            # check if the values of migration matrix are the same
+            assert u.allclose(edisp, edisp2d, atol=1e-16)
+            # check if the sequence of variables is fine
+            bins_shape = (e_bins.shape[0] - 1, mig_bins.shape[0] - 1, th_bins.shape[0] - 1)
+            assert bins_shape == edisp2d.shape
+
+            # now check with reading two files
+            edisp2d, e_bins, mig_bins, th_bins = gadf.read_energy_dispersion_hdu([f.name, f.name], extname="EDISP")
+            assert u.allclose(edisp, edisp2d[0], atol=1e-16)
+            bins_shape = (2, e_bins.shape[0] - 1, mig_bins.shape[0] - 1, th_bins.shape[0] - 1)
+            assert bins_shape == edisp2d.shape
+
+            # now try to read it as a wrong IRF type
+            with pytest.raises(ValueError):
+                gadf.read_aeff2d_hdu(f.name, extname="EDISP")
+
+
+def test_read_write_effective_area2d(aeff2d_hdus):
+    """Test consistency of reading and writing for effective area."""
+
+    area, hdus = aeff2d_hdus
+
+    for hdu in hdus:
+        with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+            fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+            aeff2d, e_bins, th_bins = gadf.read_aeff2d_hdu(f.name, extname="EFFECTIVE AREA")
+            assert u.allclose(area, aeff2d, atol=-1e-16 * u.m**2)
+            bins_shape = (e_bins.shape[0] - 1, th_bins.shape[0] - 1)
+            assert bins_shape == aeff2d.shape
+
+            # now check with reading two files
+            aeff2d, e_bins, th_bins = gadf.read_aeff2d_hdu([f.name, f.name], extname="EFFECTIVE AREA")
+            assert u.allclose(area, aeff2d[0], atol=-1e-16 * u.m**2)
+            bins_shape = (2, e_bins.shape[0] - 1, th_bins.shape[0] - 1)
+            assert bins_shape == aeff2d.shape
+
+            # now try to read it as a wrong IRF type
+            with pytest.raises(ValueError):
+                gadf.read_energy_dispersion_hdu(f.name, extname="EFFECTIVE AREA")
