@@ -196,7 +196,6 @@ def test_cref(aeff2d_hdus, edisp_hdus, psf_hdu, bg_hdu, rad_max_hdu):
             fits.HDUList(hdus).writeto(f.name)
             readhdul = fits.open(f.name)
             for hdu in readhdul[1:]: # skip Primary
-                #print(hdu.header['EXTNAME'])
                 names=hdu.data.columns.names
                 # the IRF is always in the last column
                 cref = hdu.header['CREF'+str(len(names))]
@@ -204,7 +203,6 @@ def test_cref(aeff2d_hdus, edisp_hdus, psf_hdu, bg_hdu, rad_max_hdu):
                 cref = cref[1:-1].split(',')
                 # transposed due to different fits and numpy axis order
                 readshape=hdu.data[names[-1]].T.shape
-                #print(cref, readshape)
                 # only one set of IRFs saved per test file
                 assert readshape[-1] == 1, "first axis size is not 1"
 
