@@ -1,6 +1,7 @@
 """
-Extrapolators for Parametrized and DiscretePDF components blending all extrapolating from 
-all visible simplices
+Extrapolators for Parametrized and DiscretePDF components that combine extrapolations 
+from all visible simplices (by blending over visible edges) to get a smooth extrapolation
+outside the grids convex hull.
 """
 import numpy as np
 from scipy.spatial import Delaunay
@@ -13,8 +14,9 @@ __all__ = ["ParametrizedVisibleEdgesExtrapolator"]
 
 def find_visible_facets(grid_points, target_point):
     """
-    Utility function to find all facets of a convex hull that are visible from
-    a point outside. To do so, this function constructs a triangulation containing
+    Find all facets of a convex hull visible from an outside point.
+    
+    To do so, this function constructs a triangulation containing
     the target point and returns all facets that span a triangulation simplex with
     it.
 
@@ -59,7 +61,7 @@ def find_visible_facets(grid_points, target_point):
 
 def compute_extrapolation_weights(visible_facet_points, target_point, m):
     """
-    Utility function to compute extrapolation weight according to [1].
+    Compute extrapolation weight according to [1].
 
     Parameters
     ----------
@@ -93,7 +95,7 @@ def compute_extrapolation_weights(visible_facet_points, target_point, m):
 
 class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolator):
     """
-    Extrapolator class extending the ParametrizedNearestSimplexExtrapolator.
+    Extrapolator using blending over visible edges.
 
     While the ParametrizedNearestSimplexExtrapolator does not result in a smooth
     extrapolation outside of the grid due to using only the nearest available
@@ -148,23 +150,6 @@ class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolato
         self.m = m
 
     def extrapolate(self, target_point):
-        """
-        Takes a grid of scalar values for a bunch of different parameters
-        and extrapolates it to given value of those parameters. Falls back
-        to ParametrizedNearestSimplexExtrapolator's behavior for 1D grids or
-        cases, where only one simplex is visible in 2D.
-
-        Parameters
-        ----------
-        target_point: numpy.ndarray
-            Value for which the extrapolation is performed (target point)
-
-        Returns
-        -------
-        values: numpy.ndarray, shape=(1,...)
-            Extrapolated values
-
-        """
         if self.grid_dim == 1:
             return super().extrapolate(target_point)
         elif self.grid_dim == 2:
