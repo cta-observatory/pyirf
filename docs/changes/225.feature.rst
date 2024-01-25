@@ -1,0 +1,1 @@
+Weights can now be passed as an optional argument to ```cuts.calculate_percentile_cut```.
