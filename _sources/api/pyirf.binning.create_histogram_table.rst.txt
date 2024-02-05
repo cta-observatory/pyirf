@@ -1,0 +1,6 @@
+create_histogram_table
+======================
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: create_histogram_table

@@ -1,0 +1,6 @@
+create_energy_dispersion_hdu
+============================
+
+.. currentmodule:: pyirf.io
+
+.. autofunction:: create_energy_dispersion_hdu

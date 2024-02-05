@@ -1,0 +1,29 @@
+SimulatedEventsInfo
+===================
+
+.. currentmodule:: pyirf.simulations
+
+.. autoclass:: SimulatedEventsInfo
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SimulatedEventsInfo.energy_max
+      ~SimulatedEventsInfo.energy_min
+      ~SimulatedEventsInfo.max_impact
+      ~SimulatedEventsInfo.n_showers
+      ~SimulatedEventsInfo.spectral_index
+      ~SimulatedEventsInfo.viewcone_max
+      ~SimulatedEventsInfo.viewcone_min
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: energy_max
+   .. autoattribute:: energy_min
+   .. autoattribute:: max_impact
+   .. autoattribute:: n_showers
+   .. autoattribute:: spectral_index
+   .. autoattribute:: viewcone_max
+   .. autoattribute:: viewcone_min

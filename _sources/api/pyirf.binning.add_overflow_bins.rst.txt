@@ -1,0 +1,6 @@
+add_overflow_bins
+=================
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: add_overflow_bins

@@ -1,0 +1,6 @@
+is_scalar
+=========
+
+.. currentmodule:: pyirf.utils
+
+.. autofunction:: is_scalar

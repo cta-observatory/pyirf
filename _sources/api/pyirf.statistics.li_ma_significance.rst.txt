@@ -1,0 +1,6 @@
+li_ma_significance
+==================
+
+.. currentmodule:: pyirf.statistics
+
+.. autofunction:: li_ma_significance

@@ -1,0 +1,6 @@
+join_bin_lo_hi
+==============
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: join_bin_lo_hi

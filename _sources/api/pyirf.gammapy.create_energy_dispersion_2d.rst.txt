@@ -1,0 +1,6 @@
+create_energy_dispersion_2d
+===========================
+
+.. currentmodule:: pyirf.gammapy
+
+.. autofunction:: create_energy_dispersion_2d

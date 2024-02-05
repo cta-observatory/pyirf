@@ -1,0 +1,6 @@
+bin_center
+==========
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: bin_center
