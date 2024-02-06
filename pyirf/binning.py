@@ -129,8 +129,9 @@ def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
 
 def calculate_bin_indices(data, bins):
     """
-    Calculate bin indices for given data array and bins.
-    Underflow will be `UNDERFLOW_INDEX` and overflow `OVERFLOW_INDEX`.
+    Calculate bin indices of inidividula entries of the given data array using
+    the supplied binning. Underflow will be indicated by `UNDERFLOW_INDEX` and
+    overflow by `OVERFLOW_INDEX`.
 
     If the bins already include underflow / overflow bins, e.g.
     `bins[0] = -np.inf` and `bins[-1] = np.inf`, using the result of this
@@ -152,6 +153,10 @@ def calculate_bin_indices(data, bins):
         Indices of the histogram bin the values in data belong to.
         Under- and overflown values will have values of `UNDERFLOW_INDEX`
         and `OVERFLOW_INDEX` respectively.
+
+    valid: np.ndarray[bool]
+        Boolean mask indicating if a given value belongs into one of the defined bins.
+        False indicates that an entry fell into the over- or underflow bins. 
     """
 
     if hasattr(data, "unit"):
