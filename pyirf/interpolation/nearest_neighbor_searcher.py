@@ -40,9 +40,9 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
         TypeError:
             If norm_ord is not non-zero integer
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseInterpolators.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseInterpolators.__init__
         """
         super().__init__(grid_points)
 
@@ -79,10 +79,10 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
         content_new: numpy.ndarray, shape=(1, ...)
             values at nearest neighbor
 
-        Note
-        ----
-            In case of multiple nearest neighbors, the values corresponding
-            to the first one are returned.
+        Notes
+        -----
+        In case of multiple nearest neighbors, the values corresponding
+        to the first one are returned.
         """
 
         if target_point.ndim == 1:
@@ -124,9 +124,9 @@ class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
             passed to numpy.linalg.norm [1]. Defaults to 2,
             which uses the euclidean norm.
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
         """
 
         super().__init__(grid_points=grid_points, values=binned_pdf, norm_ord=norm_ord)
@@ -159,9 +159,9 @@ class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
             passed to numpy.linalg.norm [1]. Defaults to 2,
             which uses the euclidean norm.
 
-        Note
+        Notes
         ----
-            Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
+        Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
         """
 
         super().__init__(grid_points=grid_points, values=params, norm_ord=norm_ord)

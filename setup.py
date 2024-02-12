@@ -48,7 +48,7 @@ setup(
     install_requires=[
         "astropy>=5.3,<7.0.0a0",
         "numpy>=1.21",
-        "scipy",
+        "scipy<1.12",
         "tqdm",
     ],
     include_package_data=True,

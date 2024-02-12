@@ -48,7 +48,8 @@ For parametrized components (Effective Areas and Rad-Max tables) these classes a
 =============================================    ==================  ============    ==================================================================================================
 :any:`GridDataInterpolator`                      Interpolation       Arbitrary       See also :any:`scipy.interpolate.griddata`.
 :any:`ParametrizedNearestSimplexExtrapolator`    Extrapolation       1D or 2D        Linear (1D) or baryzentric (2D) extension outside the grid's convex hull from the nearest simplex.
-:any:`ParametrizedNearestNeighborSearcher`       Nearest Neighbor    Arbitrary       Nearest neighbor finder usable instead of inter- and/or extrapolation. 
+:any:`ParametrizedVisibleEdgesExtrapolator`      Extrapolation       1D or 2D        Like :any:`ParametrizedNearestSimplexExtrapolator` but blends over all visible simplices [Alf84]_ and is thus smooth outside the convex hull.
+:any:`ParametrizedNearestNeighborSearcher`       Nearest Neighbor    Arbitrary       Nearest neighbor finder usable instead of inter- and/or extrapolation.
 =============================================    ==================  ============    ==================================================================================================
 
 For components represented by discretized PDFs (PSF and EDISP tables) these classes are:
@@ -62,6 +63,8 @@ For components represented by discretized PDFs (PSF and EDISP tables) these clas
 :any:`DiscretePDFNearestNeighborSearcher`        Nearest Neighbor    Arbitrary       Nearest neighbor finder usable instead of inter- and/or extrapolation. 
 =============================================    ==================  ============    ==============================================================================
 
+.. [Alf84] P. Alfred (1984). Triangular Extrapolation. 
+   Technical summary rept., Univ. of Wisconsin-Madison. https://apps.dtic.mil/sti/pdfs/ADA144660.pdf
 .. [Hol+13] B. E. Hollister and A. T. Pang (2013). Interpolation of Non-Gaussian Probability Distributions for Ensemble Visualization.
     https://engineering.ucsc.edu/sites/default/files/technical-reports/UCSC-SOE-13-13.pdf
 .. [Rea99] A. L. Read (1999). Linear Interpolation of Histograms.
