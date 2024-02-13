@@ -11,7 +11,7 @@ __all__ = [
     "is_scalar",
     "calculate_theta",
     "calculate_source_fov_offset",
-    "calculate_source_fov_position_angle"
+    "calculate_source_fov_position_angle",
     "check_histograms",
     "cone_solid_angle",
 ]
