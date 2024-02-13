@@ -170,7 +170,7 @@ class SimulatedEventsInfo:
         return e_integral[:, np.newaxis] * fov_integral / self.n_showers
 
     @u.quantity_input(energy_bins=u.TeV, fov_offset_bins=u.deg, fov_position_angle_bins=u.rad)
-    def calculate_n_showers_3D_polar(self, energy_bins, fov_offset_bins, fov_position_angle_bins):
+    def calculate_n_showers_3d_polar(self, energy_bins, fov_offset_bins, fov_position_angle_bins):
         """
         Calculate number of showers that were simulated in the given
         energy and 2D fov bins in polar coordinates.
@@ -204,7 +204,7 @@ class SimulatedEventsInfo:
         return e_fov_offset_integral[:,:,np.newaxis] * position_angle_integral / self.n_showers 
     
     @u.quantity_input(energy_bins=u.TeV, fov_longitude_bins=u.deg, fov_latitude_bins=u.rad)
-    def calculate_n_showers_3D_nominal(self, energy_bins, fov_longitude_bins, fov_latitude_bins):
+    def calculate_n_showers_3d_nominal(self, energy_bins, fov_longitude_bins, fov_latitude_bins):
         """
         Calculate number of showers that were simulated in the given
         energy and 2D fov bins in nominal coordinates.

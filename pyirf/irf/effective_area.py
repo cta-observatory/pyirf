@@ -7,6 +7,8 @@ __all__ = [
     "effective_area",
     "effective_area_per_energy",
     "effective_area_per_energy_and_fov",
+    "effective_area_3d_polar",
+    "effective_area_3d_nominal",
 ]
 
 
@@ -86,7 +88,7 @@ def effective_area_per_energy_and_fov(
 
     return effective_area(hist_selected, hist_simulated, area)
 
-def effective_area_3D_polar(
+def effective_area_3d_polar(
     selected_events, simulation_info, energy_bins, fov_offset_bins, fov_position_angle_bins
 ):
     """
@@ -119,7 +121,7 @@ def effective_area_3D_polar(
     
     return effective_area(hist_selected, hist_simulated, area)
 
-def effective_area_3D_nominal(
+def effective_area_3d_nominal(
     selected_events, simulation_info, energy_bins, fov_longitude_bins, fov_latitude_bins
 ):
     """
