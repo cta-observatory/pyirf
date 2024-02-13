@@ -34,6 +34,7 @@ from .nearest_simplex_extrapolator import (
     ParametrizedNearestSimplexExtrapolator,
 )
 from .quantile_interpolator import QuantileInterpolator
+from .visible_edges_extrapolator import ParametrizedVisibleEdgesExtrapolator
 
 __all__ = [
     "BaseComponentEstimator",
@@ -53,6 +54,7 @@ __all__ = [
     "ParametrizedInterpolator",
     "ParametrizedNearestNeighborSearcher",
     "ParametrizedNearestSimplexExtrapolator",
+    "ParametrizedVisibleEdgesExtrapolator",
     "QuantileInterpolator",
     "EffectiveAreaEstimator",
     "RadMaxEstimator",

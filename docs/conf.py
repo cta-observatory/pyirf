@@ -89,11 +89,11 @@ html_theme_options = {
 }
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3.7", None),
-    "numpy": ("https://numpy.org/doc/stable", None),
+    "python": ("https://docs.python.org/3.9/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "astropy": ("https://docs.astropy.org/en/latest/", None),
-    "gammapy": ("https://docs.gammapy.org/0.18/", None),
+    "gammapy": ("https://docs.gammapy.org/1.1/", None),
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,
