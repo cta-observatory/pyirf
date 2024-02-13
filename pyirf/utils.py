@@ -1,6 +1,7 @@
 import numpy as np
 import astropy.units as u
 from astropy.coordinates import angular_separation
+from astropy.coordinates import position_angle
 
 from .compat import COPY_IF_NEEDED
 from .exceptions import MissingColumns, WrongColumnUnit
@@ -87,6 +88,34 @@ def calculate_source_fov_offset(events, prefix="true"):
     )
 
     return theta.to(u.deg)
+
+
+def calculate_source_fov_position_angle(events, prefix="true"):
+    """Calculate position_angle of true positions relative to pointing positions.
+
+    Parameters
+    ----------
+    events : astropy.QTable
+        Astropy Table object containing the reconstructed events information.
+
+    prefix: str
+        Column prefix for az / alt, can be used to calculate reco or true
+        source fov position_angle.
+
+    Returns
+    -------
+    phi: astropy.units.Quantity
+        Position angle of the true positions relative to the pointing positions
+        in the sky.
+    """
+    phi = position_angle(
+        events["pointing_az"],
+        events["pointing_alt"],
+        events[f"{prefix}_az"],
+        events[f"{prefix}_alt"],
+    )
+
+    return phi.to(u.deg)
 
 
 def check_histograms(hist1, hist2, key="reco_energy"):
