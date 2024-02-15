@@ -169,8 +169,12 @@ class SimulatedEventsInfo:
         fov_integral = self.calculate_n_showers_per_fov(fov_bins)
         return e_integral[:, np.newaxis] * fov_integral / self.n_showers
 
-    @u.quantity_input(energy_bins=u.TeV, fov_offset_bins=u.deg, fov_position_angle_bins=u.rad)
-    def calculate_n_showers_3d_polar(self, energy_bins, fov_offset_bins, fov_position_angle_bins):
+    @u.quantity_input(
+        energy_bins=u.TeV, fov_offset_bins=u.deg, fov_position_angle_bins=u.rad
+    )
+    def calculate_n_showers_3d_polar(
+        self, energy_bins, fov_offset_bins, fov_position_angle_bins
+    ):
         """
         Calculate number of showers that were simulated in the given
         energy and 2D fov bins in polar coordinates.
@@ -187,7 +191,6 @@ class SimulatedEventsInfo:
         fov_position_angle_bins: astropy.units.Quantity[radian]
             The FOV azimuthal bin edges for which to calculate the number of simulated showers
 
-            
         Returns
         -------
         n_showers: numpy.ndarray(ndim=3)
@@ -198,13 +201,29 @@ class SimulatedEventsInfo:
             The actual numbers will follow a poissionian distribution around this
             expected value.
         """
-        e_fov_offset_integral = self.calculate_n_showers_per_energy_and_fov(energy_bins, fov_offset_bins)
-        position_angle_integral = np.ones(len(fov_position_angle_bins) - 1) * self.calculate_n_showers_per_fov(np.linspace(self.viewcone_min, self.viewcone_max, 2)) / (len(fov_position_angle_bins) - 1)
+        e_fov_offset_integral = self.calculate_n_showers_per_energy_and_fov(
+            energy_bins, fov_offset_bins
+        )
+        position_angle_integral = np.full(
+            len(fov_position_angle_bins) - 1,
+            self.calculate_n_showers_per_fov(
+                np.linspace(self.viewcone_min, self.viewcone_max, 2)
+            )
+            / (len(fov_position_angle_bins) - 1),
+        )
 
-        return e_fov_offset_integral[:,:,np.newaxis] * position_angle_integral / self.n_showers 
-    
-    @u.quantity_input(energy_bins=u.TeV, fov_longitude_bins=u.deg, fov_latitude_bins=u.rad)
-    def calculate_n_showers_3d_nominal(self, energy_bins, fov_longitude_bins, fov_latitude_bins):
+        return (
+            e_fov_offset_integral[:, :, np.newaxis]
+            * position_angle_integral
+            / self.n_showers
+        )
+
+    @u.quantity_input(
+        energy_bins=u.TeV, fov_longitude_bins=u.deg, fov_latitude_bins=u.rad
+    )
+    def calculate_n_showers_3d_lonlat(
+        self, energy_bins, fov_longitude_bins, fov_latitude_bins
+    ):
         """
         Calculate number of showers that were simulated in the given
         energy and 2D fov bins in nominal coordinates.
@@ -221,7 +240,6 @@ class SimulatedEventsInfo:
         fov_latitude_bins: astropy.units.Quantity[angle]
             The FOV latitude bin edges for which to calculate the number of simulated showers
 
-            
         Returns
         -------
         n_showers: numpy.ndarray(ndim=3)
@@ -232,17 +250,33 @@ class SimulatedEventsInfo:
             The actual numbers will follow a poissionian distribution around this
             expected value.
         """
-        fov_bin_midpoints_lon, fov_bin_midpoints_lat = np.meshgrid((fov_longitude_bins[:-1]+fov_longitude_bins[1:])/2,(fov_latitude_bins[:-1]+fov_latitude_bins[1:])/2)
-        mask_outside_fov = np.logical_or( np.sqrt( fov_bin_midpoints_lon**2 + fov_bin_midpoints_lat**2 ) > self.viewcone_max, np.sqrt( fov_bin_midpoints_lon**2 + fov_bin_midpoints_lat**2 ) < self.viewcone_min)
-        A_bins = np.outer(np.diff( np.sin( fov_latitude_bins.to_value(u.rad) ) ), np.diff(fov_longitude_bins.to_value(u.rad))) * u.sr
-        shower_density = self.n_showers / (cone_solid_angle(self.viewcone_max) - cone_solid_angle(self.viewcone_min))
-        
+        fov_bin_midpoints_lon, fov_bin_midpoints_lat = np.meshgrid(
+            (fov_longitude_bins[:-1] + fov_longitude_bins[1:]) / 2,
+            (fov_latitude_bins[:-1] + fov_latitude_bins[1:]) / 2,
+        )
+        mask_outside_fov = np.logical_or(
+            np.sqrt(fov_bin_midpoints_lon**2 + fov_bin_midpoints_lat**2)
+            > self.viewcone_max,
+            np.sqrt(fov_bin_midpoints_lon**2 + fov_bin_midpoints_lat**2)
+            < self.viewcone_min,
+        )
+        A_bins = (
+            np.outer(
+                np.diff(np.sin(fov_latitude_bins.to_value(u.rad))),
+                np.diff(fov_longitude_bins.to_value(u.rad)),
+            )
+            * u.sr
+        )
+        shower_density = self.n_showers / (
+            cone_solid_angle(self.viewcone_max) - cone_solid_angle(self.viewcone_min)
+        )
+
         fov_integral = shower_density * A_bins
         e_integral = self.calculate_n_showers_per_energy(energy_bins)
 
         fov_integral[mask_outside_fov] = 0
-        
-        return (e_integral[:,np.newaxis,np.newaxis] * fov_integral) / self.n_showers
+
+        return (e_integral[:, np.newaxis, np.newaxis] * fov_integral) / self.n_showers
 
     def __repr__(self):
         return (
