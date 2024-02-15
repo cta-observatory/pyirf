@@ -112,7 +112,7 @@ def effective_area_3d_polar(
     """
     area = np.pi * simulation_info.max_impact ** 2
     
-    hist_simulated = simulation_info.calculate_n_showers_3d_polar(simulation_info, energy_bins, fov_offset_bins, fov_position_angle_bins)
+    hist_simulated = simulation_info.calculate_n_showers_3d_polar(energy_bins, fov_offset_bins, fov_position_angle_bins)
     
     hist_selected,_ = np.histogramdd(
             np.array([selected_events['true_energy'].to_value(u.TeV), selected_events['true_source_fov_offset'].to_value(u.deg), selected_events['true_source_fov_position_angle'].to_value(u.rad)]).T,
@@ -145,7 +145,7 @@ def effective_area_3d_nominal(
     """
     area = np.pi * simulation_info.max_impact ** 2
     
-    hist_simulated = simulation_info.calculate_n_showers_3d_nominal(simulation_info, energy_bins, fov_longitude_bins, fov_latitude_bins)
+    hist_simulated = simulation_info.calculate_n_showers_3d_nominal(energy_bins, fov_longitude_bins, fov_latitude_bins)
     
     hist_selected, _ = np.histogramdd(
         np.array([selected_events['true_energy'].to_value(u.TeV), selected_events['true_source_fov_lon'].value, selected_events['true_source_fov_lat'].value]).T,
