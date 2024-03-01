@@ -106,6 +106,94 @@ def test_integrate_energy_fov_pointlike():
         info.calculate_n_showers_per_energy_and_fov(energy_bins, fov_bins)
 
 
+def test_integrate_3d_polar():
+    from pyirf.simulations import SimulatedEventsInfo
+
+    # simple case, max viewcone on bin edge
+    info = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=100 * u.GeV,
+        energy_max=10 * u.TeV,
+        max_impact=500 * u.m,
+        spectral_index=-2,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
+    )
+
+    fov_bins_theta = [0, 10, 20] * u.deg
+    fov_bins_phi = [0, 180, 360] * u.deg
+    energy_bins = np.geomspace(info.energy_min, info.energy_max, 20)
+
+    n_events = info.calculate_n_showers_3d_polar(energy_bins, fov_bins_theta, fov_bins_phi)
+
+    assert np.all(n_events[:, 1:] == 0)
+    assert np.isclose(np.sum(n_events[...,0]), int(0.5e6))
+    assert np.isclose(np.sum(n_events[...,1]), int(0.5e6))
+    assert np.isclose(np.sum(n_events), int(1e6))
+
+    # viewcone inside of offset bin
+    info = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=100 * u.GeV,
+        energy_max=10 * u.TeV,
+        max_impact=500 * u.m,
+        spectral_index=-2,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
+    )
+
+    fov_bins_theta = [0, 9, 11, 20] * u.deg
+    energy_bins = np.geomspace(info.energy_min, info.energy_max, 20)
+    n_events = info.calculate_n_showers_3d_polar(energy_bins, fov_bins_theta, fov_bins_phi)
+
+    assert np.all(n_events[:, 1:2] > 0)
+    np.testing.assert_equal(n_events[:, 2:], 0)
+    assert np.isclose(np.sum(n_events), int(1e6))
+
+
+def test_integrate_3d_lonlat():
+    from pyirf.simulations import SimulatedEventsInfo
+
+    # simple case, max viewcone on bin edge
+    info = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=100 * u.GeV,
+        energy_max=10 * u.TeV,
+        max_impact=500 * u.m,
+        spectral_index=-2,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
+    )
+
+    fov_bins = [-20, -10, 0, 10, 20] * u.deg
+    energy_bins = np.geomspace(info.energy_min, info.energy_max, 20)
+
+    n_events = info.calculate_n_showers_3d_lonlat(energy_bins, fov_bins, fov_bins)
+    
+    assert np.all(n_events[:, 0, :] == 0)
+    assert np.all(n_events[:, :, 0] == 0)
+    assert np.allclose(np.sum(n_events, axis = 0)[1:3,1:3], int(0.25e6), rtol=1e-2)
+    assert np.isclose(np.sum(n_events), int(1e6), rtol=1e-2)
+
+    # viewcone inside of offset bin
+    info = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=100 * u.GeV,
+        energy_max=10 * u.TeV,
+        max_impact=500 * u.m,
+        spectral_index=-2,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
+    )
+
+    fov_bins = [-15, -5, 5, 15] * u.deg
+    energy_bins = np.geomspace(info.energy_min, info.energy_max, 20)
+    n_events = info.calculate_n_showers_3d_lonlat(energy_bins, fov_bins, fov_bins)
+
+    assert np.all(n_events > 0)
+    assert np.isclose(np.sum(n_events), int(1e6), rtol=1e-2)
+
+
 def test_viewcone_integral():
     from pyirf.simulations import _viewcone_pdf_integral
 
