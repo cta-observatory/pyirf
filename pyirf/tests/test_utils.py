@@ -30,6 +30,28 @@ def test_cone_solid_angle():
     assert u.isclose(cone_solid_angle(0 * u.deg), 0 * u.sr)
 
 
+def test_rectangle_solid_angle():
+    from pyirf.utils import rectangle_solid_angle
+
+    # whole sphere
+    assert u.isclose(
+        rectangle_solid_angle(0 * u.deg, 360 * u.deg, -90 * u.deg, 90 * u.deg),
+        4 * np.pi * u.sr,
+    )
+
+    # half the sphere
+    assert u.isclose(
+        rectangle_solid_angle(0 * u.deg, 180 * u.deg, -90 * u.deg, 90 * u.deg),
+        2 * np.pi * u.sr,
+    )
+
+    # zero
+    assert u.isclose(
+        rectangle_solid_angle(0 * u.deg, 0 * u.deg, 0* u.deg, 0 * u.deg),
+        0 * u.sr,
+    )
+
+
 def test_check_table():
     from pyirf.exceptions import MissingColumns, WrongColumnUnit
     from pyirf.utils import check_table
