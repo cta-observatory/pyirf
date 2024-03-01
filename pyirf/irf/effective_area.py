@@ -140,7 +140,12 @@ def effective_area_3d_polar(
 
 
 def effective_area_3d_lonlat(
-    selected_events, simulation_info, energy_bins, fov_longitude_bins, fov_latitude_bins
+    selected_events,
+    simulation_info,
+    energy_bins,
+    fov_longitude_bins,
+    fov_latitude_bins,
+    subpixels=20,
 ):
     """
     Calculate effective area in bins of true energy, field of view longitude, and field of view latitude.
@@ -164,22 +169,22 @@ def effective_area_3d_lonlat(
     area = np.pi * simulation_info.max_impact**2
 
     hist_simulated = simulation_info.calculate_n_showers_3d_lonlat(
-        energy_bins, fov_longitude_bins, fov_latitude_bins
+        energy_bins, fov_longitude_bins, fov_latitude_bins, subpixels=subpixels
     )
 
-    hist_selected, _ = np.histogramdd(
-        np.column_stack(
+    selected_columns = np.column_stack(
             [
                 selected_events["true_energy"].to_value(u.TeV),
                 selected_events["true_source_fov_lon"].to_value(u.deg),
                 selected_events["true_source_fov_lat"].to_value(u.deg),
             ]
-        ),
-        bins=(
+        )
+    bins = (
             energy_bins.to_value(u.TeV),
             fov_longitude_bins.to_value(u.deg),
             fov_latitude_bins.to_value(u.deg),
-        ),
     )
+
+    hist_selected, _ = np.histogramdd(selected_columns, bins=bins)
 
     return effective_area(hist_selected, hist_simulated, area)
