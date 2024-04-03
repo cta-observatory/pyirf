@@ -16,20 +16,17 @@ extras_require = {
         "notebook",
         "tables",
         "towncrier",
-        "astropy~=5.3",  # gammapy doesn't yet support 6.0 but doesn't pin it
         gammapy,
     ],
     "tests": [
         "pytest",
         "pytest-cov",
-        "astropy~=5.3",  # gammapy doesn't yet support 6.0 but doesn't pin it
         gammapy,
         "ogadf-schema~=0.2.3",
         "uproot~=4.0",
         "awkward~=1.0",
     ],
     "gammapy": [
-        "astropy~=5.3",  # gammapy doesn't yet support 6.0 but doesn't pin it
         gammapy,
     ],
 }
@@ -48,7 +45,7 @@ setup(
     install_requires=[
         "astropy>=5.3,<7.0.0a0",
         "numpy>=1.21",
-        "scipy<1.12",
+        "scipy",
         "tqdm",
     ],
     include_package_data=True,
