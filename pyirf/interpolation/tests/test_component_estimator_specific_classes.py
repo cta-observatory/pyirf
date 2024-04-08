@@ -358,18 +358,16 @@ def test_RadMaxEstimator_fill_val_handling_3D():
 
     rad_max = np.array([[0.95], [0.95], [0.95], [0.95]])
 
-    estim = RadMaxEstimator(
-        grid_points=grid_points_3D,
-        rad_max=rad_max,
-        fill_value=0.95,
-        interpolator_cls=GridDataInterpolator,
-        interpolator_kwargs=None,
-        extrapolator_cls=None,
-        extrapolator_kwargs=None,
-    )
-
     with pytest.raises(
         ValueError,
         match="Fill-value handling only supported in up to two grid dimensions.",
     ):
-        estim(np.array([0.25, 0.25, 0.25]))
+        RadMaxEstimator(
+            grid_points=grid_points_3D,
+            rad_max=rad_max,
+            fill_value=0.95,
+            interpolator_cls=GridDataInterpolator,
+            interpolator_kwargs=None,
+            extrapolator_cls=None,
+            extrapolator_kwargs=None,
+        )
