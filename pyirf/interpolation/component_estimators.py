@@ -541,6 +541,12 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
         else:
             self.fill_val = fill_value
 
+        # Raise error if fill-values should be handled in >=3 dims
+        if self.fill_val and self.grid_dim >= 3:
+            raise ValueError(
+                "Fill-value handling only supported in up to two grid dimensions."
+            )
+
         # If fill-values should be handled in 2D, construct a trinangulation
         # to later determine in which simplex the target values is
         if self.fill_val and (self.grid_dim == 2):
@@ -566,19 +572,15 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
         # First, construct estimation without handling fill-values
         full_estimation = super().__call__(target_point)
         # Safeguard against extreme extrapolation cases
-        full_estimation[full_estimation < 0] = 0
+        np.clip(full_estimation, 0, None, out=full_estimation)
 
         # Early exit if fill_values should not be handled
         if not self.fill_val:
             return full_estimation
 
-        # Raise error if fill-values should be handled in >=3 dims
-        if self.grid_dim >= 3:
-            raise ValueError(
-                "Fill-value handling only supported in up to two grid dimensions."
-            )
-
         # Early exit if a nearest neighbor estimation would be overwritten
+        # Complex setup is needed to catch settings where the user mixes approaches and
+        # e.g. uses nearest neighbors for extrapolation and an actual interpolation otherwise
         if self.grid_dim == 1:
             if (
                 (target_point < self.grid_points.min())
@@ -631,7 +633,9 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
 
             # This collected mask now counts for each entry in the estimation how many
             # of the entries used for extrapolation contained fill-values
-            intermediate_mask = mask0.astype("int") + mask1.astype("int") + mask2.astype("int")
+            intermediate_mask = (
+                mask0.astype("int") + mask1.astype("int") + mask2.astype("int")
+            )
             mask = np.full_like(intermediate_mask, True, dtype=bool)
 
             # Simplest cases: All or none entries were fill-values, so either return
