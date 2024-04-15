@@ -189,7 +189,7 @@ def cone_solid_angle(angle):
 
 def rectangle_solid_angle(lon_low, lon_high, lat_low, lat_high):
     """Calculate the solid angle of a latitude-longitude rectangle
-    
+
     Parameters
     ----------
     lon_low: astropy.units.Quantity[angle]
@@ -200,7 +200,7 @@ def rectangle_solid_angle(lon_low, lon_high, lat_low, lat_high):
         Higher longitude coordinate of the rectangle corner
     lat_high: astropy.units.Quantity[angle]
         Higher Latitude coordinates of the rectangle corner
-        
+
     Returns
     -------
     solid angle: astropy.units.Quantity[solid angle]
@@ -208,7 +208,7 @@ def rectangle_solid_angle(lon_low, lon_high, lat_low, lat_high):
     """
     diff_lon = (lon_high - lon_low).to_value(u.rad)
     diff_lat = np.sin(lat_high.to_value(u.rad)) - np.sin(lat_low.to_value(u.rad))
-    
+
     solid_angle = diff_lon * diff_lat * u.sr
     return solid_angle
 

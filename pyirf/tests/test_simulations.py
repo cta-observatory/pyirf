@@ -169,7 +169,7 @@ def test_integrate_3d_lonlat():
     energy_bins = np.geomspace(info.energy_min, info.energy_max, 20)
 
     n_events = info.calculate_n_showers_3d_lonlat(energy_bins, fov_bins, fov_bins)
-    
+
     assert np.all(n_events[:, 0, :] == 0)
     assert np.all(n_events[:, :, 0] == 0)
     assert np.allclose(np.sum(n_events, axis = 0)[1:3,1:3], int(0.25e6), rtol=1e-2)

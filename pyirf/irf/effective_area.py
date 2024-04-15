@@ -92,7 +92,7 @@ def effective_area_per_energy_and_fov(
 def effective_area_3d_polar(
     selected_events,
     simulation_info,
-    energy_bins,
+    true_energy_bins,
     fov_offset_bins,
     fov_position_angle_bins,
 ):
@@ -118,7 +118,7 @@ def effective_area_3d_polar(
     area = np.pi * simulation_info.max_impact**2
 
     hist_simulated = simulation_info.calculate_n_showers_3d_polar(
-        energy_bins, fov_offset_bins, fov_position_angle_bins
+        true_energy_bins, fov_offset_bins, fov_position_angle_bins
     )
 
     hist_selected, _ = np.histogramdd(
@@ -130,7 +130,7 @@ def effective_area_3d_polar(
             ]
         ),
         bins=(
-            energy_bins.to_value(u.TeV),
+            true_energy_bins.to_value(u.TeV),
             fov_offset_bins.to_value(u.deg),
             fov_position_angle_bins.to_value(u.rad),
         ),
@@ -142,7 +142,7 @@ def effective_area_3d_polar(
 def effective_area_3d_lonlat(
     selected_events,
     simulation_info,
-    energy_bins,
+    true_energy_bins,
     fov_longitude_bins,
     fov_latitude_bins,
     subpixels=20,
@@ -169,7 +169,7 @@ def effective_area_3d_lonlat(
     area = np.pi * simulation_info.max_impact**2
 
     hist_simulated = simulation_info.calculate_n_showers_3d_lonlat(
-        energy_bins, fov_longitude_bins, fov_latitude_bins, subpixels=subpixels
+        true_energy_bins, fov_longitude_bins, fov_latitude_bins, subpixels=subpixels
     )
 
     selected_columns = np.column_stack(
@@ -180,7 +180,7 @@ def effective_area_3d_lonlat(
             ]
         )
     bins = (
-            energy_bins.to_value(u.TeV),
+            true_energy_bins.to_value(u.TeV),
             fov_longitude_bins.to_value(u.deg),
             fov_latitude_bins.to_value(u.deg),
     )

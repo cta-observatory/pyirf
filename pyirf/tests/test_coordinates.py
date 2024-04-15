@@ -40,19 +40,19 @@ def test_fov_coords_theta_phi():
     )
     assert u.isclose(theta, 1 * u.deg)
     assert u.isclose(phi, 0 * u.deg)
-    
+
     theta, phi = fov_coords_theta_phi(
         alt=-1 * u.deg, az=0 * u.deg, pointing_alt=0 * u.deg, pointing_az=0 * u.deg
     )
     assert u.isclose(theta, 1 * u.deg)
     assert u.isclose(phi, 180 * u.deg)
-    
+
     theta, phi = fov_coords_theta_phi(
         alt=0 * u.deg, az=-1 * u.deg, pointing_alt=0 * u.deg, pointing_az=0 * u.deg
     )
     assert u.isclose(theta, 1 * u.deg)
     assert u.isclose(phi, 90 * u.deg)
-    
+
     theta, phi = fov_coords_theta_phi(
         alt=0 * u.deg, az=1 * u.deg, pointing_alt=0 * u.deg, pointing_az=0 * u.deg
     )
