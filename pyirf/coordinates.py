@@ -2,8 +2,8 @@ import astropy.units as u
 from astropy.coordinates import SkyCoord, SkyOffsetFrame, angular_separation, position_angle
 
 __all__ = [
-    'fov_coords_lon_lat',
-    'fov_coords_theta_phi'
+    'gadf_fov_coords_lon_lat',
+    'gadf_fov_coords_theta_phi',
 ]
 
 
