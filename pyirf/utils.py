@@ -1,7 +1,7 @@
 import numpy as np
 import astropy.units as u
 from astropy.coordinates import angular_separation
-from .coordinates import fov_coords_theta_phi, fov_coords_lon_lat
+from .coordinates import gadf_fov_coords_theta_phi, gadf_fov_coords_lon_lat
 
 from .compat import COPY_IF_NEEDED
 from .exceptions import MissingColumns, WrongColumnUnit
@@ -109,7 +109,7 @@ def calculate_source_fov_position_angle(events, prefix="true"):
         Position angle of the true positions relative to the pointing positions
         in the sky.
     """
-    _, phi = fov_coords_theta_phi(
+    _, phi = gadf_fov_coords_theta_phi(
         events[f"{prefix}_az"],
         events[f"{prefix}_alt"],
         events["pointing_az"],
@@ -137,7 +137,7 @@ def calculate_source_fov_lonlat(events, prefix="true"):
         Position angle of the true positions relative to the pointing positions
         in the sky.
     """
-    lon, lat = fov_coords_lon_lat(
+    lon, lat = gadf_fov_coords_lon_lat(
         events[f"{prefix}_az"],
         events[f"{prefix}_alt"],
         events["pointing_az"],
