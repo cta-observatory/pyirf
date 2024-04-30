@@ -42,7 +42,7 @@ def gadf_fov_coords_lon_lat(lon, lat, pointing_lon, pointing_lat):
     return -target_fov.lon, target_fov.lat
 
 
-def gadf_fov_coords_theta_phi(az, alt, pointing_az, pointing_alt):
+def gadf_fov_coords_theta_phi(lon, lat, pointing_lon, pointing_lat):
     """Transform sky coordinates to field-of-view theta-phi coordinates in accordance with
     the definitions laid out by the Gamma Astro Data Format.
 
@@ -51,9 +51,9 @@ def gadf_fov_coords_theta_phi(az, alt, pointing_az, pointing_alt):
 
     Parameters
     ----------
-    az, alt : `~astropy.units.Quantity`
+    lon, lat : `~astropy.units.Quantity`
         Sky coordinate to be transformed.
-    pointing_az, pointing_alt : `~astropy.units.Quantity`
+    pointing_lon, pointing_lat : `~astropy.units.Quantity`
         Coordinate specifying the pointing position.
         (i.e. the center of the field of view.)
 
@@ -63,10 +63,10 @@ def gadf_fov_coords_theta_phi(az, alt, pointing_az, pointing_alt):
         Transformed field-of-view coordinate.
     """
 
-    theta = angular_separation(pointing_az, pointing_alt, az, alt)
+    theta = angular_separation(pointing_lon, pointing_lat, lon, lat)
 
     # astropy defines the position angle as increasing towards east of north
-    phi = position_angle(pointing_az, pointing_alt, az, alt)
+    phi = position_angle(pointing_lon, pointing_lat, lon, lat)
 
     # GADF defines FOV PHI opposite to the position angle way so the sign is switched
     return theta.to(u.deg), (-phi).wrap_at(360 * u.deg).to(u.deg)
