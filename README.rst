@@ -29,3 +29,20 @@ please cite it by using the corresponding DOI:
 
 - latest : |doilatest|
 - all versions: `Please visit Zenodo <https://zenodo.org/record/5833284>`_ and select the correct version
+
+At this point, our latest publication is the `2023 ICRC proceeding <https://doi.org/10.22323/1.444.0618>`_, which you can
+cite using the following bibtex entry, especially if using functionalities from ``pyirf.interpolation``:
+
+.. code::
+
+   @inproceedings{pyirf-icrc-2023,
+     author = {Dominik, Rune Michael and Linhoff, Maximilian and Sitarek, Julian},
+     title = {Interpolation of Instrument Response Functions for the Cherenkov Telescope Array in the Context of pyirf},
+     usera = {for the CTA Consortium},
+     doi = {10.22323/1.444.0703},
+     booktitle = {Proceedings, 38th International Cosmic Ray Conference},
+     year=2023,
+     volume={444},
+     number={618},
+     location={Nagoya, Japan},
+   }
