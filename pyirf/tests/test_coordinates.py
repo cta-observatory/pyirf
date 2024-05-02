@@ -36,25 +36,25 @@ def test_gadf_fov_coords_theta_phi():
     from pyirf.coordinates import gadf_fov_coords_theta_phi
 
     theta, phi = gadf_fov_coords_theta_phi(
-        alt=1 * u.deg, az=0 * u.deg, pointing_alt=0 * u.deg, pointing_az=0 * u.deg
+        lat=1 * u.deg, lon=0 * u.deg, pointing_lat=0 * u.deg, pointing_lon=0 * u.deg
     )
     assert u.isclose(theta, 1 * u.deg)
     assert u.isclose(phi, 0 * u.deg)
 
     theta, phi = gadf_fov_coords_theta_phi(
-        alt=-1 * u.deg, az=0 * u.deg, pointing_alt=0 * u.deg, pointing_az=0 * u.deg
+        lat=-1 * u.deg, lon=0 * u.deg, pointing_lat=0 * u.deg, pointing_lon=0 * u.deg
     )
     assert u.isclose(theta, 1 * u.deg)
     assert u.isclose(phi, 180 * u.deg)
 
     theta, phi = gadf_fov_coords_theta_phi(
-        alt=0 * u.deg, az=-1 * u.deg, pointing_alt=0 * u.deg, pointing_az=0 * u.deg
+        lat=0 * u.deg, lon=-1 * u.deg, pointing_lat=0 * u.deg, pointing_lon=0 * u.deg
     )
     assert u.isclose(theta, 1 * u.deg)
     assert u.isclose(phi, 90 * u.deg)
 
     theta, phi = gadf_fov_coords_theta_phi(
-        alt=0 * u.deg, az=1 * u.deg, pointing_alt=0 * u.deg, pointing_az=0 * u.deg
+        lat=0 * u.deg, lon=1 * u.deg, pointing_lat=0 * u.deg, pointing_lon=0 * u.deg
     )
     assert u.isclose(theta, 1 * u.deg)
     assert u.isclose(phi, 270 * u.deg)
