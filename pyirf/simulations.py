@@ -252,7 +252,7 @@ class SimulatedEventsInfo:
         """
 
         fov_overlap = _fov_lonlat_grid_overlap(
-            self, fov_longitude_bins, fov_latitude_bins, self.viewcone_max, subpixels=subpixels
+            self, fov_longitude_bins, fov_latitude_bins, subpixels=subpixels
         )
 
         bin_grid_lon, bin_grid_lat = np.meshgrid(fov_longitude_bins,fov_latitude_bins)
@@ -330,7 +330,37 @@ def _viewcone_pdf_integral(viewcone_min, viewcone_max, fov_low, fov_high):
         return np.squeeze(integral)
     return integral
 
-def _fov_lonlat_grid_overlap(self, bin_edges_lon, bin_edges_lat, radius, subpixels=20):
+def _fov_lonlat_grid_overlap(self, bin_edges_lon, bin_edges_lat, subpixels=20):
+    """
+    When binning in longitude and latitude there might be bins that are fully or
+    partially outside of the simulated viewcone window.
+
+    Subdivides each bin on the edge of the viewcone and calculates the fraction of
+    'subpixels' whose centers are inside the viewcone, which approximates the area of the
+    bin inside the viewcone.
+    """
+    # treat edge cases where all bins are either fully inside or outside of the viewcone
+    bin_grid_lon, bin_grid_lat = np.meshgrid(bin_edges_lon, bin_edges_lat)
+
+    bin_dist = angular_separation(
+        bin_grid_lon,
+        bin_grid_lat,
+        0,
+        0,
+    ).to_value(u.deg)
+
+    all_outside = np.all(bin_dist <= self.viewcone_min.to_value(u.deg))
+    all_inside = np.logical_and(
+        np.all(bin_dist <= self.viewcone_max.to_value(u.deg)),
+        np.all(bin_dist >= self.viewcone_min.to_value(u.deg)),
+    )
+
+    if all_outside:
+        return 0
+    elif all_inside:
+        return 1
+
+
     # define grid of bin centers
     fov_bin_centers_lon = bin_center(bin_edges_lon)
     fov_bin_centers_lat = bin_center(bin_edges_lat)
@@ -340,31 +370,42 @@ def _fov_lonlat_grid_overlap(self, bin_edges_lon, bin_edges_lat, radius, subpixe
     )
 
     # calculate angular separation of bin centers to FOV center
-    radius_bin_center = angular_separation(bin_centers_grid_lon, bin_centers_grid_lat, 0, 0)
+    radius_bin_center = angular_separation(
+        bin_centers_grid_lon,
+        bin_centers_grid_lat,
+        0,
+        0,
+    )
 
     # simple area mask with all bin centers outside FOV = 0
     mask_simple = np.logical_or(
-        radius_bin_center > self.viewcone_max, radius_bin_center < self.viewcone_min
+        radius_bin_center > self.viewcone_max,
+        radius_bin_center < self.viewcone_min,
     )
+
     area = np.ones(mask_simple.shape)
     area[mask_simple] = 0
 
     # select only bins partially covered by the FOV
     bin_width_lon = bin_edges_lon[1] - bin_edges_lon[0]
     bin_width_lat = bin_edges_lat[1] - bin_edges_lat[0]
-    bin_max_diameter_lon = bin_width_lon / np.sqrt(2)
-    bin_max_diameter_lat = bin_width_lat / np.sqrt(2)
+    bin_max_radius = np.sqrt(bin_width_lon ** 2 + bin_width_lat ** 2) * 0.5
 
-    fov_edge_mask = np.logical_and(
-        radius_bin_center < radius + bin_max_diameter_lon,
-        radius_bin_center > radius - bin_max_diameter_lat,
+    fov_outer_edge_mask = np.logical_and(
+        radius_bin_center < self.viewcone_max + bin_max_radius,
+        radius_bin_center > self.viewcone_max - bin_max_radius,
     )
+    fov_inner_edge_mask = np.logical_and(
+        radius_bin_center < self.viewcone_min + bin_max_radius,
+        radius_bin_center > self.viewcone_min - bin_max_radius,
+    )
+
+    fov_edge_mask = np.logical_or(fov_inner_edge_mask, fov_outer_edge_mask)
 
     # get indices of relevant bin corners
     corner_idx = np.nonzero(fov_edge_mask)
 
     # define start and endpoints for subpixels
-    bin_grid_lon, bin_grid_lat = np.meshgrid(bin_edges_lon, bin_edges_lat)
     edges_lon = np.array(
         [bin_grid_lon[corner_idx], bin_grid_lon[corner_idx] + bin_width_lon]
     )
@@ -387,7 +428,10 @@ def _fov_lonlat_grid_overlap(self, bin_edges_lon, bin_edges_lat, radius, subpixe
 
     # make mask with subpixels inside the FOV
     radius_subpixel = angular_separation(subpixel_grid_lon, subpixel_grid_lat, 0, 0)
-    mask = radius_subpixel <= radius
+    mask = np.logical_and(
+        radius_subpixel <= self.viewcone_max,
+        radius_subpixel >= self.viewcone_min,
+    )
 
     # calculates the fraction of subpixel centers within the FOV
     FOV_covered_area = mask.sum(axis=(1,2)) / (subpixels ** 2)
