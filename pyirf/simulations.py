@@ -349,7 +349,10 @@ def _fov_lonlat_grid_overlap(self, bin_edges_lon, bin_edges_lat, subpixels=20):
         0,
     ).to_value(u.deg)
 
-    all_outside = np.all(bin_dist <= self.viewcone_min.to_value(u.deg))
+    all_outside = np.logical_or(
+        np.all(bin_dist <= self.viewcone_min.to_value(u.deg)),
+        np.all(bin_dist >= self.viewcone_max.to_value(u.deg)),
+    )
     all_inside = np.logical_and(
         np.all(bin_dist <= self.viewcone_max.to_value(u.deg)),
         np.all(bin_dist >= self.viewcone_min.to_value(u.deg)),
