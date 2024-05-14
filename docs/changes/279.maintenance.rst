@@ -1,1 +1,0 @@
-Temporarily fix scipy to <1.12 until gammapy supports API changes introduced with scipy 1.12.
