@@ -1,3 +1,40 @@
+pyirf v0.11.0 (2024-05-14)
+==========================
+
+Bug Fixes
+---------
+
+- Fix ``pyirf.benchmarks.energy_bias_resolution_from_energy_dispersion``.
+  This function was not adapted to the now correct normalization of the
+  energy dispersion matrix, resulting in wrong results on the now correct
+  matrices. [`#268 <https://github.com/cta-observatory/pyirf/pull/268>`__]
+
+
+New Features
+------------
+
+- Adds an extrapolator for parametrized compontents utilizing blending over visible edges, resulting 
+  in a smooth extrapolation compared to the NearestSimplexExtrapolator. [`#253 <https://github.com/cta-observatory/pyirf/pull/253>`__]
+
+- Ignore warnings about invalid floating point operations when calculating `n_signal` and `n_signal_weigthed` because the relative sensitivty is frequently NaN. [`#264 <https://github.com/cta-observatory/pyirf/pull/264>`__]
+
+- Add basic combinatoric fill-value handling for RAD_MAX estimation. [`#282 <https://github.com/cta-observatory/pyirf/pull/282>`__]
+
+
+Maintenance
+-----------
+
+- Clarified some documentation. [`#266 <https://github.com/cta-observatory/pyirf/pull/266>`__]
+
+- Add support for astropy 6.0. [`#271 <https://github.com/cta-observatory/pyirf/pull/271>`__]
+
+- Added filling of CREF keyword (IRF axis order) in the output files [`#275 <https://github.com/cta-observatory/pyirf/pull/275>`__]
+
+
+
+Refactoring and Optimization
+----------------------------
+
 pyirf v0.10.1 (2023-09-15)
 ==========================
 
