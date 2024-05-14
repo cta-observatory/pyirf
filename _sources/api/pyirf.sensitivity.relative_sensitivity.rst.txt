@@ -1,0 +1,6 @@
+relative_sensitivity
+====================
+
+.. currentmodule:: pyirf.sensitivity
+
+.. autofunction:: relative_sensitivity

@@ -1,0 +1,19 @@
+ParametrizedInterpolator
+========================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: ParametrizedInterpolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ParametrizedInterpolator.__call__
+      ~ParametrizedInterpolator.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

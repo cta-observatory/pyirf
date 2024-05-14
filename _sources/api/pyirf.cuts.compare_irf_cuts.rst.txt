@@ -1,0 +1,6 @@
+compare_irf_cuts
+================
+
+.. currentmodule:: pyirf.cuts
+
+.. autofunction:: compare_irf_cuts

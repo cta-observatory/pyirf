@@ -1,0 +1,19 @@
+DiscretePDFExtrapolator
+=======================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: DiscretePDFExtrapolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~DiscretePDFExtrapolator.__call__
+      ~DiscretePDFExtrapolator.extrapolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: extrapolate

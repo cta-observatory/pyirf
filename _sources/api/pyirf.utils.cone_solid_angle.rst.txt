@@ -1,0 +1,6 @@
+cone_solid_angle
+================
+
+.. currentmodule:: pyirf.utils
+
+.. autofunction:: cone_solid_angle

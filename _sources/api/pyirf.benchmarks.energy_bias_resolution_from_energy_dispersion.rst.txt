@@ -1,0 +1,6 @@
+energy_bias_resolution_from_energy_dispersion
+=============================================
+
+.. currentmodule:: pyirf.benchmarks
+
+.. autofunction:: energy_bias_resolution_from_energy_dispersion

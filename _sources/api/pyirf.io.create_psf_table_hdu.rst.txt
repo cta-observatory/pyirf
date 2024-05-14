@@ -1,0 +1,6 @@
+create_psf_table_hdu
+====================
+
+.. currentmodule:: pyirf.io
+
+.. autofunction:: create_psf_table_hdu

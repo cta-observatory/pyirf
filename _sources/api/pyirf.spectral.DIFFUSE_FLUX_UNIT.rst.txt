@@ -1,0 +1,6 @@
+DIFFUSE_FLUX_UNIT
+=================
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: DIFFUSE_FLUX_UNIT

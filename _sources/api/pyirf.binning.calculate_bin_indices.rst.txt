@@ -1,0 +1,6 @@
+calculate_bin_indices
+=====================
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: calculate_bin_indices

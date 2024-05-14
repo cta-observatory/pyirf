@@ -1,0 +1,17 @@
+EnergyDispersionEstimator
+=========================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: EnergyDispersionEstimator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~EnergyDispersionEstimator.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

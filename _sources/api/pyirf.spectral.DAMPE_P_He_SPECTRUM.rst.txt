@@ -1,0 +1,6 @@
+DAMPE_P_He_SPECTRUM
+===================
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: DAMPE_P_He_SPECTRUM
