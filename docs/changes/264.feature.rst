@@ -1,1 +1,0 @@
-Ignore warnings about invalid floating point operations when calculating `n_signal` and `n_signal_weigthed` because the relative sensitivty is frequently NaN.
