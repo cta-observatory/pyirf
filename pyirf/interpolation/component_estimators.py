@@ -3,7 +3,6 @@ import warnings
 
 import astropy.units as u
 import numpy as np
-from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
 
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
@@ -13,7 +12,9 @@ from .base_interpolators import (
     PDFNormalization,
 )
 from .griddata_interpolator import GridDataInterpolator
+from .nearest_neighbor_searcher import BaseNearestNeighborSearcher
 from .quantile_interpolator import QuantileInterpolator
+from .utils import find_nearest_simplex
 
 __all__ = [
     "BaseComponentEstimator",
@@ -477,6 +478,7 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
         self,
         grid_points,
         rad_max,
+        fill_value=None,
         interpolator_cls=GridDataInterpolator,
         interpolator_kwargs=None,
         extrapolator_cls=None,
@@ -495,6 +497,13 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
             Grid of theta cuts. Dimensions but the first can in principle be freely
             chosen. Class is RAD_MAX_2D compatible, which would require
             shape=(n_points, n_energy_bins, n_fov_offset_bins).
+        fill_val:
+            Indicator of fill-value handling. If None, fill values are regarded as
+            normal values and no special handeling is applied. If "infer", fill values
+            will be infered as max of all values, if a value is provided,
+            it is used to flag fill values. Flagged fill-values are
+            not used for interpolation. Fill-value handling is only supported in
+            up to two grid dimensions.
         interpolator_cls:
             pyirf interpolator class, defaults to GridDataInterpolator.
         interpolator_kwargs: dict
@@ -523,6 +532,26 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
             extrapolator_kwargs=extrapolator_kwargs,
         )
 
+        self.params = rad_max
+
+        if fill_value is None:
+            self.fill_val = None
+        elif fill_value == "infer":
+            self.fill_val = np.max(self.params)
+        else:
+            self.fill_val = fill_value
+
+        # Raise error if fill-values should be handled in >=3 dims
+        if self.fill_val and self.grid_dim >= 3:
+            raise ValueError(
+                "Fill-value handling only supported in up to two grid dimensions."
+            )
+
+        # If fill-values should be handled in 2D, construct a trinangulation
+        # to later determine in which simplex the target values is
+        if self.fill_val and (self.grid_dim == 2):
+            self.triangulation = Delaunay(self.grid_points)
+
     def __call__(self, target_point):
         """
         Estimating rad max table at target_point, inter-/extrapolates as needed and
@@ -540,8 +569,99 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
             effective areas. For RAD_MAX_2D of shape (n_energy_bins, n_fov_offset_bins)
 
         """
+        # First, construct estimation without handling fill-values
+        full_estimation = super().__call__(target_point)
+        # Safeguard against extreme extrapolation cases
+        np.clip(full_estimation, 0, None, out=full_estimation)
 
-        return super().__call__(target_point)
+        # Early exit if fill_values should not be handled
+        if not self.fill_val:
+            return full_estimation
+
+        # Early exit if a nearest neighbor estimation would be overwritten
+        # Complex setup is needed to catch settings where the user mixes approaches and
+        # e.g. uses nearest neighbors for extrapolation and an actual interpolation otherwise
+        if self.grid_dim == 1:
+            if (
+                (target_point < self.grid_points.min())
+                or (target_point > self.grid_points.max())
+            ) and issubclass(self.extrapolator.__class__, BaseNearestNeighborSearcher):
+                return full_estimation
+            elif issubclass(self.interpolator.__class__, BaseNearestNeighborSearcher):
+                return full_estimation
+        elif self.grid_dim == 2:
+            target_simplex = self.triangulation.find_simplex(target_point)
+
+            if (target_simplex == -1) and issubclass(
+                self.extrapolator.__class__, BaseNearestNeighborSearcher
+            ):
+                return full_estimation
+            elif issubclass(self.interpolator.__class__, BaseNearestNeighborSearcher):
+                return full_estimation
+
+        # Actual fill-value handling
+        if self.grid_dim == 1:
+            # Locate target in grid
+            if target_point < self.grid_points.min():
+                segment_inds = np.array([0, 1], "int")
+            elif target_point > self.grid_points.max():
+                segment_inds = np.array([-2, -1], "int")
+            else:
+                target_bin = np.digitize(
+                    target_point.squeeze(), self.grid_points.squeeze()
+                )
+                segment_inds = np.array([target_bin - 1, target_bin], "int")
+
+            mask_left = self.params[segment_inds[0]] >= self.fill_val
+            mask_right = self.params[segment_inds[1]] >= self.fill_val
+            # Indicate, wether one of the neighboring entries is a fill-value
+            mask = np.logical_or(mask_left, mask_right)
+        elif self.grid_dim == 2:
+            # Locate target
+            target_simplex = self.triangulation.find_simplex(target_point)
+
+            if target_simplex == -1:
+                target_simplex = find_nearest_simplex(self.triangulation, target_point)
+
+            simplex_nodes_indices = self.triangulation.simplices[
+                target_simplex
+            ].squeeze()
+
+            mask0 = self.params[simplex_nodes_indices[0]] >= self.fill_val
+            mask1 = self.params[simplex_nodes_indices[1]] >= self.fill_val
+            mask2 = self.params[simplex_nodes_indices[2]] >= self.fill_val
+
+            # This collected mask now counts for each entry in the estimation how many
+            # of the entries used for extrapolation contained fill-values
+            intermediate_mask = (
+                mask0.astype("int") + mask1.astype("int") + mask2.astype("int")
+            )
+            mask = np.full_like(intermediate_mask, True, dtype=bool)
+
+            # Simplest cases: All or none entries were fill-values, so either return
+            # a fill-value or the actual estimation
+            mask[intermediate_mask == 0] = False
+            mask[intermediate_mask == 3] = True
+
+            # If two out of three values were fill-values return a fill-value as estimate
+            mask[intermediate_mask == 2] = True
+
+            # If only one out of three values was a fill-value use the smallest value of the
+            # remaining two
+            mask[intermediate_mask == 1] = False
+            full_estimation = np.where(
+                intermediate_mask[np.newaxis, :] == 1,
+                np.min(self.params[simplex_nodes_indices], axis=0),
+                full_estimation,
+            )
+
+        # Set all flagged values to fill-value
+        full_estimation[mask[np.newaxis, :]] = self.fill_val
+
+        # Safeguard against extreme extrapolation cases
+        full_estimation[full_estimation > self.fill_val] = self.fill_val
+
+        return full_estimation
 
 
 class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
