@@ -1,7 +1,9 @@
 import astropy.units as u
 import numpy as np
-from pyirf.utils import cone_solid_angle
+import pytest
 from scipy.stats import expon
+
+from pyirf.utils import cone_solid_angle
 
 
 def test_EnergyDispersionEstimator(prod5_irfs):
@@ -74,7 +76,9 @@ def test_PSFTableEstimator():
 
     interp = estimator(target_point=zen_pnt[[1]])
 
-    probability = (interp * omegas[np.newaxis, np.newaxis, np.newaxis, ...]).to_value(u.one)
+    probability = (interp * omegas[np.newaxis, np.newaxis, np.newaxis, ...]).to_value(
+        u.one
+    )
 
     assert np.max(probability) <= 1
     assert np.min(probability) >= 0
@@ -177,6 +181,7 @@ def test_RadMaxEstimator():
     estimator = RadMaxEstimator(
         grid_points=grid_points,
         rad_max=rad_max,
+        fill_value=None,
         interpolator_cls=GridDataInterpolator,
         interpolator_kwargs=None,
         extrapolator_cls=None,
@@ -186,3 +191,183 @@ def test_RadMaxEstimator():
 
     assert interp.shape == (1, *rad_max_1.shape)
     assert np.allclose(interp, 1.5 * rad_max_1)
+
+
+def test_RadMaxEstimator_fill_val_handling_1D():
+    from pyirf.interpolation import (
+        GridDataInterpolator,
+        ParametrizedNearestNeighborSearcher,
+        ParametrizedNearestSimplexExtrapolator,
+        RadMaxEstimator,
+    )
+
+    grid_points_1D = np.array([[0], [1], [2]])
+
+    rad_max_1 = np.array([[0.95, 0.95, 0.5, 0.95, 0.95], [0.95, 0.5, 0.3, 0.5, 0.95]])
+    rad_max_2 = np.array([[0.95, 0.5, 0.3, 0.5, 0.95], [0.5, 0.3, 0.2, 0.9, 0.5]])
+    rad_max_3 = np.array([[0.95, 0.4, 0.2, 0.4, 0.5], [0.5, 0.3, 0, 0.94, 0.6]])
+
+    rad_max_1D = np.array([rad_max_1, rad_max_2, rad_max_3])
+
+    truth_0 = np.array([[0.95, 0.95, 0.7, 0.95, 0.95], [0.95, 0.7, 0.4, 0.1, 0.95]])
+    truth_1_5 = np.array([[0.95, 0.95, 0.4, 0.95, 0.95], [0.95, 0.4, 0.25, 0.7, 0.95]])
+
+    truth_4 = np.array([[0.95, 0.3, 0.1, 0.3, 0.95], [0.5, 0.3, 0, 0.95, 0.7]])
+
+    # State fill value
+    estim = RadMaxEstimator(
+        grid_points=grid_points_1D,
+        rad_max=rad_max_1D,
+        fill_value=0.95,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=ParametrizedNearestSimplexExtrapolator,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(np.array([-1])), truth_0)
+    assert np.allclose(estim(np.array([0.5])), truth_1_5)
+    assert np.allclose(estim(np.array([3])), truth_4)
+
+    # Infer fill-val as max of rad-max vals
+    estim = RadMaxEstimator(
+        grid_points=grid_points_1D,
+        rad_max=rad_max_1D,
+        fill_value="infer",
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=ParametrizedNearestSimplexExtrapolator,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(np.array([0.5])), truth_1_5)
+    assert np.allclose(estim(np.array([3])), truth_4)
+
+    # Nearest neighbor cases
+    estim = RadMaxEstimator(
+        grid_points=grid_points_1D,
+        rad_max=rad_max_1D,
+        fill_value="infer",
+        interpolator_cls=ParametrizedNearestNeighborSearcher,
+        interpolator_kwargs=None,
+        extrapolator_cls=ParametrizedNearestNeighborSearcher,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(np.array([0.25])), rad_max_1)
+    assert np.allclose(estim(np.array([3])), rad_max_3)
+
+    # Ignore fill values
+    estim = RadMaxEstimator(
+        grid_points=grid_points_1D,
+        rad_max=rad_max_1D,
+        fill_value=None,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(np.array([0.5])), (rad_max_1 + rad_max_2) / 2)
+
+
+def test_RadMaxEstimator_fill_val_handling_2D():
+    from pyirf.interpolation import (
+        GridDataInterpolator,
+        ParametrizedNearestNeighborSearcher,
+        ParametrizedNearestSimplexExtrapolator,
+        RadMaxEstimator,
+    )
+
+    grid_points_2D = np.array([[0, 0], [1, 0], [0, 1]])
+
+    rad_max_1 = np.array([[0.95, 0.95, 0.5, 0.95, 0.95], [0.5, 0.5, 0.3, 0.5, 0.5]])
+    rad_max_2 = np.array([[0.95, 0.95, 0.5, 0.5, 0.95], [0.95, 0.95, 0.95, 0.5, 0.95]])
+    rad_max_3 = np.array([[0.95, 0.5, 0.5, 0.4, 0.5], [0.4, 0.95, 0, 0.5, 0.95]])
+
+    rad_max_2D = np.array([rad_max_1, rad_max_2, rad_max_3])
+
+    # Only test for combinatoric cases, thus inter- and extrapolation have the same
+    # result in this special test case. Correct estimation is checked elsewhere
+    truth = np.array([[0.95, 0.95, 0.5, 0.4, 0.95], [0.4, 0.95, 0, 0.5, 0.95]])
+
+    # State fill-value
+    estim = RadMaxEstimator(
+        grid_points=grid_points_2D,
+        rad_max=rad_max_2D,
+        fill_value=0.95,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=ParametrizedNearestSimplexExtrapolator,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(np.array([0.5, 0.5])), truth)
+    assert np.allclose(estim(np.array([-1, -1])), truth)
+
+    # Infer fill-val as max of rad-max vals
+    estim = RadMaxEstimator(
+        grid_points=grid_points_2D,
+        rad_max=rad_max_2D,
+        fill_value="infer",
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=ParametrizedNearestSimplexExtrapolator,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(np.array([0.5, 0.5])), truth)
+    assert np.allclose(estim(np.array([-1, -1])), truth)
+
+    # Nearest neighbor cases
+    estim = RadMaxEstimator(
+        grid_points=grid_points_2D,
+        rad_max=rad_max_2D,
+        fill_value="infer",
+        interpolator_cls=ParametrizedNearestNeighborSearcher,
+        interpolator_kwargs=None,
+        extrapolator_cls=ParametrizedNearestNeighborSearcher,
+        extrapolator_kwargs=None,
+    )
+
+    assert np.allclose(estim(np.array([0.25, 0.25])), rad_max_1)
+    assert np.allclose(estim(np.array([0, 1.1])), rad_max_3)
+
+    # Ignore fill-values
+    estim = RadMaxEstimator(
+        grid_points=grid_points_2D,
+        rad_max=rad_max_2D,
+        fill_value=None,
+        interpolator_cls=GridDataInterpolator,
+        interpolator_kwargs=None,
+        extrapolator_cls=None,
+        extrapolator_kwargs=None,
+    )
+
+    truth_interpolator = GridDataInterpolator(grid_points_2D, rad_max_2D)
+
+    assert np.allclose(
+        estim(np.array([0.25, 0.25])), truth_interpolator(np.array([0.25, 0.25]))
+    )
+
+
+def test_RadMaxEstimator_fill_val_handling_3D():
+    from pyirf.interpolation import GridDataInterpolator, RadMaxEstimator
+
+    grid_points_3D = np.array([[0, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]])
+
+    rad_max = np.array([[0.95], [0.95], [0.95], [0.95]])
+
+    with pytest.raises(
+        ValueError,
+        match="Fill-value handling only supported in up to two grid dimensions.",
+    ):
+        RadMaxEstimator(
+            grid_points=grid_points_3D,
+            rad_max=rad_max,
+            fill_value=0.95,
+            interpolator_cls=GridDataInterpolator,
+            interpolator_kwargs=None,
+            extrapolator_cls=None,
+            extrapolator_kwargs=None,
+        )

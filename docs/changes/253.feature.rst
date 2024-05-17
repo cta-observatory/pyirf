@@ -1,2 +1,0 @@
-Adds an extrapolator for parametrized compontents utilizing blending over visible edges, resulting 
-in a smooth extrapolation compared to the NearestSimplexExtrapolator.
