@@ -6,15 +6,59 @@ import astropy.units as u
 from .binning import calculate_bin_indices, bin_center
 
 __all__ = [
-    'calculate_percentile_cut',
-    'evaluate_binned_cut',
-    'compare_irf_cuts',
+    "calculate_percentile_cut",
+    "evaluate_binned_cut",
+    "compare_irf_cuts",
+    "weighted_quantile",
 ]
 
 
+def weighted_quantile(values, weights, quantiles=0.5, interpolate=False):
+    """
+    Calculate weighted quantiles.
+
+    Parameters
+    ----------
+    values : np.array
+    weights : np.array
+        Has to be of same length as ```values```.
+    quantiles : float or array[float], optional, between (0,1)
+        By default 0.5, i.e. Median
+    interpolate : bool, optional
+        Interpolate between values?, by default False
+
+    Returns
+    -------
+    float
+        Quantile
+    """
+    assert len(values) == len(weights), "values and weights must be of the same length"
+    values = values[~np.isnan(values)]
+    weights = weights[~np.isnan(values)]
+
+    i = values.argsort()
+    sorted_weights = weights[i]
+    sorted_values = values[i]
+    Sn = sorted_weights.cumsum()
+
+    if interpolate:
+        Pn = (Sn - sorted_weights / 2) / Sn[-1]
+        return np.interp(quantiles, Pn, sorted_values)
+    else:
+        return sorted_values[np.searchsorted(Sn, quantiles * Sn[-1])]
+
+
 def calculate_percentile_cut(
-    values, bin_values, bins, fill_value, percentile=68, min_value=None, max_value=None,
-    smoothing=None, min_events=10,
+    values,
+    bin_values,
+    bins,
+    fill_value,
+    weights=None,
+    percentile=68,
+    min_value=None,
+    max_value=None,
+    smoothing=None,
+    min_events=10,
 ):
     """
     Calculate cuts as the percentile of a given quantity in bins of another
@@ -31,6 +75,10 @@ def calculate_percentile_cut(
     fill_value: float or quantity
         Value for bins with less than ``min_events``,
         must have same unit as values
+    weights: ``~numpy.ndarray``
+        Array containing the weight of each entry in ```values```.
+        The default value of None corresponds to equal weights.
+        Must be of same length as ```values```.
     percentile: float
         The percentile to calculate in each bin as a percentage,
         i.e. 0 <= percentile <= 100.
@@ -44,9 +92,14 @@ def calculate_percentile_cut(
     min_events: int
         Bins with less events than this number are replaced with ``fill_value``
     """
+
+    if weights is None:
+        weights = np.ones(len(values))
+    else:
+        assert len(weights) == len(values)
     # create a table to make use of groupby operations
     # we use a normal table here to avoid astropy/astropy#13840
-    table = Table({"values": values}, copy=False)
+    table = Table({"values": values, "weights": weights}, copy=False)
     unit = table["values"].unit
 
     # make sure units match
@@ -77,17 +130,19 @@ def calculate_percentile_cut(
         if n_events < min_events:
             cut_table["cut"][bin_idx] = fill_value
         else:
-            value = np.nanpercentile(group["values"], percentile)
+            value = weighted_quantile(
+                group["values"], group["weights"], percentile / 100, interpolate=True
+            )
             if min_value is not None or max_value is not None:
                 value = np.clip(value, min_value, max_value)
 
             cut_table["cut"].value[bin_idx] = value
 
     if smoothing is not None:
-        cut_table['cut'].value[:] = gaussian_filter1d(
+        cut_table["cut"].value[:] = gaussian_filter1d(
             cut_table["cut"].value,
             smoothing,
-            mode='nearest',
+            mode="nearest",
         )
 
     return cut_table
@@ -126,7 +181,7 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
         passes the bin specific cut given in cut table.
     """
     if not isinstance(cut_table, QTable):
-        raise ValueError('cut_table needs to be an astropy.table.QTable')
+        raise ValueError("cut_table needs to be an astropy.table.QTable")
 
     bins = np.append(cut_table["low"], cut_table["high"][-1])
     bin_index, valid = calculate_bin_indices(bin_values, bins)
