@@ -2,6 +2,7 @@ import numpy as np
 import astropy.units as u
 from astropy.coordinates import angular_separation
 
+from .compat import COPY_IF_NEEDED
 from .exceptions import MissingColumns, WrongColumnUnit
 
 
@@ -27,7 +28,7 @@ def is_scalar(val):
     result: bool
         True is if input object is a scalar, False otherwise.
     """
-    result = np.array(val, copy=False).shape == tuple()
+    result = np.array(val, copy=COPY_IF_NEEDED).shape == tuple()
     return result
 
 
