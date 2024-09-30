@@ -4,6 +4,7 @@ from astropy.table import QTable
 import astropy.units as u
 
 from ..binning import calculate_bin_indices, UNDERFLOW_INDEX, OVERFLOW_INDEX
+from ..compat import COPY_IF_NEEDED
 
 
 NORM_LOWER_SIGMA, NORM_UPPER_SIGMA = norm(0, 1).cdf([-1, 1])
@@ -83,8 +84,10 @@ def energy_bias_resolution(
     """
 
     # create a table to make use of groupby operations
-    table = QTable(events[["true_energy", "reco_energy"]], copy=False)
-    table["rel_error"] = (events["reco_energy"] / events["true_energy"]).to_value(u.one) - 1
+    table = QTable(events[["true_energy", "reco_energy"]], copy=COPY_IF_NEEDED)
+    table["rel_error"] = (events["reco_energy"] / events["true_energy"]).to_value(
+        u.one
+    ) - 1
 
     energy_key = f"{energy_type}_energy"
 
@@ -102,7 +105,6 @@ def energy_bias_resolution(
         # we return the table filled with NaNs
         return result
 
-
     # use groupby operations to calculate the percentile in each bin
     bin_index, valid = calculate_bin_indices(table[energy_key], energy_bins)
     by_bin = table.group_by(bin_index)
@@ -114,6 +116,7 @@ def energy_bias_resolution(
         result["bias"][bin_idx] = bias_function(group["rel_error"])
         result["resolution"][bin_idx] = resolution_function(group["rel_error"])
     return result
+
 
 def energy_bias_resolution_from_energy_dispersion(
     energy_dispersion,
@@ -147,7 +150,7 @@ def energy_bias_resolution_from_energy_dispersion(
             low, median, high = np.interp(
                 [NORM_LOWER_SIGMA, MEDIAN, NORM_UPPER_SIGMA],
                 cdf[energy_bin, :, fov_bin],
-                migration_bins[1:] # cdf is defined at upper bin edge
+                migration_bins[1:],  # cdf is defined at upper bin edge
             )
             bias[energy_bin, fov_bin] = median - 1
             resolution[energy_bin, fov_bin] = 0.5 * (high - low)

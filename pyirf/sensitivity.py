@@ -1,6 +1,7 @@
 """
 Functions to calculate sensitivity
 """
+
 import numpy as np
 from scipy.optimize import brentq
 import logging
@@ -8,6 +9,7 @@ import logging
 from astropy.table import QTable
 import astropy.units as u
 
+from .compat import COPY_IF_NEEDED
 from .statistics import li_ma_significance
 from .utils import check_histograms, cone_solid_angle
 from .binning import create_histogram_table, bin_center
@@ -36,7 +38,7 @@ def _relative_sensitivity(
         return np.nan
 
     if n_on < 0 or n_off < 0:
-        raise ValueError(f'n_on and n_off must be positive, got {n_on}, {n_off}')
+        raise ValueError(f"n_on and n_off must be positive, got {n_on}, {n_off}")
 
     n_background = n_off * alpha
     n_signal = n_on - n_background
@@ -65,7 +67,7 @@ def _relative_sensitivity(
         relative_flux = brentq(equation, lower_bound, upper_bound)
 
     except (RuntimeError, ValueError) as e:
-        log.warn(
+        log.warning(
             "Could not calculate relative significance for"
             f" n_signal={n_signal:.1f}, n_off={n_off:.1f}, returning nan {e}"
         )
@@ -87,8 +89,7 @@ def _relative_sensitivity(
 
 
 _relative_sensitivity_vectorized = np.vectorize(
-    _relative_sensitivity,
-    excluded=['significance_function']
+    _relative_sensitivity, excluded=["significance_function"]
 )
 
 
@@ -230,8 +231,10 @@ def calculate_sensitivity(
 
     # convert any quantities to arrays,
     # since quantitites don't work with vectorize
-    n_on = u.Quantity(n_on, copy=False).to_value(u.one)
-    n_off = u.Quantity(background_hist["n_weighted"], copy=False).to_value(u.one)
+    n_on = u.Quantity(n_on, copy=COPY_IF_NEEDED).to_value(u.one)
+    n_off = u.Quantity(background_hist["n_weighted"], copy=COPY_IF_NEEDED).to_value(
+        u.one
+    )
 
     # calculate sensitivity in each bin
     rel_sens = relative_sensitivity(
@@ -257,7 +260,9 @@ def calculate_sensitivity(
     s["n_background_weighted"] = background_hist["n_weighted"]
 
     # copy also "n_proton" / "n_electron_weighted" etc. if available
-    for k in filter(lambda c: c.startswith('n_') and c != 'n_weighted', background_hist.colnames):
+    for k in filter(
+        lambda c: c.startswith("n_") and c != "n_weighted", background_hist.colnames
+    ):
         s[k] = background_hist[k]
 
     s["significance"] = significance_function(
@@ -271,10 +276,14 @@ def calculate_sensitivity(
 
 
 def estimate_background(
-    events, reco_energy_bins, theta_cuts, alpha,
-    fov_offset_min, fov_offset_max, 
+    events,
+    reco_energy_bins,
+    theta_cuts,
+    alpha,
+    fov_offset_min,
+    fov_offset_max,
 ):
-    '''
+    """
     Estimate the number of background events for a point-like sensitivity.
 
     Due to limited statistics, it is often not possible to just apply the same
@@ -308,33 +317,30 @@ def estimate_background(
         Minimum distance from the fov center for background events to be taken into account
     fov_offset_max: astropy.units.Quantity[angle]
         Maximum distance from the fov center for background events to be taken into account
-    '''
-    in_ring = (
-        (events['reco_source_fov_offset'] >= fov_offset_min)
-        & (events['reco_source_fov_offset'] < fov_offset_max)
+    """
+    in_ring = (events["reco_source_fov_offset"] >= fov_offset_min) & (
+        events["reco_source_fov_offset"] < fov_offset_max
     )
 
     bg = create_histogram_table(
         events[in_ring],
         reco_energy_bins,
-        key='reco_energy',
+        key="reco_energy",
     )
 
     # scale number of background events according to the on region size
     # background radius and alpha
     center = bin_center(reco_energy_bins)
     # interpolate the theta cut to the bins used here
-    theta_cuts_bg_bins = np.interp(
-        center,
-        theta_cuts['center'],
-        theta_cuts['cut']
-    )
+    theta_cuts_bg_bins = np.interp(center, theta_cuts["center"], theta_cuts["cut"])
 
-    solid_angle_on = cone_solid_angle(theta_cuts_bg_bins) 
-    solid_angle_ring = cone_solid_angle(fov_offset_max) - cone_solid_angle(fov_offset_min)
+    solid_angle_on = cone_solid_angle(theta_cuts_bg_bins)
+    solid_angle_ring = cone_solid_angle(fov_offset_max) - cone_solid_angle(
+        fov_offset_min
+    )
     size_ratio = (solid_angle_on / solid_angle_ring).to_value(u.one)
 
-    for key in filter(lambda col: col.startswith('n'), bg.colnames):
+    for key in filter(lambda col: col.startswith("n"), bg.colnames):
         # *= not possible due to upcast from int to float
         bg[key] = bg[key] * size_ratio / alpha
 

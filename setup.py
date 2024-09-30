@@ -41,12 +41,13 @@ extras_require["all"] = list(all_extras)
 
 setup(
     use_scm_version={"write_to": os.path.join("pyirf", "_version.py")},
-    packages=find_packages(exclude=['pyirf._dev_version']),
+    packages=find_packages(exclude=["pyirf._dev_version"]),
     install_requires=[
         "astropy>=5.3,<7.0.0a0",
         "numpy>=1.21",
         "scipy",
         "tqdm",
+        "packaging",
     ],
     include_package_data=True,
     extras_require=extras_require,
