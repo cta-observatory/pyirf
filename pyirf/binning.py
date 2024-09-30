@@ -7,6 +7,8 @@ from scipy.interpolate import interp1d
 import astropy.units as u
 from astropy.table import QTable
 
+from .compat import COPY_IF_NEEDED
+
 
 #: Index returned by `calculate_bin_indices` for underflown values
 UNDERFLOW_INDEX = np.iinfo(np.int64).min
@@ -37,12 +39,12 @@ def join_bin_lo_hi(bin_lo, bin_hi):
         The joint bins
     """
 
-    if np.allclose(bin_lo[...,1:], bin_hi[...,:-1], rtol=1.e-5):
-        last_axis=len(bin_lo.shape)-1
-        bins = np.concatenate((bin_lo, bin_hi[...,-1:]), axis=last_axis)
+    if np.allclose(bin_lo[..., 1:], bin_hi[..., :-1], rtol=1.0e-5):
+        last_axis = len(bin_lo.shape) - 1
+        bins = np.concatenate((bin_lo, bin_hi[..., -1:]), axis=last_axis)
         return bins
     else:
-        raise ValueError('Not matching bin edges')
+        raise ValueError("Not matching bin edges")
 
 
 def split_bin_lo_hi(bins):
@@ -62,9 +64,10 @@ def split_bin_lo_hi(bins):
     bin_hi: np.array or u.Quantity
         Hi bin edges array
     """
-    bin_lo=bins[...,:-1]
-    bin_hi=bins[...,1:]
+    bin_lo = bins[..., :-1]
+    bin_hi = bins[..., 1:]
     return bin_lo, bin_hi
+
 
 def add_overflow_bins(bins, positive=True):
     """
@@ -124,7 +127,7 @@ def create_bins_per_decade(e_min, e_max, bins_per_decade=5):
     # include endpoint if reasonably close
     eps = step / 10000
     bins = 10 ** np.arange(log_lower, log_upper + eps, step)
-    return u.Quantity(bins, e_min.unit, copy=False)
+    return u.Quantity(bins, e_min.unit, copy=COPY_IF_NEEDED)
 
 
 def calculate_bin_indices(data, bins):
@@ -156,7 +159,7 @@ def calculate_bin_indices(data, bins):
 
     valid: np.ndarray[bool]
         Boolean mask indicating if a given value belongs into one of the defined bins.
-        False indicates that an entry fell into the over- or underflow bins. 
+        False indicates that an entry fell into the over- or underflow bins.
     """
 
     if hasattr(data, "unit"):
@@ -169,8 +172,8 @@ def calculate_bin_indices(data, bins):
     n_bins = len(bins) - 1
     idx = np.digitize(data, bins) - 1
 
-    underflow = (idx < 0)
-    overflow = (idx >= n_bins)
+    underflow = idx < 0
+    overflow = idx >= n_bins
     idx[underflow] = UNDERFLOW_INDEX
     idx[overflow] = OVERFLOW_INDEX
     valid = ~underflow & ~overflow
@@ -211,11 +214,11 @@ def create_histogram_table(events, bins, key="reco_energy"):
         hist["n_weighted"] = hist["n"]
 
     # create counts per particle type, only works if there is at least 1 event
-    if 'particle_type' in events.colnames and len(events) > 0:
-        by_particle = events.group_by('particle_type')
+    if "particle_type" in events.colnames and len(events) > 0:
+        by_particle = events.group_by("particle_type")
 
         for group_key, group in zip(by_particle.groups.keys, by_particle.groups):
-            particle = group_key['particle_type']
+            particle = group_key["particle_type"]
 
             hist["n_" + particle], _ = np.histogram(group[key], bins)
 
@@ -282,8 +285,11 @@ def resample_histogram1d(data, old_edges, new_edges, axis=0):
     cumsum /= norm
 
     f_integral = interp1d(
-        old_edges, cumsum, bounds_error=False,
-        fill_value=(0, 1), kind="quadratic",
+        old_edges,
+        cumsum,
+        bounds_error=False,
+        fill_value=(0, 1),
+        kind="quadratic",
         axis=axis,
     )
 

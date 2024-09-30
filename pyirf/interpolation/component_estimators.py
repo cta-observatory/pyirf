@@ -1,9 +1,11 @@
 """Classes to estimate (interpolate/extrapolate) actual IRF HDUs"""
+
 import warnings
 
 import astropy.units as u
 import numpy as np
 from scipy.spatial import Delaunay
+
 
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
 from .base_interpolators import (
@@ -11,6 +13,7 @@ from .base_interpolators import (
     ParametrizedInterpolator,
     PDFNormalization,
 )
+from ..compat import COPY_IF_NEEDED
 from .griddata_interpolator import GridDataInterpolator
 from .nearest_neighbor_searcher import BaseNearestNeighborSearcher
 from .quantile_interpolator import QuantileInterpolator
@@ -428,9 +431,9 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
         self.min_effective_area = min_effective_area
 
         # remove zeros and log it
-        effective_area[
-            effective_area < self.min_effective_area
-        ] = self.min_effective_area
+        effective_area[effective_area < self.min_effective_area] = (
+            self.min_effective_area
+        )
         effective_area = np.log(effective_area)
 
         super().__init__(
@@ -468,7 +471,7 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
         # remove entries manipulated by min_effective_area
         aeff_interp[aeff_interp < self.min_effective_area] = 0
 
-        return u.Quantity(aeff_interp, u.m**2, copy=False)
+        return u.Quantity(aeff_interp, u.m**2, copy=COPY_IF_NEEDED)
 
 
 class RadMaxEstimator(ParametrizedComponentEstimator):
@@ -852,5 +855,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         # Undo normalisation to get a proper PSF and return
         return u.Quantity(
-            np.swapaxes(interpolated_psf_normed, -1, self.axis), u.sr**-1, copy=False
+            np.swapaxes(interpolated_psf_normed, -1, self.axis),
+            u.sr**-1,
+            copy=COPY_IF_NEEDED,
         )

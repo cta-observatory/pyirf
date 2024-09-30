@@ -4,17 +4,25 @@ from scipy.ndimage import gaussian_filter1d
 import astropy.units as u
 
 from .binning import calculate_bin_indices, bin_center
+from .compat import COPY_IF_NEEDED
 
 __all__ = [
-    'calculate_percentile_cut',
-    'evaluate_binned_cut',
-    'compare_irf_cuts',
+    "calculate_percentile_cut",
+    "evaluate_binned_cut",
+    "compare_irf_cuts",
 ]
 
 
 def calculate_percentile_cut(
-    values, bin_values, bins, fill_value, percentile=68, min_value=None, max_value=None,
-    smoothing=None, min_events=10,
+    values,
+    bin_values,
+    bins,
+    fill_value,
+    percentile=68,
+    min_value=None,
+    max_value=None,
+    smoothing=None,
+    min_events=10,
 ):
     """
     Calculate cuts as the percentile of a given quantity in bins of another
@@ -46,7 +54,7 @@ def calculate_percentile_cut(
     """
     # create a table to make use of groupby operations
     # we use a normal table here to avoid astropy/astropy#13840
-    table = Table({"values": values}, copy=False)
+    table = Table({"values": values}, copy=COPY_IF_NEEDED)
     unit = table["values"].unit
 
     # make sure units match
@@ -84,10 +92,10 @@ def calculate_percentile_cut(
             cut_table["cut"].value[bin_idx] = value
 
     if smoothing is not None:
-        cut_table['cut'].value[:] = gaussian_filter1d(
+        cut_table["cut"].value[:] = gaussian_filter1d(
             cut_table["cut"].value,
             smoothing,
-            mode='nearest',
+            mode="nearest",
         )
 
     return cut_table
@@ -126,7 +134,7 @@ def evaluate_binned_cut(values, bin_values, cut_table, op):
         passes the bin specific cut given in cut table.
     """
     if not isinstance(cut_table, QTable):
-        raise ValueError('cut_table needs to be an astropy.table.QTable')
+        raise ValueError("cut_table needs to be an astropy.table.QTable")
 
     bins = np.append(cut_table["low"], cut_table["high"][-1])
     bin_index, valid = calculate_bin_indices(bin_values, bins)

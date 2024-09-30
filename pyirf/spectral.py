@@ -1,6 +1,7 @@
 """
 Functions and classes for calculating spectral weights
 """
+
 import sys
 from importlib.resources import as_file, files
 
@@ -9,6 +10,7 @@ import numpy as np
 from astropy.table import QTable
 from scipy.interpolate import interp1d
 
+from .compat import COPY_IF_NEEDED
 from .utils import cone_solid_angle
 
 #: Unit of a point source flux
@@ -120,7 +122,9 @@ class PowerLaw:
         viewcone_max = simulated_event_info.viewcone_max
 
         if (viewcone_max - viewcone_min).value > 0:
-            solid_angle = cone_solid_angle(viewcone_max) - cone_solid_angle(viewcone_min)
+            solid_angle = cone_solid_angle(viewcone_max) - cone_solid_angle(
+                viewcone_min
+            )
             unit = DIFFUSE_FLUX_UNIT
         else:
             solid_angle = 1
@@ -308,7 +312,6 @@ class TableInterpolationSpectrum:
         self.interp = interp1d(x, y, bounds_error=False, fill_value="extrapolate")
 
     def __call__(self, energy):
-
         x = (energy / self.reference_energy).to_value(u.one)
 
         if self.log_energy:
@@ -319,7 +322,7 @@ class TableInterpolationSpectrum:
         if self.log_flux:
             y = 10**y
 
-        return u.Quantity(y, self.flux_unit, copy=False)
+        return u.Quantity(y, self.flux_unit, copy=COPY_IF_NEEDED)
 
     @classmethod
     def from_table(
