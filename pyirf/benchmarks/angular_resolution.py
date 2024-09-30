@@ -10,15 +10,18 @@ ONE_SIGMA_QUANTILE = norm.cdf(1) - norm.cdf(-1)
 
 
 def angular_resolution(
-    events, energy_bins,
+    events,
+    energy_bins,
     energy_type="true",
-    quantile=ONE_SIGMA_QUANTILE,
+    quantile=[ONE_SIGMA_QUANTILE],
 ):
     """
     Calculate the angular resolution.
 
     This implementation corresponds to the 68% containment of the angular
     distance distribution.
+
+    Passing a list of quantiles results in all the quantiles being calculated.
 
     Parameters
     ----------
@@ -29,8 +32,8 @@ def angular_resolution(
     energy_type: str
         Either "true" or "reco" energy.
         Default is "true".
-    quantile : float
-        Which quantile to use for the angular resolution,
+    quantile : list(float)
+        Which quantile(s) to use for the angular resolution,
         by default, the containment of the 1-sigma region
         of the normal distribution (~68%) is used.
 
@@ -52,8 +55,17 @@ def angular_resolution(
     result[f"{energy_key}_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
     result["n_events"] = 0
 
-    key = "angular_resolution"
-    result[key] = u.Quantity(np.nan, table["theta"].unit)
+    # keep backwards compatibility
+    if not isinstance(quantile, list) and not isinstance(quantile, np.ndarray):
+        quantile = [quantile]
+
+    if len(quantile) < 2:
+        keys = ["angular_resolution"]
+    else:
+        keys = [f"containment_quantile_{value * 100:.0f}" for value in quantile]
+
+    for key in keys:
+        result[key] = u.Quantity(np.nan, table["theta"].unit)
 
     # if we get an empty input (no selected events available)
     # we return the table filled with NaNs
@@ -63,6 +75,8 @@ def angular_resolution(
     # use groupby operations to calculate the percentile in each bin
     by_bin = table[valid].group_by(bin_index[valid])
     for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
-        result[key][bin_idx] = np.nanquantile(group["theta"], quantile)
-        result["n_events"][bin_idx] = len(group)
+        for key, value in zip(keys, quantile):
+            result[key][bin_idx] = np.nanquantile(group["theta"], value)
+            result["n_events"][bin_idx] = len(group)
+
     return result
