@@ -1,3 +1,4 @@
+from collections.abc import Sequence
 import numpy as np
 from astropy.table import QTable
 from scipy.stats import norm
@@ -13,7 +14,7 @@ def angular_resolution(
     events,
     energy_bins,
     energy_type="true",
-    quantile=[ONE_SIGMA_QUANTILE],
+    quantile=ONE_SIGMA_QUANTILE,
 ):
     """
     Calculate the angular resolution.
@@ -55,8 +56,7 @@ def angular_resolution(
     result[f"{energy_key}_center"] = 0.5 * (energy_bins[:-1] + energy_bins[1:])
     result["n_events"] = 0
 
-    # keep backwards compatibility
-    if not isinstance(quantile, list) and not isinstance(quantile, np.ndarray):
+    if not isinstance(quantile, Sequence):
         quantile = [quantile]
 
     if len(quantile) < 2:
