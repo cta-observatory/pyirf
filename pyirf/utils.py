@@ -1,6 +1,7 @@
 import numpy as np
 import astropy.units as u
 from astropy.coordinates import angular_separation
+from .coordinates import gadf_fov_coords_theta_phi, gadf_fov_coords_lon_lat
 
 from .compat import COPY_IF_NEEDED
 from .exceptions import MissingColumns, WrongColumnUnit
@@ -10,6 +11,7 @@ __all__ = [
     "is_scalar",
     "calculate_theta",
     "calculate_source_fov_offset",
+    "calculate_source_fov_position_angle",
     "check_histograms",
     "cone_solid_angle",
 ]
@@ -89,6 +91,62 @@ def calculate_source_fov_offset(events, prefix="true"):
     return theta.to(u.deg)
 
 
+def calculate_source_fov_position_angle(events, prefix="true"):
+    """Calculate position_angle of true positions relative to pointing positions.
+
+    Parameters
+    ----------
+    events : astropy.QTable
+        Astropy Table object containing the reconstructed events information.
+
+    prefix: str
+        Column prefix for az / alt, can be used to calculate reco or true
+        source fov position_angle.
+
+    Returns
+    -------
+    phi: astropy.units.Quantity
+        Position angle of the true positions relative to the pointing positions
+        in the sky.
+    """
+    _, phi = gadf_fov_coords_theta_phi(
+        events[f"{prefix}_az"],
+        events[f"{prefix}_alt"],
+        events["pointing_az"],
+        events["pointing_alt"],
+    )
+
+    return phi.to(u.deg)
+
+
+def calculate_source_fov_lonlat(events, prefix="true"):
+    """Calculate position_angle of true positions relative to pointing positions.
+
+    Parameters
+    ----------
+    events : astropy.QTable
+        Astropy Table object containing the reconstructed events information.
+
+    prefix: str
+        Column prefix for az / alt, can be used to calculate reco or true
+        source fov position_angle.
+
+    Returns
+    -------
+    phi: astropy.units.Quantity
+        Position angle of the true positions relative to the pointing positions
+        in the sky.
+    """
+    lon, lat = gadf_fov_coords_lon_lat(
+        events[f"{prefix}_az"],
+        events[f"{prefix}_alt"],
+        events["pointing_az"],
+        events["pointing_alt"],
+    )
+
+    return lon.to(u.deg), lat.to(u.deg)
+
+
 def check_histograms(hist1, hist2, key="reco_energy"):
     """
     Check if two histogram tables have the same binning
@@ -126,6 +184,32 @@ def cone_solid_angle(angle):
 
     """
     solid_angle = 2 * np.pi * (1 - np.cos(angle)) * u.sr
+    return solid_angle
+
+
+def rectangle_solid_angle(lon_low, lon_high, lat_low, lat_high):
+    """Calculate the solid angle of a latitude-longitude rectangle
+
+    Parameters
+    ----------
+    lon_low: astropy.units.Quantity[angle]
+        Lower longitude coordinate of the rectangle corner
+    lat_low: astropy.units.Quantity[angle]
+        Lower latitude coordinate of the rectangle corner
+    lon_high: astropy.units.Quantity[angle]
+        Higher longitude coordinate of the rectangle corner
+    lat_high: astropy.units.Quantity[angle]
+        Higher Latitude coordinates of the rectangle corner
+
+    Returns
+    -------
+    solid angle: astropy.units.Quantity[solid angle]
+
+    """
+    diff_lon = (lon_high - lon_low).to_value(u.rad)
+    diff_lat = np.sin(lat_high.to_value(u.rad)) - np.sin(lat_low.to_value(u.rad))
+
+    solid_angle = diff_lon * diff_lat * u.sr
     return solid_angle
 
 
