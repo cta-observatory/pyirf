@@ -1,0 +1,2 @@
+Make it possible to pass multiple quantiles to ``pyirf.benchmarks.angular_resolution``, calculating all of them.
+If only one quantile is passed, the output is the same as before.
