@@ -17,7 +17,7 @@ def test_empty_angular_resolution():
 
     table = angular_resolution(events, [1, 10, 100] * u.TeV)
 
-    assert np.all(np.isnan(table["angular_resolution"]))
+    assert np.all(np.isnan(table["containment_quantile_68"]))
 
 
 @pytest.mark.parametrize("unit", (u.deg, u.rad))
@@ -57,7 +57,7 @@ def test_angular_resolution(unit):
 
     bins = [1, 10, 100] * u.TeV
     table = angular_resolution(events, bins)
-    ang_res = table["angular_resolution"].to(u.deg)
+    ang_res = table["containment_quantile_68"].to(u.deg)
     assert len(ang_res) == 2
     assert u.isclose(ang_res[0], TRUE_RES_1 * u.deg, rtol=0.05)
     assert u.isclose(ang_res[1], TRUE_RES_2 * u.deg, rtol=0.05)
@@ -68,7 +68,7 @@ def test_angular_resolution(unit):
     # 2 sigma coverage interval
     quantile = norm(0, 1).cdf(2) - norm(0, 1).cdf(-2)
     table = angular_resolution(events, bins, quantile=quantile)
-    ang_res = table["angular_resolution"].to(u.deg)
+    ang_res = table["containment_quantile_95"].to(u.deg)
     assert len(ang_res) == 2
     assert u.isclose(ang_res[0], 2 * TRUE_RES_1 * u.deg, rtol=0.05)
     assert u.isclose(ang_res[1], 2 * TRUE_RES_2 * u.deg, rtol=0.05)
