@@ -59,7 +59,7 @@ def angular_resolution(
     if not isinstance(quantile, Sequence):
         quantile = [quantile]
 
-    keys = [f"containment_quantile_{value * 100:.0f}" for value in quantile]
+    keys = [f"angular_resolution_{value * 100:.0f}" for value in quantile]
 
     for key in keys:
         result[key] = u.Quantity(np.nan, table["theta"].unit)

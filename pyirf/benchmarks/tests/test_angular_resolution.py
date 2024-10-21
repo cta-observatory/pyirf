@@ -17,7 +17,7 @@ def test_empty_angular_resolution():
 
     table = angular_resolution(events, [1, 10, 100] * u.TeV)
 
-    assert np.all(np.isnan(table["containment_quantile_68"]))
+    assert np.all(np.isnan(table["angular_resolution_68"]))
 
 
 @pytest.mark.parametrize("unit", (u.deg, u.rad))
@@ -57,7 +57,7 @@ def test_angular_resolution(unit):
 
     bins = [1, 10, 100] * u.TeV
     table = angular_resolution(events, bins)
-    ang_res = table["containment_quantile_68"].to(u.deg)
+    ang_res = table["angular_resolution_68"].to(u.deg)
     assert len(ang_res) == 2
     assert u.isclose(ang_res[0], TRUE_RES_1 * u.deg, rtol=0.05)
     assert u.isclose(ang_res[1], TRUE_RES_2 * u.deg, rtol=0.05)
@@ -68,14 +68,14 @@ def test_angular_resolution(unit):
     # 2 sigma coverage interval
     quantile = norm(0, 1).cdf(2) - norm(0, 1).cdf(-2)
     table = angular_resolution(events, bins, quantile=quantile)
-    ang_res = table["containment_quantile_95"].to(u.deg)
+    ang_res = table["angular_resolution_95"].to(u.deg)
     assert len(ang_res) == 2
     assert u.isclose(ang_res[0], 2 * TRUE_RES_1 * u.deg, rtol=0.05)
     assert u.isclose(ang_res[1], 2 * TRUE_RES_2 * u.deg, rtol=0.05)
 
     # 25%, 50%, 90% coverage interval
     table = angular_resolution(events, bins, quantile=[0.25, 0.5, 0.9])
-    cov_25 = table["containment_quantile_25"].to(u.deg)
+    cov_25 = table["angular_resolution_25"].to(u.deg)
     assert len(cov_25) == 2
     assert u.isclose(
         cov_25[0], norm(0, TRUE_RES_1).interval(0.25)[1] * u.deg, rtol=0.05
@@ -84,10 +84,10 @@ def test_angular_resolution(unit):
         cov_25[1], norm(0, TRUE_RES_2).interval(0.25)[1] * u.deg, rtol=0.05
     )
 
-    cov_50 = table["containment_quantile_50"].to(u.deg)
+    cov_50 = table["angular_resolution_50"].to(u.deg)
     assert u.isclose(cov_50[0], norm(0, TRUE_RES_1).interval(0.5)[1] * u.deg, rtol=0.05)
     assert u.isclose(cov_50[1], norm(0, TRUE_RES_2).interval(0.5)[1] * u.deg, rtol=0.05)
 
-    cov_90 = table["containment_quantile_90"].to(u.deg)
+    cov_90 = table["angular_resolution_90"].to(u.deg)
     assert u.isclose(cov_90[0], norm(0, TRUE_RES_1).interval(0.9)[1] * u.deg, rtol=0.05)
     assert u.isclose(cov_90[1], norm(0, TRUE_RES_2).interval(0.9)[1] * u.deg, rtol=0.05)
