@@ -72,8 +72,9 @@ def angular_resolution(
     # use groupby operations to calculate the percentile in each bin
     by_bin = table[valid].group_by(bin_index[valid])
     for bin_idx, group in zip(by_bin.groups.keys, by_bin.groups):
-        for key, value in zip(keys, quantile):
-            result[key][bin_idx] = np.nanquantile(group["theta"], value)
-            result["n_events"][bin_idx] = len(group)
+        result["n_events"][bin_idx] = len(group)
+        quantile_values = np.nanquantile(group["theta"], quantile)
+        for key, value in zip(keys, quantile_values):
+            result[key][bin_idx] = value
 
     return result
