@@ -84,8 +84,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "changes"]
 html_theme = "sphinx_rtd_theme"
 
 html_theme_options = {
-    'canonical_url': 'https://cta-observatory.github.io/pyirf',
-    'display_version': True,
+    'canonical_url': 'https://pyirf.readthedocs.io/',
 }
 
 intersphinx_mapping = {
