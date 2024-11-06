@@ -1,1 +1,0 @@
-Make it possible to pass multiple quantiles to ``pyirf.benchmarks.angular_resolution``, calculating all of them.
