@@ -6,7 +6,8 @@ from ..binning import resample_histogram1d
 
 __all__ = [
     "energy_dispersion",
-    "energy_dispersion_to_migration"
+    "energy_migration_matrix",
+    "energy_dispersion_to_migration",
 ]
 
 
@@ -29,7 +30,10 @@ def _normalize_hist(hist, migration_bins):
 
 
 def energy_dispersion(
-    selected_events, true_energy_bins, fov_offset_bins, migration_bins,
+    selected_events,
+    true_energy_bins,
+    fov_offset_bins,
+    migration_bins,
 ):
     """
     Calculate energy dispersion for the given DL2 event list.
@@ -80,6 +84,56 @@ def energy_dispersion(
     return energy_dispersion
 
 
+@u.quantity_input(true_energy_bins=u.TeV, reco_energy_bins=u.TeV, fov_offset_bins=u.deg)
+def energy_migration_matrix(
+    events, true_energy_bins, reco_energy_bins, fov_offset_bins
+):
+    """Compute the energy migration matrix directly from the events.
+
+    Parameters
+    ----------
+    events : `~astropy.table.QTable`
+        Table of the DL2 events.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``.
+    true_energy_bins : `~astropy.units.Quantity`
+        Bin edges in true energy.
+    reco_energy_bins : `~astropy.units.Quantity`
+        Bin edges in reconstructed energy.
+
+    Returns
+    -------
+    matrix : array-like
+        Migration matrix as probabilities along the reconstructed energy axis.
+        energy axis with shape
+        (n_true_energy_bins, n_reco_energy_bins, n_fov_offset_bins)
+        containing energies in TeV.
+    """
+
+    hist, _ = np.histogramdd(
+        np.column_stack(
+            [
+                events["true_energy"].to_value(u.TeV),
+                events["reco_energy"].to_value(u.TeV),
+                events["true_source_fov_offset"].to_value(u.deg),
+            ]
+        ),
+        bins=[
+            true_energy_bins.to_value(u.TeV),
+            reco_energy_bins.to_value(u.TeV),
+            fov_offset_bins.to_value(u.deg),
+        ],
+    )
+
+    with np.errstate(invalid="ignore"):
+        hist /= hist.sum(axis=1)[:, np.newaxis, :]
+        # the nans come from the fact that the sum along the reconstructed energy axis
+        # might sometimes be 0 when there are no events in that given true energy bin
+        # and fov offset bin
+        hist[np.isnan(hist)] = 0
+
+    return hist
+
+
 def energy_dispersion_to_migration(
     dispersion_matrix,
     disp_true_energy_edges,
@@ -88,8 +142,8 @@ def energy_dispersion_to_migration(
     new_reco_energy_edges,
 ):
     """
-    Construct a energy migration matrix from a energy
-    dispersion matrix.
+    Construct a energy migration matrix from an energy dispersion matrix.
+
     Depending on the new energy ranges, the sum over the first axis
     can be smaller than 1.
     The new true energy bins need to be a subset of the old range,
@@ -110,21 +164,25 @@ def energy_dispersion_to_migration(
     new_reco_energy_edges: astropy.units.Quantity[energy]
         Reco energy edges matching the second dimension of the output
 
-    Returns:
-    --------
+    Returns
+    -------
     migration_matrix: numpy.ndarray
         Three-dimensional energy migration matrix. The third dimension
         equals the fov offset dimension of the energy dispersion matrix.
     """
+    migration_matrix = np.zeros(
+        (
+            len(new_true_energy_edges) - 1,
+            len(new_reco_energy_edges) - 1,
+            dispersion_matrix.shape[2],
+        )
+    )
 
-    migration_matrix = np.zeros((
-        len(new_true_energy_edges) - 1,
-        len(new_reco_energy_edges) - 1,
-        dispersion_matrix.shape[2],
-    ))
+    migra_width = np.diff(disp_migration_edges)
+    probability = dispersion_matrix * migra_width[np.newaxis, :, np.newaxis]
 
     true_energy_interpolation = resample_histogram1d(
-        dispersion_matrix,
+        probability,
         disp_true_energy_edges,
         new_true_energy_edges,
         axis=0,
@@ -137,13 +195,14 @@ def energy_dispersion_to_migration(
     for idx, e_true in enumerate(
         (new_true_energy_edges[1:] + new_true_energy_edges[:-1]) / 2
     ):
-
         # get migration for the new true energy bin
         e_true_dispersion = true_energy_interpolation[idx]
 
         with warnings.catch_warnings():
             # silence inf/inf division warning
-            warnings.filterwarnings('ignore', 'invalid value encountered in true_divide')
+            warnings.filterwarnings(
+                "ignore", "invalid value encountered in true_divide"
+            )
             interpolation_edges = new_reco_energy_edges / e_true
 
         y = resample_histogram1d(

@@ -64,17 +64,29 @@ def test_energy_dispersion():
 
     assert np.isclose(
         TRUE_SIGMA_1,
-        0.5 * (ppf(cdf[0, :, 0], migration_bins, 0.84) - ppf(cdf[0, :, 0], migration_bins, 0.16)),
+        0.5
+        * (
+            ppf(cdf[0, :, 0], migration_bins, 0.84)
+            - ppf(cdf[0, :, 0], migration_bins, 0.16)
+        ),
         rtol=0.1,
     )
     assert np.isclose(
         TRUE_SIGMA_2,
-        0.5 * (ppf(cdf[1, :, 0], migration_bins, 0.84) - ppf(cdf[1, :, 0], migration_bins, 0.16)),
+        0.5
+        * (
+            ppf(cdf[1, :, 0], migration_bins, 0.84)
+            - ppf(cdf[1, :, 0], migration_bins, 0.16)
+        ),
         rtol=0.1,
     )
     assert np.isclose(
         TRUE_SIGMA_3,
-        0.5 * (ppf(cdf[2, :, 0], migration_bins, 0.84) - ppf(cdf[2, :, 0], migration_bins, 0.16)),
+        0.5
+        * (
+            ppf(cdf[2, :, 0], migration_bins, 0.84)
+            - ppf(cdf[2, :, 0], migration_bins, 0.16)
+        ),
         rtol=0.1,
     )
 
@@ -85,16 +97,15 @@ def test_energy_dispersion_to_migration():
 
     np.random.seed(0)
     N = 10000
-    true_energy_bins = 10**np.arange(np.log10(0.2), np.log10(200), 1/10) * u.TeV
+    true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
 
     fov_offset_bins = np.array([0, 1, 2]) * u.deg
     migration_bins = np.linspace(0, 2, 101)
 
-    true_energy = np.random.uniform(
-        true_energy_bins[0].value,
-        true_energy_bins[-1].value,
-        size=N
-    ) * u.TeV
+    true_energy = (
+        np.random.uniform(true_energy_bins[0].value, true_energy_bins[-1].value, size=N)
+        * u.TeV
+    )
     reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
 
     selected_events = QTable(
@@ -116,15 +127,14 @@ def test_energy_dispersion_to_migration():
     )
 
     # migration matrix selecting a limited energy band with different binsizes
-    new_true_energy_bins = 10**np.arange(np.log10(2), np.log10(20), 1/5) * u.TeV
-    new_reco_energy_bins = 10**np.arange(np.log10(2), np.log10(20), 1/5) * u.TeV
+    new_true_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
+    new_reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
     migration_matrix = energy_dispersion_to_migration(
         dispersion_matrix,
         true_energy_bins,
         migration_bins,
         new_true_energy_bins,
         new_reco_energy_bins,
-
     )
 
     # test dimension
@@ -137,8 +147,51 @@ def test_energy_dispersion_to_migration():
 
     # test that migrations dont always sum to 1 (since some energies are
     # not included in the matrix)
-    assert migration_matrix.sum() < (len(new_true_energy_bins) - 1) * (len(fov_offset_bins) - 1)
+    assert migration_matrix.sum() < (len(new_true_energy_bins) - 1) * (
+        len(fov_offset_bins) - 1
+    )
     assert np.all(np.isfinite(migration_matrix))
+
+
+def test_energy_migration_matrix_from_events():
+    from pyirf.irf.energy_dispersion import energy_migration_matrix
+
+    np.random.seed(0)
+    N = 10000
+    true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
+    reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
+    fov_offset_bins = np.array([0, 1, 2]) * u.deg
+
+    true_energy = (
+        np.random.uniform(true_energy_bins[0].value, true_energy_bins[-1].value, size=N)
+        * u.TeV
+    )
+    reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
+
+    events = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "true_source_fov_offset": np.concatenate(
+                [
+                    np.full(N // 2, 0.2),
+                    np.full(N // 2, 1.5),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    matrix = energy_migration_matrix(
+        events, true_energy_bins, reco_energy_bins, fov_offset_bins
+    )
+
+    assert matrix.shape == (
+        len(true_energy_bins) - 1,
+        len(reco_energy_bins) - 1,
+        len(fov_offset_bins) - 1,
+    )
+    assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
 
 
 def test_overflow_bins_migration_matrix():
@@ -150,21 +203,24 @@ def test_overflow_bins_migration_matrix():
     N = 10000
 
     # add under/overflow bins
-    bins = 10 ** np.arange(
-        np.log10(0.2),
-        np.log10(200),
-        1 / 10,
-    ) * u.TeV
+    bins = (
+        10
+        ** np.arange(
+            np.log10(0.2),
+            np.log10(200),
+            1 / 10,
+        )
+        * u.TeV
+    )
     true_energy_bins = add_overflow_bins(bins, positive=False)
 
     fov_offset_bins = np.array([0, 1, 2]) * u.deg
     migration_bins = np.linspace(0, 2, 101)
 
-    true_energy = np.random.uniform(
-        true_energy_bins[1].value,
-        true_energy_bins[-2].value,
-        size=N
-    ) * u.TeV
+    true_energy = (
+        np.random.uniform(true_energy_bins[1].value, true_energy_bins[-2].value, size=N)
+        * u.TeV
+    )
     reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
 
     selected_events = QTable(
