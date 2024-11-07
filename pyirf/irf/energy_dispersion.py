@@ -103,8 +103,8 @@ def energy_migration_matrix(
     Returns
     -------
     matrix : array-like
-        Migration matrix as probabilities along the true
-        energy acis with shape
+        Migration matrix as probabilities along the reconstructed energy axis.
+        energy axis with shape
         (n_true_energy_bins, n_reco_energy_bins, n_fov_offset_bins)
         containing energies in TeV.
     """
