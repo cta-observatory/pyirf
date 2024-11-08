@@ -41,8 +41,8 @@ def test_background():
     )
 
 
-def test_background_3d():
-    from pyirf.irf import background_3d
+def test_background_3d_lonlat():
+    from pyirf.irf import background_3d_lonlat
     from pyirf.utils import rectangle_solid_angle
     from pyirf.irf.background import BACKGROUND_UNIT
 
@@ -103,10 +103,11 @@ def test_background_3d():
         }
     )
 
-    bkg_rate = background_3d(
+    bkg_rate = background_3d_lonlat(
         selected_events,
         reco_energy_bins=reco_energy_bins,
-        fov_offset_bins=np.vstack((fov_lat_bins, fov_lon_bins)),
+        fov_lon_bins=fov_lon_bins,
+        fov_lat_bins=fov_lat_bins,
         t_obs=t_obs,
     )
     assert bkg_rate.shape == (
@@ -118,11 +119,11 @@ def test_background_3d():
 
     # Convert to counts, project to energy axis, and check counts round-trip correctly
     assert np.allclose(
-        (bin_solid_angle * (bkg_rate.T * bin_width_energy).T).sum(axis=(1, 2)) * t_obs,
+        (bin_solid_angle * bkg_rate * bin_width_energy[:, np.newaxis, np.newaxis]).sum(axis=(1, 2)) * t_obs,
         [N_low, N_high, 0],
     )
     # Convert to counts, project to latitude axis, and check counts round-trip correctly
     assert np.allclose(
-        (bin_solid_angle * (bkg_rate.T * bin_width_energy).T).sum(axis=(0, 1)) * t_obs,
+        (bin_solid_angle * bkg_rate * bin_width_energy[:, np.newaxis, np.newaxis]).sum(axis=(0, 1)) * t_obs,
         2 * [N_tot // 2],
     )

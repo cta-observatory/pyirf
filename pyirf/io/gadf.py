@@ -268,7 +268,7 @@ def create_background_3d_hdu(
     reco_energy_bins,
     fov_lon_bins,
     fov_lat_bins,
-    alignment = "ALTAZ",
+    alignment="ALTAZ",
     extname="BACKGROUND",
     **header_cards,
 ):
@@ -289,7 +289,7 @@ def create_background_3d_hdu(
     fov_lat_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view system, becomes the DETY values
     alignment: str
-        Wheter the FOV coordinates are aligned with the ALTAZ or RADEC system, more details at
+        Whether the FOV coordinates are aligned with the ALTAZ or RADEC system, more details at
         https://gamma-astro-data-formats.readthedocs.io/en/latest/general/coordinates.html
     extname: str
         Name for BinTableHDU
@@ -310,8 +310,11 @@ def create_background_3d_hdu(
     header["HDUCLAS1"] = "RESPONSE"
     header["HDUCLAS2"] = "BKG"
     header["HDUCLAS3"] = "FULL-ENCLOSURE"
-    header["HDUCLAS4"] = "BKG_2D"
-    header["FOVALIGN"] = alignment
+    header["HDUCLAS4"] = "BKG_3D"
+    if alignment in ["ALTAZ", "RADEC"]:
+        header["FOVALIGN"] = alignment
+    else:
+        raise ValueError(f"'alignment' must be one of 'ALTAZ' or 'RADEC', got {alignment}")
     header["DATE"] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 
