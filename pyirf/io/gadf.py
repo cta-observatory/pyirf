@@ -266,7 +266,9 @@ def create_background_2d_hdu(
 def create_background_3d_hdu(
     background_3d,
     reco_energy_bins,
-    fov_offset_bins,
+    fov_lon_bins,
+    fov_lat_bins,
+    alignment = "ALTAZ",
     extname="BACKGROUND",
     **header_cards,
 ):
@@ -282,8 +284,13 @@ def create_background_3d_hdu(
         (n_energy_bins, n_fov_offset_bins, n_fov_offset_bins)
     reco_energy_bins: astropy.units.Quantity[energy]
         Bin edges in reconstructed energy
-    fov_offset_bins: astropy.units.Quantity[angle]
-        Bin edges in the field of view offset.
+    fov_lon_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view system, becomes the DETX values
+    fov_lat_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view system, becomes the DETY values
+    alignment: str
+        Wheter the FOV coordinates are aligned with the ALTAZ or RADEC system, more details at
+        https://gamma-astro-data-formats.readthedocs.io/en/latest/general/coordinates.html
     extname: str
         Name for BinTableHDU
     **header_cards
@@ -293,8 +300,8 @@ def create_background_3d_hdu(
 
     bkg = QTable()
     bkg["ENERG_LO"], bkg["ENERG_HI"] = binning.split_bin_lo_hi(reco_energy_bins[np.newaxis, :].to(u.TeV))
-    bkg["DETX_LO"], bkg["DETX_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
-    bkg["DETY_LO"], bkg["DETY_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    bkg["DETX_LO"], bkg["DETX_HI"] = binning.split_bin_lo_hi(fov_lon_bins[np.newaxis, :].to(u.deg))
+    bkg["DETY_LO"], bkg["DETY_HI"] = binning.split_bin_lo_hi(fov_lat_bins[np.newaxis, :].to(u.deg))
     # transpose as FITS uses opposite dimension order
     bkg["BKG"] = background_3d.T[np.newaxis, ...].to(GADF_BACKGROUND_UNIT)
 
@@ -304,7 +311,7 @@ def create_background_3d_hdu(
     header["HDUCLAS2"] = "BKG"
     header["HDUCLAS3"] = "FULL-ENCLOSURE"
     header["HDUCLAS4"] = "BKG_2D"
-    header["FOVALIGN"] = "ALTAZ"
+    header["FOVALIGN"] = alignment
     header["DATE"] = Time.now().utc.iso
     _add_header_cards(header, **header_cards)
 

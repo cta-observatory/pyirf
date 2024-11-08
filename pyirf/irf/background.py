@@ -1,7 +1,7 @@
 import astropy.units as u
 import numpy as np
 
-from ..utils import cone_solid_angle
+from ..utils import cone_solid_angle, rectangle_solid_angle
 
 #: Unit of the background rate IRF
 BACKGROUND_UNIT = u.Unit("s-1 TeV-1 sr-1")
@@ -118,7 +118,9 @@ def background_3d(events, reco_energy_bins, fov_offset_bins, t_obs):
     per_energy = (hist.T / bin_width_energy).T
 
     # divide by solid angle in each fov bin and the observation time
-    bin_solid_angle = np.diff(fov_offset_bins)
-    bg_rate = per_energy / t_obs / bin_solid_angle**2
-
+    bin_solid_angle  = rectangle_solid_angle(fov_x_offset_bins[:-1],
+                                             fov_x_offset_bins[1:],
+                                             fov_y_offset_bins[:-1],
+                                             fov_y_offset_bins[1:])
+    bg_rate = per_energy / t_obs / bin_solid_angle
     return bg_rate.to(BACKGROUND_UNIT)
