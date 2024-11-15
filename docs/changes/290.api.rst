@@ -1,3 +1,0 @@
-Make it possible to pass multiple quantiles to ``pyirf.benchmarks.angular_resolution``, calculating all of them.
-
-The column name(s) in the output now include(s) the percentage value of the calculated quantile, e.g. ``angular_resolution_68``.

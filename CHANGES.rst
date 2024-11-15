@@ -1,3 +1,36 @@
+pyirf v0.12.0 (2024-11-15)
+==========================
+
+
+API Changes
+-----------
+
+- Make it possible to pass multiple quantiles to ``pyirf.benchmarks.angular_resolution``, calculating all of them.
+
+  The column name(s) in the output now include(s) the percentage value of the calculated quantile, e.g. ``angular_resolution_68``. [`#290 <https://github.com/cta-observatory/pyirf/pull/290>`__]
+
+
+Bug Fixes
+---------
+
+- Fix ``pyirf.irfs.energy_dispersion.energy_dispersion_to_migration``.
+  This function was not adapted to the now correct normalization of the
+  energy dispersion matrix, resulting in wrong results on the now correct
+  matrices. [`#273 <https://github.com/cta-observatory/pyirf/pull/273>`__]
+
+
+New Features
+------------
+
+- Add 3D effective area functions for lon/lat and theta/phi coordinates and some necessary utiliy functions. [`#281 <https://github.com/cta-observatory/pyirf/pull/281>`__]
+
+
+Maintenance
+-----------
+
+- Make pyirf compatible with numpy 2.0.
+
+
 pyirf v0.11.0 (2024-05-14)
 ==========================
 

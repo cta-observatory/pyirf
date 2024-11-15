@@ -1,4 +1,0 @@
-Fix ``pyirf.irfs.energy_dispersion.energy_dispersion_to_migration``.
-This function was not adapted to the now correct normalization of the
-energy dispersion matrix, resulting in wrong results on the now correct
-matrices.
