@@ -1,0 +1,6 @@
+effective_area_per_energy_and_fov
+=================================
+
+.. currentmodule:: pyirf.irf
+
+.. autofunction:: effective_area_per_energy_and_fov

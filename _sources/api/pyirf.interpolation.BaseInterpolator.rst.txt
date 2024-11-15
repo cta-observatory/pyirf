@@ -1,0 +1,19 @@
+BaseInterpolator
+================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: BaseInterpolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BaseInterpolator.__call__
+      ~BaseInterpolator.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

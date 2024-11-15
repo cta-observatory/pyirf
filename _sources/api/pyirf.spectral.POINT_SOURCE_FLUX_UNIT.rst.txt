@@ -1,0 +1,6 @@
+POINT_SOURCE_FLUX_UNIT
+======================
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: POINT_SOURCE_FLUX_UNIT

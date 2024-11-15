@@ -1,0 +1,47 @@
+SimulatedEventsInfo
+===================
+
+.. currentmodule:: pyirf.simulations
+
+.. autoclass:: SimulatedEventsInfo
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~SimulatedEventsInfo.energy_max
+      ~SimulatedEventsInfo.energy_min
+      ~SimulatedEventsInfo.max_impact
+      ~SimulatedEventsInfo.n_showers
+      ~SimulatedEventsInfo.spectral_index
+      ~SimulatedEventsInfo.viewcone_max
+      ~SimulatedEventsInfo.viewcone_min
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~SimulatedEventsInfo.calculate_n_showers_3d_lonlat
+      ~SimulatedEventsInfo.calculate_n_showers_3d_polar
+      ~SimulatedEventsInfo.calculate_n_showers_per_energy
+      ~SimulatedEventsInfo.calculate_n_showers_per_energy_and_fov
+      ~SimulatedEventsInfo.calculate_n_showers_per_fov
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: energy_max
+   .. autoattribute:: energy_min
+   .. autoattribute:: max_impact
+   .. autoattribute:: n_showers
+   .. autoattribute:: spectral_index
+   .. autoattribute:: viewcone_max
+   .. autoattribute:: viewcone_min
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: calculate_n_showers_3d_lonlat
+   .. automethod:: calculate_n_showers_3d_polar
+   .. automethod:: calculate_n_showers_per_energy
+   .. automethod:: calculate_n_showers_per_energy_and_fov
+   .. automethod:: calculate_n_showers_per_fov

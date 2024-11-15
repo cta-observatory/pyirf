@@ -1,0 +1,6 @@
+IRFDOC_ELECTRON_SPECTRUM
+========================
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: IRFDOC_ELECTRON_SPECTRUM

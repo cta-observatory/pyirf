@@ -1,0 +1,19 @@
+ParametrizedVisibleEdgesExtrapolator
+====================================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: ParametrizedVisibleEdgesExtrapolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ParametrizedVisibleEdgesExtrapolator.__call__
+      ~ParametrizedVisibleEdgesExtrapolator.extrapolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: extrapolate

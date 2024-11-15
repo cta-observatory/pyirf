@@ -1,0 +1,19 @@
+MomentMorphInterpolator
+=======================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: MomentMorphInterpolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~MomentMorphInterpolator.__call__
+      ~MomentMorphInterpolator.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

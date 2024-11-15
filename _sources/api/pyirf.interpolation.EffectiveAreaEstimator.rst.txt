@@ -1,0 +1,17 @@
+EffectiveAreaEstimator
+======================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: EffectiveAreaEstimator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~EffectiveAreaEstimator.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

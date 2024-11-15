@@ -1,0 +1,6 @@
+energy_dispersion
+=================
+
+.. currentmodule:: pyirf.irf
+
+.. autofunction:: energy_dispersion

@@ -1,0 +1,6 @@
+effective_area_3d_polar
+=======================
+
+.. currentmodule:: pyirf.irf
+
+.. autofunction:: effective_area_3d_polar

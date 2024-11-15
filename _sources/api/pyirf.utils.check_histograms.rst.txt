@@ -1,0 +1,6 @@
+check_histograms
+================
+
+.. currentmodule:: pyirf.utils
+
+.. autofunction:: check_histograms

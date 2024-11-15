@@ -1,0 +1,6 @@
+create_bins_per_decade
+======================
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: create_bins_per_decade

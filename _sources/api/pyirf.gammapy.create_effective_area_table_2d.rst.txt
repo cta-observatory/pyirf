@@ -1,0 +1,6 @@
+create_effective_area_table_2d
+==============================
+
+.. currentmodule:: pyirf.gammapy
+
+.. autofunction:: create_effective_area_table_2d

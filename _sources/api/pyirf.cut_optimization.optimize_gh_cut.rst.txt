@@ -1,0 +1,6 @@
+optimize_gh_cut
+===============
+
+.. currentmodule:: pyirf.cut_optimization
+
+.. autofunction:: optimize_gh_cut

@@ -1,0 +1,6 @@
+read_eventdisplay_fits
+======================
+
+.. currentmodule:: pyirf.io
+
+.. autofunction:: read_eventdisplay_fits
