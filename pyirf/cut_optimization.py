@@ -190,7 +190,7 @@ def optimize_cuts(
         else:
             # if all are invalid, just use the first one
             best = 0
-        
+
         multiplicity_index, theta_index, gh_index = cut_indicies[best]
 
         best_sensitivity[bin_id] = sensitivities[best][bin_id]
