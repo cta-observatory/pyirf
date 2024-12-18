@@ -85,9 +85,10 @@ def optimize_cuts(
         background['reco_energy'], reco_energy_bins,
     )
 
+    gh_cut_grid = []
+    theta_cut_grid = []
+
     with tqdm(total=n_cuts, disable=not progress) as bar:
-        all_the_gh_cuts = []
-        all_the_theta_cuts = []
         for multiplicity_index, multiplicity_cut in enumerate(multiplicity_cuts):
 
             signal_mask_multiplicity = signal['multiplicity'] >= multiplicity_cut
@@ -100,7 +101,7 @@ def optimize_cuts(
                 fill_value=fill_value,
                 percentile=gh_cut_percentiles,
             )
-            all_the_gh_cuts.append(gh_cuts)
+            gh_cut_grid.append(gh_cuts)
 
             theta_cuts = calculate_percentile_cut(
                 signal['theta'][signal_mask_multiplicity],
@@ -111,7 +112,7 @@ def optimize_cuts(
                 min_value=0.02 * u.deg,
                 percentile=100 * theta_cut_efficiencies,
             )
-            all_the_theta_cuts.append(theta_cuts)
+            theta_cut_grid.append(theta_cuts)
 
 
             for gh_index, theta_index in product(range(n_gh_cuts), range(n_theta_cuts)):
@@ -194,9 +195,9 @@ def optimize_cuts(
 
         best_sensitivity[bin_id] = sensitivities[best][bin_id]
 
-        best_gh_cut["cut"][bin_id] = all_the_gh_cuts[multiplicity_index]["cut"][bin_id][gh_index]
+        best_gh_cut["cut"][bin_id] = gh_cut_grid[multiplicity_index]["cut"][bin_id][gh_index]
         best_multiplicity_cut["cut"][bin_id] = multiplicity_cuts[multiplicity_index]
-        best_theta_cut["cut"][bin_id] = all_the_theta_cuts[multiplicity_index]["cut"][bin_id][theta_index]
+        best_theta_cut["cut"][bin_id] = theta_cut_grid[multiplicity_index]["cut"][bin_id][theta_index]
 
         best_gh_cut["efficiency"][bin_id] = gh_cut_efficiencies[gh_index]
         best_theta_cut["efficiency"][bin_id] = theta_cut_efficiencies[theta_index]
