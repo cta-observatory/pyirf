@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - master
+      - main
     tags:
       - '**'
   pull_request:
@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -35,7 +35,7 @@ jobs:
       - run: git fetch --tags
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -58,19 +58,19 @@ jobs:
         run: |
           pytest --cov=pyirf --cov-report=xml
 
-      - uses: codecov/codecov-action@v1
+      - uses: codecov/codecov-action@v3
 
   docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Install doc dependencies
         run: |
@@ -88,8 +88,8 @@ jobs:
         run: cd docs && make html SPHINXOPTS="-W --keep-going -n --color -j auto"
 
       - name: Deploy to gihub pages
-        # only run on push to master
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+        # only run on push to main
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         uses: JamesIves/github-pages-deploy-action@3.7.1
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

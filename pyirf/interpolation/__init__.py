@@ -11,6 +11,7 @@ from .base_interpolators import (
     BaseInterpolator,
     DiscretePDFInterpolator,
     ParametrizedInterpolator,
+    PDFNormalization,
 )
 from .component_estimators import (
     BaseComponentEstimator,
@@ -28,14 +29,19 @@ from .nearest_neighbor_searcher import (
     DiscretePDFNearestNeighborSearcher,
     ParametrizedNearestNeighborSearcher,
 )
-from .nearest_simplex_extrapolator import ParametrizedNearestSimplexExtrapolator
+from .nearest_simplex_extrapolator import (
+    MomentMorphNearestSimplexExtrapolator,
+    ParametrizedNearestSimplexExtrapolator,
+)
 from .quantile_interpolator import QuantileInterpolator
+from .visible_edges_extrapolator import ParametrizedVisibleEdgesExtrapolator
 
 __all__ = [
     "BaseComponentEstimator",
     "BaseInterpolator",
     "BaseNearestNeighborSearcher",
     "BaseExtrapolator",
+    "PDFNormalization",
     "DiscretePDFExtrapolator",
     "ParametrizedExtrapolator",
     "DiscretePDFComponentEstimator",
@@ -43,10 +49,12 @@ __all__ = [
     "DiscretePDFNearestNeighborSearcher",
     "GridDataInterpolator",
     "MomentMorphInterpolator",
+    "MomentMorphNearestSimplexExtrapolator",
     "ParametrizedComponentEstimator",
     "ParametrizedInterpolator",
     "ParametrizedNearestNeighborSearcher",
     "ParametrizedNearestSimplexExtrapolator",
+    "ParametrizedVisibleEdgesExtrapolator",
     "QuantileInterpolator",
     "EffectiveAreaEstimator",
     "RadMaxEstimator",

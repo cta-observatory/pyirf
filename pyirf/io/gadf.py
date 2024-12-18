@@ -76,6 +76,8 @@ def create_aeff2d_hdu(
     header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
     header["HDUCLAS4"] = "AEFF_2D"
     header["DATE"] = Time.now().utc.iso
+    idx = aeff.colnames.index("EFFAREA") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,THETA_LO:THETA_HI)"
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(aeff, header=header, name=extname)
@@ -133,6 +135,8 @@ def create_psf_table_hdu(
     header["HDUCLAS3"] = "FULL-ENCLOSURE"
     header["HDUCLAS4"] = "PSF_TABLE"
     header["DATE"] = Time.now().utc.iso
+    idx = psf_.colnames.index("RPSF") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,THETA_LO:THETA_HI,RAD_LO:RAD_HI)"
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(psf_, header=header, name=extname)
@@ -191,6 +195,8 @@ def create_energy_dispersion_hdu(
     header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
     header["HDUCLAS4"] = "EDISP_2D"
     header["DATE"] = Time.now().utc.iso
+    idx = edisp.colnames.index("MATRIX") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,MIGRA_LO:MIGRA_HI,THETA_LO:THETA_HI)"
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(edisp, header=header, name=extname)
@@ -247,6 +253,8 @@ def create_background_2d_hdu(
     header["HDUCLAS3"] = "FULL-ENCLOSURE"
     header["HDUCLAS4"] = "BKG_2D"
     header["DATE"] = Time.now().utc.iso
+    idx = bkg.colnames.index("BKG") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,THETA_LO:THETA_HI)"
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(bkg, header=header, name=extname)
@@ -300,6 +308,8 @@ def create_rad_max_hdu(
     header["HDUCLAS3"] = "POINT-LIKE"
     header["HDUCLAS4"] = "RAD_MAX_2D"
     header["DATE"] = Time.now().utc.iso
+    idx = rad_max_table.colnames.index("RAD_MAX") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,THETA_LO:THETA_HI)"
     _add_header_cards(header, **header_cards)
 
     return BinTableHDU(rad_max_table, header=header, name=extname)

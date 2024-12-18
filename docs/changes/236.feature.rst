@@ -1,3 +1,0 @@
-This PR adds a base structure for extrapolators similar to the interpolation case 
-as well as a first extrapolator for parametrized components, extrapolating from the 
-nearest simplex in one or two dimensions.

@@ -1,3 +1,171 @@
+pyirf v0.12.0 (2024-11-15)
+==========================
+
+
+API Changes
+-----------
+
+- Make it possible to pass multiple quantiles to ``pyirf.benchmarks.angular_resolution``, calculating all of them.
+
+  The column name(s) in the output now include(s) the percentage value of the calculated quantile, e.g. ``angular_resolution_68``. [`#290 <https://github.com/cta-observatory/pyirf/pull/290>`__]
+
+
+Bug Fixes
+---------
+
+- Fix ``pyirf.irfs.energy_dispersion.energy_dispersion_to_migration``.
+  This function was not adapted to the now correct normalization of the
+  energy dispersion matrix, resulting in wrong results on the now correct
+  matrices. [`#273 <https://github.com/cta-observatory/pyirf/pull/273>`__]
+
+
+New Features
+------------
+
+- Add 3D effective area functions for lon/lat and theta/phi coordinates and some necessary utiliy functions. [`#281 <https://github.com/cta-observatory/pyirf/pull/281>`__]
+
+
+Maintenance
+-----------
+
+- Make pyirf compatible with numpy 2.0.
+
+
+pyirf v0.11.0 (2024-05-14)
+==========================
+
+Bug Fixes
+---------
+
+- Fix ``pyirf.benchmarks.energy_bias_resolution_from_energy_dispersion``.
+  This function was not adapted to the now correct normalization of the
+  energy dispersion matrix, resulting in wrong results on the now correct
+  matrices. [`#268 <https://github.com/cta-observatory/pyirf/pull/268>`__]
+
+
+New Features
+------------
+
+- Adds an extrapolator for parametrized compontents utilizing blending over visible edges, resulting 
+  in a smooth extrapolation compared to the NearestSimplexExtrapolator. [`#253 <https://github.com/cta-observatory/pyirf/pull/253>`__]
+
+- Ignore warnings about invalid floating point operations when calculating `n_signal` and `n_signal_weigthed` because the relative sensitivty is frequently NaN. [`#264 <https://github.com/cta-observatory/pyirf/pull/264>`__]
+
+- Add basic combinatoric fill-value handling for RAD_MAX estimation. [`#282 <https://github.com/cta-observatory/pyirf/pull/282>`__]
+
+
+Maintenance
+-----------
+
+- Clarified some documentation. [`#266 <https://github.com/cta-observatory/pyirf/pull/266>`__]
+
+- Add support for astropy 6.0. [`#271 <https://github.com/cta-observatory/pyirf/pull/271>`__]
+
+- Added filling of CREF keyword (IRF axis order) in the output files [`#275 <https://github.com/cta-observatory/pyirf/pull/275>`__]
+
+
+
+Refactoring and Optimization
+----------------------------
+
+pyirf v0.10.1 (2023-09-15)
+==========================
+
+
+
+Bug Fixes
+---------
+
+- Fix ``PowerLaw.from_simulation`` for the new format of ``SimulatedEventsInformation``,
+  it was broken since splitting the single ``viewcone`` into ``viewcone_min`` and ``viewcone_max``. [`#258 <https://github.com/cta-observatory/pyirf/pull/258>`__]
+
+
+Pyirf v0.10.0 (2023-08-23)
+==========================
+
+This release contains an important bug fix for the energy dispersion computation,
+it was wrongly normalized before.
+
+API Changes
+-----------
+
+- In prior versions of pyirf, the energy dispersion matrix was normalized to a
+  sum of 1 over the migration axis.
+  This is wrong, the correct normalization is to an integral of 1, which is fixed now.
+
+  The internal API of the interpolation functions had to be adapted to take in additional
+  keywords, mainly the bin edges and the kind of normalization (standard or solid angle cone sections). [`#250 <https://github.com/cta-observatory/pyirf/pull/250>`__]
+
+- Replace single ``viewcone`` argument of ``SimulationInfo`` with
+  ``viewcone_min`` and ``viewcone_max``, e.g. to correctly enable
+  ring wobble simulations. [`#239 <https://github.com/cta-observatory/pyirf/pull/239>`__]
+
+
+Bug Fixes
+---------
+
+- See above on the energy dispersion change.
+
+
+New Features
+------------
+
+- Add option to specify which containment to use for angular resolution. [`#234 <https://github.com/cta-observatory/pyirf/pull/234>`__]
+
+
+
+pyirf 0.9.0 (2023-07-19)
+========================
+
+
+API Changes
+-----------
+
+- Change the interpolation API to top-level estimator classes that instantiate
+  inter- and extrapolator objects. Drops the ``interpolate_xyz`` functions
+  originally used to interpolate a xyz IRF component in favour of a ``XYZEstimator``
+  class. Moves data checks from intepolator to estimator classes.
+
+  Direct usage of interpolator objects is now discuraged, use estimator objects instead. [`#228 <https://github.com/cta-observatory/pyirf/pull/228>`__]
+
+
+Bug Fixes
+---------
+
+- Correctly fill n_events in ``angular_resolution``, was always 0 before. [`#231 <https://github.com/cta-observatory/pyirf/pull/231>`__]
+
+- Remove condition that relative sensitivity must be > 1.
+  This condition was added by error and resulted in returning
+  nan if the flux needed to fulfill the conditions is larger than
+  the reference flux used to weight the events. [`#241 <https://github.com/cta-observatory/pyirf/pull/241>`__]
+
+
+New Features
+------------
+
+- Add moment morphing as second interpolation method able to handle discretized PDF 
+  components of IRFs. [`#229 <https://github.com/cta-observatory/pyirf/pull/229>`__]
+
+- Add a base structure for extrapolators similar to the interpolation case
+  as well as a first extrapolator for parametrized components, extrapolating from the
+  nearest simplex in one or two dimensions. [`#236 <https://github.com/cta-observatory/pyirf/pull/236>`__]
+
+- Add an extrapolator for discretized PDF components, extrapolating from the
+  nearest simplex in one or two dimensions utilizing the same approach moment morphing
+  interpolation uses. [`#237 <https://github.com/cta-observatory/pyirf/pull/237>`__]
+
+- Add a ``DiscretePDFNearestNeighborSearcher`` and a ``ParametrizedNearestNeighborSearcher`` to support nearest neighbor approaches 
+  as alternatives to inter-/ and extrapolation [`#232 <https://github.com/cta-observatory/pyirf/pull/232>`__]
+
+
+
+Maintenance
+-----------
+
+- Drop python 3.8 support in accordance with `NEP 29 <https://numpy.org/neps/nep-0029-deprecation_policy.html>`_ [`#243 <https://github.com/cta-observatory/pyirf/pull/243>`__]
+
+
+
 pyirf 0.8.1 (2023-03-16)
 ========================
 

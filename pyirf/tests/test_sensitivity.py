@@ -51,12 +51,13 @@ def test_calculate_sensitivity():
 
     sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
 
-    # too small sensitivity
+    # sensitivity smaller than 1
     signal_hist['n_weighted'] = [10, 10]
     sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
 
     assert len(sensitivity) == len(signal_hist)
-    assert np.all(np.isnan(sensitivity['relative_sensitivity']))
+    np.testing.assert_almost_equal(5.0, sensitivity['significance'])
+    np.testing.assert_array_less(1.0, sensitivity['relative_sensitivity'])
 
     # not above 5 percent of remaining background
     signal_hist['n_weighted'] = 699
@@ -74,6 +75,12 @@ def test_calculate_sensitivity():
     # we scale up the signal until we meet the requirement, so
     # we must have more than 5 sigma
     assert np.all(sensitivity['significance'] >= 5)
+
+    # No background at all, li&ma not applicable => event count requirement
+    signal_hist['n_weighted'] = [5, 5]
+    bg_hist['n_weighted'] = [0, 0]
+    sensitivity = calculate_sensitivity(signal_hist, bg_hist, alpha=0.2)
+    np.testing.assert_equal(sensitivity['relative_sensitivity'], 2)
 
 
 def test_estimate_background():

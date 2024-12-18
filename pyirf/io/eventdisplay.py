@@ -77,7 +77,8 @@ def read_eventdisplay_fits(infile, use_histogram=True):
         energy_max=u.Quantity(run_header["E_range"][1], u.TeV),
         max_impact=u.Quantity(run_header["core_range"][1], u.m),
         spectral_index=run_header["spectral_index"],
-        viewcone=u.Quantity(run_header["viewcone"][1], u.deg),
+        viewcone_min=u.Quantity(run_header["viewcone"][0], u.deg),
+        viewcone_max=u.Quantity(run_header["viewcone"][1], u.deg),
     )
 
     return events, sim_info

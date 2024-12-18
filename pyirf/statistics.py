@@ -1,5 +1,6 @@
 import numpy as np
 
+from .compat import COPY_IF_NEEDED
 from .utils import is_scalar
 
 __all__ = ["li_ma_significance"]
@@ -34,8 +35,8 @@ def li_ma_significance(n_on, n_off, alpha=0.2):
 
     # Cast everything into float64 to avoid numeric instabilties
     # when multiplying very small and very big numbers to get t1 and t2
-    n_on = np.array(n_on, copy=False, ndmin=1, dtype=np.float64)
-    n_off = np.array(n_off, copy=False, ndmin=1, dtype=np.float64)
+    n_on = np.array(n_on, copy=COPY_IF_NEEDED, ndmin=1, dtype=np.float64)
+    n_off = np.array(n_off, copy=COPY_IF_NEEDED, ndmin=1, dtype=np.float64)
     alpha = np.float64(alpha)
 
     with np.errstate(divide="ignore", invalid="ignore"):

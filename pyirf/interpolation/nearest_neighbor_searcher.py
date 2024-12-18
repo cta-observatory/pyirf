@@ -20,7 +20,7 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
     actual Interpolation/Extrapolation
     """
 
-    def __init__(self, grid_points, contents, norm_ord=2):
+    def __init__(self, grid_points, values, norm_ord=2):
         """
         BaseNearestNeighborSearcher
 
@@ -28,8 +28,8 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
         ----------
         grid_points: np.ndarray, shape=(n_points, n_dims)
             Grid points at which templates exist
-        contents: np.ndarray, shape=(n_points, ...)
-            Corresponding IRF contents at grid_points
+        values: np.ndarray, shape=(n_points, ...)
+            Corresponding IRF values at grid_points
         norm_ord: non-zero int
             Order of the norm which is used to compute the distances,
             passed to numpy.linalg.norm [1]. Defaults to 2,
@@ -40,14 +40,13 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
         TypeError:
             If norm_ord is not non-zero integer
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseInterpolators.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseInterpolators.__init__
         """
-
         super().__init__(grid_points)
 
-        self.contents = contents
+        self.values = values
 
         # Test wether norm_ord is a number
         try:
@@ -67,24 +66,23 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
 
     def interpolate(self, target_point):
         """
-        Takes a grid of IRF contents for a bunch of different parameters
-        and returns the contents at the nearest grid point
-        as seen from the target point.
+        Takes a grid of IRF values for a bunch of different parameters and returns
+        the values at the nearest grid point as seen from the target point.
 
         Parameters
         ----------
-        target_point: numpy.ndarray
+        target_point: numpy.ndarray, shape=(1, n_dims)
             Value for which the nearest neighbor should be found (target point)
 
         Returns
         -------
-        content_new: numpy.ndarray, shape=(1,...,M,...)
-            Contents at nearest neighbor
+        content_new: numpy.ndarray, shape=(1, ...)
+            values at nearest neighbor
 
-        Note
-        ----
-            In case of multiple nearest neighbors, the contents corresponding
-            to the first one are returned.
+        Notes
+        -----
+        In case of multiple nearest neighbors, the values corresponding
+        to the first one are returned.
         """
 
         if target_point.ndim == 1:
@@ -96,17 +94,17 @@ class BaseNearestNeighborSearcher(BaseInterpolator):
 
         index = np.argmin(distances)
 
-        return self.contents[index, :]
+        return self.values[index, :]
 
 
 class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
     """
     Dummy NearestNeighbor approach usable instead of
-    actual Interpolation/Extrapolation.
+    actual interpolation/extrapolation.
     Compatible with discretized PDF IRF component API.
     """
 
-    def __init__(self, grid_points, bin_edges, bin_contents, norm_ord=2):
+    def __init__(self, grid_points, bin_edges, binned_pdf, norm_ord=2):
         """
         NearestNeighborSearcher compatible with discretized PDF IRF components API
 
@@ -116,7 +114,7 @@ class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
             Grid points at which templates exist
         bin_edges: np.ndarray, shape=(n_bins+1)
             Edges of the data binning. Ignored for nearest neighbor searching.
-        bin_content: np.ndarray, shape=(n_points, ..., n_bins)
+        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Content of each bin in bin_edges for
             each point in grid_points. First dimesion has to correspond to number
             of grid_points, last dimension has to correspond to number of bins for
@@ -126,14 +124,12 @@ class DiscretePDFNearestNeighborSearcher(BaseNearestNeighborSearcher):
             passed to numpy.linalg.norm [1]. Defaults to 2,
             which uses the euclidean norm.
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
         """
 
-        super().__init__(
-            grid_points=grid_points, contents=bin_contents, norm_ord=norm_ord
-        )
+        super().__init__(grid_points=grid_points, values=binned_pdf, norm_ord=norm_ord)
 
 
 DiscretePDFInterpolator.register(DiscretePDFNearestNeighborSearcher)
@@ -143,7 +139,7 @@ DiscretePDFExtrapolator.register(DiscretePDFNearestNeighborSearcher)
 class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
     """
     Dummy NearestNeighbor approach usable instead of
-    actual Interpolation/Extrapolation
+    actual interpolation/extrapolation
     Compatible with parametrized IRF component API.
     """
 
@@ -163,12 +159,12 @@ class ParametrizedNearestNeighborSearcher(BaseNearestNeighborSearcher):
             passed to numpy.linalg.norm [1]. Defaults to 2,
             which uses the euclidean norm.
 
-        Note
+        Notes
         ----
-            Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
+        Also calls pyirf.interpolation.BaseNearestNeighborSearcher.__init__
         """
 
-        super().__init__(grid_points=grid_points, contents=params, norm_ord=norm_ord)
+        super().__init__(grid_points=grid_points, values=params, norm_ord=norm_ord)
 
 
 ParametrizedInterpolator.register(ParametrizedNearestNeighborSearcher)

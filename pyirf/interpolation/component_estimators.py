@@ -1,15 +1,23 @@
 """Classes to estimate (interpolate/extrapolate) actual IRF HDUs"""
+
 import warnings
 
 import astropy.units as u
 import numpy as np
-from pyirf.utils import cone_solid_angle
 from scipy.spatial import Delaunay
 
+
 from .base_extrapolators import DiscretePDFExtrapolator, ParametrizedExtrapolator
-from .base_interpolators import DiscretePDFInterpolator, ParametrizedInterpolator
+from .base_interpolators import (
+    DiscretePDFInterpolator,
+    ParametrizedInterpolator,
+    PDFNormalization,
+)
+from ..compat import COPY_IF_NEEDED
 from .griddata_interpolator import GridDataInterpolator
+from .nearest_neighbor_searcher import BaseNearestNeighborSearcher
 from .quantile_interpolator import QuantileInterpolator
+from .utils import find_nearest_simplex
 
 __all__ = [
     "BaseComponentEstimator",
@@ -26,14 +34,14 @@ class BaseComponentEstimator:
     """
     Base class for all Estimators working on specific IRF components.
 
-    While usable, it is encuraged to use the actual class for the respective IRF
-    component as it ensures further checks and if nessecarry e.g. unit handling.
+    While usable, it is encouraged to use the actual class for the respective IRF
+    component as it ensures further checks and if necessary e.g. unit handling.
     """
 
     def __init__(self, grid_points):
         """
         Base __init__, doing sanity checks on the grid, building a
-        triangulated version of the grid and intantiating inter- and extrapolator.
+        triangulated version of the grid and instantiating inter- and extrapolator.
 
         Parameters
         ----------
@@ -42,7 +50,7 @@ class BaseComponentEstimator:
         Raises
         ------
         TypeError:
-            When grid_points is not a np.ndarray
+            When grid_points is not a np.ndarray of float compatible values
         TypeError:
             When grid_point has dtype object
         ValueError:
@@ -77,7 +85,7 @@ class BaseComponentEstimator:
             self.triangulation = Delaunay(self.grid_points)
 
     def _target_in_grid(self, target_point):
-        """Check wether target_point lies within grids convex hull, uses
+        """Check whether target_point lies within grids convex hull, uses
         simple comparison for 1D and Delaunay triangulation for >1D."""
         if self.grid_dim == 1:
             return (target_point >= self.grid_points.min()) and (
@@ -124,7 +132,7 @@ class BaseComponentEstimator:
 
         if target_point.shape[1] != self.grid_dim:
             raise ValueError(
-                "Missmatch between target-point and grid dimension."
+                "Mismatch between target-point and grid dimension."
                 f" Grid has dimension {self.grid_dim}, target has dimension"
                 f" {target_point.shape[1]}."
             )
@@ -144,15 +152,15 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
     """
     Base class for all Estimators working on IRF components that represent discretized PDFs.
 
-    While usable, it is encuraged to use the actual class for the respective IRF
-    component as it ensures further checks and if nessecarry e.g. unit handling.
+    While usable, it is encouraged to use the actual class for the respective IRF
+    component as it ensures further checks and if necessary e.g. unit handling.
     """
 
     def __init__(
         self,
         grid_points,
         bin_edges,
-        bin_contents,
+        binned_pdf,
         interpolator_cls=QuantileInterpolator,
         interpolator_kwargs=None,
         extrapolator_cls=None,
@@ -168,10 +176,10 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             Grid points at which interpolation templates exist
         bin_edges: np.ndarray, shape=(n_bins+1)
             Common set of bin-edges for all discretized PDFs.
-        bin_contents: np.ndarray, shape=(n_points, ..., n_bins)
+        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)
             Discretized PDFs for all grid points and arbitrary further dimensions
             (in IRF term e.g. field-of-view offset bins). Actual interpolation dimension,
-            meaning the dimensions that contains actual histograms, has to be along
+            meaning the dimensions that contain actual histograms, have to be along
             the last axis.
         interpolator_cls:
             pyirf interpolator class, defaults to QuantileInterpolator.
@@ -191,16 +199,16 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
         TypeError:
             When bin_edges is not a np.ndarray.
         TypeError:
-            When bin_content is not a np.ndarray..
+            When binned_pdf is not a np.ndarray.
         TypeError:
             When interpolator_cls is not a DiscretePDFInterpolator subclass.
         TypeError:
             When extrapolator_cls is not a DiscretePDFExtrapolator subclass.
         ValueError:
-            When number of bins in bin_edges and contents in bin_contents is
+            When number of bins in bin_edges and contents in binned_pdf is
             not matching.
         ValueError:
-            When number of histograms in bin_contents and points in grid_points
+            When number of histograms in binned_pdf and points in grid_points
             is not matching.
 
         Note
@@ -212,21 +220,28 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             grid_points,
         )
 
-        if not isinstance(bin_contents, np.ndarray):
-            raise TypeError("Input bin_contents is not a numpy array.")
-        elif self.n_points != bin_contents.shape[0]:
+        if not isinstance(binned_pdf, np.ndarray):
+            raise TypeError("Input binned_pdf is not a numpy array.")
+        elif self.n_points != binned_pdf.shape[0]:
             raise ValueError(
-                f"Shape missmatch, number of grid_points ({self.n_points}) and "
-                f"number of histograms in bin_contents ({bin_contents.shape[0]}) "
+                f"Shape mismatch, number of grid_points ({self.n_points}) and "
+                f"number of histograms in binned_pdf ({binned_pdf.shape[0]}) "
                 "not matching."
             )
         elif not isinstance(bin_edges, np.ndarray):
             raise TypeError("Input bin_edges is not a numpy array.")
-        elif bin_contents.shape[-1] != (bin_edges.shape[0] - 1):
+        elif binned_pdf.shape[-1] != (bin_edges.shape[0] - 1):
             raise ValueError(
-                f"Shape missmatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
-                f"and bin_contents ({bin_contents.shape[-1]} bins) not matching."
+                f"Shape mismatch, bin_edges ({bin_edges.shape[0] - 1} bins) "
+                f"and binned_pdf ({binned_pdf.shape[-1]} bins) not matching."
             )
+
+        # Make sure that 1D input is sorted in increasing order
+        if self.grid_dim == 1:
+            sorting_inds = np.argsort(self.grid_points.squeeze())
+
+            self.grid_points = self.grid_points[sorting_inds]
+            binned_pdf = binned_pdf[sorting_inds]
 
         if interpolator_kwargs is None:
             interpolator_kwargs = {}
@@ -240,7 +255,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             )
 
         self.interpolator = interpolator_cls(
-            grid_points, bin_edges, bin_contents, **interpolator_kwargs
+            self.grid_points, bin_edges, binned_pdf, **interpolator_kwargs
         )
 
         if extrapolator_cls is None:
@@ -251,7 +266,7 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             )
         else:
             self.extrapolator = extrapolator_cls(
-                grid_points, bin_edges, bin_contents, **extrapolator_kwargs
+                self.grid_points, bin_edges, binned_pdf, **extrapolator_kwargs
             )
 
 
@@ -260,8 +275,8 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
     Base class for all Estimators working on IRF components that represent parametrized
     or scalar quantities.
 
-    While usable, it is encuraged to use the actual class for the respective IRF
-    component as it ensures further checks and if nessecarry e.g. unit handling.
+    While usable, it is encouraged to use the actual class for the respective IRF
+    component as it ensures further checks and if necessary e.g. unit handling.
     """
 
     def __init__(
@@ -283,7 +298,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             Grid points at which interpolation templates exist
         params: np.ndarray, shape=(n_points, ..., n_params)
             Corresponding parameter values at each point in grid_points.
-            First dimesion has to correspond to number of grid_points.
+            First dimension has to correspond to the number of grid_points.
         interpolator_cls:
             pyirf interpolator class, defaults to GridDataInterpolator.
         interpolator_kwargs: dict
@@ -306,7 +321,7 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         TypeError:
             When params is not a np.ndarray.
         ValueError:
-            When number of points grid_points and params is not matching.
+            When number of points grid_points and params do not match.
 
         Note
         ----
@@ -321,8 +336,15 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             raise TypeError("Input params is not a numpy array.")
         elif self.n_points != params.shape[0]:
             raise ValueError(
-                "Shape missmatch, number of grid_points and rows in params not matching."
+                "Shape mismatch, number of grid_points and rows in params not matching."
             )
+
+        # Make sure that 1D input is sorted in increasing order
+        if self.grid_dim == 1:
+            sorting_inds = np.argsort(self.grid_points.squeeze())
+
+            self.grid_points = self.grid_points[sorting_inds]
+            params = params[sorting_inds]
 
         if interpolator_kwargs is None:
             interpolator_kwargs = {}
@@ -335,7 +357,9 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
                 f"interpolator_cls must be a ParametrizedInterpolator subclass, got {interpolator_cls}"
             )
 
-        self.interpolator = interpolator_cls(grid_points, params, **interpolator_kwargs)
+        self.interpolator = interpolator_cls(
+            self.grid_points, params, **interpolator_kwargs
+        )
 
         if extrapolator_cls is None:
             self.extrapolator = None
@@ -345,11 +369,13 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
             )
         else:
             self.extrapolator = extrapolator_cls(
-                grid_points, params, **extrapolator_kwargs
+                self.grid_points, params, **extrapolator_kwargs
             )
 
 
 class EffectiveAreaEstimator(ParametrizedComponentEstimator):
+    """Estimator class for effective area tables (AEFF_2D)."""
+
     @u.quantity_input(effective_area=u.m**2, min_effective_area=u.m**2)
     def __init__(
         self,
@@ -362,8 +388,6 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
         min_effective_area=1 * u.m**2,
     ):
         """
-        Estimator class for effective areas.
-
         Takes a grid of effective areas for a bunch of different parameters
         and inter-/extrapolates (log) effective areas to given value of
         those parameters.
@@ -391,7 +415,7 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
             None which is the same as passing an empty dict.
         min_effective_area: astropy.units.Quantity[area]
             Minimum value of effective area to be considered for interpolation. Values
-            lower then this value are set to this value. Defaults to 1 m**2.
+            lower than this value are set to this value. Defaults to 1 m**2.
 
 
         Note
@@ -407,9 +431,9 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
         self.min_effective_area = min_effective_area
 
         # remove zeros and log it
-        effective_area[
-            effective_area < self.min_effective_area
-        ] = self.min_effective_area
+        effective_area[effective_area < self.min_effective_area] = (
+            self.min_effective_area
+        )
         effective_area = np.log(effective_area)
 
         super().__init__(
@@ -447,22 +471,23 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
         # remove entries manipulated by min_effective_area
         aeff_interp[aeff_interp < self.min_effective_area] = 0
 
-        return u.Quantity(aeff_interp, u.m**2, copy=False)
+        return u.Quantity(aeff_interp, u.m**2, copy=COPY_IF_NEEDED)
 
 
 class RadMaxEstimator(ParametrizedComponentEstimator):
+    """Estimator class for rad-max tables (RAD_MAX, RAD_MAX_2D)."""
+
     def __init__(
         self,
         grid_points,
         rad_max,
+        fill_value=None,
         interpolator_cls=GridDataInterpolator,
         interpolator_kwargs=None,
         extrapolator_cls=None,
         extrapolator_kwargs=None,
     ):
         """
-        Estimator class for RAD_MAX tables.
-
         Takes a grid of rad max values for a bunch of different parameters
         and inter-/extrapolates rad max values to given value of those parameters.
 
@@ -475,6 +500,13 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
             Grid of theta cuts. Dimensions but the first can in principle be freely
             chosen. Class is RAD_MAX_2D compatible, which would require
             shape=(n_points, n_energy_bins, n_fov_offset_bins).
+        fill_val:
+            Indicator of fill-value handling. If None, fill values are regarded as
+            normal values and no special handeling is applied. If "infer", fill values
+            will be infered as max of all values, if a value is provided,
+            it is used to flag fill values. Flagged fill-values are
+            not used for interpolation. Fill-value handling is only supported in
+            up to two grid dimensions.
         interpolator_cls:
             pyirf interpolator class, defaults to GridDataInterpolator.
         interpolator_kwargs: dict
@@ -503,6 +535,26 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
             extrapolator_kwargs=extrapolator_kwargs,
         )
 
+        self.params = rad_max
+
+        if fill_value is None:
+            self.fill_val = None
+        elif fill_value == "infer":
+            self.fill_val = np.max(self.params)
+        else:
+            self.fill_val = fill_value
+
+        # Raise error if fill-values should be handled in >=3 dims
+        if self.fill_val and self.grid_dim >= 3:
+            raise ValueError(
+                "Fill-value handling only supported in up to two grid dimensions."
+            )
+
+        # If fill-values should be handled in 2D, construct a trinangulation
+        # to later determine in which simplex the target values is
+        if self.fill_val and (self.grid_dim == 2):
+            self.triangulation = Delaunay(self.grid_points)
+
     def __call__(self, target_point):
         """
         Estimating rad max table at target_point, inter-/extrapolates as needed and
@@ -520,11 +572,104 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
             effective areas. For RAD_MAX_2D of shape (n_energy_bins, n_fov_offset_bins)
 
         """
+        # First, construct estimation without handling fill-values
+        full_estimation = super().__call__(target_point)
+        # Safeguard against extreme extrapolation cases
+        np.clip(full_estimation, 0, None, out=full_estimation)
 
-        return super().__call__(target_point)
+        # Early exit if fill_values should not be handled
+        if not self.fill_val:
+            return full_estimation
+
+        # Early exit if a nearest neighbor estimation would be overwritten
+        # Complex setup is needed to catch settings where the user mixes approaches and
+        # e.g. uses nearest neighbors for extrapolation and an actual interpolation otherwise
+        if self.grid_dim == 1:
+            if (
+                (target_point < self.grid_points.min())
+                or (target_point > self.grid_points.max())
+            ) and issubclass(self.extrapolator.__class__, BaseNearestNeighborSearcher):
+                return full_estimation
+            elif issubclass(self.interpolator.__class__, BaseNearestNeighborSearcher):
+                return full_estimation
+        elif self.grid_dim == 2:
+            target_simplex = self.triangulation.find_simplex(target_point)
+
+            if (target_simplex == -1) and issubclass(
+                self.extrapolator.__class__, BaseNearestNeighborSearcher
+            ):
+                return full_estimation
+            elif issubclass(self.interpolator.__class__, BaseNearestNeighborSearcher):
+                return full_estimation
+
+        # Actual fill-value handling
+        if self.grid_dim == 1:
+            # Locate target in grid
+            if target_point < self.grid_points.min():
+                segment_inds = np.array([0, 1], "int")
+            elif target_point > self.grid_points.max():
+                segment_inds = np.array([-2, -1], "int")
+            else:
+                target_bin = np.digitize(
+                    target_point.squeeze(), self.grid_points.squeeze()
+                )
+                segment_inds = np.array([target_bin - 1, target_bin], "int")
+
+            mask_left = self.params[segment_inds[0]] >= self.fill_val
+            mask_right = self.params[segment_inds[1]] >= self.fill_val
+            # Indicate, wether one of the neighboring entries is a fill-value
+            mask = np.logical_or(mask_left, mask_right)
+        elif self.grid_dim == 2:
+            # Locate target
+            target_simplex = self.triangulation.find_simplex(target_point)
+
+            if target_simplex == -1:
+                target_simplex = find_nearest_simplex(self.triangulation, target_point)
+
+            simplex_nodes_indices = self.triangulation.simplices[
+                target_simplex
+            ].squeeze()
+
+            mask0 = self.params[simplex_nodes_indices[0]] >= self.fill_val
+            mask1 = self.params[simplex_nodes_indices[1]] >= self.fill_val
+            mask2 = self.params[simplex_nodes_indices[2]] >= self.fill_val
+
+            # This collected mask now counts for each entry in the estimation how many
+            # of the entries used for extrapolation contained fill-values
+            intermediate_mask = (
+                mask0.astype("int") + mask1.astype("int") + mask2.astype("int")
+            )
+            mask = np.full_like(intermediate_mask, True, dtype=bool)
+
+            # Simplest cases: All or none entries were fill-values, so either return
+            # a fill-value or the actual estimation
+            mask[intermediate_mask == 0] = False
+            mask[intermediate_mask == 3] = True
+
+            # If two out of three values were fill-values return a fill-value as estimate
+            mask[intermediate_mask == 2] = True
+
+            # If only one out of three values was a fill-value use the smallest value of the
+            # remaining two
+            mask[intermediate_mask == 1] = False
+            full_estimation = np.where(
+                intermediate_mask[np.newaxis, :] == 1,
+                np.min(self.params[simplex_nodes_indices], axis=0),
+                full_estimation,
+            )
+
+        # Set all flagged values to fill-value
+        full_estimation[mask[np.newaxis, :]] = self.fill_val
+
+        # Safeguard against extreme extrapolation cases
+        full_estimation[full_estimation > self.fill_val] = self.fill_val
+
+        return full_estimation
 
 
 class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
+    """Estimator class for energy dispersions (EDISP_2D)."""
+
     def __init__(
         self,
         grid_points,
@@ -537,8 +682,6 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
         axis=-2,
     ):
         """
-        Estimator class for energy dispersions.
-
         Takes a grid of energy dispersions for a bunch of different parameters and
         inter-/extrapolates energy dispersions to given value of those parameters.
 
@@ -556,7 +699,7 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
             or e.g. missing a fov_offset axis, the axis containing n_migration_bins
             has to be specified through axis.
         interpolator_cls:
-            pyirf interpolator class, defaults to GridDataInterpolator.
+            pyirf interpolator class, defaults to QuantileInterpolator.
         interpolator_kwargs: dict
             Dict of all kwargs that are passed to the interpolator, defaults to
             None which is the same as passing an empty dict.
@@ -582,7 +725,7 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
         super().__init__(
             grid_points=grid_points,
             bin_edges=migra_bins,
-            bin_contents=np.swapaxes(energy_dispersion, axis, -1),
+            binned_pdf=np.swapaxes(energy_dispersion, axis, -1),
             interpolator_cls=interpolator_cls,
             interpolator_kwargs=interpolator_kwargs,
             extrapolator_cls=extrapolator_cls,
@@ -611,6 +754,8 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
 
 
 class PSFTableEstimator(DiscretePDFComponentEstimator):
+    """Estimator class for point spread function tables (PSF_TABLE)."""
+
     @u.quantity_input(psf=u.sr**-1, source_offset_bins=u.deg)
     def __init__(
         self,
@@ -624,8 +769,6 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         axis=-1,
     ):
         """
-        Estimator class for point spread functions.
-
         Takes a grid of psfs or a bunch of different parameters and
         inter-/extrapolates psfs to given value of those parameters.
 
@@ -642,7 +785,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
             This is assumed as default. If these axes are in different order
             the axis containing n_source_offset_bins has to be specified through axis.
         interpolator_cls:
-            pyirf interpolator class, defaults to GridDataInterpolator.
+            pyirf interpolator class, defaults to QuantileInterpolator.
         interpolator_kwargs: dict
             Dict of all kwargs that are passed to the interpolator, defaults to
             None which is the same as passing an empty dict.
@@ -667,14 +810,23 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         psf = np.swapaxes(psf, axis, -1)
 
-        # Renormalize along the source offset axis to have a proper PDF
-        self.omegas = np.diff(cone_solid_angle(source_offset_bins))
-        psf_normed = psf * self.omegas
+        if interpolator_kwargs is None:
+            interpolator_kwargs = {}
+
+        if extrapolator_kwargs is None:
+            extrapolator_kwargs = {}
+
+        interpolator_kwargs.setdefault(
+            "normalization", PDFNormalization.CONE_SOLID_ANGLE
+        )
+        extrapolator_kwargs.setdefault(
+            "normalization", PDFNormalization.CONE_SOLID_ANGLE
+        )
 
         super().__init__(
             grid_points=grid_points,
-            bin_edges=source_offset_bins,
-            bin_contents=psf_normed,
+            bin_edges=source_offset_bins.to_value(u.rad),
+            binned_pdf=psf,
             interpolator_cls=interpolator_cls,
             interpolator_kwargs=interpolator_kwargs,
             extrapolator_cls=extrapolator_cls,
@@ -683,7 +835,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
     def __call__(self, target_point):
         """
-        Estimating energy dispersions at target_point, inter-/extrapolates as needed and
+        Estimating psf tables at target_point, inter-/extrapolates as needed and
         specified in __init__.
 
         Parameters
@@ -693,7 +845,7 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
 
         Returns
         -------
-        psf_interp: np.ndarray, shape=(n_points, ..., n_source_offset_bins)
+        psf_interp: u.Quantity[sr-1], shape=(n_points, ..., n_source_offset_bins)
             Interpolated psf table with same shape as input matrices. For PSF_TABLE
             of shape (n_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
 
@@ -702,4 +854,8 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
         interpolated_psf_normed = super().__call__(target_point)
 
         # Undo normalisation to get a proper PSF and return
-        return np.swapaxes(interpolated_psf_normed / self.omegas, -1, self.axis)
+        return u.Quantity(
+            np.swapaxes(interpolated_psf_normed, -1, self.axis),
+            u.sr**-1,
+            copy=COPY_IF_NEEDED,
+        )

@@ -67,19 +67,19 @@ def test_DiscretePDFExtrapolator_instantiation():
     target2D = np.array([[0.25, 0.25]])
 
     bin_edges = np.linspace(-1, 1, 11)
-    bin_content = np.ones(shape=(len(grid_points1D), len(bin_edges) - 1))
+    binned_pdf = np.ones(shape=(len(grid_points1D), len(bin_edges) - 1))
 
     with pytest.raises(TypeError):  # Abstract class, cannot be instantiated
-        DiscretePDFExtrapolator(grid_points1D, bin_edges, bin_content)
+        DiscretePDFExtrapolator(grid_points1D, bin_edges, binned_pdf)
 
     class DummyBinnedExtrapolator(DiscretePDFExtrapolator):
         def extrapolate(self, target_point):
             return 42
 
-    interp1D = DummyBinnedExtrapolator(grid_points1D, bin_edges, bin_content)
+    interp1D = DummyBinnedExtrapolator(grid_points1D, bin_edges, binned_pdf)
     assert interp1D(target1D) == 42
 
-    interp2D = DummyBinnedExtrapolator(grid_points2D, bin_edges, bin_content)
+    interp2D = DummyBinnedExtrapolator(grid_points2D, bin_edges, binned_pdf)
     assert interp2D(target2D) == 42
 
 

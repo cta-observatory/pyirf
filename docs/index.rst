@@ -1,8 +1,3 @@
-.. pyirf documentation master file, created by
-   sphinx-quickstart on Sat Apr 25 16:39:28 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 .. meta::
     :github_url: https://github.com/cta-observatory/pyirf
 
