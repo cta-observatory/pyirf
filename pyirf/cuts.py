@@ -86,7 +86,7 @@ def calculate_percentile_cut(
     if percentile.shape == ():
         cut_table["cut"] = np.asanyarray(fill_value, values.dtype)
     else:
-        cut_table["cut"] = np.full((n_bins, len(percentile)), fill_value, dtype=values.dtype) 
+        cut_table["cut"] = np.full((n_bins, len(percentile)), fill_value, dtype=values.dtype)
 
     if unit is not None:
         cut_table["cut"].unit = unit
