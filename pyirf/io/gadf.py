@@ -142,6 +142,122 @@ def create_psf_table_hdu(
     return BinTableHDU(psf_, header=header, name=extname)
 
 
+def create_psf_table_asymmetric_polar_hdu(
+    psf,
+    true_energy_bins,
+    source_offset_bins,
+    fov_offset_bins,
+    fov_position_angle_bins,
+    extname="PSF",
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for the PSF table.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/psf/psf_table/index.html
+
+    Parameters
+    ----------
+    psf: astropy.units.Quantity[(solid angle)^-1]
+        Point spread function array, must have shape
+        (n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    source_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the source offset.
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_position_angle_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view position angle.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+
+    psf_ = QTable()
+    psf_["ENERG_LO"], psf_["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    psf_["THETA_LO"], psf_["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    psf_["PHI_LO"], psf_["PHI_HI"] = binning.split_bin_lo_hi(fov_position_angle_bins[np.newaxis, :].to(u.deg))
+    psf_["RAD_LO"], psf_["RAD_HI"] = binning.split_bin_lo_hi(source_offset_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    psf_["RPSF"] = psf.T[np.newaxis, ...].to(1 / u.sr)
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "PSF"
+    header["HDUCLAS3"] = "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "PSF_TABLE"
+    header["DATE"] = Time.now().utc.iso
+    idx = psf_.colnames.index("RPSF") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,THETA_LO:THETA_HI,PHI_LO:PHI_HI,RAD_LO:RAD_HI)"
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(psf_, header=header, name=extname)
+
+
+def create_psf_table_asymmetric_lonlat_hdu(
+    psf,
+    true_energy_bins,
+    source_offset_bins,
+    fov_longitude_bins,
+    fov_latitude_bins,
+    extname="PSF",
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for the PSF table.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/psf/psf_table/index.html
+
+    Parameters
+    ----------
+    psf: astropy.units.Quantity[(solid angle)^-1]
+        Point spread function array, must have shape
+        (n_energy_bins, n_fov_offset_bins, n_source_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    source_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the source offset.
+    fov_longitude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view longitude.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_latitude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view latitude.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+
+    psf_ = QTable()
+    psf_["ENERG_LO"], psf_["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    psf_["DETX_LO"], psf_["DETX_HI"] = binning.split_bin_lo_hi(fov_longitude_bins[np.newaxis, :].to(u.deg))
+    psf_["DETY_LO"], psf_["DETY_HI"] = binning.split_bin_lo_hi(fov_latitude_bins[np.newaxis, :].to(u.deg))
+    psf_["RAD_LO"], psf_["RAD_HI"] = binning.split_bin_lo_hi(source_offset_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    psf_["RPSF"] = psf.T[np.newaxis, ...].to(1 / u.sr)
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "PSF"
+    header["HDUCLAS3"] = "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "PSF_TABLE"
+    header["DATE"] = Time.now().utc.iso
+    idx = psf_.colnames.index("RPSF") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,DETX_LO:DETX_HI,DETY_LO:DETY_HI,RAD_LO:RAD_HI)"
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(psf_, header=header, name=extname)
+
+
 @u.quantity_input(
     true_energy_bins=u.TeV, fov_offset_bins=u.deg,
 )
