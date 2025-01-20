@@ -202,6 +202,130 @@ def create_energy_dispersion_hdu(
     return BinTableHDU(edisp, header=header, name=extname)
 
 
+def create_energy_dispersion_asymmetric_polar_hdu(
+    energy_dispersion,
+    true_energy_bins,
+    migration_bins,
+    fov_offset_bins,
+    fov_position_angle_bins,
+    point_like=True,
+    extname="EDISP",
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for the asymmetric energy dispersion with polar FoV coordinates.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
+
+    Parameters
+    ----------
+    energy_dispersion: numpy.ndarray
+        Energy dispersion array, must have shape
+        (n_energy_bins, n_migra_bins, n_source_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    migration_bins: numpy.ndarray
+        Bin edges for the relative energy migration (``reco_energy / true_energy``)
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_position_angle_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view position angle.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    point_like: bool
+        If the provided effective area was calculated after applying a direction cut,
+        pass ``True``, else ``False`` for a full-enclosure effective area.
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+
+    edisp = QTable()
+    edisp["ENERG_LO"], edisp["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    edisp["MIGRA_LO"], edisp["MIGRA_HI"] = binning.split_bin_lo_hi(migration_bins[np.newaxis, :])
+    edisp["THETA_LO"], edisp["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    edisp["PHI_LO"], edisp["PHI_HI"] = binning.split_bin_lo_hi(fov_position_angle_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    edisp["MATRIX"] = u.Quantity(energy_dispersion.T[np.newaxis, ...]).to(u.one)
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "EDISP"
+    header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "EDISP_3D"
+    header["DATE"] = Time.now().utc.iso
+    idx = edisp.colnames.index("MATRIX") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,MIGRA_LO:MIGRA_HI,THETA_LO:THETA_HI,PHI_LO:PHI_HI)"
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(edisp, header=header, name=extname)
+
+
+def create_energy_dispersion_asymmetric_lonlat_hdu(
+    energy_dispersion,
+    true_energy_bins,
+    migration_bins,
+    fov_longitude_bins,
+    fov_latitude_bins,
+    point_like=True,
+    extname="EDISP",
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for the asymmetric energy dispersion with longitude-latitude FoV coordinates.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/edisp/index.html
+
+    Parameters
+    ----------
+    energy_dispersion: numpy.ndarray
+        Energy dispersion array, must have shape
+        (n_energy_bins, n_migra_bins, n_source_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    migration_bins: numpy.ndarray
+        Bin edges for the relative energy migration (``reco_energy / true_energy``)
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_position_angle_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view position angle.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    point_like: bool
+        If the provided effective area was calculated after applying a direction cut,
+        pass ``True``, else ``False`` for a full-enclosure effective area.
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+
+    edisp = QTable()
+    edisp["ENERG_LO"], edisp["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    edisp["MIGRA_LO"], edisp["MIGRA_HI"] = binning.split_bin_lo_hi(migration_bins[np.newaxis, :])
+    edisp["DETX_LO"], edisp["DETX_HI"] = binning.split_bin_lo_hi(fov_longitude_bins[np.newaxis, :].to(u.deg))
+    edisp["DETY_LO"], edisp["DETY_HI"] = binning.split_bin_lo_hi(fov_latitude_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    edisp["MATRIX"] = u.Quantity(energy_dispersion.T[np.newaxis, ...]).to(u.one)
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "EDISP"
+    header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "EDISP_3D"
+    header["DATE"] = Time.now().utc.iso
+    idx = edisp.colnames.index("MATRIX") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,MIGRA_LO:MIGRA_HI,DETX_LO:DETX_HI,DETY_LO:DETY_HI)"
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(edisp, header=header, name=extname)
+
+
 #: Unit to store background rate in GADF format
 #:
 #: see https://github.com/open-gamma-ray-astro/gamma-astro-data-formats/issues/153
