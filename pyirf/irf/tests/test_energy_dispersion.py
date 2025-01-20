@@ -91,6 +91,230 @@ def test_energy_dispersion():
     )
 
 
+def test_energy_dispersion_asymmetric_polar():
+    from pyirf.irf import energy_dispersion_asymmetric_polar
+
+    np.random.seed(0)
+
+    N = 10000
+    TRUE_SIGMA_1 = 0.20
+    TRUE_SIGMA_2 = 0.10
+    TRUE_SIGMA_3 = 0.05
+
+    selected_events = QTable(
+        {
+            "reco_energy": np.concatenate(
+                [
+                    np.random.normal(1.0, TRUE_SIGMA_1, size=N) * 0.5,
+                    np.random.normal(1.0, TRUE_SIGMA_2, size=N) * 5,
+                    np.random.normal(1.0, TRUE_SIGMA_3, size=N) * 50,
+                ]
+            )
+            * u.TeV,
+            "true_energy": np.concatenate(
+                [np.full(N, 0.5), np.full(N, 5.0), np.full(N, 50.0)]
+            )
+            * u.TeV,
+            "true_source_fov_offset": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                ]
+            )
+            * u.deg,
+            "true_source_fov_position_angle": np.concatenate(
+                [
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    true_energy_bins = np.array([0.1, 1.0, 10.0, 100]) * u.TeV
+    fov_offset_bins = np.array([0, 1, 2]) * u.deg
+    fov_position_angle_bins = np.array([0, 180, 360]) * u.deg
+    migration_bins = np.linspace(0, 2, 1001)
+
+    result = energy_dispersion_asymmetric_polar(
+        selected_events,
+        true_energy_bins,
+        fov_offset_bins,
+        fov_position_angle_bins,
+        migration_bins,
+    )
+
+    assert result.shape == (3, 1000, 2, 2)
+
+    bin_width = np.diff(migration_bins)
+    bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
+    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2), we need to integrate over migration axis
+    integral = (result * bin_width[np.newaxis, :, np.newaxis, np.newaxis]).sum(axis=1)
+
+    np.testing.assert_allclose(integral, 1.0)
+
+    cdf = np.cumsum(result * bin_width[np.newaxis, :, np.newaxis, np.newaxis], axis=1)
+
+    def ppf(cdf, bins, value):
+        return np.interp(value, cdf, bins[1:])
+
+    assert np.isclose(
+        TRUE_SIGMA_1,
+        0.5 * (
+            ppf(cdf[0, :, 0, 0], migration_bins, 0.84)
+            - ppf(cdf[0, :, 0, 0], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_2,
+        0.5 * (
+            ppf(cdf[1, :, 0, 0], migration_bins, 0.84)
+            - ppf(cdf[1, :, 0, 0], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_3,
+        0.5 * (
+            ppf(cdf[2, :, 0, 0], migration_bins, 0.84)
+            - ppf(cdf[2, :, 0, 0], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+
+
+def test_energy_dispersion_asymmetric_lonlat():
+    from pyirf.irf import energy_dispersion_asymmetric_lonlat
+
+    np.random.seed(0)
+
+    N = 10000
+    TRUE_SIGMA_1 = 0.20
+    TRUE_SIGMA_2 = 0.10
+    TRUE_SIGMA_3 = 0.05
+
+    selected_events = QTable(
+        {
+            "reco_energy": np.concatenate(
+                [
+                    np.random.normal(1.0, TRUE_SIGMA_1, size=N) * 0.5,
+                    np.random.normal(1.0, TRUE_SIGMA_2, size=N) * 5,
+                    np.random.normal(1.0, TRUE_SIGMA_3, size=N) * 50,
+                ]
+            )
+            * u.TeV,
+            "true_energy": np.concatenate(
+                [np.full(N, 0.5), np.full(N, 5.0), np.full(N, 50.0)]
+            )
+            * u.TeV,
+            "true_source_fov_lon": np.concatenate(
+                [
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                ]
+            )
+            * u.deg,
+            "true_source_fov_lat": np.concatenate(
+                [
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    true_energy_bins = np.array([0.1, 1.0, 10.0, 100]) * u.TeV
+    fov_lon_bins = np.array([-1, 0, 1]) * u.deg
+    fov_lat_bins = np.array([-1, 0, 1]) * u.deg
+    migration_bins = np.linspace(0, 2, 1001)
+
+    result = energy_dispersion_asymmetric_lonlat(
+        selected_events, true_energy_bins, fov_lon_bins, fov_lat_bins, migration_bins
+    )
+
+    assert result.shape == (3, 1000, 2, 2)
+
+    bin_width = np.diff(migration_bins)
+    bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
+    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2), we need to integrate over migration axis
+    integral = (result * bin_width[np.newaxis, :, np.newaxis, np.newaxis]).sum(axis=1)
+
+    np.testing.assert_allclose(integral, 1.0)
+
+    cdf = np.cumsum(result * bin_width[np.newaxis, :, np.newaxis, np.newaxis], axis=1)
+
+    def ppf(cdf, bins, value):
+        return np.interp(value, cdf, bins[1:])
+
+    assert np.isclose(
+        TRUE_SIGMA_1,
+        0.5 * (
+            ppf(cdf[0, :, 0, 0], migration_bins, 0.84)
+            - ppf(cdf[0, :, 0, 0], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_2,
+        0.5 * (
+            ppf(cdf[1, :, 0, 0], migration_bins, 0.84)
+            - ppf(cdf[1, :, 0, 0], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_3,
+        0.5 * (
+            ppf(cdf[2, :, 0, 0], migration_bins, 0.84)
+            - ppf(cdf[2, :, 0, 0], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+
+
 def test_energy_dispersion_to_migration():
     from pyirf.irf import energy_dispersion
     from pyirf.irf.energy_dispersion import energy_dispersion_to_migration
