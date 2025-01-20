@@ -30,7 +30,8 @@ def _normalize_hist(hist, migration_bins):
             hist = hist / norm[:, np.newaxis, :] / bin_width[np.newaxis, :, np.newaxis]
         else:
         # this handles the asymmetric case where hist shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2)
-            hist = hist / norm[:, np.newaxis, ...] / bin_width[np.newaxis, :, np.newaxis, np.newaxis]
+            hist /= norm[:, np.newaxis, ...] 
+            hist /= bin_width[np.newaxis, :, np.newaxis, np.newaxis]
     return np.nan_to_num(hist)
 
 
@@ -90,7 +91,11 @@ def energy_dispersion(
 
 
 def energy_dispersion_asymmetric_polar(
-    selected_events, true_energy_bins, fov_offset_bins, fov_position_angle_bins, migration_bins,
+    selected_events,
+    true_energy_bins,
+    fov_offset_bins,
+    fov_position_angle_bins,
+    migration_bins,
 ):
     """
     Calculate energy dispersion for the given DL2 event list.
@@ -147,7 +152,11 @@ def energy_dispersion_asymmetric_polar(
 
 
 def energy_dispersion_asymmetric_lonlat(
-    selected_events, true_energy_bins, fov_longitude_bins, fov_latitude_bins, migration_bins,
+    selected_events,
+    true_energy_bins,
+    fov_longitude_bins,
+    fov_latitude_bins,
+    migration_bins,
 ):
     """
     Calculate energy dispersion for the given DL2 event list.
