@@ -1,0 +1,1 @@
+Allow a LogParabola spectral model to be initialized with a logarithm in base 10 or a natural logarithm using the boolean attribute `from_log10`.

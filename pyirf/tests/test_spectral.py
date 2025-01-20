@@ -74,6 +74,63 @@ def test_powerlaw():
     assert power_law(1 * u.TeV).unit == unit
     assert power_law(1 * u.GeV).unit == unit
 
+def test_logparabola():
+    from pyirf.spectral import LogParabola
+
+    # Test initialization
+    normalization = 1e-12 * u.Unit("cm-2 s-1 TeV-1")
+    a = -2.0
+    b = 0.1
+    e_ref = 1 * u.TeV
+    lp = LogParabola(normalization, a, b, e_ref, from_log10=True)
+
+    assert lp.normalization == normalization
+    assert lp.a == a
+    assert lp.b == b
+    assert lp.e_ref == e_ref
+    assert lp.from_log10 is True
+
+    # Test the flux evaluation at a given energy
+    normalization = 1e-12 * u.Unit("cm-2 s-1 TeV-1")
+    a = -2.0
+    b = 0.1
+    e_ref = 1 * u.TeV
+    lp = LogParabola(normalization, a, b, e_ref, from_log10=True)
+
+    energy = 2 * u.TeV
+    expected_flux = normalization * (energy / e_ref) ** (
+        a + b * np.log10(energy / e_ref)
+    )
+    calculated_flux = lp(energy)
+
+    assert u.isclose(
+        calculated_flux, expected_flux, atol=1e-20 * u.Unit("cm-2 s-1 TeV-1")
+    )
+
+    # Same but for natural log
+    normalization = 1e-12 * u.Unit("cm-2 s-1 TeV-1")
+    a = -2.0
+    b = 0.1
+    e_ref = 1 * u.TeV
+    lp = LogParabola(normalization, a, b, e_ref, from_log10=False)
+
+    energy = 2 * u.TeV
+    expected_flux = normalization * (energy / e_ref) ** (a + b * np.log(energy / e_ref))
+    calculated_flux = lp(energy)
+
+    assert u.isclose(
+        calculated_flux, expected_flux, atol=1e-20 * u.Unit("cm-2 s-1 TeV-1")
+    )
+
+    # Test string representation
+    normalization = 1e-12 * u.Unit("cm-2 s-1 TeV-1")
+    a = -2.0
+    b = 0.1
+    e_ref = 1 * u.TeV
+    lp = LogParabola(normalization, a, b, e_ref, from_log10=True)
+
+    expected_repr = "LogParabola(1e-12 1 / (TeV s cm2) * (E / 1.0 TeV)**(-2.0 + 0.1 * log10(E / 1.0 TeV))"
+    assert repr(lp) == expected_repr
 
 def test_powerlaw_from_simulations():
     from pyirf.simulations import SimulatedEventsInfo
