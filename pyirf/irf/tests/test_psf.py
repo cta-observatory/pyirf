@@ -87,7 +87,9 @@ def test_psf_asymmetric_polar():
     source_bins = np.linspace(0, 1, 201) * u.deg
 
     # We return a table with one row as needed for gadf
-    psf = psf_table_asymmetric_polar(events, energy_bins, source_bins, fov_bins_theta, fov_bins_phi)
+    psf = psf_table_asymmetric_polar(
+        events, energy_bins, source_bins, fov_bins_theta, fov_bins_phi
+    )
 
     # 2 energy bins, 1 fov bin, 200 source distance bins
     assert psf.shape == (2, 1, 1, 200)
@@ -144,7 +146,9 @@ def test_psf_asymmetric_lonlat():
     source_bins = np.linspace(0, 1, 201) * u.deg
 
     # We return a table with one row as needed for gadf
-    psf = psf_table_asymmetric_lonlat(events, energy_bins, source_bins, fov_bins, fov_bins)
+    psf = psf_table_asymmetric_lonlat(
+        events, energy_bins, source_bins, fov_bins, fov_bins
+    )
 
     # 2 energy bins, 1 fov bin, 200 source distance bins
     assert psf.shape == (2, 1, 1, 200)
