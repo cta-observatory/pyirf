@@ -1,0 +1,482 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.sensitivity &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/sensitivity.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.sensitivity</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.sensitivity</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions to calculate sensitivity</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.optimize</span><span class="w"> </span><span class="kn">import</span> <span class="n">brentq</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">QTable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPY_IF_NEEDED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.statistics</span><span class="w"> </span><span class="kn">import</span> <span class="n">li_ma_significance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_histograms</span><span class="p">,</span> <span class="n">cone_solid_angle</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_histogram_table</span><span class="p">,</span> <span class="n">bin_center</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;relative_sensitivity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_sensitivity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;estimate_background&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_relative_sensitivity</span><span class="p">(</span>
+    <span class="n">n_on</span><span class="p">,</span>
+    <span class="n">n_off</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">,</span>
+    <span class="n">min_significance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">min_signal_events</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">min_excess_over_background</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">significance_function</span><span class="o">=</span><span class="n">li_ma_significance</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">n_on</span><span class="p">)</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">n_off</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="k">if</span> <span class="n">n_on</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">n_off</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;n_on and n_off must be positive, got </span><span class="si">{</span><span class="n">n_on</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">n_off</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">n_background</span> <span class="o">=</span> <span class="n">n_off</span> <span class="o">*</span> <span class="n">alpha</span>
+    <span class="n">n_signal</span> <span class="o">=</span> <span class="n">n_on</span> <span class="o">-</span> <span class="n">n_background</span>
+
+    <span class="k">if</span> <span class="n">n_signal</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">equation</span><span class="p">(</span><span class="n">relative_flux</span><span class="p">):</span>
+        <span class="n">n_on</span> <span class="o">=</span> <span class="n">n_signal</span> <span class="o">*</span> <span class="n">relative_flux</span> <span class="o">+</span> <span class="n">n_background</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">significance_function</span><span class="p">(</span><span class="n">n_on</span><span class="p">,</span> <span class="n">n_off</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">s</span> <span class="o">-</span> <span class="n">min_significance</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># brentq needs a lower and an upper bound</span>
+        <span class="c1"># we will use the simple, analytically  solvable significance formula and scale it</span>
+        <span class="c1"># with 10 to be sure it&#39;s above the Li and Ma solution</span>
+        <span class="c1"># so rel * n_signal / sqrt(n_background) = target_significance</span>
+        <span class="k">if</span> <span class="n">n_off</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">relative_flux_naive</span> <span class="o">=</span> <span class="n">min_significance</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">n_background</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_signal</span>
+            <span class="n">upper_bound</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">relative_flux_naive</span>
+            <span class="n">lower_bound</span> <span class="o">=</span> <span class="mf">0.01</span> <span class="o">*</span> <span class="n">relative_flux_naive</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">upper_bound</span> <span class="o">=</span> <span class="mi">100</span>
+            <span class="n">lower_bound</span> <span class="o">=</span> <span class="mf">1e-4</span>
+
+        <span class="n">relative_flux</span> <span class="o">=</span> <span class="n">brentq</span><span class="p">(</span><span class="n">equation</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="p">(</span><span class="ne">RuntimeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Could not calculate relative significance for&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; n_signal=</span><span class="si">{</span><span class="n">n_signal</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, n_off=</span><span class="si">{</span><span class="n">n_off</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">, returning nan </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="c1"># scale to achieved flux level</span>
+    <span class="n">n_signal</span> <span class="o">=</span> <span class="n">n_signal</span> <span class="o">*</span> <span class="n">relative_flux</span>
+    <span class="n">min_excess</span> <span class="o">=</span> <span class="n">min_excess_over_background</span> <span class="o">*</span> <span class="n">n_background</span>
+    <span class="n">min_signal</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">min_signal_events</span><span class="p">,</span> <span class="n">min_excess</span><span class="p">)</span>
+
+    <span class="c1"># if we violate the min signal events condition,</span>
+    <span class="c1"># increase flux until we meet the requirement</span>
+    <span class="k">if</span> <span class="n">n_signal</span> <span class="o">&lt;</span> <span class="n">min_signal</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="n">min_signal</span> <span class="o">/</span> <span class="n">n_signal</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">scale</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="k">return</span> <span class="n">relative_flux</span> <span class="o">*</span> <span class="n">scale</span>
+
+
+<span class="n">_relative_sensitivity_vectorized</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vectorize</span><span class="p">(</span>
+    <span class="n">_relative_sensitivity</span><span class="p">,</span> <span class="n">excluded</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;significance_function&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="relative_sensitivity">
+<a class="viewcode-back" href="../../api/pyirf.sensitivity.relative_sensitivity.html#pyirf.sensitivity.relative_sensitivity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">relative_sensitivity</span><span class="p">(</span>
+    <span class="n">n_on</span><span class="p">,</span>
+    <span class="n">n_off</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">,</span>
+    <span class="n">min_significance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">min_signal_events</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">min_excess_over_background</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">significance_function</span><span class="o">=</span><span class="n">li_ma_significance</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the relative sensitivity defined as the flux</span>
+<span class="sd">    relative to the reference source that is detectable with</span>
+<span class="sd">    significance ``target_significance``.</span>
+
+<span class="sd">    Given measured ``n_on`` and ``n_off``,</span>
+<span class="sd">    we estimate the number of gamma events ``n_signal`` as ``n_on - alpha * n_off``.</span>
+
+<span class="sd">    The number of background events ``n_background` is estimated as ``n_off * alpha``.</span>
+
+<span class="sd">    In the end, we find the relative sensitivity as the scaling factor for ``n_signal``</span>
+<span class="sd">    that yields a significance of ``target_significance``.</span>
+
+<span class="sd">    The reference time should be incorporated by appropriately weighting the events</span>
+<span class="sd">    before calculating ``n_on`` and ``n_off``.</span>
+
+<span class="sd">    All input values with the exception of ``significance_function``</span>
+<span class="sd">    must be broadcastable to a single, common shape.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    n_on: int or array-like</span>
+<span class="sd">        Number of signal-like events for the on observations</span>
+<span class="sd">    n_off: int or array-like</span>
+<span class="sd">        Number of signal-like events for the off observations</span>
+<span class="sd">    alpha: float or array-like</span>
+<span class="sd">        Scaling factor between on and off observations.</span>
+<span class="sd">        1 / number of off regions for wobble observations.</span>
+<span class="sd">    min_significance: float or array-like</span>
+<span class="sd">        Significance necessary for a detection</span>
+<span class="sd">    min_signal_events: int or array-like</span>
+<span class="sd">        Minimum number of signal events required.</span>
+<span class="sd">        The relative flux will be scaled up from the one yielding ``min_significance``</span>
+<span class="sd">        if this condition is violated.</span>
+<span class="sd">    min_excess_over_background: float or array-like</span>
+<span class="sd">        Minimum number of signal events expressed as the proportion of the</span>
+<span class="sd">        background.</span>
+<span class="sd">        So the required number of signal events will be</span>
+<span class="sd">        ``min_excess_over_background * alpha * n_off``.</span>
+<span class="sd">        The relative flux will be scaled up from the one yielding ``min_significance``</span>
+<span class="sd">        if this condition is violated.</span>
+<span class="sd">    significance_function: function</span>
+<span class="sd">        A function f(n_on, n_off, alpha) -&gt; significance in sigma</span>
+<span class="sd">        Used to calculate the significance, default is the Li&amp;Ma</span>
+<span class="sd">        likelihood ratio test formula.</span>
+<span class="sd">        Li, T-P., and Y-Q. Ma.</span>
+<span class="sd">        &quot;Analysis methods for results in gamma-ray astronomy.&quot;</span>
+<span class="sd">        The Astrophysical Journal 272 (1983): 317-324.</span>
+<span class="sd">        Formula (17)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_relative_sensitivity_vectorized</span><span class="p">(</span>
+        <span class="n">n_on</span><span class="o">=</span><span class="n">n_on</span><span class="p">,</span>
+        <span class="n">n_off</span><span class="o">=</span><span class="n">n_off</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+        <span class="n">min_significance</span><span class="o">=</span><span class="n">min_significance</span><span class="p">,</span>
+        <span class="n">min_signal_events</span><span class="o">=</span><span class="n">min_signal_events</span><span class="p">,</span>
+        <span class="n">min_excess_over_background</span><span class="o">=</span><span class="n">min_excess_over_background</span><span class="p">,</span>
+        <span class="n">significance_function</span><span class="o">=</span><span class="n">significance_function</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_sensitivity">
+<a class="viewcode-back" href="../../api/pyirf.sensitivity.calculate_sensitivity.html#pyirf.sensitivity.calculate_sensitivity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_sensitivity</span><span class="p">(</span>
+    <span class="n">signal_hist</span><span class="p">,</span>
+    <span class="n">background_hist</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">,</span>
+    <span class="n">min_significance</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">min_signal_events</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">min_excess_over_background</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">significance_function</span><span class="o">=</span><span class="n">li_ma_significance</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate sensitivity for DL2 event lists in bins of reconstructed energy.</span>
+
+<span class="sd">    Sensitivity is defined as the minimum flux detectable with ``target_significance``</span>
+<span class="sd">    sigma significance in a certain time.</span>
+
+<span class="sd">    This time must be incorporated into the event weights.</span>
+
+<span class="sd">    Two conditions are required for the sensitivity:</span>
+<span class="sd">    - At least ten weighted signal events</span>
+<span class="sd">    - The weighted signal must be larger than 5 % of the weighted background</span>
+<span class="sd">    - At least 5 sigma (so relative_sensitivity &gt; 1)</span>
+
+<span class="sd">    If the conditions are not met, the sensitivity will be set to nan.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    signal_hist: astropy.table.QTable</span>
+<span class="sd">        Histogram of detected signal events as a table.</span>
+<span class="sd">        Required columns: n and n_weighted.</span>
+<span class="sd">        See ``pyirf.binning.create_histogram_table``</span>
+<span class="sd">    background_hist: astropy.table.QTable</span>
+<span class="sd">        Histogram of detected events as a table.</span>
+<span class="sd">        Required columns: n and n_weighted.</span>
+<span class="sd">        See ``pyirf.binning.create_histogram_table``</span>
+<span class="sd">    alpha: float</span>
+<span class="sd">        Size ratio of signal region to background region</span>
+<span class="sd">    min_significance: float</span>
+<span class="sd">        Significance necessary for a detection</span>
+<span class="sd">    min_signal_events: int</span>
+<span class="sd">        Minimum number of signal events required.</span>
+<span class="sd">        The relative flux will be scaled up from the one yielding ``min_significance``</span>
+<span class="sd">        if this condition is violated.</span>
+<span class="sd">    min_excess_over_background: float</span>
+<span class="sd">        Minimum number of signal events expressed as the proportion of the</span>
+<span class="sd">        background.</span>
+<span class="sd">        So the required number of signal events will be</span>
+<span class="sd">        ``min_excess_over_background * alpha * n_off``.</span>
+<span class="sd">        The relative flux will be scaled up from the one yielding ``min_significance``</span>
+<span class="sd">        if this condition is violated.</span>
+<span class="sd">    significance_function: callable</span>
+<span class="sd">        A function with signature (n_on, n_off, alpha) -&gt; significance.</span>
+<span class="sd">        Default is the Li &amp; Ma likelihood ratio test.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    sensitivity_table: astropy.table.QTable</span>
+<span class="sd">        Table with sensitivity information.</span>
+<span class="sd">        Contains weighted and unweighted number of signal and background events</span>
+<span class="sd">        and the ``relative_sensitivity``, the scaling applied to the signal events</span>
+<span class="sd">        that yields ``target_significance`` sigma of significance according to</span>
+<span class="sd">        the ``significance_function``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">check_histograms</span><span class="p">(</span><span class="n">signal_hist</span><span class="p">,</span> <span class="n">background_hist</span><span class="p">)</span>
+
+    <span class="n">n_on</span> <span class="o">=</span> <span class="n">signal_hist</span><span class="p">[</span><span class="s2">&quot;n_weighted&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">background_hist</span><span class="p">[</span><span class="s2">&quot;n_weighted&quot;</span><span class="p">]</span>
+
+    <span class="c1"># convert any quantities to arrays,</span>
+    <span class="c1"># since quantitites don&#39;t work with vectorize</span>
+    <span class="n">n_on</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">n_on</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">one</span><span class="p">)</span>
+    <span class="n">n_off</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">background_hist</span><span class="p">[</span><span class="s2">&quot;n_weighted&quot;</span><span class="p">],</span> <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">one</span>
+    <span class="p">)</span>
+
+    <span class="c1"># calculate sensitivity in each bin</span>
+    <span class="n">rel_sens</span> <span class="o">=</span> <span class="n">relative_sensitivity</span><span class="p">(</span>
+        <span class="n">n_on</span><span class="o">=</span><span class="n">n_on</span><span class="p">,</span>
+        <span class="n">n_off</span><span class="o">=</span><span class="n">n_off</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+        <span class="n">min_significance</span><span class="o">=</span><span class="n">min_significance</span><span class="p">,</span>
+        <span class="n">min_signal_events</span><span class="o">=</span><span class="n">min_signal_events</span><span class="p">,</span>
+        <span class="n">min_excess_over_background</span><span class="o">=</span><span class="n">min_excess_over_background</span><span class="p">,</span>
+        <span class="n">significance_function</span><span class="o">=</span><span class="n">significance_function</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># fill output table</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">):</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="s2">&quot;reco_energy_&quot;</span> <span class="o">+</span> <span class="n">key</span>
+        <span class="n">s</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_hist</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+        <span class="n">s</span><span class="p">[</span><span class="s2">&quot;n_signal&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_hist</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">rel_sens</span>
+        <span class="n">s</span><span class="p">[</span><span class="s2">&quot;n_signal_weighted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">signal_hist</span><span class="p">[</span><span class="s2">&quot;n_weighted&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">rel_sens</span>
+    <span class="n">s</span><span class="p">[</span><span class="s2">&quot;n_background&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">background_hist</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+    <span class="n">s</span><span class="p">[</span><span class="s2">&quot;n_background_weighted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">background_hist</span><span class="p">[</span><span class="s2">&quot;n_weighted&quot;</span><span class="p">]</span>
+
+    <span class="c1"># copy also &quot;n_proton&quot; / &quot;n_electron_weighted&quot; etc. if available</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;n_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;n_weighted&quot;</span><span class="p">,</span> <span class="n">background_hist</span><span class="o">.</span><span class="n">colnames</span>
+    <span class="p">):</span>
+        <span class="n">s</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">background_hist</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+    <span class="n">s</span><span class="p">[</span><span class="s2">&quot;significance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">significance_function</span><span class="p">(</span>
+        <span class="n">n_on</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;n_signal_weighted&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">alpha</span> <span class="o">*</span> <span class="n">s</span><span class="p">[</span><span class="s2">&quot;n_background_weighted&quot;</span><span class="p">],</span>
+        <span class="n">n_off</span><span class="o">=</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;n_background_weighted&quot;</span><span class="p">],</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">s</span><span class="p">[</span><span class="s2">&quot;relative_sensitivity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">rel_sens</span>
+
+    <span class="k">return</span> <span class="n">s</span></div>
+
+
+
+<div class="viewcode-block" id="estimate_background">
+<a class="viewcode-back" href="../../api/pyirf.sensitivity.estimate_background.html#pyirf.sensitivity.estimate_background">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">estimate_background</span><span class="p">(</span>
+    <span class="n">events</span><span class="p">,</span>
+    <span class="n">reco_energy_bins</span><span class="p">,</span>
+    <span class="n">theta_cuts</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="p">,</span>
+    <span class="n">fov_offset_min</span><span class="p">,</span>
+    <span class="n">fov_offset_max</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Estimate the number of background events for a point-like sensitivity.</span>
+
+<span class="sd">    Due to limited statistics, it is often not possible to just apply the same</span>
+<span class="sd">    theta cut to the background events as to the signal events around an assumed</span>
+<span class="sd">    source position.</span>
+
+<span class="sd">    Here we calculate the expected number of background events for the off</span>
+<span class="sd">    regions by taking all background events between ``fov_offset_min`` and</span>
+<span class="sd">    ``fov_offset_max`` from the camera center and then scale these to the size</span>
+<span class="sd">    of the off region, which is scaled by 1 / alpha from the size of the on</span>
+<span class="sd">    region given by the theta cuts.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events: astropy.table.QTable</span>
+<span class="sd">        DL2 event list of background surviving event selection</span>
+<span class="sd">        and inside ``fov_offset_max`` from the center of the FOV</span>
+<span class="sd">        Required columns for this function:</span>
+<span class="sd">        - `reco_energy`,</span>
+<span class="sd">        - `reco_source_fov_offset`.</span>
+<span class="sd">    reco_energy_bins: astropy.units.Quantity[energy]</span>
+<span class="sd">        Desired bin edges in reconstructed energy for the background rate</span>
+<span class="sd">    theta_cuts: astropy.table.QTable</span>
+<span class="sd">        The cuts table for the theta cut,</span>
+<span class="sd">        e.g. as returned by ``~pyirf.cuts.calculate_percentile_cut``.</span>
+<span class="sd">        Columns `center` and `cut` are required for this function.</span>
+<span class="sd">    alpha: float</span>
+<span class="sd">        size of the on region divided by the size of the off region.</span>
+<span class="sd">    fov_offset_min: astropy.units.Quantity[angle]</span>
+<span class="sd">        Minimum distance from the fov center for background events to be taken into account</span>
+<span class="sd">    fov_offset_max: astropy.units.Quantity[angle]</span>
+<span class="sd">        Maximum distance from the fov center for background events to be taken into account</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">in_ring</span> <span class="o">=</span> <span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="s2">&quot;reco_source_fov_offset&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">fov_offset_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;reco_source_fov_offset&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">fov_offset_max</span>
+    <span class="p">)</span>
+
+    <span class="n">bg</span> <span class="o">=</span> <span class="n">create_histogram_table</span><span class="p">(</span>
+        <span class="n">events</span><span class="p">[</span><span class="n">in_ring</span><span class="p">],</span>
+        <span class="n">reco_energy_bins</span><span class="p">,</span>
+        <span class="n">key</span><span class="o">=</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># scale number of background events according to the on region size</span>
+    <span class="c1"># background radius and alpha</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="n">bin_center</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span>
+    <span class="c1"># interpolate the theta cut to the bins used here</span>
+    <span class="n">theta_cuts_bg_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">center</span><span class="p">,</span> <span class="n">theta_cuts</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">],</span> <span class="n">theta_cuts</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">])</span>
+
+    <span class="n">solid_angle_on</span> <span class="o">=</span> <span class="n">cone_solid_angle</span><span class="p">(</span><span class="n">theta_cuts_bg_bins</span><span class="p">)</span>
+    <span class="n">solid_angle_ring</span> <span class="o">=</span> <span class="n">cone_solid_angle</span><span class="p">(</span><span class="n">fov_offset_max</span><span class="p">)</span> <span class="o">-</span> <span class="n">cone_solid_angle</span><span class="p">(</span>
+        <span class="n">fov_offset_min</span>
+    <span class="p">)</span>
+    <span class="n">size_ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">solid_angle_on</span> <span class="o">/</span> <span class="n">solid_angle_ring</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">one</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">col</span><span class="p">:</span> <span class="n">col</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;n&quot;</span><span class="p">),</span> <span class="n">bg</span><span class="o">.</span><span class="n">colnames</span><span class="p">):</span>
+        <span class="c1"># *= not possible due to upcast from int to float</span>
+        <span class="n">bg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">*</span> <span class="n">size_ratio</span> <span class="o">/</span> <span class="n">alpha</span>
+
+    <span class="k">return</span> <span class="n">bg</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

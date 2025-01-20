@@ -1,0 +1,19 @@
+DiscretePDFInterpolator
+=======================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: DiscretePDFInterpolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~DiscretePDFInterpolator.__call__
+      ~DiscretePDFInterpolator.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

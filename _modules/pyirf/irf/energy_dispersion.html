@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.irf.energy_dispersion &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/irf/energy_dispersion.html"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.irf.energy_dispersion</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.irf.energy_dispersion</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">resample_histogram1d</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;energy_dispersion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_migration_matrix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;energy_dispersion_to_migration&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_hist</span><span class="p">(</span><span class="n">hist</span><span class="p">,</span> <span class="n">migration_bins</span><span class="p">):</span>
+    <span class="c1"># make sure we do not mutate the input array</span>
+    <span class="n">hist</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">bin_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">migration_bins</span><span class="p">)</span>
+
+    <span class="c1"># calculate number of events along the N_MIGRA axis to get events</span>
+    <span class="c1"># per energy per fov</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">hist</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+        <span class="c1"># hist shape is (N_E, N_MIGRA, N_FOV), norm shape is (N_E, N_FOV)</span>
+        <span class="c1"># so we need to add a new axis in the middle to get (N_E, 1, N_FOV)</span>
+        <span class="c1"># bin_width is 1d, so we need newaxis, use the values, newaxis</span>
+        <span class="n">hist</span> <span class="o">=</span> <span class="n">hist</span> <span class="o">/</span> <span class="n">norm</span><span class="p">[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">/</span> <span class="n">bin_width</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">hist</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="energy_dispersion">
+<a class="viewcode-back" href="../../../api/pyirf.irf.energy_dispersion.html#pyirf.irf.energy_dispersion">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">energy_dispersion</span><span class="p">(</span>
+    <span class="n">selected_events</span><span class="p">,</span>
+    <span class="n">true_energy_bins</span><span class="p">,</span>
+    <span class="n">fov_offset_bins</span><span class="p">,</span>
+    <span class="n">migration_bins</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate energy dispersion for the given DL2 event list.</span>
+<span class="sd">    Energy dispersion is defined as the probability of finding an event</span>
+<span class="sd">    at a given relative deviation ``(reco_energy / true_energy)`` for a given</span>
+<span class="sd">    true energy.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    selected_events: astropy.table.QTable</span>
+<span class="sd">        Table of the DL2 events.</span>
+<span class="sd">        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``.</span>
+<span class="sd">    true_energy_bins: astropy.units.Quantity[energy]</span>
+<span class="sd">        Bin edges in true energy</span>
+<span class="sd">    migration_bins: astropy.units.Quantity[energy]</span>
+<span class="sd">        Bin edges in relative deviation, recommended range: [0.2, 5]</span>
+<span class="sd">    fov_offset_bins: astropy.units.Quantity[angle]</span>
+<span class="sd">        Bin edges in the field of view offset.</span>
+<span class="sd">        For Point-Like IRFs, only giving a single bin is appropriate.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    energy_dispersion: numpy.ndarray</span>
+<span class="sd">        Energy dispersion matrix</span>
+<span class="sd">        with shape (n_true_energy_bins, n_migration_bins, n_fov_ofset_bins)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mu</span> <span class="o">=</span> <span class="p">(</span><span class="n">selected_events</span><span class="p">[</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">selected_events</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">one</span>
+    <span class="p">)</span>
+
+    <span class="n">energy_dispersion</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogramdd</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">selected_events</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+                <span class="n">mu</span><span class="p">,</span>
+                <span class="n">selected_events</span><span class="p">[</span><span class="s2">&quot;true_source_fov_offset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+        <span class="n">bins</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">true_energy_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+            <span class="n">migration_bins</span><span class="p">,</span>
+            <span class="n">fov_offset_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">energy_dispersion</span> <span class="o">=</span> <span class="n">_normalize_hist</span><span class="p">(</span><span class="n">energy_dispersion</span><span class="p">,</span> <span class="n">migration_bins</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">energy_dispersion</span></div>
+
+
+
+<span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">true_energy_bins</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">,</span> <span class="n">reco_energy_bins</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">,</span> <span class="n">fov_offset_bins</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">energy_migration_matrix</span><span class="p">(</span>
+    <span class="n">events</span><span class="p">,</span> <span class="n">true_energy_bins</span><span class="p">,</span> <span class="n">reco_energy_bins</span><span class="p">,</span> <span class="n">fov_offset_bins</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the energy migration matrix directly from the events.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events : `~astropy.table.QTable`</span>
+<span class="sd">        Table of the DL2 events.</span>
+<span class="sd">        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``.</span>
+<span class="sd">    true_energy_bins : `~astropy.units.Quantity`</span>
+<span class="sd">        Bin edges in true energy.</span>
+<span class="sd">    reco_energy_bins : `~astropy.units.Quantity`</span>
+<span class="sd">        Bin edges in reconstructed energy.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    matrix : array-like</span>
+<span class="sd">        Migration matrix as probabilities along the reconstructed energy axis.</span>
+<span class="sd">        energy axis with shape</span>
+<span class="sd">        (n_true_energy_bins, n_reco_energy_bins, n_fov_offset_bins)</span>
+<span class="sd">        containing energies in TeV.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hist</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogramdd</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">events</span><span class="p">[</span><span class="s2">&quot;true_energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+                <span class="n">events</span><span class="p">[</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+                <span class="n">events</span><span class="p">[</span><span class="s2">&quot;true_source_fov_offset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+            <span class="p">]</span>
+        <span class="p">),</span>
+        <span class="n">bins</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">true_energy_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+            <span class="n">reco_energy_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+            <span class="n">fov_offset_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+        <span class="n">hist</span> <span class="o">/=</span> <span class="n">hist</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)[:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span>
+        <span class="c1"># the nans come from the fact that the sum along the reconstructed energy axis</span>
+        <span class="c1"># might sometimes be 0 when there are no events in that given true energy bin</span>
+        <span class="c1"># and fov offset bin</span>
+        <span class="n">hist</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">hist</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">return</span> <span class="n">hist</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">energy_dispersion_to_migration</span><span class="p">(</span>
+    <span class="n">dispersion_matrix</span><span class="p">,</span>
+    <span class="n">disp_true_energy_edges</span><span class="p">,</span>
+    <span class="n">disp_migration_edges</span><span class="p">,</span>
+    <span class="n">new_true_energy_edges</span><span class="p">,</span>
+    <span class="n">new_reco_energy_edges</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct a energy migration matrix from an energy dispersion matrix.</span>
+
+<span class="sd">    Depending on the new energy ranges, the sum over the first axis</span>
+<span class="sd">    can be smaller than 1.</span>
+<span class="sd">    The new true energy bins need to be a subset of the old range,</span>
+<span class="sd">    extrapolation is not supported.</span>
+<span class="sd">    New reconstruction bins outside of the old migration range are filled with</span>
+<span class="sd">    zeros.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dispersion_matrix: numpy.ndarray</span>
+<span class="sd">        Energy dispersion_matrix</span>
+<span class="sd">    disp_true_energy_edges: astropy.units.Quantity[energy]</span>
+<span class="sd">        True energy edges matching the first dimension of the dispersion matrix</span>
+<span class="sd">    disp_migration_edges: numpy.ndarray</span>
+<span class="sd">        Migration edges matching the second dimension of the dispersion matrix</span>
+<span class="sd">    new_true_energy_edges: astropy.units.Quantity[energy]</span>
+<span class="sd">        True energy edges matching the first dimension of the output</span>
+<span class="sd">    new_reco_energy_edges: astropy.units.Quantity[energy]</span>
+<span class="sd">        Reco energy edges matching the second dimension of the output</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    migration_matrix: numpy.ndarray</span>
+<span class="sd">        Three-dimensional energy migration matrix. The third dimension</span>
+<span class="sd">        equals the fov offset dimension of the energy dispersion matrix.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">migration_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">new_true_energy_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">new_reco_energy_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="n">dispersion_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">migra_width</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">disp_migration_edges</span><span class="p">)</span>
+    <span class="n">probability</span> <span class="o">=</span> <span class="n">dispersion_matrix</span> <span class="o">*</span> <span class="n">migra_width</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+
+    <span class="n">true_energy_interpolation</span> <span class="o">=</span> <span class="n">resample_histogram1d</span><span class="p">(</span>
+        <span class="n">probability</span><span class="p">,</span>
+        <span class="n">disp_true_energy_edges</span><span class="p">,</span>
+        <span class="n">new_true_energy_edges</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">true_energy_interpolation</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">norm</span><span class="p">[</span><span class="n">norm</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">true_energy_interpolation</span> <span class="o">/=</span> <span class="n">norm</span>
+
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">e_true</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">new_true_energy_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="n">new_true_energy_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="p">):</span>
+        <span class="c1"># get migration for the new true energy bin</span>
+        <span class="n">e_true_dispersion</span> <span class="o">=</span> <span class="n">true_energy_interpolation</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+            <span class="c1"># silence inf/inf division warning</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+                <span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;invalid value encountered in true_divide&quot;</span>
+            <span class="p">)</span>
+            <span class="n">interpolation_edges</span> <span class="o">=</span> <span class="n">new_reco_energy_edges</span> <span class="o">/</span> <span class="n">e_true</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="n">resample_histogram1d</span><span class="p">(</span>
+            <span class="n">e_true_dispersion</span><span class="p">,</span>
+            <span class="n">disp_migration_edges</span><span class="p">,</span>
+            <span class="n">interpolation_edges</span><span class="p">,</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">migration_matrix</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="k">return</span> <span class="n">migration_matrix</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

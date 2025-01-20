@@ -1,0 +1,1023 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.interpolation.component_estimators &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/interpolation/component_estimators.html"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.interpolation.component_estimators</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.interpolation.component_estimators</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Classes to estimate (interpolate/extrapolate) actual IRF HDUs&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">Delaunay</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_extrapolators</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscretePDFExtrapolator</span><span class="p">,</span> <span class="n">ParametrizedExtrapolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_interpolators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DiscretePDFInterpolator</span><span class="p">,</span>
+    <span class="n">ParametrizedInterpolator</span><span class="p">,</span>
+    <span class="n">PDFNormalization</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPY_IF_NEEDED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.griddata_interpolator</span><span class="w"> </span><span class="kn">import</span> <span class="n">GridDataInterpolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.nearest_neighbor_searcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseNearestNeighborSearcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.quantile_interpolator</span><span class="w"> </span><span class="kn">import</span> <span class="n">QuantileInterpolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_nearest_simplex</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;BaseComponentEstimator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DiscretePDFComponentEstimator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ParametrizedComponentEstimator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EffectiveAreaEstimator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RadMaxEstimator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;EnergyDispersionEstimator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PSFTableEstimator&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="BaseComponentEstimator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.BaseComponentEstimator.html#pyirf.interpolation.BaseComponentEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseComponentEstimator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all Estimators working on specific IRF components.</span>
+
+<span class="sd">    While usable, it is encouraged to use the actual class for the respective IRF</span>
+<span class="sd">    component as it ensures further checks and if necessary e.g. unit handling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_points</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Base __init__, doing sanity checks on the grid, building a</span>
+<span class="sd">        triangulated version of the grid and instantiating inter- and extrapolator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims):</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When grid_points is not a np.ndarray of float compatible values</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When grid_point has dtype object</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When there are too few points in grid_points to span a volume</span>
+<span class="sd">            in the grid dimension.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input grid_points is not a numpy array.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">grid_points</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;O&quot;</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input grid_points array cannot be of dtype object.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">can_cast</span><span class="p">(</span><span class="n">grid_points</span><span class="o">.</span><span class="n">dtype</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float128</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input grid_points dtype incompatible with float.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span> <span class="o">=</span> <span class="n">grid_points</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Check, if number of grid point theoretically suffices to span a volume</span>
+        <span class="c1"># in the dimension indicated by grid</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">+</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;To few points for grid dimension, grid-dim is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span><span class="si">}</span><span class="s2">,&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; while there are only </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="si">}</span><span class="s2">. At least </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; points needed to span a volume in </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span><span class="si">}</span><span class="s2"> dimensions.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Build triangulation to check if target is inside of the grid for</span>
+        <span class="c1"># more then 1 dimension</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span> <span class="o">=</span> <span class="n">Delaunay</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_target_in_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check whether target_point lies within grids convex hull, uses</span>
+<span class="sd">        simple comparison for 1D and Delaunay triangulation for &gt;1D.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">target_point</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">target_point</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Delaunay.find_simplex() returns -1 for points outside the grids convex hull</span>
+            <span class="n">simplex_ind</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="o">.</span><span class="n">find_simplex</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">simplex_ind</span> <span class="o">&gt;=</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="BaseComponentEstimator.__call__">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.BaseComponentEstimator.html#pyirf.interpolation.BaseComponentEstimator.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Inter-/ Extrapolation as needed and sanity checking of</span>
+<span class="sd">        the target point</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: np.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Target for inter-/extrapolation</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When target_point is not an np.ndarray</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When more then one target_point is given</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When target_point and grid_points have miss-matching dimensions</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When target_point is outside of the grids convex hull but extrapolator is None</span>
+<span class="sd">        Warning:</span>
+<span class="sd">            When target_points need extrapolation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Interpolated or, if necessary extrapolated, result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_point</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Target point is not a numpy array.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">target_point</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">target_point</span> <span class="o">=</span> <span class="n">target_point</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="n">target_point</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">target_point</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only one target_point per call supported.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">target_point</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Mismatch between target-point and grid dimension.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; Grid has dimension </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span><span class="si">}</span><span class="s2">, target has dimension&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot; </span><span class="si">{</span><span class="n">target_point</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_target_in_grid</span><span class="p">(</span><span class="n">target_point</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Target point </span><span class="si">{</span><span class="n">target_point</span><span class="si">}</span><span class="s2"> has to be extrapolated.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Target point outside grids convex hull and no extrapolator given.&quot;</span>
+            <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DiscretePDFComponentEstimator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.DiscretePDFComponentEstimator.html#pyirf.interpolation.DiscretePDFComponentEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiscretePDFComponentEstimator</span><span class="p">(</span><span class="n">BaseComponentEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all Estimators working on IRF components that represent discretized PDFs.</span>
+
+<span class="sd">    While usable, it is encouraged to use the actual class for the respective IRF</span>
+<span class="sd">    component as it ensures further checks and if necessary e.g. unit handling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grid_points</span><span class="p">,</span>
+        <span class="n">bin_edges</span><span class="p">,</span>
+        <span class="n">binned_pdf</span><span class="p">,</span>
+        <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">QuantileInterpolator</span><span class="p">,</span>
+        <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__ for all discrete PDF components, calls BaseComponentEstimator&#39;s</span>
+<span class="sd">        __init__ and instantiates inter- and extrapolator objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims):</span>
+<span class="sd">            Grid points at which interpolation templates exist</span>
+<span class="sd">        bin_edges: np.ndarray, shape=(n_bins+1)</span>
+<span class="sd">            Common set of bin-edges for all discretized PDFs.</span>
+<span class="sd">        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)</span>
+<span class="sd">            Discretized PDFs for all grid points and arbitrary further dimensions</span>
+<span class="sd">            (in IRF term e.g. field-of-view offset bins). Actual interpolation dimension,</span>
+<span class="sd">            meaning the dimensions that contain actual histograms, have to be along</span>
+<span class="sd">            the last axis.</span>
+<span class="sd">        interpolator_cls:</span>
+<span class="sd">            pyirf interpolator class, defaults to QuantileInterpolator.</span>
+<span class="sd">        interpolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the interpolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        extrapolator_cls:</span>
+<span class="sd">            pyirf extrapolator class. Can be and defaults to ``None``,</span>
+<span class="sd">            which raises an error if a target_point is outside the grid</span>
+<span class="sd">            and extrapolation would be needed.</span>
+<span class="sd">        extrapolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the extrapolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When bin_edges is not a np.ndarray.</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When binned_pdf is not a np.ndarray.</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When interpolator_cls is not a DiscretePDFInterpolator subclass.</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When extrapolator_cls is not a DiscretePDFExtrapolator subclass.</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When number of bins in bin_edges and contents in binned_pdf is</span>
+<span class="sd">            not matching.</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When number of histograms in binned_pdf and points in grid_points</span>
+<span class="sd">            is not matching.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls pyirf.interpolation.BaseComponentEstimator.__init__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">binned_pdf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input binned_pdf is not a numpy array.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">!=</span> <span class="n">binned_pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Shape mismatch, number of grid_points (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">n_points</span><span class="si">}</span><span class="s2">) and &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;number of histograms in binned_pdf (</span><span class="si">{</span><span class="n">binned_pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">) &quot;</span>
+                <span class="s2">&quot;not matching.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input bin_edges is not a numpy array.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">binned_pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="p">(</span><span class="n">bin_edges</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Shape mismatch, bin_edges (</span><span class="si">{</span><span class="n">bin_edges</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> bins) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;and binned_pdf (</span><span class="si">{</span><span class="n">binned_pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> bins) not matching.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Make sure that 1D input is sorted in increasing order</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sorting_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="n">sorting_inds</span><span class="p">]</span>
+            <span class="n">binned_pdf</span> <span class="o">=</span> <span class="n">binned_pdf</span><span class="p">[</span><span class="n">sorting_inds</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">interpolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">interpolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">extrapolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extrapolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">interpolator_cls</span><span class="p">,</span> <span class="n">DiscretePDFInterpolator</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;interpolator_cls must be a DiscretePDFInterpolator subclass, got </span><span class="si">{</span><span class="n">interpolator_cls</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="n">interpolator_cls</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">bin_edges</span><span class="p">,</span> <span class="n">binned_pdf</span><span class="p">,</span> <span class="o">**</span><span class="n">interpolator_kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extrapolator_cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">extrapolator_cls</span><span class="p">,</span> <span class="n">DiscretePDFExtrapolator</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;extrapolator_cls must be a DiscretePDFExtrapolator subclass, got </span><span class="si">{</span><span class="n">extrapolator_cls</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span> <span class="o">=</span> <span class="n">extrapolator_cls</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">bin_edges</span><span class="p">,</span> <span class="n">binned_pdf</span><span class="p">,</span> <span class="o">**</span><span class="n">extrapolator_kwargs</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ParametrizedComponentEstimator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.ParametrizedComponentEstimator.html#pyirf.interpolation.ParametrizedComponentEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParametrizedComponentEstimator</span><span class="p">(</span><span class="n">BaseComponentEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Base class for all Estimators working on IRF components that represent parametrized</span>
+<span class="sd">    or scalar quantities.</span>
+
+<span class="sd">    While usable, it is encouraged to use the actual class for the respective IRF</span>
+<span class="sd">    component as it ensures further checks and if necessary e.g. unit handling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grid_points</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">,</span>
+        <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">GridDataInterpolator</span><span class="p">,</span>
+        <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        __init__ for all parametrized components, calls BaseComponentEstimator&#39;s</span>
+<span class="sd">        __init__ and instantiates inter- and extrapolator objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims):</span>
+<span class="sd">            Grid points at which interpolation templates exist</span>
+<span class="sd">        params: np.ndarray, shape=(n_points, ..., n_params)</span>
+<span class="sd">            Corresponding parameter values at each point in grid_points.</span>
+<span class="sd">            First dimension has to correspond to the number of grid_points.</span>
+<span class="sd">        interpolator_cls:</span>
+<span class="sd">            pyirf interpolator class, defaults to GridDataInterpolator.</span>
+<span class="sd">        interpolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the interpolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        extrapolator_cls:</span>
+<span class="sd">            pyirf extrapolator class. Can be and defaults to ``None``,</span>
+<span class="sd">            which raises an error if a target_point is outside the grid</span>
+<span class="sd">            and extrapolation would be needed.</span>
+<span class="sd">        extrapolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the extrapolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When interpolator_cls is not a ParametrizedInterpolator subclass.</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When extrapolator_cls is not a ParametrizedExtrapolator subclass.</span>
+<span class="sd">        TypeError:</span>
+<span class="sd">            When params is not a np.ndarray.</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When number of points grid_points and params do not match.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls pyirf.interpolation.BaseComponentEstimator.__init__</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Input params is not a numpy array.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_points</span> <span class="o">!=</span> <span class="n">params</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Shape mismatch, number of grid_points and rows in params not matching.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Make sure that 1D input is sorted in increasing order</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sorting_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">squeeze</span><span class="p">())</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="n">sorting_inds</span><span class="p">]</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="n">sorting_inds</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">interpolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">interpolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">extrapolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extrapolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">interpolator_cls</span><span class="p">,</span> <span class="n">ParametrizedInterpolator</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;interpolator_cls must be a ParametrizedInterpolator subclass, got </span><span class="si">{</span><span class="n">interpolator_cls</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span> <span class="o">=</span> <span class="n">interpolator_cls</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">interpolator_kwargs</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">extrapolator_cls</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">extrapolator_cls</span><span class="p">,</span> <span class="n">ParametrizedExtrapolator</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;extrapolator_cls must be a ParametrizedExtrapolator subclass, got </span><span class="si">{</span><span class="n">extrapolator_cls</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span> <span class="o">=</span> <span class="n">extrapolator_cls</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">extrapolator_kwargs</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="EffectiveAreaEstimator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.EffectiveAreaEstimator.html#pyirf.interpolation.EffectiveAreaEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EffectiveAreaEstimator</span><span class="p">(</span><span class="n">ParametrizedComponentEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimator class for effective area tables (AEFF_2D).&quot;&quot;&quot;</span>
+
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">effective_area</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">min_effective_area</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grid_points</span><span class="p">,</span>
+        <span class="n">effective_area</span><span class="p">,</span>
+        <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">GridDataInterpolator</span><span class="p">,</span>
+        <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_effective_area</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a grid of effective areas for a bunch of different parameters</span>
+<span class="sd">        and inter-/extrapolates (log) effective areas to given value of</span>
+<span class="sd">        those parameters.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims):</span>
+<span class="sd">            Grid points at which interpolation templates exist</span>
+<span class="sd">        effective_area: np.ndarray of astropy.units.Quantity[area], shape=(n_points, ...)</span>
+<span class="sd">            Grid of effective area. Dimensions but the first can in principle be freely</span>
+<span class="sd">            chosen. Class is AEFF2D compatible, which would require</span>
+<span class="sd">            shape=(n_points, n_energy_bins, n_fov_offset_bins).</span>
+<span class="sd">        interpolator_cls:</span>
+<span class="sd">            pyirf interpolator class, defaults to GridDataInterpolator.</span>
+<span class="sd">        interpolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the interpolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        extrapolator_cls:</span>
+<span class="sd">            pyirf extrapolator class. Can be and defaults to ``None``,</span>
+<span class="sd">            which raises an error if a target_point is outside the grid</span>
+<span class="sd">            and extrapolation would be needed.</span>
+<span class="sd">        extrapolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the extrapolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        min_effective_area: astropy.units.Quantity[area]</span>
+<span class="sd">            Minimum value of effective area to be considered for interpolation. Values</span>
+<span class="sd">            lower than this value are set to this value. Defaults to 1 m**2.</span>
+
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator</span>
+<span class="sd">            and pyirf.interpolation.ParametrizedEstimator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># get rid of units</span>
+        <span class="n">effective_area</span> <span class="o">=</span> <span class="n">effective_area</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">min_effective_area</span> <span class="o">=</span> <span class="n">min_effective_area</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_effective_area</span> <span class="o">=</span> <span class="n">min_effective_area</span>
+
+        <span class="c1"># remove zeros and log it</span>
+        <span class="n">effective_area</span><span class="p">[</span><span class="n">effective_area</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_effective_area</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">min_effective_area</span>
+        <span class="p">)</span>
+        <span class="n">effective_area</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">effective_area</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="n">grid_points</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">effective_area</span><span class="p">,</span>
+            <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">interpolator_cls</span><span class="p">,</span>
+            <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="n">interpolator_kwargs</span><span class="p">,</span>
+            <span class="n">extrapolator_cls</span><span class="o">=</span><span class="n">extrapolator_cls</span><span class="p">,</span>
+            <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="n">extrapolator_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="EffectiveAreaEstimator.__call__">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.EffectiveAreaEstimator.html#pyirf.interpolation.EffectiveAreaEstimator.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimating effective area at target_point, inter-/extrapolates as needed and</span>
+<span class="sd">        specified in __init__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: np.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Target for inter-/extrapolation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        aeff_interp: np.ndarray of (astropy.units.m)**2, shape=(n_points, ...)</span>
+<span class="sd">            Interpolated Effective area array with same shape as input</span>
+<span class="sd">            effective areas. For AEFF2D of shape (n_energy_bins, n_fov_offset_bins).</span>
+<span class="sd">            Values lower or equal to __init__&#39;s min_effective_area are set</span>
+<span class="sd">            to zero.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">aeff_interp</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+
+        <span class="c1"># exp it and set to zero too low values</span>
+        <span class="n">aeff_interp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">aeff_interp</span><span class="p">)</span>
+        <span class="c1"># remove entries manipulated by min_effective_area</span>
+        <span class="n">aeff_interp</span><span class="p">[</span><span class="n">aeff_interp</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_effective_area</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">aeff_interp</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RadMaxEstimator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.RadMaxEstimator.html#pyirf.interpolation.RadMaxEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RadMaxEstimator</span><span class="p">(</span><span class="n">ParametrizedComponentEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimator class for rad-max tables (RAD_MAX, RAD_MAX_2D).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grid_points</span><span class="p">,</span>
+        <span class="n">rad_max</span><span class="p">,</span>
+        <span class="n">fill_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">GridDataInterpolator</span><span class="p">,</span>
+        <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a grid of rad max values for a bunch of different parameters</span>
+<span class="sd">        and inter-/extrapolates rad max values to given value of those parameters.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims):</span>
+<span class="sd">            Grid points at which interpolation templates exist</span>
+<span class="sd">        rad_max: np.ndarray, shape=(n_points, ...)</span>
+<span class="sd">            Grid of theta cuts. Dimensions but the first can in principle be freely</span>
+<span class="sd">            chosen. Class is RAD_MAX_2D compatible, which would require</span>
+<span class="sd">            shape=(n_points, n_energy_bins, n_fov_offset_bins).</span>
+<span class="sd">        fill_val:</span>
+<span class="sd">            Indicator of fill-value handling. If None, fill values are regarded as</span>
+<span class="sd">            normal values and no special handeling is applied. If &quot;infer&quot;, fill values</span>
+<span class="sd">            will be infered as max of all values, if a value is provided,</span>
+<span class="sd">            it is used to flag fill values. Flagged fill-values are</span>
+<span class="sd">            not used for interpolation. Fill-value handling is only supported in</span>
+<span class="sd">            up to two grid dimensions.</span>
+<span class="sd">        interpolator_cls:</span>
+<span class="sd">            pyirf interpolator class, defaults to GridDataInterpolator.</span>
+<span class="sd">        interpolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the interpolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        extrapolator_cls:</span>
+<span class="sd">            pyirf extrapolator class. Can be and defaults to ``None``,</span>
+<span class="sd">            which raises an error if a target_point is outside the grid</span>
+<span class="sd">            and extrapolation would be needed.</span>
+<span class="sd">        extrapolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the extrapolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator</span>
+<span class="sd">            and pyirf.interpolation.ParametrizedEstimator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="n">grid_points</span><span class="p">,</span>
+            <span class="n">params</span><span class="o">=</span><span class="n">rad_max</span><span class="p">,</span>
+            <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">interpolator_cls</span><span class="p">,</span>
+            <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="n">interpolator_kwargs</span><span class="p">,</span>
+            <span class="n">extrapolator_cls</span><span class="o">=</span><span class="n">extrapolator_cls</span><span class="p">,</span>
+            <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="n">extrapolator_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">rad_max</span>
+
+        <span class="k">if</span> <span class="n">fill_value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">elif</span> <span class="n">fill_value</span> <span class="o">==</span> <span class="s2">&quot;infer&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span> <span class="o">=</span> <span class="n">fill_value</span>
+
+        <span class="c1"># Raise error if fill-values should be handled in &gt;=3 dims</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Fill-value handling only supported in up to two grid dimensions.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># If fill-values should be handled in 2D, construct a trinangulation</span>
+        <span class="c1"># to later determine in which simplex the target values is</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span> <span class="o">=</span> <span class="n">Delaunay</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)</span>
+
+<div class="viewcode-block" id="RadMaxEstimator.__call__">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.RadMaxEstimator.html#pyirf.interpolation.RadMaxEstimator.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimating rad max table at target_point, inter-/extrapolates as needed and</span>
+<span class="sd">        specified in __init__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: np.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Target for inter-/extrapolation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        rad_max_interp: np.ndarray, shape=(n_points, ...)</span>
+<span class="sd">            Interpolated RAD_MAX table with same shape as input</span>
+<span class="sd">            effective areas. For RAD_MAX_2D of shape (n_energy_bins, n_fov_offset_bins)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># First, construct estimation without handling fill-values</span>
+        <span class="n">full_estimation</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+        <span class="c1"># Safeguard against extreme extrapolation cases</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">full_estimation</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">full_estimation</span><span class="p">)</span>
+
+        <span class="c1"># Early exit if fill_values should not be handled</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">full_estimation</span>
+
+        <span class="c1"># Early exit if a nearest neighbor estimation would be overwritten</span>
+        <span class="c1"># Complex setup is needed to catch settings where the user mixes approaches and</span>
+        <span class="c1"># e.g. uses nearest neighbors for extrapolation and an actual interpolation otherwise</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">target_point</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">target_point</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+            <span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">BaseNearestNeighborSearcher</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">full_estimation</span>
+            <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">BaseNearestNeighborSearcher</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">full_estimation</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">target_simplex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="o">.</span><span class="n">find_simplex</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="p">(</span><span class="n">target_simplex</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">issubclass</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">extrapolator</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">BaseNearestNeighborSearcher</span>
+            <span class="p">):</span>
+                <span class="k">return</span> <span class="n">full_estimation</span>
+            <span class="k">elif</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">interpolator</span><span class="o">.</span><span class="vm">__class__</span><span class="p">,</span> <span class="n">BaseNearestNeighborSearcher</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">full_estimation</span>
+
+        <span class="c1"># Actual fill-value handling</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Locate target in grid</span>
+            <span class="k">if</span> <span class="n">target_point</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+                <span class="n">segment_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">target_point</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">max</span><span class="p">():</span>
+                <span class="n">segment_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">target_bin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span>
+                    <span class="n">target_point</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="n">segment_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">target_bin</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">target_bin</span><span class="p">],</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+
+            <span class="n">mask_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">segment_inds</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span>
+            <span class="n">mask_right</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">segment_inds</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span>
+            <span class="c1"># Indicate, wether one of the neighboring entries is a fill-value</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_or</span><span class="p">(</span><span class="n">mask_left</span><span class="p">,</span> <span class="n">mask_right</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="c1"># Locate target</span>
+            <span class="n">target_simplex</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="o">.</span><span class="n">find_simplex</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">target_simplex</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                <span class="n">target_simplex</span> <span class="o">=</span> <span class="n">find_nearest_simplex</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="p">,</span> <span class="n">target_point</span><span class="p">)</span>
+
+            <span class="n">simplex_nodes_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="o">.</span><span class="n">simplices</span><span class="p">[</span>
+                <span class="n">target_simplex</span>
+            <span class="p">]</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+            <span class="n">mask0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">simplex_nodes_indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span>
+            <span class="n">mask1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">simplex_nodes_indices</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span>
+            <span class="n">mask2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">simplex_nodes_indices</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span>
+
+            <span class="c1"># This collected mask now counts for each entry in the estimation how many</span>
+            <span class="c1"># of the entries used for extrapolation contained fill-values</span>
+            <span class="n">intermediate_mask</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">mask0</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">mask1</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">mask2</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">mask</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">intermediate_mask</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+            <span class="c1"># Simplest cases: All or none entries were fill-values, so either return</span>
+            <span class="c1"># a fill-value or the actual estimation</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">intermediate_mask</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">intermediate_mask</span> <span class="o">==</span> <span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># If two out of three values were fill-values return a fill-value as estimate</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">intermediate_mask</span> <span class="o">==</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># If only one out of three values was a fill-value use the smallest value of the</span>
+            <span class="c1"># remaining two</span>
+            <span class="n">mask</span><span class="p">[</span><span class="n">intermediate_mask</span> <span class="o">==</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">full_estimation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                <span class="n">intermediate_mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">simplex_nodes_indices</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+                <span class="n">full_estimation</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Set all flagged values to fill-value</span>
+        <span class="n">full_estimation</span><span class="p">[</span><span class="n">mask</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span>
+
+        <span class="c1"># Safeguard against extreme extrapolation cases</span>
+        <span class="n">full_estimation</span><span class="p">[</span><span class="n">full_estimation</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fill_val</span>
+
+        <span class="k">return</span> <span class="n">full_estimation</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="EnergyDispersionEstimator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.EnergyDispersionEstimator.html#pyirf.interpolation.EnergyDispersionEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">EnergyDispersionEstimator</span><span class="p">(</span><span class="n">DiscretePDFComponentEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimator class for energy dispersions (EDISP_2D).&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grid_points</span><span class="p">,</span>
+        <span class="n">migra_bins</span><span class="p">,</span>
+        <span class="n">energy_dispersion</span><span class="p">,</span>
+        <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">QuantileInterpolator</span><span class="p">,</span>
+        <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a grid of energy dispersions for a bunch of different parameters and</span>
+<span class="sd">        inter-/extrapolates energy dispersions to given value of those parameters.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims)</span>
+<span class="sd">            Grid points at which interpolation templates exist</span>
+<span class="sd">        migra_bins: np.ndarray, shape=(n_migration_bins+1)</span>
+<span class="sd">            Common bin edges along migration axis.</span>
+<span class="sd">        energy_dispersion: np.ndarray, shape=(n_points, ..., n_migration_bins, ...)</span>
+<span class="sd">            EDISP MATRIX. Class is EDISP_2D compatible, which would require</span>
+<span class="sd">            shape=(n_points, n_energy_bins, n_migration_bins, n_fov_offset_bins).</span>
+<span class="sd">            This is assumed as default. If these axes are in different order</span>
+<span class="sd">            or e.g. missing a fov_offset axis, the axis containing n_migration_bins</span>
+<span class="sd">            has to be specified through axis.</span>
+<span class="sd">        interpolator_cls:</span>
+<span class="sd">            pyirf interpolator class, defaults to QuantileInterpolator.</span>
+<span class="sd">        interpolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the interpolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        extrapolator_cls:</span>
+<span class="sd">            pyirf extrapolator class. Can be and defaults to ``None``,</span>
+<span class="sd">            which raises an error if a target_point is outside the grid</span>
+<span class="sd">            and extrapolation would be needed.</span>
+<span class="sd">        extrapolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the extrapolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        axis:</span>
+<span class="sd">            Axis, along which the actual n_migration_bins are. Input is assumed to</span>
+<span class="sd">            be EDISP_2D compatible, so this defaults to -2</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator</span>
+<span class="sd">            and pyirf.interpolation.ParametrizedEstimator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="n">grid_points</span><span class="p">,</span>
+            <span class="n">bin_edges</span><span class="o">=</span><span class="n">migra_bins</span><span class="p">,</span>
+            <span class="n">binned_pdf</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">energy_dispersion</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">interpolator_cls</span><span class="p">,</span>
+            <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="n">interpolator_kwargs</span><span class="p">,</span>
+            <span class="n">extrapolator_cls</span><span class="o">=</span><span class="n">extrapolator_cls</span><span class="p">,</span>
+            <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="n">extrapolator_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="EnergyDispersionEstimator.__call__">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.EnergyDispersionEstimator.html#pyirf.interpolation.EnergyDispersionEstimator.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimating energy dispersions at target_point, inter-/extrapolates as needed and</span>
+<span class="sd">        specified in __init__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: np.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Target for inter-/extrapolation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        edisp_interp: np.ndarray, shape=(n_points, ..., n_migration_bins, ...)</span>
+<span class="sd">            Interpolated EDISP matrix with same shape as input matrices. For EDISP_2D</span>
+<span class="sd">            of shape (n_points, n_energy_bins, n_migration_bins, n_fov_offset_bins)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">target_point</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="PSFTableEstimator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.PSFTableEstimator.html#pyirf.interpolation.PSFTableEstimator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PSFTableEstimator</span><span class="p">(</span><span class="n">DiscretePDFComponentEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Estimator class for point spread function tables (PSF_TABLE).&quot;&quot;&quot;</span>
+
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">psf</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">sr</span><span class="o">**-</span><span class="mi">1</span><span class="p">,</span> <span class="n">source_offset_bins</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grid_points</span><span class="p">,</span>
+        <span class="n">source_offset_bins</span><span class="p">,</span>
+        <span class="n">psf</span><span class="p">,</span>
+        <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">QuantileInterpolator</span><span class="p">,</span>
+        <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a grid of psfs or a bunch of different parameters and</span>
+<span class="sd">        inter-/extrapolates psfs to given value of those parameters.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims)</span>
+<span class="sd">            Grid points at which interpolation templates exist</span>
+<span class="sd">        source_offset_bins: np.ndarray, shape=(n_source_offset_bins+1) of astropy.units.Quantity[deg]</span>
+<span class="sd">            Common bin edges along source offset axis.</span>
+<span class="sd">        psf: np.ndarray, shape=(n_points, ..., n_source_offset_bins) of astropy.units.Quantity[sr**-1]</span>
+<span class="sd">            PSF Tables. Class is PSF_TABLE compatible, which would require</span>
+<span class="sd">            shape=(n_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins).</span>
+<span class="sd">            This is assumed as default. If these axes are in different order</span>
+<span class="sd">            the axis containing n_source_offset_bins has to be specified through axis.</span>
+<span class="sd">        interpolator_cls:</span>
+<span class="sd">            pyirf interpolator class, defaults to QuantileInterpolator.</span>
+<span class="sd">        interpolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the interpolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        extrapolator_cls:</span>
+<span class="sd">            pyirf extrapolator class. Can be and defaults to ``None``,</span>
+<span class="sd">            which raises an error if a target_point is outside the grid</span>
+<span class="sd">            and extrapolation would be needed.</span>
+<span class="sd">        extrapolator_kwargs: dict</span>
+<span class="sd">            Dict of all kwargs that are passed to the extrapolator, defaults to</span>
+<span class="sd">            None which is the same as passing an empty dict.</span>
+<span class="sd">        axis:</span>
+<span class="sd">            Axis, along which the actual n_source_offset_bins are. Input is assumed to</span>
+<span class="sd">            be PSF_TABLE compatible, so this defaults to -1</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator</span>
+<span class="sd">            and pyirf.interpolation.ParametrizedEstimator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">axis</span> <span class="o">=</span> <span class="n">axis</span>
+
+        <span class="n">psf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">psf</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">interpolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">interpolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">extrapolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">extrapolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">interpolator_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="s2">&quot;normalization&quot;</span><span class="p">,</span> <span class="n">PDFNormalization</span><span class="o">.</span><span class="n">CONE_SOLID_ANGLE</span>
+        <span class="p">)</span>
+        <span class="n">extrapolator_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="s2">&quot;normalization&quot;</span><span class="p">,</span> <span class="n">PDFNormalization</span><span class="o">.</span><span class="n">CONE_SOLID_ANGLE</span>
+        <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="n">grid_points</span><span class="p">,</span>
+            <span class="n">bin_edges</span><span class="o">=</span><span class="n">source_offset_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">),</span>
+            <span class="n">binned_pdf</span><span class="o">=</span><span class="n">psf</span><span class="p">,</span>
+            <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">interpolator_cls</span><span class="p">,</span>
+            <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="n">interpolator_kwargs</span><span class="p">,</span>
+            <span class="n">extrapolator_cls</span><span class="o">=</span><span class="n">extrapolator_cls</span><span class="p">,</span>
+            <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="n">extrapolator_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="PSFTableEstimator.__call__">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.PSFTableEstimator.html#pyirf.interpolation.PSFTableEstimator.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimating psf tables at target_point, inter-/extrapolates as needed and</span>
+<span class="sd">        specified in __init__.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: np.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Target for inter-/extrapolation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        psf_interp: u.Quantity[sr-1], shape=(n_points, ..., n_source_offset_bins)</span>
+<span class="sd">            Interpolated psf table with same shape as input matrices. For PSF_TABLE</span>
+<span class="sd">            of shape (n_points, n_energy_bins, n_fov_offset_bins, n_source_offset_bins)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">interpolated_psf_normed</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+
+        <span class="c1"># Undo normalisation to get a proper PSF and return</span>
+        <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">swapaxes</span><span class="p">(</span><span class="n">interpolated_psf_normed</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="p">),</span>
+            <span class="n">u</span><span class="o">.</span><span class="n">sr</span><span class="o">**-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

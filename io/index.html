@@ -1,0 +1,191 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Input / Output &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/io/index.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="read_eventdisplay_fits" href="../api/pyirf.io.read_eventdisplay_fits.html" />
+    <link rel="prev" title="split_bin_lo_hi" href="../api/pyirf.binning.split_bin_lo_hi.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Input / Output</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#reference-api">Reference/API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#module-pyirf.io">pyirf.io Package</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../api/pyirf.io.read_eventdisplay_fits.html">read_eventdisplay_fits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/pyirf.io.create_psf_table_hdu.html">create_psf_table_hdu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/pyirf.io.create_aeff2d_hdu.html">create_aeff2d_hdu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/pyirf.io.create_energy_dispersion_hdu.html">create_energy_dispersion_hdu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/pyirf.io.create_psf_table_hdu.html">create_psf_table_hdu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/pyirf.io.create_rad_max_hdu.html">create_rad_max_hdu</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../api/pyirf.io.create_background_2d_hdu.html">create_background_2d_hdu</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Input / Output</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/io/index.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="input-output">
+<span id="io"></span><h1>Input / Output<a class="headerlink" href="#input-output" title="Link to this heading"></a></h1>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading"></a></h2>
+<p>This module contains functions to read input data and write IRFs in GADF format.</p>
+<p>Currently there is only support for reading EventDisplay DL2 FITS files,
+which were converted from the ROOT files by using <a class="reference external" href="https://github.com/Eventdisplay/Converters/">EventDisplay DL2 conversion scripts</a>.</p>
+</section>
+<section id="reference-api">
+<h2>Reference/API<a class="headerlink" href="#reference-api" title="Link to this heading"></a></h2>
+</section>
+<section id="module-pyirf.io">
+<span id="pyirf-io-package"></span><h2>pyirf.io Package<a class="headerlink" href="#module-pyirf.io" title="Link to this heading"></a></h2>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/pyirf.io.read_eventdisplay_fits.html#pyirf.io.read_eventdisplay_fits" title="pyirf.io.read_eventdisplay_fits"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_eventdisplay_fits</span></code></a>(infile[, use_histogram])</p></td>
+<td><p>Read a DL2 FITS file as produced by the EventDisplay DL2 converter from ROOT files: <a class="reference external" href="https://github.com/Eventdisplay/Converters/blob/master/DL2/generate_DL2_file.py">https://github.com/Eventdisplay/Converters/blob/master/DL2/generate_DL2_file.py</a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/pyirf.io.create_psf_table_hdu.html#pyirf.io.create_psf_table_hdu" title="pyirf.io.create_psf_table_hdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_psf_table_hdu</span></code></a>(psf, true_energy_bins, ...)</p></td>
+<td><p>Create a fits binary table HDU in GADF format for the PSF table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/pyirf.io.create_aeff2d_hdu.html#pyirf.io.create_aeff2d_hdu" title="pyirf.io.create_aeff2d_hdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_aeff2d_hdu</span></code></a>(effective_area, ...[, ...])</p></td>
+<td><p>Create a fits binary table HDU in GADF format for effective area.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/pyirf.io.create_energy_dispersion_hdu.html#pyirf.io.create_energy_dispersion_hdu" title="pyirf.io.create_energy_dispersion_hdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_energy_dispersion_hdu</span></code></a>(...[, ...])</p></td>
+<td><p>Create a fits binary table HDU in GADF format for the energy dispersion.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/pyirf.io.create_psf_table_hdu.html#pyirf.io.create_psf_table_hdu" title="pyirf.io.create_psf_table_hdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_psf_table_hdu</span></code></a>(psf, true_energy_bins, ...)</p></td>
+<td><p>Create a fits binary table HDU in GADF format for the PSF table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="../api/pyirf.io.create_rad_max_hdu.html#pyirf.io.create_rad_max_hdu" title="pyirf.io.create_rad_max_hdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_rad_max_hdu</span></code></a>(rad_max, ...[, ...])</p></td>
+<td><p>Create a fits binary table HDU in GADF format for the directional cut.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="../api/pyirf.io.create_background_2d_hdu.html#pyirf.io.create_background_2d_hdu" title="pyirf.io.create_background_2d_hdu"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_background_2d_hdu</span></code></a>(background_2d, ...)</p></td>
+<td><p>Create a fits binary table HDU in GADF format for the background 2d table.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../api/pyirf.binning.split_bin_lo_hi.html" class="btn btn-neutral float-left" title="split_bin_lo_hi" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/pyirf.io.read_eventdisplay_fits.html" class="btn btn-neutral float-right" title="read_eventdisplay_fits" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

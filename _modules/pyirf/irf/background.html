@@ -1,0 +1,187 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.irf.background &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/irf/background.html"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.irf.background</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.irf.background</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">cone_solid_angle</span>
+
+<span class="c1">#: Unit of the background rate IRF</span>
+<span class="n">BACKGROUND_UNIT</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Unit</span><span class="p">(</span><span class="s1">&#39;s-1 TeV-1 sr-1&#39;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="background_2d">
+<a class="viewcode-back" href="../../../api/pyirf.irf.background_2d.html#pyirf.irf.background_2d">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">background_2d</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">reco_energy_bins</span><span class="p">,</span> <span class="n">fov_offset_bins</span><span class="p">,</span> <span class="n">t_obs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate background rates in radially symmetric bins in the field of view.</span>
+
+<span class="sd">    GADF documentation here:</span>
+<span class="sd">    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/bkg/index.html#bkg-2d</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events: astropy.table.QTable</span>
+<span class="sd">        DL2 events table of the selected background events.</span>
+<span class="sd">        Needed columns for this function: `reco_source_fov_offset`, `reco_energy`, `weight`</span>
+<span class="sd">    reco_energy: astropy.units.Quantity[energy]</span>
+<span class="sd">        The bins in reconstructed energy to be used for the IRF</span>
+<span class="sd">    fov_offset_bins: astropy.units.Quantity[angle]</span>
+<span class="sd">        The bins in the field of view offset to be used for the IRF</span>
+<span class="sd">    t_obs: astropy.units.Quantity[time]</span>
+<span class="sd">        Observation time. This must match with how the individual event</span>
+<span class="sd">        weights are calculated.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bg_rate: astropy.units.Quantity</span>
+<span class="sd">        The background rate as particles per energy, time and solid angle</span>
+<span class="sd">        in the specified bins.</span>
+
+<span class="sd">        Shape: (len(reco_energy_bins) - 1, len(fov_offset_bins) - 1)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">hist</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;reco_source_fov_offset&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+        <span class="n">bins</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">reco_energy_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">),</span>
+            <span class="n">fov_offset_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">weights</span><span class="o">=</span><span class="n">events</span><span class="p">[</span><span class="s1">&#39;weight&#39;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="c1"># divide all energy bins by their width</span>
+    <span class="c1"># hist has shape (n_energy, n_fov_offset) so we need to transpose and then back</span>
+    <span class="n">bin_width_energy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span>
+    <span class="n">per_energy</span> <span class="o">=</span> <span class="p">(</span><span class="n">hist</span><span class="o">.</span><span class="n">T</span> <span class="o">/</span> <span class="n">bin_width_energy</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># divide by solid angle in each fov bin and the observation time</span>
+    <span class="n">bin_solid_angle</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">cone_solid_angle</span><span class="p">(</span><span class="n">fov_offset_bins</span><span class="p">))</span>
+    <span class="n">bg_rate</span> <span class="o">=</span> <span class="n">per_energy</span> <span class="o">/</span> <span class="n">t_obs</span> <span class="o">/</span> <span class="n">bin_solid_angle</span>
+
+    <span class="k">return</span> <span class="n">bg_rate</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">BACKGROUND_UNIT</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

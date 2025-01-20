@@ -1,0 +1,398 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.interpolation.quantile_interpolator &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/interpolation/quantile_interpolator.html"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.interpolation.quantile_interpolator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.interpolation.quantile_interpolator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">griddata</span><span class="p">,</span> <span class="n">interp1d</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_interpolators</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscretePDFInterpolator</span><span class="p">,</span> <span class="n">PDFNormalization</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_bin_width</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;QuantileInterpolator&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">cdf_values</span><span class="p">(</span><span class="n">binned_pdf</span><span class="p">,</span> <span class="n">bin_edges</span><span class="p">,</span> <span class="n">normalization</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    compute cdf values and assure they are normed to unity</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bin_widths</span> <span class="o">=</span> <span class="n">get_bin_width</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">normalization</span><span class="p">)</span>
+    <span class="n">cdfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">binned_pdf</span> <span class="o">*</span> <span class="n">bin_widths</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># assure the last cdf value is 1, ignore errors for empty pdfs as they are reset to 0 by nan_to_num</span>
+    <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="n">invalid</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+        <span class="n">cdfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">cdfs</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">cdfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">])</span>
+
+    <span class="k">return</span> <span class="n">cdfs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ppf_values</span><span class="p">(</span><span class="n">bin_mids</span><span class="p">,</span> <span class="n">cdfs</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute ppfs from cdfs and interpolate them to the desired interpolation point</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bin_mids: numpy.ndarray, shape=(n_bins)</span>
+<span class="sd">        Bin-mids for each bin along interpolation axis</span>
+
+<span class="sd">    cdfs: numpy.ndarray, shape=(n_points,...,n_bins)</span>
+<span class="sd">        Corresponding cdf-values for all quantiles</span>
+
+<span class="sd">    quantiles: numpy.ndarray, shape=(n_quantiles)</span>
+<span class="sd">        Quantiles for which the ppf-values should be estimated</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ppfs: numpy.ndarray, shape=(1,...,n_quantiles)</span>
+<span class="sd">        Corresponding ppf-values for all quantiles at the target interpolation point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">cropped_interp</span><span class="p">(</span><span class="n">cdf</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        create ppf-values through inverse interpolation of the cdf, avoiding repeating 0 and 1 entries</span>
+<span class="sd">        around the first and last bins as well as repeating values due to zero bins</span>
+<span class="sd">        in between filled bins. Both cases would result in division by zero errors when computing</span>
+<span class="sd">        the interpolation polynom.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Find last 0 and first 1 entry</span>
+        <span class="n">last_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">cdf</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">cdf</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">first_1</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">cdf</span> <span class="o">==</span> <span class="mf">1.0</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Predefine selection mask</span>
+        <span class="n">selection</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cdf</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+
+        <span class="c1"># Keep only the first of subsequently matching values</span>
+        <span class="n">selection</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="n">cdf</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">!=</span> <span class="n">cdf</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Keep only the last 0 and first 1 entry</span>
+        <span class="n">selection</span><span class="p">[:</span><span class="n">last_0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">selection</span><span class="p">[</span><span class="n">last_0</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">selection</span><span class="p">[</span><span class="n">first_1</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">selection</span><span class="p">[</span><span class="n">first_1</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="c1"># create ppf values from selected bins</span>
+        <span class="k">return</span> <span class="n">interp1d</span><span class="p">(</span>
+            <span class="n">cdf</span><span class="p">[</span><span class="n">selection</span><span class="p">],</span>
+            <span class="n">bin_mids</span><span class="p">[</span><span class="n">selection</span><span class="p">],</span>
+            <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">,</span>
+        <span class="p">)(</span><span class="n">quantiles</span><span class="p">)</span>
+
+    <span class="c1"># create ppf values from cdf samples via interpolation of the cdfs</span>
+    <span class="c1"># return nan for empty pdfs</span>
+    <span class="n">ppfs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">cdf</span><span class="p">:</span> <span class="n">cropped_interp</span><span class="p">(</span><span class="n">cdf</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">cdf</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">quantiles</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">),</span>
+        <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">cdfs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># nD interpolation of ppf values</span>
+    <span class="k">return</span> <span class="n">ppfs</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">pdf_from_ppf</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">interp_ppfs</span><span class="p">,</span> <span class="n">quantiles</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reconstruct pdf from ppf and evaluate at desired points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bin_edges: numpy.ndarray, shape=(n_bins+1)</span>
+<span class="sd">        Edges of the bins in which the final pdf should be binned</span>
+
+<span class="sd">    interp_ppfs: numpy.ndarray, shape=(1,...,n_quantiles)</span>
+<span class="sd">        Corresponding ppf-values for all quantiles at the target_point,</span>
+<span class="sd">        not to be confused with QunatileInterpolators self.ppfs, the ppfs</span>
+<span class="sd">        computed from the input distributions.</span>
+
+<span class="sd">    quantiles: numpy.ndarray, shape=(n_quantiles)</span>
+<span class="sd">        Quantiles corresponding to the ppf-values in interp_ppfs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pdf_values: numpy.ndarray, shape=(1,...,n_bins)</span>
+<span class="sd">        Recomputed, binned pdf at target_point</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># recalculate pdf values through numerical differentiation</span>
+    <span class="n">pdf_interpolant</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">quantiles</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">interp_ppfs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># Unconventional solution to make this usable with np.apply_along_axis for readability</span>
+    <span class="c1"># The ppf bin-mids are computed since the pdf-values are derived through derivation</span>
+    <span class="c1"># from the ppf-values</span>
+    <span class="n">xyconcat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">interp_ppfs</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">interp_ppfs</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">pdf_interpolant</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate_ppf</span><span class="p">(</span><span class="n">xy</span><span class="p">):</span>
+        <span class="n">ppf</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[:</span> <span class="nb">len</span><span class="p">(</span><span class="n">xy</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span><span class="p">]</span>
+        <span class="n">pdf</span> <span class="o">=</span> <span class="n">xy</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">xy</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span> <span class="p">:]</span>
+        <span class="n">interpolate</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">ppf</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">interpolate</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="c1"># Interpolate pdf samples and evaluate at bin edges, weight with the bin_width to estimate</span>
+    <span class="c1"># correct bin height via the midpoint rule formulation of the trapezoidal rule</span>
+    <span class="n">pdf_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">apply_along_axis</span><span class="p">(</span><span class="n">interpolate_ppf</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">xyconcat</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pdf_values</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">norm_pdf</span><span class="p">(</span><span class="n">pdf_values</span><span class="p">,</span> <span class="n">bin_edges</span><span class="p">,</span> <span class="n">normalization</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Normalize binned_pdf to a sum of 1</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pdf_values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">get_bin_width</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">normalization</span><span class="p">)</span>
+
+    <span class="c1"># Norm all binned_pdfs to unity that are not empty</span>
+    <span class="n">normed_pdf_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+        <span class="n">pdf_values</span><span class="p">,</span>
+        <span class="n">norm</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">*</span> <span class="n">width</span><span class="p">,</span>
+        <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">pdf_values</span><span class="p">),</span>
+        <span class="n">where</span><span class="o">=</span><span class="n">norm</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">normed_pdf_values</span>
+
+
+<div class="viewcode-block" id="QuantileInterpolator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.QuantileInterpolator.html#pyirf.interpolation.QuantileInterpolator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">QuantileInterpolator</span><span class="p">(</span><span class="n">DiscretePDFInterpolator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Interpolator class providing quantile interpoalation.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">grid_points</span><span class="p">,</span>
+        <span class="n">bin_edges</span><span class="p">,</span>
+        <span class="n">binned_pdf</span><span class="p">,</span>
+        <span class="n">quantile_resolution</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+        <span class="n">normalization</span><span class="o">=</span><span class="n">PDFNormalization</span><span class="o">.</span><span class="n">AREA</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points : np.ndarray, shape=(n_points, n_dims)</span>
+<span class="sd">            Grid points at which interpolation templates exist</span>
+<span class="sd">        bin_edges : np.ndarray, shape=(n_bins+1)</span>
+<span class="sd">            Edges of the data binning</span>
+<span class="sd">        binned_pdf : np.ndarray, shape(n_points, ..., n_bins)</span>
+<span class="sd">            Content of each bin in bin_edges for</span>
+<span class="sd">            each point in grid_points. First dimesion has to correspond to number</span>
+<span class="sd">            of grid_points, the last axis has to correspond to number</span>
+<span class="sd">            of bins for the quantity that should be interpolated</span>
+<span class="sd">            (e.g. the Migra axis for EDisp)</span>
+<span class="sd">        quantile_resolution : float</span>
+<span class="sd">            Spacing between quantiles</span>
+<span class="sd">        normalization : PDFNormalization</span>
+<span class="sd">            How the discrete PDF is normalized</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError:</span>
+<span class="sd">            When last axis in binned_pdf and number of bins are not equal.</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls __init__ of pyirf.interpolation.BaseInterpolator and</span>
+<span class="sd">            DiscretePDFInterpolator</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Remember input shape</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span> <span class="o">=</span> <span class="n">binned_pdf</span><span class="o">.</span><span class="n">shape</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Number of bins along last axis and those specified by bin_edges not matching.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># include 0-bin at first position in each pdf to avoid edge-effects where the CDF would otherwise</span>
+        <span class="c1"># start at a value != 0, also extend edges with one bin to the left</span>
+        <span class="n">fill_zeros</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="n">binned_pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">]</span>
+        <span class="n">binned_pdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">fill_zeros</span><span class="p">,</span> <span class="n">binned_pdf</span><span class="p">),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">bin_edges</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bin_edges</span><span class="p">)</span>
+
+        <span class="c1"># compute quantiles from quantile_resolution</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span>
+            <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">quantile_resolution</span><span class="p">,</span> <span class="n">decimals</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+        <span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="n">grid_points</span><span class="p">,</span>
+            <span class="n">bin_edges</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">,</span>
+            <span class="n">binned_pdf</span><span class="o">=</span><span class="n">binned_pdf</span><span class="p">,</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Compute CDF values</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cdfs</span> <span class="o">=</span> <span class="n">cdf_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">binned_pdf</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_edges</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">)</span>
+
+        <span class="c1"># compute ppf values at quantiles, determine quantile step of [1]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppfs</span> <span class="o">=</span> <span class="n">ppf_values</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_mids</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cdfs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">)</span>
+
+<div class="viewcode-block" id="QuantileInterpolator.interpolate">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.QuantileInterpolator.html#pyirf.interpolation.QuantileInterpolator.interpolate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a grid of binned pdfs for a bunch of different parameters</span>
+<span class="sd">        and interpolates it to given value of those parameters.</span>
+<span class="sd">        This function provides an adapted version of the quantile interpolation introduced</span>
+<span class="sd">        in [1].</span>
+<span class="sd">        Instead of following this method closely, it implements different approaches to the</span>
+<span class="sd">        steps shown in Fig. 5 of [1].</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: numpy.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Value for which the interpolation is performed (target point)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        f_new: numpy.ndarray, shape=(1, ..., n_bins)</span>
+<span class="sd">            Interpolated and binned pdf</span>
+
+<span class="sd">        References</span>
+<span class="sd">        ----------</span>
+<span class="sd">        .. [1] B. E. Hollister and A. T. Pang (2013). Interpolation of Non-Gaussian Probability Distributions</span>
+<span class="sd">               for Ensemble Visualization</span>
+<span class="sd">               https://engineering.ucsc.edu/sites/default/files/technical-reports/UCSC-SOE-13-13.pdf</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># interpolate ppfs to target point, interpolate quantiles step of [1]</span>
+        <span class="n">interpolated_ppfs</span> <span class="o">=</span> <span class="n">griddata</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ppfs</span><span class="p">,</span> <span class="n">target_point</span><span class="p">)</span>
+
+        <span class="c1"># compute pdf values for all bins, evaluate interpolant PDF values step of [1], drop the earlier</span>
+        <span class="c1"># introduced extra bin</span>
+        <span class="n">interpolated_pdfs</span> <span class="o">=</span> <span class="n">pdf_from_ppf</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bin_edges</span><span class="p">,</span> <span class="n">interpolated_ppfs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span>
+        <span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
+
+        <span class="c1"># Renormalize pdf to sum of 1</span>
+        <span class="n">normed_interpolated_pdfs</span> <span class="o">=</span> <span class="n">norm_pdf</span><span class="p">(</span>
+            <span class="n">interpolated_pdfs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bin_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Re-swap axes and set all nans to zero</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">normed_interpolated_pdfs</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">input_shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

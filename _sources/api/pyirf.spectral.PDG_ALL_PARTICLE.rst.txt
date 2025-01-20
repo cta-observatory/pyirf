@@ -1,0 +1,6 @@
+PDG_ALL_PARTICLE
+================
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: PDG_ALL_PARTICLE

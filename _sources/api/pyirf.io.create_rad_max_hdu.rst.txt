@@ -1,0 +1,6 @@
+create_rad_max_hdu
+==================
+
+.. currentmodule:: pyirf.io
+
+.. autofunction:: create_rad_max_hdu

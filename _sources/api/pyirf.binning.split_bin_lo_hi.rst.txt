@@ -1,0 +1,6 @@
+split_bin_lo_hi
+===============
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: split_bin_lo_hi

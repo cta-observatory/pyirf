@@ -1,0 +1,19 @@
+ParametrizedExtrapolator
+========================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: ParametrizedExtrapolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ParametrizedExtrapolator.__call__
+      ~ParametrizedExtrapolator.extrapolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: extrapolate

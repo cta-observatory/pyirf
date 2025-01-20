@@ -1,0 +1,6 @@
+angular_resolution
+==================
+
+.. currentmodule:: pyirf.benchmarks
+
+.. autofunction:: angular_resolution

@@ -1,0 +1,6 @@
+calculate_percentile_cut
+========================
+
+.. currentmodule:: pyirf.cuts
+
+.. autofunction:: calculate_percentile_cut

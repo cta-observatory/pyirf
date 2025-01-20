@@ -1,0 +1,19 @@
+MomentMorphNearestSimplexExtrapolator
+=====================================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: MomentMorphNearestSimplexExtrapolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~MomentMorphNearestSimplexExtrapolator.__call__
+      ~MomentMorphNearestSimplexExtrapolator.extrapolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: extrapolate

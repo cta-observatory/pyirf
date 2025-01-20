@@ -1,0 +1,6 @@
+background_2d
+=============
+
+.. currentmodule:: pyirf.irf
+
+.. autofunction:: background_2d

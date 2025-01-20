@@ -1,0 +1,6 @@
+evaluate_binned_cut
+===================
+
+.. currentmodule:: pyirf.cuts
+
+.. autofunction:: evaluate_binned_cut
