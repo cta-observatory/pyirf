@@ -181,7 +181,8 @@ def test_energy_dispersion_asymmetric_polar():
 
     assert np.isclose(
         TRUE_SIGMA_1,
-        0.5 * (
+        0.5
+        * (
             ppf(cdf[0, :, 0, 0], migration_bins, 0.84)
             - ppf(cdf[0, :, 0, 0], migration_bins, 0.16)
         ),
@@ -189,7 +190,8 @@ def test_energy_dispersion_asymmetric_polar():
     )
     assert np.isclose(
         TRUE_SIGMA_2,
-        0.5 * (
+        0.5
+        * (
             ppf(cdf[1, :, 0, 0], migration_bins, 0.84)
             - ppf(cdf[1, :, 0, 0], migration_bins, 0.16)
         ),
@@ -197,7 +199,8 @@ def test_energy_dispersion_asymmetric_polar():
     )
     assert np.isclose(
         TRUE_SIGMA_3,
-        0.5 * (
+        0.5
+        * (
             ppf(cdf[2, :, 0, 0], migration_bins, 0.84)
             - ppf(cdf[2, :, 0, 0], migration_bins, 0.16)
         ),
@@ -291,7 +294,8 @@ def test_energy_dispersion_asymmetric_lonlat():
 
     assert np.isclose(
         TRUE_SIGMA_1,
-        0.5 * (
+        0.5
+        * (
             ppf(cdf[0, :, 0, 0], migration_bins, 0.84)
             - ppf(cdf[0, :, 0, 0], migration_bins, 0.16)
         ),
@@ -299,7 +303,8 @@ def test_energy_dispersion_asymmetric_lonlat():
     )
     assert np.isclose(
         TRUE_SIGMA_2,
-        0.5 * (
+        0.5
+        * (
             ppf(cdf[1, :, 0, 0], migration_bins, 0.84)
             - ppf(cdf[1, :, 0, 0], migration_bins, 0.16)
         ),
@@ -307,7 +312,8 @@ def test_energy_dispersion_asymmetric_lonlat():
     )
     assert np.isclose(
         TRUE_SIGMA_3,
-        0.5 * (
+        0.5
+        * (
             ppf(cdf[2, :, 0, 0], migration_bins, 0.84)
             - ppf(cdf[2, :, 0, 0], migration_bins, 0.16)
         ),

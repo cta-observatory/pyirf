@@ -24,13 +24,13 @@ def _normalize_hist(hist, migration_bins):
 
     with np.errstate(invalid="ignore"):
         if hist.ndim == 3:
-        # hist shape is (N_E, N_MIGRA, N_FOV), norm shape is (N_E, N_FOV)
-        # so we need to add a new axis in the middle to get (N_E, 1, N_FOV)
-        # bin_width is 1d, so we need newaxis, use the values, newaxis
+            # hist shape is (N_E, N_MIGRA, N_FOV), norm shape is (N_E, N_FOV)
+            # so we need to add a new axis in the middle to get (N_E, 1, N_FOV)
+            # bin_width is 1d, so we need newaxis, use the values, newaxis
             hist = hist / norm[:, np.newaxis, :] / bin_width[np.newaxis, :, np.newaxis]
         else:
-        # this handles the asymmetric case where hist shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2)
-            hist /= norm[:, np.newaxis, ...] 
+            # this handles the asymmetric case where hist shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2)
+            hist /= norm[:, np.newaxis, ...]
             hist /= bin_width[np.newaxis, :, np.newaxis, np.newaxis]
     return np.nan_to_num(hist)
 
@@ -142,7 +142,7 @@ def energy_dispersion_asymmetric_polar(
             true_energy_bins.to_value(u.TeV),
             migration_bins,
             fov_offset_bins.to_value(u.deg),
-            fov_position_angle_bins.to_value(u.deg)
+            fov_position_angle_bins.to_value(u.deg),
         ],
     )
 
@@ -203,7 +203,7 @@ def energy_dispersion_asymmetric_lonlat(
             true_energy_bins.to_value(u.TeV),
             migration_bins,
             fov_longitude_bins.to_value(u.deg),
-            fov_latitude_bins.to_value(u.deg)
+            fov_latitude_bins.to_value(u.deg),
         ],
     )
 
