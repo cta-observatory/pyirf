@@ -6,6 +6,8 @@ from ..binning import resample_histogram1d
 
 __all__ = [
     "energy_dispersion",
+    "energy_dispersion_asymmetric_polar",
+    "energy_dispersion_asymmetric_lonlat",
     "energy_migration_matrix",
     "energy_dispersion_to_migration",
 ]
@@ -21,11 +23,14 @@ def _normalize_hist(hist, migration_bins):
     norm = hist.sum(axis=1)
 
     with np.errstate(invalid="ignore"):
+        if hist.ndim == 3:
         # hist shape is (N_E, N_MIGRA, N_FOV), norm shape is (N_E, N_FOV)
         # so we need to add a new axis in the middle to get (N_E, 1, N_FOV)
         # bin_width is 1d, so we need newaxis, use the values, newaxis
-        hist = hist / norm[:, np.newaxis, :] / bin_width[np.newaxis, :, np.newaxis]
-
+            hist = hist / norm[:, np.newaxis, :] / bin_width[np.newaxis, :, np.newaxis]
+        else:
+        # this handles the asymmetric case where hist shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2)
+            hist = hist / norm[:, np.newaxis, ...] / bin_width[np.newaxis, :, np.newaxis, np.newaxis]
     return np.nan_to_num(hist)
 
 
@@ -76,6 +81,120 @@ def energy_dispersion(
             true_energy_bins.to_value(u.TeV),
             migration_bins,
             fov_offset_bins.to_value(u.deg),
+        ],
+    )
+
+    energy_dispersion = _normalize_hist(energy_dispersion, migration_bins)
+
+    return energy_dispersion
+
+
+def energy_dispersion_asymmetric_polar(
+    selected_events, true_energy_bins, fov_offset_bins, fov_position_angle_bins, migration_bins,
+):
+    """
+    Calculate energy dispersion for the given DL2 event list.
+    Energy dispersion is defined as the probability of finding an event
+    at a given relative deviation ``(reco_energy / true_energy)`` for a given
+    true energy.
+
+    Parameters
+    ----------
+    selected_events: astropy.table.QTable
+        Table of the DL2 events.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``.
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    migration_bins: astropy.units.Quantity[energy]
+        Bin edges in relative deviation, recommended range: [0.2, 5]
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_position_angle_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view position angle.
+        For Point-Like IRFs or when only considering offset, only giving a single bin is apporpriate.
+
+    Returns
+    -------
+    energy_dispersion: numpy.ndarray
+        Energy dispersion matrix
+        with shape (n_true_energy_bins, n_migration_bins, n_fov_offset_bins, n_fov_position_angle_bins)
+    """
+    mu = (selected_events["reco_energy"] / selected_events["true_energy"]).to_value(
+        u.one
+    )
+
+    energy_dispersion, _ = np.histogramdd(
+        np.column_stack(
+            [
+                selected_events["true_energy"].to_value(u.TeV),
+                mu,
+                selected_events["true_source_fov_offset"].to_value(u.deg),
+                selected_events["true_source_fov_position_angle"].to_value(u.deg),
+            ]
+        ),
+        bins=[
+            true_energy_bins.to_value(u.TeV),
+            migration_bins,
+            fov_offset_bins.to_value(u.deg),
+            fov_position_angle_bins.to_value(u.deg)
+        ],
+    )
+
+    energy_dispersion = _normalize_hist(energy_dispersion, migration_bins)
+
+    return energy_dispersion
+
+
+def energy_dispersion_asymmetric_lonlat(
+    selected_events, true_energy_bins, fov_longitude_bins, fov_latitude_bins, migration_bins,
+):
+    """
+    Calculate energy dispersion for the given DL2 event list.
+    Energy dispersion is defined as the probability of finding an event
+    at a given relative deviation ``(reco_energy / true_energy)`` for a given
+    true energy.
+
+    Parameters
+    ----------
+    selected_events: astropy.table.QTable
+        Table of the DL2 events.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``, ``true_source_fov_lat``.
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    migration_bins: astropy.units.Quantity[energy]
+        Bin edges in relative deviation, recommended range: [0.2, 5]
+    fov_longitude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view longitude.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_latitude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view latitude.
+        For Point-Like IRFs, only giving a single bin is apporpriate.
+
+    Returns
+    -------
+    energy_dispersion: numpy.ndarray
+        Energy dispersion matrix
+        with shape (n_true_energy_bins, n_migration_bins, n_fov_longitude_bins, n_fov_latitude_bins)
+    """
+    mu = (selected_events["reco_energy"] / selected_events["true_energy"]).to_value(
+        u.one
+    )
+
+    energy_dispersion, _ = np.histogramdd(
+        np.column_stack(
+            [
+                selected_events["true_energy"].to_value(u.TeV),
+                mu,
+                selected_events["true_source_fov_lon"].to_value(u.deg),
+                selected_events["true_source_fov_lat"].to_value(u.deg),
+            ]
+        ),
+        bins=[
+            true_energy_bins.to_value(u.TeV),
+            migration_bins,
+            fov_longitude_bins.to_value(u.deg),
+            fov_latitude_bins.to_value(u.deg)
         ],
     )
 
