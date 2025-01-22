@@ -268,7 +268,8 @@ class PowerLawWithExponentialGaussian(PowerLaw):
     @u.quantity_input(energy=u.TeV)
     def __call__(self, energy):
         power = super().__call__(energy)
-        log10_e = np.log10(energy / self.e_ref)
+        e = (energy / self.e_ref).to_value(u.one)
+        log10_e = np.log10(e)
         # ROOT's TMath::Gauss does not add the normalization
         # this is missing from the IRFDocs
         # the code used for the plot can be found here:
