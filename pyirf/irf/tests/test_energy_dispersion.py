@@ -424,6 +424,114 @@ def test_energy_migration_matrix_from_events():
     assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
 
 
+def test_energy_migration_matrix_asymmetric_polar_from_events():
+    from pyirf.irf.energy_dispersion import energy_migration_matrix_asymmetric_polar
+
+    np.random.seed(0)
+    N = 10000
+    true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
+    reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
+    fov_offset_bins = np.array([0, 1, 2]) * u.deg
+    fov_position_angle_bins = np.array([0,180,360]) * u.deg
+
+    true_energy = (
+        np.random.uniform(true_energy_bins[0].value, true_energy_bins[-1].value, size=N)
+        * u.TeV
+    )
+    reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
+
+    events = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "true_source_fov_offset": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 1.5),
+                ]
+            )
+            *u.deg,
+            "true_source_fov_position_angle": np.concatenate(
+                [
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    matrix = energy_migration_matrix_asymmetric_polar(
+        events, true_energy_bins, reco_energy_bins, fov_offset_bins, fov_position_angle_bins,
+    )
+
+    assert matrix.shape == (
+        len(true_energy_bins) - 1,
+        len(reco_energy_bins) - 1,
+        len(fov_offset_bins) - 1,
+        len(fov_position_angle_bins) - 1,
+    )
+    assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
+
+
+def test_energy_migration_matrix_asymmetric_lonlat_from_events():
+    from pyirf.irf.energy_dispersion import energy_migration_matrix_asymmetric_lonlat
+
+    np.random.seed(0)
+    N = 10000
+    true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
+    reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
+    fov_longitude_bins = np.array([-1, 0, 1]) * u.deg
+    fov_latitude_bins = np.array([-1, 0, 1]) * u.deg
+
+    true_energy = (
+        np.random.uniform(true_energy_bins[0].value, true_energy_bins[-1].value, size=N)
+        * u.TeV
+    )
+    reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
+
+    events = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "true_source_fov_lon": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, -0.2),
+                    np.full(N // 4, -0.2),
+                ]
+            )
+            *u.deg,
+            "true_source_fov_lat": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, -0.2),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, -0.2),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    matrix = energy_migration_matrix_asymmetric_lonlat(
+        events, true_energy_bins, reco_energy_bins, fov_longitude_bins, fov_latitude_bins,
+    )
+
+    assert matrix.shape == (
+        len(true_energy_bins) - 1,
+        len(reco_energy_bins) - 1,
+        len(fov_longitude_bins) - 1,
+        len(fov_latitude_bins) - 1,
+    )
+    assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
+
+
 def test_overflow_bins_migration_matrix():
     from pyirf.irf import energy_dispersion
     from pyirf.irf.energy_dispersion import energy_dispersion_to_migration
