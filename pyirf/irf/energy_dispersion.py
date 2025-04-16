@@ -261,6 +261,109 @@ def energy_migration_matrix(
 
     return hist
 
+@u.quantity_input(true_energy_bins=u.TeV, reco_energy_bins=u.TeV, fov_offset_bins=u.deg, fov_position_angle_bins=u.deg)
+def energy_migration_matrix_asymmetric_polar(
+    events, true_energy_bins, reco_energy_bins, fov_offset_bins, fov_position_angle_bins,
+):
+    """Compute the energy migration matrix directly from the events in offset and position angle binning.
+
+    Parameters
+    ----------
+    events : `~astropy.table.QTable`
+        Table of the DL2 events.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``, ``true_source_fov_position_angle``.
+    true_energy_bins : `~astropy.units.Quantity`
+        Bin edges in true energy.
+    reco_energy_bins : `~astropy.units.Quantity`
+        Bin edges in reconstructed energy.
+
+    Returns
+    -------
+    matrix : array-like
+        Migration matrix as probabilities along the reconstructed energy axis.
+        energy axis with shape
+        (n_true_energy_bins, n_reco_energy_bins, n_fov_longitude_bins, n_fov_lat)
+        containing energies in TeV.
+    """
+
+    hist, _ = np.histogramdd(
+        np.column_stack(
+            [
+                events["true_energy"].to_value(u.TeV),
+                events["reco_energy"].to_value(u.TeV),
+                events["true_source_fov_offset"].to_value(u.deg),
+                events["true_source_fov_position_angle"].to_value(u.deg),
+            ]
+        ),
+        bins=[
+            true_energy_bins.to_value(u.TeV),
+            reco_energy_bins.to_value(u.TeV),
+            fov_offset_bins.to_value(u.deg),
+            fov_position_angle_bins.to_value(u.deg),
+        ],
+    )
+
+    with np.errstate(invalid="ignore"):
+        hist /= hist.sum(axis=1)[:, np.newaxis, ...]
+        # the nans come from the fact that the sum along the reconstructed energy axis
+        # might sometimes be 0 when there are no events in that given true energy bin
+        # and fov offset bin
+        hist[np.isnan(hist)] = 0
+
+    return hist
+
+
+@u.quantity_input(true_energy_bins=u.TeV, reco_energy_bins=u.TeV, fov_longitude_bins=u.deg, fov_latitude_bins=u.deg)
+def energy_migration_matrix_asymmetric_lonlat(
+    events, true_energy_bins, reco_energy_bins, fov_longitude_bins, fov_latitude_bins
+):
+    """Compute the energy migration matrix directly from the events in longitude and latitude binning.
+
+    Parameters
+    ----------
+    events : `~astropy.table.QTable`
+        Table of the DL2 events.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``, ``true_source_fov_lat``.
+    true_energy_bins : `~astropy.units.Quantity`
+        Bin edges in true energy.
+    reco_energy_bins : `~astropy.units.Quantity`
+        Bin edges in reconstructed energy.
+
+    Returns
+    -------
+    matrix : array-like
+        Migration matrix as probabilities along the reconstructed energy axis.
+        energy axis with shape
+        (n_true_energy_bins, n_reco_energy_bins, n_fov_longitude_bins, n_fov_latitude_bins)
+        containing energies in TeV.
+    """
+
+    hist, _ = np.histogramdd(
+        np.column_stack(
+            [
+                events["true_energy"].to_value(u.TeV),
+                events["reco_energy"].to_value(u.TeV),
+                events["true_source_fov_lon"].to_value(u.deg),
+                events["true_source_fov_lat"].to_value(u.deg),
+            ]
+        ),
+        bins=[
+            true_energy_bins.to_value(u.TeV),
+            reco_energy_bins.to_value(u.TeV),
+            fov_longitude_bins.to_value(u.deg),
+            fov_latitude_bins.to_value(u.deg),
+        ],
+    )
+
+    with np.errstate(invalid="ignore"):
+        hist /= hist.sum(axis=1)[:, np.newaxis, ...]
+        # the nans come from the fact that the sum along the reconstructed energy axis
+        # might sometimes be 0 when there are no events in that given true energy bin
+        # and fov offset bin
+        hist[np.isnan(hist)] = 0
+
+    return hist
+
 
 def energy_dispersion_to_migration(
     dispersion_matrix,
