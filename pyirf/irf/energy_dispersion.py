@@ -9,6 +9,8 @@ __all__ = [
     "energy_dispersion_asymmetric_polar",
     "energy_dispersion_asymmetric_lonlat",
     "energy_migration_matrix",
+    "energy_migration_matrix_asymmetric_polar",
+    "energy_migration_matrix_asymmetric_lonlat",
     "energy_dispersion_to_migration",
 ]
 
@@ -263,7 +265,7 @@ def energy_migration_matrix(
 
 @u.quantity_input(true_energy_bins=u.TeV, reco_energy_bins=u.TeV, fov_offset_bins=u.deg, fov_position_angle_bins=u.deg)
 def energy_migration_matrix_asymmetric_polar(
-    events, true_energy_bins, reco_energy_bins, fov_offset_bins, fov_position_angle_bins,
+    events, true_energy_bins, reco_energy_bins, fov_offset_bins, fov_position_angle_bins
 ):
     """Compute the energy migration matrix directly from the events in offset and position angle binning.
 
