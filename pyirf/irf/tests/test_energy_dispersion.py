@@ -169,7 +169,8 @@ def test_energy_dispersion_asymmetric_polar():
 
     bin_width = np.diff(migration_bins)
     bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
-    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2), we need to integrate over migration axis
+    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2),
+    # we need to integrate over migration axis
     integral = (result * bin_width[np.newaxis, :, np.newaxis, np.newaxis]).sum(axis=1)
 
     np.testing.assert_allclose(integral, 1.0)
@@ -282,7 +283,8 @@ def test_energy_dispersion_asymmetric_lonlat():
 
     bin_width = np.diff(migration_bins)
     bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
-    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2), we need to integrate over migration axis
+    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2),
+    # we need to integrate over migration axis
     integral = (result * bin_width[np.newaxis, :, np.newaxis, np.newaxis]).sum(axis=1)
 
     np.testing.assert_allclose(integral, 1.0)
@@ -427,7 +429,11 @@ def test_energy_dispersion_to_migration_asymmetric_polar():
     )
 
     dispersion_matrix = energy_dispersion_asymmetric_polar(
-        selected_events, true_energy_bins, fov_offset_bins, fov_position_angle_bins, migration_bins
+        selected_events,
+        true_energy_bins,
+        fov_offset_bins,
+        fov_position_angle_bins,
+        migration_bins,
     )
 
     # migration matrix selecting a limited energy band with different binsizes
@@ -502,7 +508,11 @@ def test_energy_dispersion_to_migration_asymmetric_lonlat():
     )
 
     dispersion_matrix = energy_dispersion_asymmetric_lonlat(
-        selected_events, true_energy_bins, fov_longitude_bins, fov_latitude_bins, migration_bins
+        selected_events,
+        true_energy_bins, 
+        fov_longitude_bins, 
+        fov_latitude_bins, 
+        migration_bins,
     )
 
     # migration matrix selecting a limited energy band with different binsizes
@@ -616,7 +626,11 @@ def test_energy_migration_matrix_asymmetric_polar_from_events():
     )
 
     matrix = energy_migration_matrix_asymmetric_polar(
-        events, true_energy_bins, reco_energy_bins, fov_offset_bins, fov_position_angle_bins,
+        events,
+        true_energy_bins,
+        reco_energy_bins,
+        fov_offset_bins,
+        fov_position_angle_bins,
     )
 
     assert matrix.shape == (
@@ -670,7 +684,11 @@ def test_energy_migration_matrix_asymmetric_lonlat_from_events():
     )
 
     matrix = energy_migration_matrix_asymmetric_lonlat(
-        events, true_energy_bins, reco_energy_bins, fov_longitude_bins, fov_latitude_bins,
+        events,
+        true_energy_bins,
+        reco_energy_bins,
+        fov_longitude_bins,
+        fov_latitude_bins,
     )
 
     assert matrix.shape == (
