@@ -110,7 +110,8 @@ def energy_dispersion_asymmetric_polar(
     ----------
     selected_events: astropy.table.QTable
         Table of the DL2 events.
-        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``,
+        ``true_source_fov_position_angle``.
     true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
     migration_bins: astropy.units.Quantity[energy]
@@ -120,13 +121,15 @@ def energy_dispersion_asymmetric_polar(
         For Point-Like IRFs, only giving a single bin is appropriate.
     fov_position_angle_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view position angle.
-        For Point-Like IRFs or when only considering offset, only giving a single bin is apporpriate.
+        For Point-Like IRFs or when only considering offset, only giving a single bin 
+        is apporpriate.
 
     Returns
     -------
     energy_dispersion: numpy.ndarray
         Energy dispersion matrix
-        with shape (n_true_energy_bins, n_migration_bins, n_fov_offset_bins, n_fov_position_angle_bins)
+        with shape (n_true_energy_bins, n_migration_bins, n_fov_offset_bins, 
+        n_fov_position_angle_bins)
     """
     mu = (selected_events["reco_energy"] / selected_events["true_energy"]).to_value(
         u.one
@@ -171,7 +174,8 @@ def energy_dispersion_asymmetric_lonlat(
     ----------
     selected_events: astropy.table.QTable
         Table of the DL2 events.
-        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``, ``true_source_fov_lat``.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``, 
+        ``true_source_fov_lat``.
     true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
     migration_bins: astropy.units.Quantity[energy]
@@ -187,7 +191,8 @@ def energy_dispersion_asymmetric_lonlat(
     -------
     energy_dispersion: numpy.ndarray
         Energy dispersion matrix
-        with shape (n_true_energy_bins, n_migration_bins, n_fov_longitude_bins, n_fov_latitude_bins)
+        with shape (n_true_energy_bins, n_migration_bins, n_fov_longitude_bins, 
+        n_fov_latitude_bins)
     """
     mu = (selected_events["reco_energy"] / selected_events["true_energy"]).to_value(
         u.one
@@ -264,17 +269,24 @@ def energy_migration_matrix(
 
     return hist
 
-@u.quantity_input(true_energy_bins=u.TeV, reco_energy_bins=u.TeV, fov_offset_bins=u.deg, fov_position_angle_bins=u.deg)
+@u.quantity_input(
+    true_energy_bins=u.TeV,
+    reco_energy_bins=u.TeV,
+    fov_offset_bins=u.deg,
+    fov_position_angle_bins=u.deg,
+)
 def energy_migration_matrix_asymmetric_polar(
     events, true_energy_bins, reco_energy_bins, fov_offset_bins, fov_position_angle_bins
 ):
-    """Compute the energy migration matrix directly from the events in offset and position angle binning.
+    """Compute the energy migration matrix directly from the events in
+    offset and position angle binning.
 
     Parameters
     ----------
     events : `~astropy.table.QTable`
         Table of the DL2 events.
-        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``, ``true_source_fov_position_angle``.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_offset``,
+        ``true_source_fov_position_angle``.
     true_energy_bins : `~astropy.units.Quantity`
         Bin edges in true energy.
     reco_energy_bins : `~astropy.units.Quantity`
@@ -285,7 +297,8 @@ def energy_migration_matrix_asymmetric_polar(
     matrix : array-like
         Migration matrix as probabilities along the reconstructed energy axis.
         energy axis with shape
-        (n_true_energy_bins, n_reco_energy_bins, n_fov_longitude_bins, n_fov_lat)
+        (n_true_energy_bins, n_reco_energy_bins, n_fov_offset_bins,
+        n_fov_position_angle_bins)
         containing energies in TeV.
     """
 
@@ -316,17 +329,24 @@ def energy_migration_matrix_asymmetric_polar(
     return hist
 
 
-@u.quantity_input(true_energy_bins=u.TeV, reco_energy_bins=u.TeV, fov_longitude_bins=u.deg, fov_latitude_bins=u.deg)
+@u.quantity_input(
+    true_energy_bins=u.TeV,
+    reco_energy_bins=u.TeV,
+    fov_longitude_bins=u.deg,
+    fov_latitude_bins=u.deg,
+)
 def energy_migration_matrix_asymmetric_lonlat(
     events, true_energy_bins, reco_energy_bins, fov_longitude_bins, fov_latitude_bins
 ):
-    """Compute the energy migration matrix directly from the events in longitude and latitude binning.
+    """Compute the energy migration matrix directly from the events in
+    longitude and latitude binning.
 
     Parameters
     ----------
     events : `~astropy.table.QTable`
         Table of the DL2 events.
-        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``, ``true_source_fov_lat``.
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``,
+        ``true_source_fov_lat``.
     true_energy_bins : `~astropy.units.Quantity`
         Bin edges in true energy.
     reco_energy_bins : `~astropy.units.Quantity`
@@ -337,7 +357,8 @@ def energy_migration_matrix_asymmetric_lonlat(
     matrix : array-like
         Migration matrix as probabilities along the reconstructed energy axis.
         energy axis with shape
-        (n_true_energy_bins, n_reco_energy_bins, n_fov_longitude_bins, n_fov_latitude_bins)
+        (n_true_energy_bins, n_reco_energy_bins, n_fov_longitude_bins,
+        n_fov_latitude_bins)
         containing energies in TeV.
     """
 
