@@ -1,0 +1,2 @@
+Add functions to calculate asymmetric energy dispersion and energy migration matrices to `pyirf.irf.energy_dispersion`, supporting both binning in `true_source_fov_offset` / `true_source_fov_position_angle` and `true_source_fov_lon` / `true_source_fov_lat`.
+Also adds functions to create fits table HDUs in GADF format for the energy dispersion to `pyirf.io.gadf`.
