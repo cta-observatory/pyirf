@@ -91,19 +91,17 @@ def background_3d_lonlat(events, reco_energy_bins, fov_lon_bins, fov_lat_bins, t
 
         Shape: (len(reco_energy_bins) - 1,  len(fov_lon_bins) - 1, len(fov_lon_bins) - 1)
     """
-    fov_x_offset_bins = fov_lon_bins
-    fov_y_offset_bins = fov_lat_bins
 
     hist, _ = np.histogramdd(
         [
             events["reco_energy"].to_value(u.TeV),
-            events["reco_fov_lon"].to_value(u.deg),
-            events["reco_fov_lat"].to_value(u.deg),
+            events["reco_source_fov_lon"].to_value(u.deg),
+            events["reco_source_fov_lat"].to_value(u.deg),
         ],
         bins=[
             reco_energy_bins.to_value(u.TeV),
-            fov_x_offset_bins.to_value(u.deg),
-            fov_y_offset_bins.to_value(u.deg),
+            fov_lon_bins.to_value(u.deg),
+            fov_lat_bins.to_value(u.deg),
         ],
         weights=events["weight"],
     )
@@ -115,10 +113,10 @@ def background_3d_lonlat(events, reco_energy_bins, fov_lon_bins, fov_lat_bins, t
 
     # divide by solid angle in each fov bin and the observation time
     bin_solid_angle = rectangle_solid_angle(
-        fov_x_offset_bins[:-1],
-        fov_x_offset_bins[1:],
-        fov_y_offset_bins[:-1],
-        fov_y_offset_bins[1:],
+        fov_lon_bins[:-1],
+        fov_lon_bins[1:],
+        fov_lat_bins[:-1],
+        fov_lat_bins[1:],
     )
     bg_rate = per_energy / t_obs / bin_solid_angle
     return bg_rate.to(BACKGROUND_UNIT)
