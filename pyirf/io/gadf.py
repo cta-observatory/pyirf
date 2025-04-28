@@ -11,8 +11,8 @@ from ..version import __version__
 __all__ = [
     "create_aeff2d_hdu",
     "create_energy_dispersion_hdu",
-    "create_energy_dispersion_asymmetric_polar_hdu",
-    "create_energy_dispersion_asymmetric_lonlat_hdu",
+    "create_energy_dispersion_3d_polar_hdu",
+    "create_energy_dispersion_3d_lonlat_hdu",
     "create_psf_table_hdu",
     "create_rad_max_hdu",
 ]
@@ -204,7 +204,7 @@ def create_energy_dispersion_hdu(
     return BinTableHDU(edisp, header=header, name=extname)
 
 
-def create_energy_dispersion_asymmetric_polar_hdu(
+def create_energy_dispersion_3d_polar_hdu(
     energy_dispersion,
     true_energy_bins,
     migration_bins,
@@ -266,7 +266,7 @@ def create_energy_dispersion_asymmetric_polar_hdu(
     return BinTableHDU(edisp, header=header, name=extname)
 
 
-def create_energy_dispersion_asymmetric_lonlat_hdu(
+def create_energy_dispersion_3d_lonlat_hdu(
     energy_dispersion,
     true_energy_bins,
     migration_bins,
@@ -290,11 +290,11 @@ def create_energy_dispersion_asymmetric_lonlat_hdu(
         Bin edges in true energy
     migration_bins: numpy.ndarray
         Bin edges for the relative energy migration (``reco_energy / true_energy``)
-    fov_offset_bins: astropy.units.Quantity[angle]
-        Bin edges in the field of view offset.
+    fov_longitude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view longitude.
         For Point-Like IRFs, only giving a single bin is appropriate.
-    fov_position_angle_bins: astropy.units.Quantity[angle]
-        Bin edges in the field of view position angle.
+    fov_latitiude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view latitude.
         For Point-Like IRFs, only giving a single bin is appropriate.
     point_like: bool
         If the provided effective area was calculated after applying a direction cut,

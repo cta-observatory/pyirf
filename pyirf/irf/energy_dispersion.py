@@ -6,13 +6,13 @@ from ..binning import resample_histogram1d
 
 __all__ = [
     "energy_dispersion",
-    "energy_dispersion_asymmetric_polar",
-    "energy_dispersion_asymmetric_lonlat",
+    "energy_dispersion_3d_polar",
+    "energy_dispersion_3d_lonlat",
     "energy_migration_matrix",
-    "energy_migration_matrix_asymmetric_polar",
-    "energy_migration_matrix_asymmetric_lonlat",
+    "energy_migration_matrix_3d_polar",
+    "energy_migration_matrix_3d_lonlat",
     "energy_dispersion_to_migration",
-    "energy_dispersion_to_migration_asymmetric",
+    "energy_dispersion_to_migration_3d",
 ]
 
 
@@ -93,7 +93,7 @@ def energy_dispersion(
     return energy_dispersion
 
 
-def energy_dispersion_asymmetric_polar(
+def energy_dispersion_3d_polar(
     selected_events,
     true_energy_bins,
     fov_offset_bins,
@@ -157,7 +157,7 @@ def energy_dispersion_asymmetric_polar(
     return energy_dispersion
 
 
-def energy_dispersion_asymmetric_lonlat(
+def energy_dispersion_3d_lonlat(
     selected_events,
     true_energy_bins,
     fov_longitude_bins,
@@ -275,7 +275,7 @@ def energy_migration_matrix(
     fov_offset_bins=u.deg,
     fov_position_angle_bins=u.deg,
 )
-def energy_migration_matrix_asymmetric_polar(
+def energy_migration_matrix_3d_polar(
     events, true_energy_bins, reco_energy_bins, fov_offset_bins, fov_position_angle_bins
 ):
     """Compute the energy migration matrix directly from the events in
@@ -335,7 +335,7 @@ def energy_migration_matrix_asymmetric_polar(
     fov_longitude_bins=u.deg,
     fov_latitude_bins=u.deg,
 )
-def energy_migration_matrix_asymmetric_lonlat(
+def energy_migration_matrix_3d_lonlat(
     events, true_energy_bins, reco_energy_bins, fov_longitude_bins, fov_latitude_bins
 ):
     """Compute the energy migration matrix directly from the events in
@@ -472,7 +472,7 @@ def energy_dispersion_to_migration(
     return migration_matrix
 
 
-def energy_dispersion_to_migration_asymmetric(
+def energy_dispersion_to_migration_3d(
     dispersion_matrix,
     disp_true_energy_edges,
     disp_migration_edges,

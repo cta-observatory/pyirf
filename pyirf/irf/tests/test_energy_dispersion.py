@@ -91,8 +91,8 @@ def test_energy_dispersion():
     )
 
 
-def test_energy_dispersion_asymmetric_polar():
-    from pyirf.irf import energy_dispersion_asymmetric_polar
+def test_energy_dispersion_3d_polar():
+    from pyirf.irf import energy_dispersion_3d_polar
 
     np.random.seed(0)
 
@@ -157,7 +157,7 @@ def test_energy_dispersion_asymmetric_polar():
     fov_position_angle_bins = np.array([0, 180, 360]) * u.deg
     migration_bins = np.linspace(0, 2, 1001)
 
-    result = energy_dispersion_asymmetric_polar(
+    result = energy_dispersion_3d_polar(
         selected_events,
         true_energy_bins,
         fov_offset_bins,
@@ -209,8 +209,8 @@ def test_energy_dispersion_asymmetric_polar():
     )
 
 
-def test_energy_dispersion_asymmetric_lonlat():
-    from pyirf.irf import energy_dispersion_asymmetric_lonlat
+def test_energy_dispersion_3d_lonlat():
+    from pyirf.irf import energy_dispersion_3d_lonlat
 
     np.random.seed(0)
 
@@ -275,7 +275,7 @@ def test_energy_dispersion_asymmetric_lonlat():
     fov_lat_bins = np.array([-1, 0, 1]) * u.deg
     migration_bins = np.linspace(0, 2, 1001)
 
-    result = energy_dispersion_asymmetric_lonlat(
+    result = energy_dispersion_3d_lonlat(
         selected_events, true_energy_bins, fov_lon_bins, fov_lat_bins, migration_bins
     )
 
@@ -385,9 +385,9 @@ def test_energy_dispersion_to_migration():
     assert np.all(np.isfinite(migration_matrix))
 
 
-def test_energy_dispersion_to_migration_asymmetric_polar():
-    from pyirf.irf import energy_dispersion_asymmetric_polar
-    from pyirf.irf.energy_dispersion import energy_dispersion_to_migration_asymmetric
+def test_energy_dispersion_to_migration_3d_polar():
+    from pyirf.irf import energy_dispersion_3d_polar
+    from pyirf.irf.energy_dispersion import energy_dispersion_to_migration_3d
 
     np.random.seed(0)
     N = 10000
@@ -428,7 +428,7 @@ def test_energy_dispersion_to_migration_asymmetric_polar():
         }
     )
 
-    dispersion_matrix = energy_dispersion_asymmetric_polar(
+    dispersion_matrix = energy_dispersion_3d_polar(
         selected_events,
         true_energy_bins,
         fov_offset_bins,
@@ -439,7 +439,7 @@ def test_energy_dispersion_to_migration_asymmetric_polar():
     # migration matrix selecting a limited energy band with different binsizes
     new_true_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
     new_reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
-    migration_matrix = energy_dispersion_to_migration_asymmetric(
+    migration_matrix = energy_dispersion_to_migration_3d(
         dispersion_matrix,
         true_energy_bins,
         migration_bins,
@@ -464,9 +464,9 @@ def test_energy_dispersion_to_migration_asymmetric_polar():
     assert np.all(np.isfinite(migration_matrix))
 
 
-def test_energy_dispersion_to_migration_asymmetric_lonlat():
-    from pyirf.irf import energy_dispersion_asymmetric_lonlat
-    from pyirf.irf.energy_dispersion import energy_dispersion_to_migration_asymmetric
+def test_energy_dispersion_to_migration_3d_lonlat():
+    from pyirf.irf import energy_dispersion_3d_lonlat
+    from pyirf.irf.energy_dispersion import energy_dispersion_to_migration_3d
 
     np.random.seed(0)
     N = 10000
@@ -507,7 +507,7 @@ def test_energy_dispersion_to_migration_asymmetric_lonlat():
         }
     )
 
-    dispersion_matrix = energy_dispersion_asymmetric_lonlat(
+    dispersion_matrix = energy_dispersion_3d_lonlat(
         selected_events,
         true_energy_bins, 
         fov_longitude_bins, 
@@ -518,7 +518,7 @@ def test_energy_dispersion_to_migration_asymmetric_lonlat():
     # migration matrix selecting a limited energy band with different binsizes
     new_true_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
     new_reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
-    migration_matrix = energy_dispersion_to_migration_asymmetric(
+    migration_matrix = energy_dispersion_to_migration_3d(
         dispersion_matrix,
         true_energy_bins,
         migration_bins,
@@ -584,8 +584,8 @@ def test_energy_migration_matrix_from_events():
     assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
 
 
-def test_energy_migration_matrix_asymmetric_polar_from_events():
-    from pyirf.irf.energy_dispersion import energy_migration_matrix_asymmetric_polar
+def test_energy_migration_matrix_3d_polar_from_events():
+    from pyirf.irf.energy_dispersion import energy_migration_matrix_3d_polar
 
     np.random.seed(0)
     N = 10000
@@ -625,7 +625,7 @@ def test_energy_migration_matrix_asymmetric_polar_from_events():
         }
     )
 
-    matrix = energy_migration_matrix_asymmetric_polar(
+    matrix = energy_migration_matrix_3d_polar(
         events,
         true_energy_bins,
         reco_energy_bins,
@@ -642,8 +642,8 @@ def test_energy_migration_matrix_asymmetric_polar_from_events():
     assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
 
 
-def test_energy_migration_matrix_asymmetric_lonlat_from_events():
-    from pyirf.irf.energy_dispersion import energy_migration_matrix_asymmetric_lonlat
+def test_energy_migration_matrix_3d_lonlat_from_events():
+    from pyirf.irf.energy_dispersion import energy_migration_matrix_3d_lonlat
 
     np.random.seed(0)
     N = 10000
@@ -683,7 +683,7 @@ def test_energy_migration_matrix_asymmetric_lonlat_from_events():
         }
     )
 
-    matrix = energy_migration_matrix_asymmetric_lonlat(
+    matrix = energy_migration_matrix_3d_lonlat(
         events,
         true_energy_bins,
         reco_energy_bins,
