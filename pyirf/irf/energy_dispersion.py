@@ -121,14 +121,14 @@ def energy_dispersion_3d_polar(
         For Point-Like IRFs, only giving a single bin is appropriate.
     fov_position_angle_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view position angle.
-        For Point-Like IRFs or when only considering offset, only giving a single bin 
+        For Point-Like IRFs or when only considering offset, only giving a single bin
         is apporpriate.
 
     Returns
     -------
     energy_dispersion: numpy.ndarray
         Energy dispersion matrix
-        with shape (n_true_energy_bins, n_migration_bins, n_fov_offset_bins, 
+        with shape (n_true_energy_bins, n_migration_bins, n_fov_offset_bins,
         n_fov_position_angle_bins)
     """
     mu = (selected_events["reco_energy"] / selected_events["true_energy"]).to_value(
@@ -174,7 +174,7 @@ def energy_dispersion_3d_lonlat(
     ----------
     selected_events: astropy.table.QTable
         Table of the DL2 events.
-        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``, 
+        Required columns: ``reco_energy``, ``true_energy``, ``true_source_fov_lon``,
         ``true_source_fov_lat``.
     true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
@@ -191,7 +191,7 @@ def energy_dispersion_3d_lonlat(
     -------
     energy_dispersion: numpy.ndarray
         Energy dispersion matrix
-        with shape (n_true_energy_bins, n_migration_bins, n_fov_longitude_bins, 
+        with shape (n_true_energy_bins, n_migration_bins, n_fov_longitude_bins,
         n_fov_latitude_bins)
     """
     mu = (selected_events["reco_energy"] / selected_events["true_energy"]).to_value(
@@ -268,6 +268,7 @@ def energy_migration_matrix(
         hist[np.isnan(hist)] = 0
 
     return hist
+
 
 @u.quantity_input(
     true_energy_bins=u.TeV,

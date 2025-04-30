@@ -419,7 +419,7 @@ def test_energy_dispersion_to_migration_3d_polar():
             "true_source_fov_position_angle": np.concatenate(
                 [
                     np.full(N // 4, 90),
-                    np.full(N // 4, 90), 
+                    np.full(N // 4, 90),
                     np.full(N // 4, 270),
                     np.full(N // 4, 270),
                 ]
@@ -473,7 +473,7 @@ def test_energy_dispersion_to_migration_3d_lonlat():
     true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
 
     fov_longitude_bins = np.array([-1, 0, 1]) * u.deg
-    fov_latitude_bins = np.array([-1,0,1]) * u.deg
+    fov_latitude_bins = np.array([-1, 0, 1]) * u.deg
     migration_bins = np.linspace(0, 2, 101)
 
     true_energy = (
@@ -498,7 +498,7 @@ def test_energy_dispersion_to_migration_3d_lonlat():
             "true_source_fov_lat": np.concatenate(
                 [
                     np.full(N // 4, -0.5),
-                    np.full(N // 4, -0.5), 
+                    np.full(N // 4, -0.5),
                     np.full(N // 4, 0.5),
                     np.full(N // 4, 0.5),
                 ]
@@ -509,9 +509,9 @@ def test_energy_dispersion_to_migration_3d_lonlat():
 
     dispersion_matrix = energy_dispersion_3d_lonlat(
         selected_events,
-        true_energy_bins, 
-        fov_longitude_bins, 
-        fov_latitude_bins, 
+        true_energy_bins,
+        fov_longitude_bins,
+        fov_latitude_bins,
         migration_bins,
     )
 
@@ -592,7 +592,7 @@ def test_energy_migration_matrix_3d_polar_from_events():
     true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
     reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
     fov_offset_bins = np.array([0, 1, 2]) * u.deg
-    fov_position_angle_bins = np.array([0,180,360]) * u.deg
+    fov_position_angle_bins = np.array([0, 180, 360]) * u.deg
 
     true_energy = (
         np.random.uniform(true_energy_bins[0].value, true_energy_bins[-1].value, size=N)
@@ -612,7 +612,7 @@ def test_energy_migration_matrix_3d_polar_from_events():
                     np.full(N // 4, 1.5),
                 ]
             )
-            *u.deg,
+            * u.deg,
             "true_source_fov_position_angle": np.concatenate(
                 [
                     np.full(N // 4, 90),
@@ -670,7 +670,7 @@ def test_energy_migration_matrix_3d_lonlat_from_events():
                     np.full(N // 4, -0.2),
                 ]
             )
-            *u.deg,
+            * u.deg,
             "true_source_fov_lat": np.concatenate(
                 [
                     np.full(N // 4, 0.2),
