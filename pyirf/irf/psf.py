@@ -30,7 +30,7 @@ def psf_table(events, true_energy_bins, source_offset_bins, fov_offset_bins):
     return psf
 
 
-def psf_table_asymmetric_polar(
+def psf_table_3d_polar(
     events,
     true_energy_bins,
     source_offset_bins,
@@ -38,7 +38,7 @@ def psf_table_asymmetric_polar(
     fov_position_angle_bins,
 ):
     """
-    Calculate the table based PSF (radially symmetrical bins around the true source, asymmetric polar bins in the FoV)
+    Calculate the table based PSF (radially symmetrical bins around the true source, offset and position angle bins in the FoV)
     """
 
     array = np.column_stack(
@@ -64,7 +64,7 @@ def psf_table_asymmetric_polar(
     return psf
 
 
-def psf_table_asymmetric_lonlat(
+def psf_table_3d_lonlat(
     events,
     true_energy_bins,
     source_offset_bins,
@@ -72,7 +72,7 @@ def psf_table_asymmetric_lonlat(
     fov_lat_bins,
 ):
     """
-    Calculate the table based PSF (radially symmetrical bins around the true source, asymmetric lon/lat bins in the FoV)
+    Calculate the table based PSF (radially symmetrical bins around the true source, lon/lat bins in the FoV)
     """
 
     array = np.column_stack(

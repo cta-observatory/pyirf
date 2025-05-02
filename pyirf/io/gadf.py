@@ -13,6 +13,8 @@ __all__ = [
     "create_energy_dispersion_hdu",
     "create_psf_table_hdu",
     "create_rad_max_hdu",
+    "create_psf_table_3d_polar_hdu",
+    "create_psf_table_3d_lonlat_hdu"
 ]
 
 
@@ -142,7 +144,7 @@ def create_psf_table_hdu(
     return BinTableHDU(psf_, header=header, name=extname)
 
 
-def create_psf_table_asymmetric_polar_hdu(
+def create_psf_table_3d_polar_hdu(
     psf,
     true_energy_bins,
     source_offset_bins,
@@ -200,7 +202,7 @@ def create_psf_table_asymmetric_polar_hdu(
     return BinTableHDU(psf_, header=header, name=extname)
 
 
-def create_psf_table_asymmetric_lonlat_hdu(
+def create_psf_table_3d_lonlat_hdu(
     psf,
     true_energy_bins,
     source_offset_bins,

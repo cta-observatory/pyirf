@@ -58,8 +58,8 @@ def test_psf():
     )
 
 
-def test_psf_asymmetric_polar():
-    from pyirf.irf import psf_table_asymmetric_polar
+def test_psf_3d_polar():
+    from pyirf.irf import psf_table_3d_polar
     from pyirf.utils import cone_solid_angle
 
     np.random.seed(0)
@@ -87,7 +87,7 @@ def test_psf_asymmetric_polar():
     source_bins = np.linspace(0, 1, 201) * u.deg
 
     # We return a table with one row as needed for gadf
-    psf = psf_table_asymmetric_polar(
+    psf = psf_table_3d_polar(
         events, energy_bins, source_bins, fov_bins_theta, fov_bins_phi
     )
 
@@ -118,8 +118,8 @@ def test_psf_asymmetric_polar():
     )
 
 
-def test_psf_asymmetric_lonlat():
-    from pyirf.irf import psf_table_asymmetric_lonlat
+def test_psf_3d_lonlat():
+    from pyirf.irf import psf_table_3d_lonlat
     from pyirf.utils import cone_solid_angle
 
     np.random.seed(0)
@@ -146,7 +146,7 @@ def test_psf_asymmetric_lonlat():
     source_bins = np.linspace(0, 1, 201) * u.deg
 
     # We return a table with one row as needed for gadf
-    psf = psf_table_asymmetric_lonlat(
+    psf = psf_table_3d_lonlat(
         events, energy_bins, source_bins, fov_bins, fov_bins
     )
 
