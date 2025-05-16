@@ -6,7 +6,11 @@ from .effective_area import (
     effective_area_3d_lonlat,
 )
 from .energy_dispersion import energy_dispersion
-from .psf import psf_table
+from .psf import (
+    psf_table,
+    psf_table_3d_polar,
+    psf_table_3d_lonlat,
+)
 from .background import background_2d
 
 __all__ = [
@@ -17,5 +21,7 @@ __all__ = [
     "effective_area_3d_lonlat",
     "energy_dispersion",
     "psf_table",
+    "psf_table_3d_polar",
+    "psf_table_3d_lonlat",
     "background_2d",
 ]
