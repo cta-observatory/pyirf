@@ -9,6 +9,7 @@ from .compat import COPY_IF_NEEDED
 __all__ = [
     "calculate_percentile_cut",
     "evaluate_binned_cut",
+    "evaluate_binned_cut_by_index",
     "compare_irf_cuts",
 ]
 
@@ -117,15 +118,18 @@ def calculate_percentile_cut(
 
 def evaluate_binned_cut_by_index(values, bin_index, valid, cut_table, op):
     """
-    Evaluate a binned cut as defined in cut_table on given events.
+    Evaluate a binned cut as defined in cut_table with pre-computed bin index.
 
-    Events with bin_values outside the bin edges defined in cut table
-    will be set to False.
+    This is an optimization over evaluating `evaluate_binned_cut`
+    multiple times with the same values to prevent re-computation of the index.
+
 
     Parameters
     ----------
     values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``
         The values on which the cut should be evaluated
+    bin_index: ``~numpy.ndarray``
+        The index into ``cut_table`` corresponding to the entries in ``values``.        
     cut_table: ``~astropy.table.Table``
         A table describing the binned cuts, e.g. as created by
         ``~pyirf.cuts.calculate_percentile_cut``.
