@@ -26,6 +26,8 @@ def optimize_cuts(
     fov_offset_min=0 * u.deg,
     fov_offset_max=1 * u.deg,
     alpha=1.0,
+    theta_min_value=0.02 * u.deg,
+    theta_max_value=0.3 * u.deg,
     progress=True,
     **kwargs
 ):
@@ -46,16 +48,12 @@ def optimize_cuts(
         No directional (theta) or gamma/hadron cut should already be applied.
     reco_energy_bins: astropy.units.Quantity[energy]
         Bins in reconstructed energy to use for sensitivity computation
+    multiplicity_cuts: np.ndarray[int, ndim=1]
+        Values to scan for minimum telescope multiplicity
     gh_cut_efficiencies: np.ndarray[float, ndim=1]
-        The cut efficiencies to scan for best sensitivity.
-    theta_cuts: astropy.table.QTable
-        cut definition of the energy dependent theta cut,
-        e.g. as created by ``calculate_percentile_cut``
-    op: comparison function with signature f(a, b) -> bool
-        The comparison function to use for the gamma hadron score.
-        Returning true means an event passes the cut, so is not discarded.
-        E.g. for gammaness-like score, use `operator.ge` (>=) and for a
-        hadroness-like score use `operator.le` (<=).
+        The gamma/hadron separation cut efficiencies to scan for best sensitivity.
+    theta_cut_efficiencies: astropy.table.QTable
+        The theta cut efficiencies to scan for best sensitivity.
     fov_offset_min: astropy.units.Quantity[angle]
         Minimum distance from the fov center for background events to be taken into account
     fov_offset_max: astropy.units.Quantity[angle]
@@ -63,6 +61,10 @@ def optimize_cuts(
     alpha: float
         Size ratio of off region / on region. Will be used to
         scale the background rate.
+    theta_min_value : u.Quantity[angle]
+        minimum theta cut value
+    theta_max_value : u.Quantity[angle]
+        maximum theta cut value
     progress: bool
         If True, show a progress bar during cut optimization
     **kwargs are passed to ``calculate_sensitivity``
@@ -70,7 +72,6 @@ def optimize_cuts(
     gh_cut_efficiencies = np.asanyarray(gh_cut_efficiencies)
     gh_cut_percentiles = 100 * (1 - gh_cut_efficiencies)
     fill_value = signal['gh_score'].max()
-
 
     sensitivities = []
     cut_indicies = []
@@ -107,13 +108,12 @@ def optimize_cuts(
                 signal['theta'][signal_mask_multiplicity],
                 signal['reco_energy'][signal_mask_multiplicity],
                 bins=reco_energy_bins,
-                fill_value=0.3 * u.deg,
-                max_value=0.3 * u.deg,
-                min_value=0.02 * u.deg,
+                fill_value=theta_max_value,
+                min_value=theta_min_value,
+                max_value=theta_max_value,
                 percentile=100 * theta_cut_efficiencies,
             )
             theta_cut_grid.append(theta_cuts)
-
 
             for gh_index, theta_index in product(range(n_gh_cuts), range(n_theta_cuts)):
 
