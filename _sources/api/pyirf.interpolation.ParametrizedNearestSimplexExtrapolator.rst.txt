@@ -1,0 +1,19 @@
+ParametrizedNearestSimplexExtrapolator
+======================================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: ParametrizedNearestSimplexExtrapolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ParametrizedNearestSimplexExtrapolator.__call__
+      ~ParametrizedNearestSimplexExtrapolator.extrapolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: extrapolate

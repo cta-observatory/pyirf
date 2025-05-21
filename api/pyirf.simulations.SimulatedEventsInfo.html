@@ -1,0 +1,408 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SimulatedEventsInfo &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/api/pyirf.simulations.SimulatedEventsInfo.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Event Weighting and Spectrum Definitions" href="../spectral.html" />
+    <link rel="prev" title="Simulation Information" href="../simulation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../simulation.html">Simulation Information</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../simulation.html#reference-api">Reference/API</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../simulation.html#module-pyirf.simulations">pyirf.simulations Module</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="../simulation.html#classes">Classes</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">SimulatedEventsInfo</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../simulation.html">Simulation Information</a></li>
+      <li class="breadcrumb-item active">SimulatedEventsInfo</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/pyirf.simulations.SimulatedEventsInfo.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="simulatedeventsinfo">
+<h1>SimulatedEventsInfo<a class="headerlink" href="#simulatedeventsinfo" title="Link to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyirf.simulations.</span></span><span class="sig-name descname"><span class="pre">SimulatedEventsInfo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_showers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">energy_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_impact</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spectral_index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viewcone_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viewcone_max</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyirf/simulations.html#SimulatedEventsInfo"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3.9/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Information about all simulated events, for calculating event weights.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>n_showers: int</strong></dt><dd><p>Total number of simulated showers. If reuse was used, this
+should already include the reuse.</p>
+</dd>
+<dt><strong>energy_min: u.Quantity[energy]</strong></dt><dd><p>Lower limit of the simulated energy range</p>
+</dd>
+<dt><strong>energy_max: u.Quantity[energy]</strong></dt><dd><p>Upper limit of the simulated energy range</p>
+</dd>
+<dt><strong>max_impact: u.Quantity[length]</strong></dt><dd><p>Maximum simulated impact parameter</p>
+</dd>
+<dt><strong>spectral_index: float</strong></dt><dd><p>Spectral Index of the simulated power law with sign included.</p>
+</dd>
+<dt><strong>viewcone_min: u.Quantity[angle]</strong></dt><dd><p>Inner angle of the viewcone</p>
+</dd>
+<dt><strong>viewcone_max: u.Quantity[angle]</strong></dt><dd><p>Outer angle of the viewcone</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Attributes Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.energy_max" title="pyirf.simulations.SimulatedEventsInfo.energy_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">energy_max</span></code></a></p></td>
+<td><p>Upper limit of the simulated energy range</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.energy_min" title="pyirf.simulations.SimulatedEventsInfo.energy_min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">energy_min</span></code></a></p></td>
+<td><p>Lower limit of the simulated energy range</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.max_impact" title="pyirf.simulations.SimulatedEventsInfo.max_impact"><code class="xref py py-obj docutils literal notranslate"><span class="pre">max_impact</span></code></a></p></td>
+<td><p>Maximum simualted impact radius</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.n_showers" title="pyirf.simulations.SimulatedEventsInfo.n_showers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_showers</span></code></a></p></td>
+<td><p>Total number of simulated showers, if reuse was used, this must already include reuse</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.spectral_index" title="pyirf.simulations.SimulatedEventsInfo.spectral_index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">spectral_index</span></code></a></p></td>
+<td><p>Spectral index of the simulated power law with sign included</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.viewcone_max" title="pyirf.simulations.SimulatedEventsInfo.viewcone_max"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viewcone_max</span></code></a></p></td>
+<td><p>Outer viewcone angle</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.viewcone_min" title="pyirf.simulations.SimulatedEventsInfo.viewcone_min"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viewcone_min</span></code></a></p></td>
+<td><p>Inner viewcone angle</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Methods Summary</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_lonlat" title="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_lonlat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_n_showers_3d_lonlat</span></code></a>(energy_bins, ...)</p></td>
+<td><p>Calculate number of showers that were simulated in the given energy and 2D fov bins in nominal coordinates.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_polar" title="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_polar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_n_showers_3d_polar</span></code></a>(energy_bins, ...)</p></td>
+<td><p>Calculate number of showers that were simulated in the given energy and 2D fov bins in polar coordinates.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy" title="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_n_showers_per_energy</span></code></a>(energy_bins)</p></td>
+<td><p>Calculate number of showers that were simulated in the given energy intervals</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy_and_fov" title="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy_and_fov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_n_showers_per_energy_and_fov</span></code></a>(...)</p></td>
+<td><p>Calculate number of showers that were simulated in the given energy and fov bins.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_fov" title="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_fov"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_n_showers_per_fov</span></code></a>(fov_bins)</p></td>
+<td><p>Calculate number of showers that were simulated in the given fov bins.</p></td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Attributes Documentation</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.energy_max">
+<span class="sig-name descname"><span class="pre">energy_max</span></span><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.energy_max" title="Link to this definition"></a></dt>
+<dd><p>Upper limit of the simulated energy range</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.energy_min">
+<span class="sig-name descname"><span class="pre">energy_min</span></span><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.energy_min" title="Link to this definition"></a></dt>
+<dd><p>Lower limit of the simulated energy range</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.max_impact">
+<span class="sig-name descname"><span class="pre">max_impact</span></span><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.max_impact" title="Link to this definition"></a></dt>
+<dd><p>Maximum simualted impact radius</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.n_showers">
+<span class="sig-name descname"><span class="pre">n_showers</span></span><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.n_showers" title="Link to this definition"></a></dt>
+<dd><p>Total number of simulated showers, if reuse was used, this must
+already include reuse</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.spectral_index">
+<span class="sig-name descname"><span class="pre">spectral_index</span></span><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.spectral_index" title="Link to this definition"></a></dt>
+<dd><p>Spectral index of the simulated power law with sign included</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.viewcone_max">
+<span class="sig-name descname"><span class="pre">viewcone_max</span></span><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.viewcone_max" title="Link to this definition"></a></dt>
+<dd><p>Outer viewcone angle</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.viewcone_min">
+<span class="sig-name descname"><span class="pre">viewcone_min</span></span><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.viewcone_min" title="Link to this definition"></a></dt>
+<dd><p>Inner viewcone angle</p>
+</dd></dl>
+
+<p class="rubric">Methods Documentation</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_lonlat">
+<span class="sig-name descname"><span class="pre">calculate_n_showers_3d_lonlat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_longitude_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_latitude_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subpixels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyirf/simulations.html#SimulatedEventsInfo.calculate_n_showers_3d_lonlat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_lonlat" title="Link to this definition"></a></dt>
+<dd><p>Calculate number of showers that were simulated in the given
+energy and 2D fov bins in nominal coordinates.</p>
+<p>This assumes the events were generated uniformly distributed per solid angle,
+and from a powerlaw in energy like CORSIKA simulates events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy_bins: astropy.units.Quantity[energy]</strong></dt><dd><p>The energy bin edges for which to calculate the number of simulated showers</p>
+</dd>
+<dt><strong>fov_longitude_bins: astropy.units.Quantity[angle]</strong></dt><dd><p>The FOV longitude bin edges for which to calculate the number of simulated showers</p>
+</dd>
+<dt><strong>fov_latitude_bins: astropy.units.Quantity[angle]</strong></dt><dd><p>The FOV latitude bin edges for which to calculate the number of simulated showers</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>n_showers: numpy.ndarray(ndim=3)</dt><dd><p>The expected number of events inside each of the
+<code class="docutils literal notranslate"><span class="pre">energy_bins</span></code>, <code class="docutils literal notranslate"><span class="pre">fov_longitude_bins</span></code> and <code class="docutils literal notranslate"><span class="pre">fov_latitude_bins</span></code>.
+Dimension (n_energy_bins, n_fov_longitude_bins, n_fov_latitude_bins)
+This is a floating point number.
+The actual numbers will follow a poissionian distribution around this
+expected value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_polar">
+<span class="sig-name descname"><span class="pre">calculate_n_showers_3d_polar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_offset_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_position_angle_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyirf/simulations.html#SimulatedEventsInfo.calculate_n_showers_3d_polar"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_3d_polar" title="Link to this definition"></a></dt>
+<dd><p>Calculate number of showers that were simulated in the given
+energy and 2D fov bins in polar coordinates.</p>
+<p>This assumes the events were generated uniformly distributed per solid angle,
+and from a powerlaw in energy like CORSIKA simulates events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy_bins: astropy.units.Quantity[energy]</strong></dt><dd><p>The energy bin edges for which to calculate the number of simulated showers</p>
+</dd>
+<dt><strong>fov_offset_bins: astropy.units.Quantity[angle]</strong></dt><dd><p>The FOV radial bin edges for which to calculate the number of simulated showers</p>
+</dd>
+<dt><strong>fov_position_angle_bins: astropy.units.Quantity[radian]</strong></dt><dd><p>The FOV azimuthal bin edges for which to calculate the number of simulated showers</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>n_showers: numpy.ndarray(ndim=3)</dt><dd><p>The expected number of events inside each of the
+<code class="docutils literal notranslate"><span class="pre">energy_bins</span></code>, <code class="docutils literal notranslate"><span class="pre">fov_offset_bins</span></code> and <code class="docutils literal notranslate"><span class="pre">fov_position_angle_bins</span></code>.
+Dimension (n_energy_bins, n_fov_offset_bins, n_fov_position_angle_bins)
+This is a floating point number.
+The actual numbers will follow a poissionian distribution around this
+expected value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy">
+<span class="sig-name descname"><span class="pre">calculate_n_showers_per_energy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyirf/simulations.html#SimulatedEventsInfo.calculate_n_showers_per_energy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy" title="Link to this definition"></a></dt>
+<dd><p>Calculate number of showers that were simulated in the given energy intervals</p>
+<p>This assumes the events were generated and from a powerlaw
+like CORSIKA simulates events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy_bins: astropy.units.Quantity[energy]</strong></dt><dd><p>The interval edges for which to calculate the number of simulated showers</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>n_showers: numpy.ndarray</dt><dd><p>The expected number of events inside each of the <code class="docutils literal notranslate"><span class="pre">energy_bins</span></code>.
+This is a floating point number.
+The actual numbers will follow a poissionian distribution around this
+expected value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy_and_fov">
+<span class="sig-name descname"><span class="pre">calculate_n_showers_per_energy_and_fov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">energy_bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fov_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyirf/simulations.html#SimulatedEventsInfo.calculate_n_showers_per_energy_and_fov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_energy_and_fov" title="Link to this definition"></a></dt>
+<dd><p>Calculate number of showers that were simulated in the given
+energy and fov bins.</p>
+<p>This assumes the events were generated uniformly distributed per solid angle,
+and from a powerlaw in energy like CORSIKA simulates events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>energy_bins: astropy.units.Quantity[energy]</strong></dt><dd><p>The energy bin edges for which to calculate the number of simulated showers</p>
+</dd>
+<dt><strong>fov_bins: astropy.units.Quantity[angle]</strong></dt><dd><p>The FOV bin edges for which to calculate the number of simulated showers</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>n_showers: numpy.ndarray(ndim=2)</dt><dd><p>The expected number of events inside each of the
+<code class="docutils literal notranslate"><span class="pre">energy_bins</span></code> and <code class="docutils literal notranslate"><span class="pre">fov_bins</span></code>.
+Dimension (n_energy_bins, n_fov_bins)
+This is a floating point number.
+The actual numbers will follow a poissionian distribution around this
+expected value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_fov">
+<span class="sig-name descname"><span class="pre">calculate_n_showers_per_fov</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fov_bins</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pyirf/simulations.html#SimulatedEventsInfo.calculate_n_showers_per_fov"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pyirf.simulations.SimulatedEventsInfo.calculate_n_showers_per_fov" title="Link to this definition"></a></dt>
+<dd><p>Calculate number of showers that were simulated in the given fov bins.</p>
+<p>This assumes the events were generated uniformly distributed per solid angle,
+like CORSIKA simulates events with the VIEWCONE option.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>fov_bins: astropy.units.Quantity[angle]</strong></dt><dd><p>The FOV bin edges for which to calculate the number of simulated showers</p>
+</dd>
+</dl>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><dl class="simple">
+<dt>n_showers: numpy.ndarray(ndim=2)</dt><dd><p>The expected number of events inside each of the <code class="docutils literal notranslate"><span class="pre">fov_bins</span></code>.
+This is a floating point number.
+The actual numbers will follow a poissionian distribution around this
+expected value.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../simulation.html" class="btn btn-neutral float-left" title="Simulation Information" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../spectral.html" class="btn btn-neutral float-right" title="Event Weighting and Spectrum Definitions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

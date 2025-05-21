@@ -1,0 +1,570 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interpolation and Extrapolation of IRFs &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/interpolation.html"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="BaseComponentEstimator" href="api/pyirf.interpolation.BaseComponentEstimator.html" />
+    <link rel="prev" title="create_background_2d_hdu" href="api/pyirf.io.create_background_2d_hdu.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/index.html">Input / Output</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Interpolation and Extrapolation of IRFs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#irf-component-estimator-classes">IRF Component Estimator Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#inter-and-extrapolation-classes">Inter- and Extrapolation Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#using-estimator-classes">Using Estimator Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#creating-new-estimator-classes">Creating new Estimator Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#helper-classes">Helper Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#base-classes">Base Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#full-api">Full API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#classes">Classes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.BaseComponentEstimator.html">BaseComponentEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.BaseInterpolator.html">BaseInterpolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.BaseNearestNeighborSearcher.html">BaseNearestNeighborSearcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.BaseExtrapolator.html">BaseExtrapolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.PDFNormalization.html">PDFNormalization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFExtrapolator.html">DiscretePDFExtrapolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.ParametrizedExtrapolator.html">ParametrizedExtrapolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFComponentEstimator.html">DiscretePDFComponentEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFInterpolator.html">DiscretePDFInterpolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFNearestNeighborSearcher.html">DiscretePDFNearestNeighborSearcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.GridDataInterpolator.html">GridDataInterpolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.MomentMorphInterpolator.html">MomentMorphInterpolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.MomentMorphNearestSimplexExtrapolator.html">MomentMorphNearestSimplexExtrapolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.ParametrizedComponentEstimator.html">ParametrizedComponentEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.ParametrizedInterpolator.html">ParametrizedInterpolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.ParametrizedNearestNeighborSearcher.html">ParametrizedNearestNeighborSearcher</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.html">ParametrizedNearestSimplexExtrapolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.ParametrizedVisibleEdgesExtrapolator.html">ParametrizedVisibleEdgesExtrapolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.QuantileInterpolator.html">QuantileInterpolator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.EffectiveAreaEstimator.html">EffectiveAreaEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.RadMaxEstimator.html">RadMaxEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.EnergyDispersionEstimator.html">EnergyDispersionEstimator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/pyirf.interpolation.PSFTableEstimator.html">PSFTableEstimator</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Interpolation and Extrapolation of IRFs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/interpolation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="interpolation-and-extrapolation-of-irfs">
+<span id="interpolation"></span><h1>Interpolation and Extrapolation of IRFs<a class="headerlink" href="#interpolation-and-extrapolation-of-irfs" title="Link to this heading"></a></h1>
+<p>This module contains functions to inter- or extrapolate from a set of IRFs for different
+conditions to a new IRF. Implementations of interpolation and extrapolation algorithms
+exist as interpolator and extrapolator classes and are applied by top-level estimator
+classes to IRF components.
+Direct usage of the inter- and extrapolator classes is discouraged, as only the estimator classes
+check the data for consistency.</p>
+<p>Most methods support an arbitrary number of interpolation dimensions although it
+is strongly advised to limit those for reasonable results.
+The herein provided functionalities can e.g. be used to interpolate the IRF
+for a zenith angle of 30° from available IRFs at 20° and 40°.</p>
+<section id="irf-component-estimator-classes">
+<h2>IRF Component Estimator Classes<a class="headerlink" href="#irf-component-estimator-classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.EffectiveAreaEstimator.html#pyirf.interpolation.EffectiveAreaEstimator" title="pyirf.interpolation.EffectiveAreaEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EffectiveAreaEstimator</span></code></a></p></td>
+<td><p>Estimator class for effective area tables (AEFF_2D).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.RadMaxEstimator.html#pyirf.interpolation.RadMaxEstimator" title="pyirf.interpolation.RadMaxEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RadMaxEstimator</span></code></a></p></td>
+<td><p>Estimator class for rad-max tables (RAD_MAX, RAD_MAX_2D).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.EnergyDispersionEstimator.html#pyirf.interpolation.EnergyDispersionEstimator" title="pyirf.interpolation.EnergyDispersionEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnergyDispersionEstimator</span></code></a></p></td>
+<td><p>Estimator class for energy dispersions (EDISP_2D).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.PSFTableEstimator.html#pyirf.interpolation.PSFTableEstimator" title="pyirf.interpolation.PSFTableEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSFTableEstimator</span></code></a></p></td>
+<td><p>Estimator class for point spread function tables (PSF_TABLE).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="inter-and-extrapolation-classes">
+<h2>Inter- and Extrapolation Classes<a class="headerlink" href="#inter-and-extrapolation-classes" title="Link to this heading"></a></h2>
+<p>This module provides inter- and extrapolation classes that can be
+plugged into the estimator classes.
+Not all of these classes support arbitrary grid-dimensions where the grid
+in this context is the grid of e.g. observation parameters like zenith angle and
+magnetic field inclination (this would be a 2D grid) on which template IRFs exist
+and are meant to be inter- or extrapolated.</p>
+<p>For parametrized components (Effective Areas and Rad-Max tables) these classes are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Grid-Dim</strong></p></th>
+<th class="head"><p><strong>Note</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.GridDataInterpolator.html#pyirf.interpolation.GridDataInterpolator" title="pyirf.interpolation.GridDataInterpolator"><code class="xref any py py-class docutils literal notranslate"><span class="pre">GridDataInterpolator</span></code></a></p></td>
+<td><p>Interpolation</p></td>
+<td><p>Arbitrary</p></td>
+<td><p>See also <a class="reference external" href="https://docs.scipy.org/doc/scipy/reference/generated/scipy.interpolate.griddata.html#scipy.interpolate.griddata" title="(in SciPy v1.15.3)"><code class="xref any docutils literal notranslate"><span class="pre">scipy.interpolate.griddata</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.html#pyirf.interpolation.ParametrizedNearestSimplexExtrapolator" title="pyirf.interpolation.ParametrizedNearestSimplexExtrapolator"><code class="xref any py py-class docutils literal notranslate"><span class="pre">ParametrizedNearestSimplexExtrapolator</span></code></a></p></td>
+<td><p>Extrapolation</p></td>
+<td><p>1D or 2D</p></td>
+<td><p>Linear (1D) or baryzentric (2D) extension outside the grid’s convex hull from the nearest simplex.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedVisibleEdgesExtrapolator.html#pyirf.interpolation.ParametrizedVisibleEdgesExtrapolator" title="pyirf.interpolation.ParametrizedVisibleEdgesExtrapolator"><code class="xref any py py-class docutils literal notranslate"><span class="pre">ParametrizedVisibleEdgesExtrapolator</span></code></a></p></td>
+<td><p>Extrapolation</p></td>
+<td><p>1D or 2D</p></td>
+<td><p>Like <a class="reference internal" href="api/pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.html#pyirf.interpolation.ParametrizedNearestSimplexExtrapolator" title="pyirf.interpolation.ParametrizedNearestSimplexExtrapolator"><code class="xref any py py-class docutils literal notranslate"><span class="pre">ParametrizedNearestSimplexExtrapolator</span></code></a> but blends over all visible simplices <a class="reference internal" href="#alf84" id="id1"><span>[Alf84]</span></a> and is thus smooth outside the convex hull.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedNearestNeighborSearcher.html#pyirf.interpolation.ParametrizedNearestNeighborSearcher" title="pyirf.interpolation.ParametrizedNearestNeighborSearcher"><code class="xref any py py-class docutils literal notranslate"><span class="pre">ParametrizedNearestNeighborSearcher</span></code></a></p></td>
+<td><p>Nearest Neighbor</p></td>
+<td><p>Arbitrary</p></td>
+<td><p>Nearest neighbor finder usable instead of inter- and/or extrapolation.</p></td>
+</tr>
+</tbody>
+</table>
+<p>For components represented by discretized PDFs (PSF and EDISP tables) these classes are:</p>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Name</strong></p></th>
+<th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Grid-Dim</strong></p></th>
+<th class="head"><p><strong>Note</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.QuantileInterpolator.html#pyirf.interpolation.QuantileInterpolator" title="pyirf.interpolation.QuantileInterpolator"><code class="xref any py py-class docutils literal notranslate"><span class="pre">QuantileInterpolator</span></code></a></p></td>
+<td><p>Interpolation</p></td>
+<td><p>Arbitrary</p></td>
+<td><p>Adaption of <a class="reference internal" href="#hol-13" id="id2"><span>[Hol+13]</span></a> and <a class="reference internal" href="#rea99" id="id3"><span>[Rea99]</span></a> to discretized PDFs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.MomentMorphInterpolator.html#pyirf.interpolation.MomentMorphInterpolator" title="pyirf.interpolation.MomentMorphInterpolator"><code class="xref any py py-class docutils literal notranslate"><span class="pre">MomentMorphInterpolator</span></code></a></p></td>
+<td><p>Interpolation</p></td>
+<td><p>1D or 2D</p></td>
+<td><p>Adaption of <a class="reference internal" href="#baa-15" id="id4"><span>[Baa+15]</span></a> to discretized PDFs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.MomentMorphNearestSimplexExtrapolator.html#pyirf.interpolation.MomentMorphNearestSimplexExtrapolator" title="pyirf.interpolation.MomentMorphNearestSimplexExtrapolator"><code class="xref any py py-class docutils literal notranslate"><span class="pre">MomentMorphNearestSimplexExtrapolator</span></code></a></p></td>
+<td><p>Extrapolation</p></td>
+<td><p>1D or 2D</p></td>
+<td><p>Extension of <a class="reference internal" href="#baa-15" id="id5"><span>[Baa+15]</span></a> beyond the grid’s convex hull from the nearest simplex.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFNearestNeighborSearcher.html#pyirf.interpolation.DiscretePDFNearestNeighborSearcher" title="pyirf.interpolation.DiscretePDFNearestNeighborSearcher"><code class="xref any py py-class docutils literal notranslate"><span class="pre">DiscretePDFNearestNeighborSearcher</span></code></a></p></td>
+<td><p>Nearest Neighbor</p></td>
+<td><p>Arbitrary</p></td>
+<td><p>Nearest neighbor finder usable instead of inter- and/or extrapolation.</p></td>
+</tr>
+</tbody>
+</table>
+<div role="list" class="citation-list">
+<div class="citation" id="alf84" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">Alf84</a><span class="fn-bracket">]</span></span>
+<p>P. Alfred (1984). Triangular Extrapolation.
+Technical summary rept., Univ. of Wisconsin-Madison. <a class="reference external" href="https://apps.dtic.mil/sti/pdfs/ADA144660.pdf">https://apps.dtic.mil/sti/pdfs/ADA144660.pdf</a></p>
+</div>
+<div class="citation" id="hol-13" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">Hol+13</a><span class="fn-bracket">]</span></span>
+<p>B. E. Hollister and A. T. Pang (2013). Interpolation of Non-Gaussian Probability Distributions for Ensemble Visualization.
+<a class="reference external" href="https://engineering.ucsc.edu/sites/default/files/technical-reports/UCSC-SOE-13-13.pdf">https://engineering.ucsc.edu/sites/default/files/technical-reports/UCSC-SOE-13-13.pdf</a></p>
+</div>
+<div class="citation" id="rea99" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">Rea99</a><span class="fn-bracket">]</span></span>
+<p>A. L. Read (1999). Linear Interpolation of Histograms.
+Nucl. Instrum. Methods Phys. Res. A 425, 357-360. <a class="reference external" href="https://doi.org/10.1016/S0168-9002(98)01347-3">https://doi.org/10.1016/S0168-9002(98)01347-3</a></p>
+</div>
+<div class="citation" id="baa-15" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span>Baa+15<span class="fn-bracket">]</span></span>
+<span class="backrefs">(<a role="doc-backlink" href="#id4">1</a>,<a role="doc-backlink" href="#id5">2</a>)</span>
+<p>M. Baak, S. Gadatsch, R. Harrington and W. Verkerke (2015). Interpolation between
+multi-dimensional histograms using a new non-linear moment morphing method
+Nucl. Instrum. Methods Phys. Res. A 771, 39-48. <a class="reference external" href="https://doi.org/10.1016/j.nima.2014.10.033">https://doi.org/10.1016/j.nima.2014.10.033</a></p>
+</div>
+</div>
+</section>
+<section id="using-estimator-classes">
+<h2>Using Estimator Classes<a class="headerlink" href="#using-estimator-classes" title="Link to this heading"></a></h2>
+<p>Usage of the estimator classes is simple.
+As an example, consider CTA’s Prod5 IRFs <a class="reference internal" href="#cta-21" id="id6"><span>[CTA+21]</span></a>, they can be downloaded manually or by executing
+<code class="docutils literal notranslate"><span class="pre">download_irfs.py</span></code> in <code class="docutils literal notranslate"><span class="pre">pyirf's</span></code> root directory, which downloads them to <code class="docutils literal notranslate"><span class="pre">.../pyirf/irfs/</span></code>.
+The estimator classes can simply be used by first creating an instance of the respective class with all
+relevant information and then using the object’s <code class="docutils literal notranslate"><span class="pre">__call__</span></code> interface the obtain results for a specific
+target point.
+As the energy dispersion represents one of the discretized PDF IRF components, one can use the
+<code class="docutils literal notranslate"><span class="pre">MomentMorphInterpolator</span></code> for interpolation and the <code class="docutils literal notranslate"><span class="pre">DiscretePDFNearestNeighborSearcher</span></code>
+for extrapolation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">gammapy.irf</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_irf_dict_from_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+   <span class="n">EnergyDispersionEstimator</span><span class="p">,</span>
+   <span class="n">MomentMorphInterpolator</span><span class="p">,</span>
+   <span class="n">DiscretePDFNearestNeighborSearcher</span>
+<span class="p">)</span>
+
+<span class="c1"># Load IRF data, replace path with actual path</span>
+<span class="n">PROD5_IRF_PATH</span> <span class="o">=</span> <span class="s2">&quot;pyirf/irfs/*.fits.gz&quot;</span>
+
+<span class="n">irfs</span> <span class="o">=</span> <span class="p">[</span><span class="n">load_irf_dict_from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">glob</span><span class="p">(</span><span class="n">PROD5_IRF_PATH</span><span class="p">))]</span>
+
+<span class="n">edisps</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">irf</span><span class="p">[</span><span class="s2">&quot;edisp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantity</span> <span class="k">for</span> <span class="n">irf</span> <span class="ow">in</span> <span class="n">irfs</span><span class="p">])</span>
+<span class="n">bin_edges</span> <span class="o">=</span> <span class="n">irfs</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;edisp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">axes</span><span class="p">[</span><span class="s2">&quot;migra&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">edges</span>
+<span class="c1"># IRFs are for zenith distances of 20, 40 and 60 deg</span>
+<span class="n">zen_pnt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">20</span><span class="p">],</span> <span class="p">[</span><span class="mi">40</span><span class="p">],</span> <span class="p">[</span><span class="mi">60</span><span class="p">]])</span>
+
+<span class="c1"># Create estimator instance</span>
+<span class="n">edisp_estimator</span> <span class="o">=</span> <span class="n">EnergyDispersionEstimator</span><span class="p">(</span>
+     <span class="n">grid_points</span><span class="o">=</span><span class="n">zen_pnt</span><span class="p">,</span>
+     <span class="n">migra_bins</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">,</span>
+     <span class="n">energy_dispersion</span><span class="o">=</span><span class="n">edisps</span><span class="p">,</span>
+     <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">MomentMorphInterpolator</span><span class="p">,</span>
+     <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+     <span class="n">extrapolator_cls</span><span class="o">=</span><span class="n">DiscretePDFNearestNeighborSearcher</span><span class="p">,</span>
+     <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+ <span class="p">)</span>
+
+ <span class="c1"># Estimate energy dispersions</span>
+ <span class="n">interpolated_edisp</span> <span class="o">=</span> <span class="n">edisp_estimator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">30</span><span class="p">]]))</span>
+ <span class="n">extrapolated_edisp</span> <span class="o">=</span> <span class="n">edisp_estimator</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">10</span><span class="p">]]))</span>
+</pre></div>
+</div>
+<div role="list" class="citation-list">
+<div class="citation" id="cta-21" role="doc-biblioentry">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id6">CTA+21</a><span class="fn-bracket">]</span></span>
+<p>Cherenkov Telescope Array Observatory &amp; Cherenkov Telescope Array Consortium. (2021).
+CTAO Instrument Response Functions - prod5 version v0.1 (v0.1) [Data set]. Zenodo.
+<a class="reference external" href="https://doi.org/10.5281/zenodo.5499840">https://doi.org/10.5281/zenodo.5499840</a></p>
+</div>
+</div>
+</section>
+<section id="creating-new-estimator-classes">
+<h2>Creating new Estimator Classes<a class="headerlink" href="#creating-new-estimator-classes" title="Link to this heading"></a></h2>
+<p>To create a estimator class for an IRF component not yet implemented, one can simply
+inherit from respective base class.
+There are two, tailored to either parametrized or discrete PDF components.</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedComponentEstimator.html#pyirf.interpolation.ParametrizedComponentEstimator" title="pyirf.interpolation.ParametrizedComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedComponentEstimator</span></code></a></p></td>
+<td><p>Base class for all Estimators working on IRF components that represent parametrized or scalar quantities.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFComponentEstimator.html#pyirf.interpolation.DiscretePDFComponentEstimator" title="pyirf.interpolation.DiscretePDFComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFComponentEstimator</span></code></a></p></td>
+<td><p>Base class for all Estimators working on IRF components that represent discretized PDFs.</p></td>
+</tr>
+</tbody>
+</table>
+<p>Consider an example, where one is interested in an estimator for simple Gaussians.
+As this is already the scope of the <code class="docutils literal notranslate"><span class="pre">DiscretePDFComponentEstimator</span></code> base class and
+for the sake of this demonstration, let the Gaussians come with some
+units attached that need handling:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span><span class="n">DiscretePDFComponentEstimator</span><span class="p">,</span>
+                                 <span class="n">MomentMorphInterpolator</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GaussianEstimatior</span><span class="p">(</span><span class="n">DiscretePDFComponentEstimator</span><span class="p">):</span>
+   <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">gaussians</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">)</span>
+   <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+      <span class="bp">self</span><span class="p">,</span>
+      <span class="n">grid_points</span><span class="p">,</span>
+      <span class="n">bin_edges</span><span class="p">,</span>
+      <span class="n">gaussians</span><span class="p">,</span>
+      <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">MomentMorphInterpolator</span><span class="p">,</span>
+      <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">extrapolator_cls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+      <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+   <span class="p">):</span>
+      <span class="k">if</span> <span class="n">interpolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+         <span class="n">interpolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+      <span class="k">if</span> <span class="n">extrapolator_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+         <span class="n">extrapolator_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+
+      <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">gaussians</span><span class="o">.</span><span class="n">unit</span>
+
+      <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+         <span class="n">grid_points</span><span class="o">=</span><span class="n">grid_points</span><span class="p">,</span>
+         <span class="n">bin_edges</span><span class="o">=</span><span class="n">bin_edges</span><span class="p">,</span>
+         <span class="n">binned_pdf</span><span class="o">=</span><span class="n">gaussians</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">),</span>
+         <span class="n">interpolator_cls</span><span class="o">=</span><span class="n">interpolator_cls</span><span class="p">,</span>
+         <span class="n">interpolator_kwargs</span><span class="o">=</span><span class="n">interpolator_kwargs</span><span class="p">,</span>
+         <span class="n">extrapolator_cls</span><span class="o">=</span><span class="n">extrapolator_cls</span><span class="p">,</span>
+         <span class="n">extrapolator_kwargs</span><span class="o">=</span><span class="n">extrapolator_kwargs</span><span class="p">,</span>
+      <span class="p">)</span>
+
+   <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+      <span class="n">res</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">target_point</span><span class="p">)</span>
+
+      <span class="c1"># Return result with correct unit</span>
+      <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This new estimator class can now be used just like any other estimator class already
+implemented in <code class="docutils literal notranslate"><span class="pre">pyirf.interpolation</span></code>.
+While the <code class="docutils literal notranslate"><span class="pre">extrapolator_cls</span></code> argument can be empty when creating an instance of
+<code class="docutils literal notranslate"><span class="pre">GaussianEstimator</span></code>, effectively disabling extrapolation and raising an error in
+case it would be needed regardless, assume the desired extrapolation method to be
+<code class="docutils literal notranslate"><span class="pre">MomentMorphNearestSimplexExtrapolator</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.interpolation</span><span class="w"> </span><span class="kn">import</span> <span class="n">MomentMorphNearestSimplexExtrapolator</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">norm</span>
+
+<span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">51</span><span class="p">)</span>
+<span class="n">grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">]])</span>
+
+<span class="n">gaussians</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">norm</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="mi">1</span><span class="o">/</span><span class="n">x</span><span class="p">)</span><span class="o">.</span><span class="n">cdf</span><span class="p">(</span><span class="n">bins</span><span class="p">))</span><span class="o">/</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">grid</span><span class="p">])</span>
+
+<span class="n">estimator</span> <span class="o">=</span> <span class="n">GaussianEstimatior</span><span class="p">(</span>
+   <span class="n">grid_points</span> <span class="o">=</span> <span class="n">grid</span><span class="p">,</span>
+   <span class="n">bin_edges</span> <span class="o">=</span> <span class="n">bins</span><span class="p">,</span>
+   <span class="n">gaussians</span> <span class="o">=</span> <span class="n">gaussians</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+   <span class="n">interpolator_cls</span> <span class="o">=</span> <span class="n">MomentMorphInterpolator</span><span class="p">,</span>
+   <span class="n">extrapolator_cls</span> <span class="o">=</span> <span class="n">MomentMorphNearestSimplexExtrapolator</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This estimator object can now easily be used to estimate Gaussians at arbitrary target points:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">targets</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.9</span><span class="p">],</span> <span class="p">[</span><span class="mf">1.5</span><span class="p">]])</span>
+
+<span class="n">results</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">([</span><span class="n">estimator</span><span class="p">(</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span> <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="helper-classes">
+<h2>Helper Classes<a class="headerlink" href="#helper-classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.PDFNormalization.html#pyirf.interpolation.PDFNormalization" title="pyirf.interpolation.PDFNormalization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PDFNormalization</span></code></a></p></td>
+<td><p>How a discrete PDF is normalized</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="base-classes">
+<h2>Base Classes<a class="headerlink" href="#base-classes" title="Link to this heading"></a></h2>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseComponentEstimator.html#pyirf.interpolation.BaseComponentEstimator" title="pyirf.interpolation.BaseComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseComponentEstimator</span></code></a></p></td>
+<td><p>Base class for all Estimators working on specific IRF components.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedComponentEstimator.html#pyirf.interpolation.ParametrizedComponentEstimator" title="pyirf.interpolation.ParametrizedComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedComponentEstimator</span></code></a></p></td>
+<td><p>Base class for all Estimators working on IRF components that represent parametrized or scalar quantities.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFComponentEstimator.html#pyirf.interpolation.DiscretePDFComponentEstimator" title="pyirf.interpolation.DiscretePDFComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFComponentEstimator</span></code></a></p></td>
+<td><p>Base class for all Estimators working on IRF components that represent discretized PDFs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseInterpolator.html#pyirf.interpolation.BaseInterpolator" title="pyirf.interpolation.BaseInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseInterpolator</span></code></a></p></td>
+<td><p>Base class for all interpolators, only knowing grid-points, providing a common __call__-interface.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedInterpolator.html#pyirf.interpolation.ParametrizedInterpolator" title="pyirf.interpolation.ParametrizedInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedInterpolator</span></code></a></p></td>
+<td><p>Base class for all interpolators used with IRF components that can be independently interpolated, e.g. parametrized ones like 3Gauss but also AEff.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFInterpolator.html#pyirf.interpolation.DiscretePDFInterpolator" title="pyirf.interpolation.DiscretePDFInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFInterpolator</span></code></a></p></td>
+<td><p>Base class for all interpolators used with binned IRF components like EDisp.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseExtrapolator.html#pyirf.interpolation.BaseExtrapolator" title="pyirf.interpolation.BaseExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseExtrapolator</span></code></a></p></td>
+<td><p>Base class for all extrapolators, only knowing grid-points, providing a common __call__-interface.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedExtrapolator.html#pyirf.interpolation.ParametrizedExtrapolator" title="pyirf.interpolation.ParametrizedExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedExtrapolator</span></code></a></p></td>
+<td><p>Base class for all extrapolators used with IRF components that can be treated independently, e.g. parametrized ones like 3Gauss but also AEff.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFExtrapolator.html#pyirf.interpolation.DiscretePDFExtrapolator" title="pyirf.interpolation.DiscretePDFExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFExtrapolator</span></code></a></p></td>
+<td><p>Base class for all extrapolators used with binned IRF components like EDisp.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseNearestNeighborSearcher.html#pyirf.interpolation.BaseNearestNeighborSearcher" title="pyirf.interpolation.BaseNearestNeighborSearcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseNearestNeighborSearcher</span></code></a></p></td>
+<td><p>Dummy NearestNeighbor approach usable instead of actual Interpolation/Extrapolation</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="full-api">
+<h2>Full API<a class="headerlink" href="#full-api" title="Link to this heading"></a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading"></a></h3>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseComponentEstimator.html#pyirf.interpolation.BaseComponentEstimator" title="pyirf.interpolation.BaseComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseComponentEstimator</span></code></a>(grid_points)</p></td>
+<td><p>Base class for all Estimators working on specific IRF components.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseInterpolator.html#pyirf.interpolation.BaseInterpolator" title="pyirf.interpolation.BaseInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseInterpolator</span></code></a>(grid_points)</p></td>
+<td><p>Base class for all interpolators, only knowing grid-points, providing a common __call__-interface.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseNearestNeighborSearcher.html#pyirf.interpolation.BaseNearestNeighborSearcher" title="pyirf.interpolation.BaseNearestNeighborSearcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseNearestNeighborSearcher</span></code></a>(grid_points, values)</p></td>
+<td><p>Dummy NearestNeighbor approach usable instead of actual Interpolation/Extrapolation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.BaseExtrapolator.html#pyirf.interpolation.BaseExtrapolator" title="pyirf.interpolation.BaseExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BaseExtrapolator</span></code></a>(grid_points)</p></td>
+<td><p>Base class for all extrapolators, only knowing grid-points, providing a common __call__-interface.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.PDFNormalization.html#pyirf.interpolation.PDFNormalization" title="pyirf.interpolation.PDFNormalization"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PDFNormalization</span></code></a>(value)</p></td>
+<td><p>How a discrete PDF is normalized</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFExtrapolator.html#pyirf.interpolation.DiscretePDFExtrapolator" title="pyirf.interpolation.DiscretePDFExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFExtrapolator</span></code></a>(grid_points, ...[, ...])</p></td>
+<td><p>Base class for all extrapolators used with binned IRF components like EDisp.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedExtrapolator.html#pyirf.interpolation.ParametrizedExtrapolator" title="pyirf.interpolation.ParametrizedExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedExtrapolator</span></code></a>(grid_points, params)</p></td>
+<td><p>Base class for all extrapolators used with IRF components that can be treated independently, e.g. parametrized ones like 3Gauss but also AEff.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFComponentEstimator.html#pyirf.interpolation.DiscretePDFComponentEstimator" title="pyirf.interpolation.DiscretePDFComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFComponentEstimator</span></code></a>(grid_points, ...)</p></td>
+<td><p>Base class for all Estimators working on IRF components that represent discretized PDFs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFInterpolator.html#pyirf.interpolation.DiscretePDFInterpolator" title="pyirf.interpolation.DiscretePDFInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFInterpolator</span></code></a>(grid_points, ...[, ...])</p></td>
+<td><p>Base class for all interpolators used with binned IRF components like EDisp.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.DiscretePDFNearestNeighborSearcher.html#pyirf.interpolation.DiscretePDFNearestNeighborSearcher" title="pyirf.interpolation.DiscretePDFNearestNeighborSearcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiscretePDFNearestNeighborSearcher</span></code></a>(...[, ...])</p></td>
+<td><p>Dummy NearestNeighbor approach usable instead of actual interpolation/extrapolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.GridDataInterpolator.html#pyirf.interpolation.GridDataInterpolator" title="pyirf.interpolation.GridDataInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GridDataInterpolator</span></code></a>(grid_points, params, ...)</p></td>
+<td><p>&quot;Wrapper arounf scipy.interpolate.griddata.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.MomentMorphInterpolator.html#pyirf.interpolation.MomentMorphInterpolator" title="pyirf.interpolation.MomentMorphInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MomentMorphInterpolator</span></code></a>(grid_points, ...[, ...])</p></td>
+<td><p>Interpolator class providing Moment Morphing to interpolate discretized PDFs.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.MomentMorphNearestSimplexExtrapolator.html#pyirf.interpolation.MomentMorphNearestSimplexExtrapolator" title="pyirf.interpolation.MomentMorphNearestSimplexExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MomentMorphNearestSimplexExtrapolator</span></code></a>(...[, ...])</p></td>
+<td><p>Extrapolator class extending moment morphing interpolation outside a grid's convex hull.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedComponentEstimator.html#pyirf.interpolation.ParametrizedComponentEstimator" title="pyirf.interpolation.ParametrizedComponentEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedComponentEstimator</span></code></a>(grid_points, ...)</p></td>
+<td><p>Base class for all Estimators working on IRF components that represent parametrized or scalar quantities.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedInterpolator.html#pyirf.interpolation.ParametrizedInterpolator" title="pyirf.interpolation.ParametrizedInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedInterpolator</span></code></a>(grid_points, params)</p></td>
+<td><p>Base class for all interpolators used with IRF components that can be independently interpolated, e.g. parametrized ones like 3Gauss but also AEff.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedNearestNeighborSearcher.html#pyirf.interpolation.ParametrizedNearestNeighborSearcher" title="pyirf.interpolation.ParametrizedNearestNeighborSearcher"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedNearestNeighborSearcher</span></code></a>(...[, ...])</p></td>
+<td><p>Dummy NearestNeighbor approach usable instead of actual interpolation/extrapolation Compatible with parametrized IRF component API.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.html#pyirf.interpolation.ParametrizedNearestSimplexExtrapolator" title="pyirf.interpolation.ParametrizedNearestSimplexExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedNearestSimplexExtrapolator</span></code></a>(...)</p></td>
+<td><p>Extrapolator class extending linear or baryzentric interpolation outside a grid's convex hull.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.ParametrizedVisibleEdgesExtrapolator.html#pyirf.interpolation.ParametrizedVisibleEdgesExtrapolator" title="pyirf.interpolation.ParametrizedVisibleEdgesExtrapolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametrizedVisibleEdgesExtrapolator</span></code></a>(...[, m])</p></td>
+<td><p>Extrapolator using blending over visible edges.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.QuantileInterpolator.html#pyirf.interpolation.QuantileInterpolator" title="pyirf.interpolation.QuantileInterpolator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileInterpolator</span></code></a>(grid_points, bin_edges, ...)</p></td>
+<td><p>Interpolator class providing quantile interpoalation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.EffectiveAreaEstimator.html#pyirf.interpolation.EffectiveAreaEstimator" title="pyirf.interpolation.EffectiveAreaEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EffectiveAreaEstimator</span></code></a>(grid_points, ...[, ...])</p></td>
+<td><p>Estimator class for effective area tables (AEFF_2D).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.RadMaxEstimator.html#pyirf.interpolation.RadMaxEstimator" title="pyirf.interpolation.RadMaxEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RadMaxEstimator</span></code></a>(grid_points, rad_max[, ...])</p></td>
+<td><p>Estimator class for rad-max tables (RAD_MAX, RAD_MAX_2D).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="api/pyirf.interpolation.EnergyDispersionEstimator.html#pyirf.interpolation.EnergyDispersionEstimator" title="pyirf.interpolation.EnergyDispersionEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">EnergyDispersionEstimator</span></code></a>(grid_points, ...)</p></td>
+<td><p>Estimator class for energy dispersions (EDISP_2D).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="api/pyirf.interpolation.PSFTableEstimator.html#pyirf.interpolation.PSFTableEstimator" title="pyirf.interpolation.PSFTableEstimator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PSFTableEstimator</span></code></a>(grid_points, ...[, ...])</p></td>
+<td><p>Estimator class for point spread function tables (PSF_TABLE).</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api/pyirf.io.create_background_2d_hdu.html" class="btn btn-neutral float-left" title="create_background_2d_hdu" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api/pyirf.interpolation.BaseComponentEstimator.html" class="btn btn-neutral float-right" title="BaseComponentEstimator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

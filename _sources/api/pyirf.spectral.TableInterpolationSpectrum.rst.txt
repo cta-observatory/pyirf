@@ -1,0 +1,21 @@
+TableInterpolationSpectrum
+==========================
+
+.. currentmodule:: pyirf.spectral
+
+.. autoclass:: TableInterpolationSpectrum
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~TableInterpolationSpectrum.__call__
+      ~TableInterpolationSpectrum.from_file
+      ~TableInterpolationSpectrum.from_table
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: from_file
+   .. automethod:: from_table

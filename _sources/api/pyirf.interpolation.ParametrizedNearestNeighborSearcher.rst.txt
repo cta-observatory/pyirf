@@ -1,0 +1,19 @@
+ParametrizedNearestNeighborSearcher
+===================================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: ParametrizedNearestNeighborSearcher
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ParametrizedNearestNeighborSearcher.__call__
+      ~ParametrizedNearestNeighborSearcher.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

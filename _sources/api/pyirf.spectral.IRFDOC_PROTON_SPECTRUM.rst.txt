@@ -1,0 +1,6 @@
+IRFDOC_PROTON_SPECTRUM
+======================
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: IRFDOC_PROTON_SPECTRUM

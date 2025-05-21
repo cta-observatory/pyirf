@@ -1,0 +1,17 @@
+ParametrizedComponentEstimator
+==============================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: ParametrizedComponentEstimator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~ParametrizedComponentEstimator.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

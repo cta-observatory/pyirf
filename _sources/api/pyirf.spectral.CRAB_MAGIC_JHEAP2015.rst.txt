@@ -1,0 +1,6 @@
+CRAB_MAGIC_JHEAP2015
+====================
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: CRAB_MAGIC_JHEAP2015

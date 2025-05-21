@@ -1,0 +1,6 @@
+energy_bias_resolution
+======================
+
+.. currentmodule:: pyirf.benchmarks
+
+.. autofunction:: energy_bias_resolution

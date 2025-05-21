@@ -1,0 +1,662 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Changelog &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/changelog.html"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Authors" href="AUTHORS.html" />
+    <link rel="prev" title="How to contribute" href="contribute.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contribute.html">How to contribute</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#pyirf-0-12-1-dev16-gce76450-2025-05-21">pyirf 0.12.1.dev16+gce76450 (2025-05-21)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#api-changes">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#new-features">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#maintenance">Maintenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refactoring-and-optimization">Refactoring and Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyirf-v0-12-0-2024-11-15">pyirf v0.12.0 (2024-11-15)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Maintenance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyirf-v0-11-0-2024-05-14">pyirf v0.11.0 (2024-05-14)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Maintenance</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id9">Refactoring and Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyirf-v0-10-1-2023-09-15">pyirf v0.10.1 (2023-09-15)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id10">Bug Fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyirf-v0-10-0-2023-08-23">Pyirf v0.10.0 (2023-08-23)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id11">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id12">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id13">New Features</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyirf-0-9-0-2023-07-19">pyirf 0.9.0 (2023-07-19)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id14">API Changes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id15">Bug Fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id16">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id17">Maintenance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#pyirf-0-8-1-2023-03-16">pyirf 0.8.1 (2023-03-16)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id18">New Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id19">Maintenance</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#older-releases">Older releases</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pyirf-0p4p1-release">0.4.1 (2021-03-22)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#summary">Summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#contributors">Contributors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#merged-pull-requests">Merged Pull Requests</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pyirf-0p4p0-release">0.4.0 (2020-11-09)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id24">Summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id25">Contributors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#related-news">Related news</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id26">Merged Pull Requests</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pyirf-0p3p0-release">0.3.0 (2020-10-05)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id35">Summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id36">Contributors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id37">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id38">Merged Pull Requests</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pyirf-0p2p0-release">0.2.0 (2020-09-27)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id61">Summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id62">Contributors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id63">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id64">Merged Pull Requests</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#pyirf-0p1p0-release">0.1.0 (2020-09-16)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#alpha-2020-05-27">0.1.0-alpha (2020-05-27)</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id69">Summary</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id70">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#id71">Contributors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/changelog.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="changelog">
+<span id="id1"></span><h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading"></a></h1>
+<section id="pyirf-0-12-1-dev16-gce76450-2025-05-21">
+<h2>pyirf 0.12.1.dev16+gce76450 (2025-05-21)<a class="headerlink" href="#pyirf-0-12-1-dev16-gce76450-2025-05-21" title="Link to this heading"></a></h2>
+<section id="api-changes">
+<h3>API Changes<a class="headerlink" href="#api-changes" title="Link to this heading"></a></h3>
+</section>
+<section id="bug-fixes">
+<h3>Bug Fixes<a class="headerlink" href="#bug-fixes" title="Link to this heading"></a></h3>
+</section>
+<section id="new-features">
+<h3>New Features<a class="headerlink" href="#new-features" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Add function <code class="docutils literal notranslate"><span class="pre">pyirf.cut_optimization.optimize_cuts</span></code> doing
+a full grid search on gammaness, theta and multiplicity cut
+to find best point source sensitivity. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/204">#204</a>]</p></li>
+</ul>
+</section>
+<section id="maintenance">
+<h3>Maintenance<a class="headerlink" href="#maintenance" title="Link to this heading"></a></h3>
+</section>
+<section id="refactoring-and-optimization">
+<h3>Refactoring and Optimization<a class="headerlink" href="#refactoring-and-optimization" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="pyirf-v0-12-0-2024-11-15">
+<h2>pyirf v0.12.0 (2024-11-15)<a class="headerlink" href="#pyirf-v0-12-0-2024-11-15" title="Link to this heading"></a></h2>
+<section id="id2">
+<h3>API Changes<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ul>
+<li><p>Make it possible to pass multiple quantiles to <code class="docutils literal notranslate"><span class="pre">pyirf.benchmarks.angular_resolution</span></code>, calculating all of them.</p>
+<p>The column name(s) in the output now include(s) the percentage value of the calculated quantile, e.g. <code class="docutils literal notranslate"><span class="pre">angular_resolution_68</span></code>. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/290">#290</a>]</p>
+</li>
+</ul>
+</section>
+<section id="id3">
+<h3>Bug Fixes<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">pyirf.irfs.energy_dispersion.energy_dispersion_to_migration</span></code>.
+This function was not adapted to the now correct normalization of the
+energy dispersion matrix, resulting in wrong results on the now correct
+matrices. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/273">#273</a>]</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>New Features<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Add 3D effective area functions for lon/lat and theta/phi coordinates and some necessary utiliy functions. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/281">#281</a>]</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Maintenance<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Make pyirf compatible with numpy 2.0.</p></li>
+</ul>
+</section>
+</section>
+<section id="pyirf-v0-11-0-2024-05-14">
+<h2>pyirf v0.11.0 (2024-05-14)<a class="headerlink" href="#pyirf-v0-11-0-2024-05-14" title="Link to this heading"></a></h2>
+<section id="id6">
+<h3>Bug Fixes<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">pyirf.benchmarks.energy_bias_resolution_from_energy_dispersion</span></code>.
+This function was not adapted to the now correct normalization of the
+energy dispersion matrix, resulting in wrong results on the now correct
+matrices. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/268">#268</a>]</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>New Features<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Adds an extrapolator for parametrized compontents utilizing blending over visible edges, resulting
+in a smooth extrapolation compared to the NearestSimplexExtrapolator. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/253">#253</a>]</p></li>
+<li><p>Ignore warnings about invalid floating point operations when calculating <cite>n_signal</cite> and <cite>n_signal_weigthed</cite> because the relative sensitivty is frequently NaN. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/264">#264</a>]</p></li>
+<li><p>Add basic combinatoric fill-value handling for RAD_MAX estimation. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/282">#282</a>]</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>Maintenance<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Clarified some documentation. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/266">#266</a>]</p></li>
+<li><p>Add support for astropy 6.0. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/271">#271</a>]</p></li>
+<li><p>Added filling of CREF keyword (IRF axis order) in the output files [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/275">#275</a>]</p></li>
+</ul>
+</section>
+<section id="id9">
+<h3>Refactoring and Optimization<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+</section>
+</section>
+<section id="pyirf-v0-10-1-2023-09-15">
+<h2>pyirf v0.10.1 (2023-09-15)<a class="headerlink" href="#pyirf-v0-10-1-2023-09-15" title="Link to this heading"></a></h2>
+<section id="id10">
+<h3>Bug Fixes<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Fix <code class="docutils literal notranslate"><span class="pre">PowerLaw.from_simulation</span></code> for the new format of <code class="docutils literal notranslate"><span class="pre">SimulatedEventsInformation</span></code>,
+it was broken since splitting the single <code class="docutils literal notranslate"><span class="pre">viewcone</span></code> into <code class="docutils literal notranslate"><span class="pre">viewcone_min</span></code> and <code class="docutils literal notranslate"><span class="pre">viewcone_max</span></code>. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/258">#258</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="pyirf-v0-10-0-2023-08-23">
+<h2>Pyirf v0.10.0 (2023-08-23)<a class="headerlink" href="#pyirf-v0-10-0-2023-08-23" title="Link to this heading"></a></h2>
+<p>This release contains an important bug fix for the energy dispersion computation,
+it was wrongly normalized before.</p>
+<section id="id11">
+<h3>API Changes<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ul>
+<li><p>In prior versions of pyirf, the energy dispersion matrix was normalized to a
+sum of 1 over the migration axis.
+This is wrong, the correct normalization is to an integral of 1, which is fixed now.</p>
+<p>The internal API of the interpolation functions had to be adapted to take in additional
+keywords, mainly the bin edges and the kind of normalization (standard or solid angle cone sections). [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/250">#250</a>]</p>
+</li>
+<li><p>Replace single <code class="docutils literal notranslate"><span class="pre">viewcone</span></code> argument of <code class="docutils literal notranslate"><span class="pre">SimulationInfo</span></code> with
+<code class="docutils literal notranslate"><span class="pre">viewcone_min</span></code> and <code class="docutils literal notranslate"><span class="pre">viewcone_max</span></code>, e.g. to correctly enable
+ring wobble simulations. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/239">#239</a>]</p></li>
+</ul>
+</section>
+<section id="id12">
+<h3>Bug Fixes<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>See above on the energy dispersion change.</p></li>
+</ul>
+</section>
+<section id="id13">
+<h3>New Features<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Add option to specify which containment to use for angular resolution. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/234">#234</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="pyirf-0-9-0-2023-07-19">
+<h2>pyirf 0.9.0 (2023-07-19)<a class="headerlink" href="#pyirf-0-9-0-2023-07-19" title="Link to this heading"></a></h2>
+<section id="id14">
+<h3>API Changes<a class="headerlink" href="#id14" title="Link to this heading"></a></h3>
+<ul>
+<li><p>Change the interpolation API to top-level estimator classes that instantiate
+inter- and extrapolator objects. Drops the <code class="docutils literal notranslate"><span class="pre">interpolate_xyz</span></code> functions
+originally used to interpolate a xyz IRF component in favour of a <code class="docutils literal notranslate"><span class="pre">XYZEstimator</span></code>
+class. Moves data checks from intepolator to estimator classes.</p>
+<p>Direct usage of interpolator objects is now discuraged, use estimator objects instead. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/228">#228</a>]</p>
+</li>
+</ul>
+</section>
+<section id="id15">
+<h3>Bug Fixes<a class="headerlink" href="#id15" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Correctly fill n_events in <code class="docutils literal notranslate"><span class="pre">angular_resolution</span></code>, was always 0 before. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/231">#231</a>]</p></li>
+<li><p>Remove condition that relative sensitivity must be &gt; 1.
+This condition was added by error and resulted in returning
+nan if the flux needed to fulfill the conditions is larger than
+the reference flux used to weight the events. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/241">#241</a>]</p></li>
+</ul>
+</section>
+<section id="id16">
+<h3>New Features<a class="headerlink" href="#id16" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Add moment morphing as second interpolation method able to handle discretized PDF
+components of IRFs. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/229">#229</a>]</p></li>
+<li><p>Add a base structure for extrapolators similar to the interpolation case
+as well as a first extrapolator for parametrized components, extrapolating from the
+nearest simplex in one or two dimensions. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/236">#236</a>]</p></li>
+<li><p>Add an extrapolator for discretized PDF components, extrapolating from the
+nearest simplex in one or two dimensions utilizing the same approach moment morphing
+interpolation uses. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/237">#237</a>]</p></li>
+<li><p>Add a <code class="docutils literal notranslate"><span class="pre">DiscretePDFNearestNeighborSearcher</span></code> and a <code class="docutils literal notranslate"><span class="pre">ParametrizedNearestNeighborSearcher</span></code> to support nearest neighbor approaches
+as alternatives to inter-/ and extrapolation [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/232">#232</a>]</p></li>
+</ul>
+</section>
+<section id="id17">
+<h3>Maintenance<a class="headerlink" href="#id17" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Drop python 3.8 support in accordance with <a class="reference external" href="https://numpy.org/neps/nep-0029-deprecation_policy.html">NEP 29</a> [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/243">#243</a>]</p></li>
+</ul>
+</section>
+</section>
+<section id="pyirf-0-8-1-2023-03-16">
+<h2>pyirf 0.8.1 (2023-03-16)<a class="headerlink" href="#pyirf-0-8-1-2023-03-16" title="Link to this heading"></a></h2>
+<section id="id18">
+<h3>New Features<a class="headerlink" href="#id18" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Migrating the interpolation methods from <code class="docutils literal notranslate"><span class="pre">pyirf.interpolation</span></code> to interpolator
+objects, allowing for later inheritance for new algorithms and reusability. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/210">#210</a>]</p></li>
+</ul>
+</section>
+<section id="id19">
+<h3>Maintenance<a class="headerlink" href="#id19" title="Link to this heading"></a></h3>
+<ul>
+<li><p>Add and enable <code class="docutils literal notranslate"><span class="pre">towncrier</span></code> in CI. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/207">#207</a>]</p></li>
+<li><p>Add a fixture containing three IRFs from <a class="reference external" href="https://zenodo.org/record/5499840">the prod5 IRF data-release</a>
+for unit testing. Specifically the fixture contains the contents of:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Prod5-North-20deg-AverageAz-4LSTs.180000s-v0.1.fits.gz.</p></li>
+<li><p>Prod5-North-40deg-AverageAz-4LSTs.180000s-v0.1.fits.gz</p></li>
+<li><p>Prod5-North-60deg-AverageAz-4LSTs.180000s-v0.1.fits.gz</p></li>
+</ul>
+<p>The user has to download these irfs to <code class="docutils literal notranslate"><span class="pre">irfs/</span></code> using <code class="docutils literal notranslate"><span class="pre">download_irfs.py</span></code>,
+github’s CI does so automatically and caches them for convenience. [<a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/211">#211</a>]</p>
+</div></blockquote>
+</li>
+</ul>
+</section>
+</section>
+<section id="older-releases">
+<h2>Older releases<a class="headerlink" href="#older-releases" title="Link to this heading"></a></h2>
+<p>For releases between v0.4.1 and v0.8.1, please refer to <a class="reference external" href="https://github.com/cta-observatory/pyirf/releases">the GitHub releases page</a>.</p>
+<section id="pyirf-0p4p1-release">
+<span id="id20"></span><h3><a class="reference external" href="https://github.com/cta-observatory/pyirf/releases/tag/v0.4.1">0.4.1</a> (2021-03-22)<a class="headerlink" href="#pyirf-0p4p1-release" title="Link to this heading"></a></h3>
+<section id="summary">
+<h4>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Released March 22nd, 2021</p></li>
+<li><p>1 Contributors</p></li>
+</ul>
+</section>
+<section id="contributors">
+<h4>Contributors<a class="headerlink" href="#contributors" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Maximilian Nöthe</p></li>
+</ul>
+</section>
+<section id="merged-pull-requests">
+<h4>Merged Pull Requests<a class="headerlink" href="#merged-pull-requests" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/135">#135</a> Add functions to convert pyirf results to the corresponding gammapy classes</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/137">#137</a> Add example notebook for calculating point-lile IRFs from the FACT open data</p></li>
+</ul>
+</section>
+</section>
+<section id="pyirf-0p4p0-release">
+<span id="id23"></span><h3><a class="reference external" href="https://github.com/cta-observatory/pyirf/releases/tag/v0.4.0">0.4.0</a> (2020-11-09)<a class="headerlink" href="#pyirf-0p4p0-release" title="Link to this heading"></a></h3>
+<section id="id24">
+<h4>Summary<a class="headerlink" href="#id24" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Released November 11th, 2020</p></li>
+<li><p>2 Contributors</p></li>
+</ul>
+</section>
+<section id="id25">
+<h4>Contributors<a class="headerlink" href="#id25" title="Link to this heading"></a></h4>
+<p>In order of number of commits:</p>
+<ul class="simple">
+<li><p>Maximilian Nöthe</p></li>
+<li><p>Michele Peresano</p></li>
+</ul>
+</section>
+<section id="description">
+<h4>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h4>
+<p>This release is an important update that introduces three
+changes in the cut optimization, background estimation and sensitivity calculation.</p>
+<p>Together, these changes bring the calculated sensitivities much closer to the ones calculated by
+EventDisplay.</p>
+<ul class="simple">
+<li><p>Scale the relative flux calculated to reach the target sensitivity
+up if the requirements on the minimum number of signal events are not met.
+Essentially, instead of always calculating the flux that
+yields <code class="docutils literal notranslate"><span class="pre">target_sensitivity</span></code> and then checking if the two other conditions are met,
+we increase the required flux to meet the other requirements.
+This can result in new sensitivities where before pyirf would report no sensitivities,
+and report better sensitivities everywhere where the event number conditions where not
+met before at the target significance.
+The best sensitivity now is the lowest flux that just barely satisfies all
+requirements (so is at the minimum requirement of one of the three).</p></li>
+<li><p>Differentiate between <cite>reco_source_fov_offset</cite> and <cite>true_source_fov_offset</cite>,
+using the former for background rates and the latter for everything concerning
+signal events.</p></li>
+<li><p>Change <code class="docutils literal notranslate"><span class="pre">optimize_gh_cut</span></code> to do the optimization in terms of efficiency and
+limit this efficiency to max. 80 % in the EventDisplay comparison.</p></li>
+</ul>
+<p>Smaller improvements also include:</p>
+<ul class="simple">
+<li><p>It is now possible to include a <code class="docutils literal notranslate"><span class="pre">particle_type</span></code> column in the event lists,
+which will result in additionally reporting all event counts also per <code class="docutils literal notranslate"><span class="pre">particle_type</span></code>.
+E.g. if <code class="docutils literal notranslate"><span class="pre">particle_type</span></code> is included in the background table consisting of both
+electrons and protons, <code class="docutils literal notranslate"><span class="pre">estimate_background</span></code> will not only report <code class="docutils literal notranslate"><span class="pre">n_background(_weighted)</span></code>
+but also <code class="docutils literal notranslate"><span class="pre">n_electron(_weighted)</span></code> and <code class="docutils literal notranslate"><span class="pre">n_proton(_weighted)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">relative_sensitivity</span></code> now supports vectorized application and broadcasting
+of inputs, as previously wrongly advertized in the docstring.</p></li>
+</ul>
+</section>
+<section id="related-news">
+<h4>Related news<a class="headerlink" href="#related-news" title="Link to this heading"></a></h4>
+<p>GammaPy <code class="docutils literal notranslate"><span class="pre">0.18.0</span></code> was released and includes fixes for IRF axis orders.
+The output of <code class="docutils literal notranslate"><span class="pre">pyirf</span></code> in GADF fits format can now be read by gammapy without
+problems.
+The workarounds for installing GammaPy is also no longer needed.</p>
+</section>
+<section id="id26">
+<h4>Merged Pull Requests<a class="headerlink" href="#id26" title="Link to this heading"></a></h4>
+<section id="feature-changes">
+<h5>Feature changes<a class="headerlink" href="#feature-changes" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/110">#110</a> Optimize cuts in efficiency steps with maximum efficiency of 80% for EventDisplay comparison</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/104">#104</a> Scale flux for conditions, differenatiate reco and true source_fov_offset</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/108">#108</a> Add counts / weighted counts per particle type</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/107">#107</a> Small update to installation instructions</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/106">#106</a> Use vectorize for relative_sensitivity</p></li>
+</ul>
+</section>
+<section id="project-maintenance">
+<h5>Project maintenance<a class="headerlink" href="#project-maintenance" title="Link to this heading"></a></h5>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/102">#102</a> Require astropy &gt;= 4.0.2</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/100">#100</a> Fix deploy condition in travis yml</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="pyirf-0p3p0-release">
+<span id="id34"></span><h3><a class="reference external" href="https://github.com/cta-observatory/pyirf/releases/tag/v0.3.0">0.3.0</a> (2020-10-05)<a class="headerlink" href="#pyirf-0p3p0-release" title="Link to this heading"></a></h3>
+<section id="id35">
+<h4>Summary<a class="headerlink" href="#id35" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Released October 5th, 2020</p></li>
+<li><p>5 Contributors</p></li>
+</ul>
+</section>
+<section id="id36">
+<h4>Contributors<a class="headerlink" href="#id36" title="Link to this heading"></a></h4>
+<p>In order of number of commits:</p>
+<ul class="simple">
+<li><p>Maximilian Nöthe</p></li>
+<li><p>Michele Peresano</p></li>
+<li><p>Noah Biederbeck</p></li>
+<li><p>Lukas Nickel</p></li>
+<li><p>Gaia Verna</p></li>
+</ul>
+</section>
+<section id="id37">
+<h4>Description<a class="headerlink" href="#id37" title="Link to this heading"></a></h4>
+<p>This release is the result of the IRF sprint week in September 2020.
+Many bug fixes and improvements were made to the code.</p>
+<p>As the target for the sprint week was to reproduce the approach of <code class="docutils literal notranslate"><span class="pre">EventDisplay</span></code> and
+the resulting IRFs, one scheme of cut optimization is implemented.
+The <code class="docutils literal notranslate"><span class="pre">examples/calculate_eventdisplay_irfs.py</span></code> should follow the approach
+of <code class="docutils literal notranslate"><span class="pre">EventDisplay</span></code> closely and shows what is currently implemented in <code class="docutils literal notranslate"><span class="pre">pyirf</span></code>.
+In the central and upper energy range, <code class="docutils literal notranslate"><span class="pre">pyirf</span></code> now reproduces the <code class="docutils literal notranslate"><span class="pre">EventDisplay</span></code> sensitivity
+exactly, the lower energy bins still show some disagreement.
+The cut optimization seems not yet to be the same as EventDisplay’s and will be further investigated.
+This example could be used as a starting point if you also want to do cut optimization for best sensitivity.</p>
+<p>At least one version of each IRF is now implemented and can be stored in the GADF format.
+Computation of full-enclosure IRFs should be possible but is of now not yet tested
+on a reference dataset.</p>
+</section>
+<section id="id38">
+<h4>Merged Pull Requests<a class="headerlink" href="#id38" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/97">#97</a> Store correct signal amount, store information on which checks failed for sensitivity bins (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/96">#96</a> Add integration test (Michele Peresano)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/98">#98</a> Remove option point_like for psf (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/95">#95</a> Cut updates (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/91">#91</a> Fix conditions to take relative sensitivity into account, fixes #90 (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/89">#89</a> Fix brentq returning the lower bound of 0 for flat li ma function (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/85">#85</a> Improve comparison to EventDisplay (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/75">#75</a> Add a function to check a table for required cols / units (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/86">#86</a> Fix Li &amp; Ma significance for n_off = 0 (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/76">#76</a> Feature resample histogram (Noah Biederbeck, Lukas Nickel)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/79">#79</a> Fix integration of power law pdf in simulations.py (Gaia Verna)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/80">#80</a> Estimate unique runs taking pointing pos into account (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/71">#71</a> Background estimation (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/78">#78</a> Change argument order in create_rad_max_hdu (Lukas Nickel)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/77">#77</a> Calculate optimized cut on only the events surviving gh separation (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/68">#68</a> Effective area 2d (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/67">#67</a> Add method integrating sim. events in FOV bins (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/63">#63</a> Verify hdus using ogadf-schema (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/58">#58</a> Implement Background2d (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/52">#52</a> Add sections about tests, coverage and building docs to docs (Maximilian Nöthe)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/46">#46</a> Add PyPI deploy and metadata (Maximilian Nöthe)</p></li>
+</ul>
+</section>
+</section>
+<section id="pyirf-0p2p0-release">
+<span id="id60"></span><h3><a class="reference external" href="https://github.com/cta-observatory/pyirf/releases/tag/v0.2.0">0.2.0</a> (2020-09-27)<a class="headerlink" href="#pyirf-0p2p0-release" title="Link to this heading"></a></h3>
+<section id="id61">
+<h4>Summary<a class="headerlink" href="#id61" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Released September 27th, 2020</p></li>
+<li><p>4 Contributors</p></li>
+</ul>
+</section>
+<section id="id62">
+<h4>Contributors<a class="headerlink" href="#id62" title="Link to this heading"></a></h4>
+<p>In order of number of commits:</p>
+<ul class="simple">
+<li><p>Maximilian Nöthe</p></li>
+<li><p>Michele Peresano</p></li>
+<li><p>Lukas Nickel</p></li>
+<li><p>Hugo van Kemenade</p></li>
+</ul>
+</section>
+<section id="id63">
+<h4>Description<a class="headerlink" href="#id63" title="Link to this heading"></a></h4>
+<p>For this version, pyirf’s API was completely rewritten from scratch,
+merging code from several projects (pyirf, pyfact, fact-project/irf) to provide a library to compute IACT
+IRFs and sensitivity and store them in the GADF data format.</p>
+<p>The class based API using a configuration file was replaced by a finer grained
+function based API.</p>
+<p>Implemented are point-like IRFs and sensitivity.</p>
+<p>This release was the starting point for the IRF sprint week in September 2020,
+where the refactoring continued.</p>
+</section>
+<section id="id64">
+<h4>Merged Pull Requests<a class="headerlink" href="#id64" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/36">#36</a> Start refactoring pyirf (Maximilian Nöthe, Michele Peresano, Lukas Nickel)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/35">#35</a> Cleanup example notebook (Maximilian Nöthe, Michele Peresano, Lukas Nickel)</p></li>
+<li><p><a class="reference external" href="https://github.com/cta-observatory/pyirf/pull/37">#37</a> Move to python &gt;= 3.6 (Hugo van Kemenade)</p></li>
+</ul>
+</section>
+</section>
+<section id="pyirf-0p1p0-release">
+<span id="id68"></span><h3><a class="reference external" href="https://github.com/cta-observatory/pyirf/releases/tag/v0.1.0">0.1.0</a> (2020-09-16)<a class="headerlink" href="#pyirf-0p1p0-release" title="Link to this heading"></a></h3>
+<p>This is a pre-release.</p>
+<ul class="simple">
+<li><p>Released September 16th, 2020</p></li>
+</ul>
+</section>
+<section id="alpha-2020-05-27">
+<span id="pyirf-0p1p0alpha-prerelease"></span><h3><a class="reference external" href="https://github.com/cta-observatory/pyirf/releases/tag/v0.1.0-alpha">0.1.0-alpha</a> (2020-05-27)<a class="headerlink" href="#alpha-2020-05-27" title="Link to this heading"></a></h3>
+<section id="id69">
+<h4>Summary<a class="headerlink" href="#id69" title="Link to this heading"></a></h4>
+<p>This is a pre-release.</p>
+<ul class="simple">
+<li><p>Released May 27th, 2020</p></li>
+<li><p>3 contributors</p></li>
+</ul>
+</section>
+<section id="id70">
+<h4>Description<a class="headerlink" href="#id70" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>Started basic maintenance</p></li>
+<li><p>Started refactoring</p></li>
+<li><p>First tests with CTA-LST data</p></li>
+</ul>
+</section>
+<section id="id71">
+<h4>Contributors<a class="headerlink" href="#id71" title="Link to this heading"></a></h4>
+<p>In alphabetical order by last name:</p>
+<ul class="simple">
+<li><p>Lea Jouvin</p></li>
+<li><p>Michele Peresano</p></li>
+<li><p>Thomas Vuillaume</p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="contribute.html" class="btn btn-neutral float-left" title="How to contribute" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="AUTHORS.html" class="btn btn-neutral float-right" title="Authors" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

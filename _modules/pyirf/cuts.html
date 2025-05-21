@@ -1,0 +1,347 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.cuts &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/cuts.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.cuts</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.cuts</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">Table</span><span class="p">,</span> <span class="n">QTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.ndimage</span><span class="w"> </span><span class="kn">import</span> <span class="n">gaussian_filter1d</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_bin_indices</span><span class="p">,</span> <span class="n">bin_center</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPY_IF_NEEDED</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;calculate_percentile_cut&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;evaluate_binned_cut&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;evaluate_binned_cut_by_index&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;compare_irf_cuts&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="calculate_percentile_cut">
+<a class="viewcode-back" href="../../api/pyirf.cuts.calculate_percentile_cut.html#pyirf.cuts.calculate_percentile_cut">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_percentile_cut</span><span class="p">(</span>
+    <span class="n">values</span><span class="p">,</span>
+    <span class="n">bin_values</span><span class="p">,</span>
+    <span class="n">bins</span><span class="p">,</span>
+    <span class="n">fill_value</span><span class="p">,</span>
+    <span class="n">percentile</span><span class="o">=</span><span class="mi">68</span><span class="p">,</span>
+    <span class="n">min_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">smoothing</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">min_events</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate cuts as the percentile of a given quantity in bins of another</span>
+<span class="sd">    quantity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        The values for which the cut should be calculated</span>
+<span class="sd">    bin_values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        The values used to sort the ``values`` into bins</span>
+<span class="sd">    edges: ``~numpy.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        Bin edges</span>
+<span class="sd">    fill_value: float or quantity</span>
+<span class="sd">        Value for bins with less than ``min_events``,</span>
+<span class="sd">        must have same unit as values</span>
+<span class="sd">    percentile: float</span>
+<span class="sd">        The percentile to calculate in each bin as a percentage,</span>
+<span class="sd">        i.e. 0 &lt;= percentile &lt;= 100.</span>
+<span class="sd">    min_value: float or quantity or None</span>
+<span class="sd">        If given, cuts smaller than this value are replaced with ``min_value``</span>
+<span class="sd">    max_value: float or quantity or None</span>
+<span class="sd">        If given, cuts larger than this value are replaced with ``max_value``</span>
+<span class="sd">    smoothing: float or None</span>
+<span class="sd">        If given, apply a gaussian filter of width ``sigma`` in terms</span>
+<span class="sd">        of bins.</span>
+<span class="sd">    min_events: int</span>
+<span class="sd">        Bins with less events than this number are replaced with ``fill_value``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># create a table to make use of groupby operations</span>
+    <span class="c1"># we use a normal table here to avoid astropy/astropy#13840</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">Table</span><span class="p">({</span><span class="s2">&quot;values&quot;</span><span class="p">:</span> <span class="n">values</span><span class="p">},</span> <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">)</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span>
+
+    <span class="c1"># make sure units match</span>
+    <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fill_value</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">fill_value</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">min_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">min_value</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">min_value</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">max_value</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+
+    <span class="n">bin_index</span><span class="p">,</span> <span class="n">valid</span> <span class="o">=</span> <span class="n">calculate_bin_indices</span><span class="p">(</span><span class="n">bin_values</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
+    <span class="n">by_bin</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="n">bin_index</span><span class="p">[</span><span class="n">valid</span><span class="p">])</span>
+
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">cut_table</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+    <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_center</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
+    <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;n_events&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="n">unit</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">fill_value</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">):</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="n">fill_value</span><span class="o">.</span><span class="n">unit</span>
+        <span class="n">fill_value</span> <span class="o">=</span> <span class="n">fill_value</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="n">percentile</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">percentile</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">percentile</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="p">():</span>
+        <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">fill_value</span><span class="p">,</span> <span class="n">values</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="n">n_bins</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">percentile</span><span class="p">)),</span> <span class="n">fill_value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">values</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">unit</span>
+
+    <span class="k">for</span> <span class="n">bin_idx</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">by_bin</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">by_bin</span><span class="o">.</span><span class="n">groups</span><span class="p">):</span>
+        <span class="c1"># replace bins with too few events with fill_value</span>
+        <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">group</span><span class="p">)</span>
+        <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;n_events&quot;</span><span class="p">][</span><span class="n">bin_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_events</span>
+
+        <span class="k">if</span> <span class="n">n_events</span> <span class="o">&lt;</span> <span class="n">min_events</span><span class="p">:</span>
+            <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">bin_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">fill_value</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanpercentile</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">],</span> <span class="n">percentile</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">min_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">)</span>
+
+            <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">[</span><span class="n">bin_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">if</span> <span class="n">smoothing</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">gaussian_filter1d</span><span class="p">(</span>
+            <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">smoothing</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">cut_table</span></div>
+
+
+
+<div class="viewcode-block" id="evaluate_binned_cut_by_index">
+<a class="viewcode-back" href="../../api/pyirf.cuts.evaluate_binned_cut_by_index.html#pyirf.cuts.evaluate_binned_cut_by_index">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_binned_cut_by_index</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bin_index</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">cut_table</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate a binned cut as defined in cut_table with pre-computed bin index.</span>
+
+<span class="sd">    This is an optimization over evaluating `evaluate_binned_cut`</span>
+<span class="sd">    multiple times with the same values to prevent re-computation of the index.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        The values on which the cut should be evaluated</span>
+<span class="sd">    bin_index: ``~numpy.ndarray``</span>
+<span class="sd">        The index into ``cut_table`` corresponding to the entries in ``values``.        </span>
+<span class="sd">    cut_table: ``~astropy.table.Table``</span>
+<span class="sd">        A table describing the binned cuts, e.g. as created by</span>
+<span class="sd">        ``~pyirf.cuts.calculate_percentile_cut``.</span>
+<span class="sd">        Required columns:</span>
+<span class="sd">        - `low`: lower edges of the bins</span>
+<span class="sd">        - `high`: upper edges of the bins,</span>
+<span class="sd">        - `cut`: cut value</span>
+<span class="sd">    op: callable(a, b) -&gt; bool</span>
+<span class="sd">        A function taking two arguments, comparing element-wise and</span>
+<span class="sd">        returning an array of booleans.</span>
+<span class="sd">        Must support vectorized application.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cut_table</span><span class="p">,</span> <span class="n">QTable</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cut_table needs to be an astropy.table.QTable&#39;</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">bin_index</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">valid</span><span class="p">]</span> <span class="o">=</span> <span class="n">op</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">valid</span><span class="p">],</span> <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_index</span><span class="p">[</span><span class="n">valid</span><span class="p">]])</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="evaluate_binned_cut">
+<a class="viewcode-back" href="../../api/pyirf.cuts.evaluate_binned_cut.html#pyirf.cuts.evaluate_binned_cut">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">evaluate_binned_cut</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bin_values</span><span class="p">,</span> <span class="n">cut_table</span><span class="p">,</span> <span class="n">op</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Evaluate a binned cut as defined in cut_table on given events.</span>
+
+<span class="sd">    Events with bin_values outside the bin edges defined in cut table</span>
+<span class="sd">    will be set to False.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        The values on which the cut should be evaluated</span>
+<span class="sd">    bin_values: ``~numpy.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        The values used to sort the ``values`` into bins</span>
+<span class="sd">    cut_table: ``~astropy.table.Table``</span>
+<span class="sd">        A table describing the binned cuts, e.g. as created by</span>
+<span class="sd">        ``~pyirf.cuts.calculate_percentile_cut``.</span>
+<span class="sd">        Required columns:</span>
+<span class="sd">        - `low`: lower edges of the bins</span>
+<span class="sd">        - `high`: upper edges of the bins,</span>
+<span class="sd">        - `cut`: cut value</span>
+<span class="sd">    op: callable(a, b) -&gt; bool</span>
+<span class="sd">        A function taking two arguments, comparing element-wise and</span>
+<span class="sd">        returning an array of booleans.</span>
+<span class="sd">        Must support vectorized application.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result: np.ndarray[bool]</span>
+<span class="sd">        A mask for each entry in ``values`` indicating if the event</span>
+<span class="sd">        passes the bin specific cut given in cut table.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cut_table</span><span class="p">,</span> <span class="n">QTable</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cut_table needs to be an astropy.table.QTable&quot;</span><span class="p">)</span>
+
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">],</span> <span class="n">cut_table</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">bin_index</span><span class="p">,</span> <span class="n">valid</span> <span class="o">=</span> <span class="n">calculate_bin_indices</span><span class="p">(</span><span class="n">bin_values</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">evaluate_binned_cut_by_index</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">bin_index</span><span class="p">,</span> <span class="n">valid</span><span class="p">,</span> <span class="n">cut_table</span><span class="p">,</span> <span class="n">op</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="compare_irf_cuts">
+<a class="viewcode-back" href="../../api/pyirf.cuts.compare_irf_cuts.html#pyirf.cuts.compare_irf_cuts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compare_irf_cuts</span><span class="p">(</span><span class="n">cuts</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    checks if the same cuts have been applied in all of them</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cuts: list of QTables</span>
+<span class="sd">        list of cuts each entry in the list correspond to one set of IRFs</span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    match: Boolean</span>
+<span class="sd">        if the cuts are the same in all the files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cuts</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">cuts</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">!=</span> <span class="n">cuts</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

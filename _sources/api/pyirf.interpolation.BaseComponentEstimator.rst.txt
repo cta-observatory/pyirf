@@ -1,0 +1,17 @@
+BaseComponentEstimator
+======================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: BaseComponentEstimator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BaseComponentEstimator.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

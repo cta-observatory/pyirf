@@ -1,0 +1,6 @@
+resample_histogram1d
+====================
+
+.. currentmodule:: pyirf.binning
+
+.. autofunction:: resample_histogram1d

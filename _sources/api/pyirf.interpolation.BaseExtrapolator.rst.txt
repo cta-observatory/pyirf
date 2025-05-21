@@ -1,0 +1,19 @@
+BaseExtrapolator
+================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: BaseExtrapolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BaseExtrapolator.__call__
+      ~BaseExtrapolator.extrapolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: extrapolate

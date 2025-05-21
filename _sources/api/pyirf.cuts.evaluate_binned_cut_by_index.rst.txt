@@ -1,0 +1,6 @@
+evaluate_binned_cut_by_index
+============================
+
+.. currentmodule:: pyirf.cuts
+
+.. autofunction:: evaluate_binned_cut_by_index

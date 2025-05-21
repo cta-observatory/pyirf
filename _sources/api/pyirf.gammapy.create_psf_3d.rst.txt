@@ -1,0 +1,6 @@
+create_psf_3d
+=============
+
+.. currentmodule:: pyirf.gammapy
+
+.. autofunction:: create_psf_3d

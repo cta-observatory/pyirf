@@ -1,0 +1,17 @@
+RadMaxEstimator
+===============
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: RadMaxEstimator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~RadMaxEstimator.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

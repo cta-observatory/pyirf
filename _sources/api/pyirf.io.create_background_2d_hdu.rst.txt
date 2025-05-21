@@ -1,0 +1,6 @@
+create_background_2d_hdu
+========================
+
+.. currentmodule:: pyirf.io
+
+.. autofunction:: create_background_2d_hdu

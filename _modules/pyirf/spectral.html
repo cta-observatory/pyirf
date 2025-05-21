@@ -1,0 +1,582 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.spectral &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/spectral.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.spectral</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.spectral</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Functions and classes for calculating spectral weights</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">importlib.resources</span><span class="w"> </span><span class="kn">import</span> <span class="n">as_file</span><span class="p">,</span> <span class="n">files</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">QTable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPY_IF_NEEDED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">cone_solid_angle</span>
+
+<span class="c1">#: Unit of a point source flux</span>
+<span class="c1">#:</span>
+<span class="c1">#: Number of particles per Energy, time and area</span>
+<span class="n">POINT_SOURCE_FLUX_UNIT</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">unit</span>
+
+<span class="c1">#: Unit of a diffuse flux</span>
+<span class="c1">#:</span>
+<span class="c1">#: Number of particles per Energy, time, area and solid_angle</span>
+<span class="n">DIFFUSE_FLUX_UNIT</span> <span class="o">=</span> <span class="n">POINT_SOURCE_FLUX_UNIT</span> <span class="o">/</span> <span class="n">u</span><span class="o">.</span><span class="n">sr</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;POINT_SOURCE_FLUX_UNIT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DIFFUSE_FLUX_UNIT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_event_weights&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PowerLaw&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LogParabola&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PowerLawWithExponentialGaussian&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CRAB_HEGRA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CRAB_MAGIC_JHEAP2015&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PDG_ALL_PARTICLE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IRFDOC_PROTON_SPECTRUM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IRFDOC_ELECTRON_SPECTRUM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TableInterpolationSpectrum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DAMPE_P_He_SPECTRUM&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="calculate_event_weights">
+<a class="viewcode-back" href="../../api/pyirf.spectral.calculate_event_weights.html#pyirf.spectral.calculate_event_weights">[docs]</a>
+<span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">true_energy</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_event_weights</span><span class="p">(</span><span class="n">true_energy</span><span class="p">,</span> <span class="n">target_spectrum</span><span class="p">,</span> <span class="n">simulated_spectrum</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate event weights</span>
+
+<span class="sd">    Events with a certain ``simulated_spectrum`` are reweighted to ``target_spectrum``.</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        w_i = \frac{\Phi_\text{Target}(E_i)}{\Phi_\text{Simulation}(E_i)}</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    true_energy: astropy.units.Quantity[energy]</span>
+<span class="sd">        True energy of the event</span>
+<span class="sd">    target_spectrum: callable</span>
+<span class="sd">        The target spectrum. Must be a allable with signature (energy) -&gt; flux</span>
+<span class="sd">    simulated_spectrum: callable</span>
+<span class="sd">        The simulated spectrum. Must be a callable with signature (energy) -&gt; flux</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    weights: numpy.ndarray</span>
+<span class="sd">        Weights for each event</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">target_spectrum</span><span class="p">(</span><span class="n">true_energy</span><span class="p">)</span> <span class="o">/</span> <span class="n">simulated_spectrum</span><span class="p">(</span><span class="n">true_energy</span><span class="p">))</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span>
+        <span class="n">u</span><span class="o">.</span><span class="n">one</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="PowerLaw">
+<a class="viewcode-back" href="../../api/pyirf.spectral.PowerLaw.html#pyirf.spectral.PowerLaw">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PowerLaw</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A power law with normalization, reference energy and index.</span>
+<span class="sd">    Index includes the sign:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \Phi(E, \Phi_0, \gamma, E_\text{ref}) =</span>
+<span class="sd">        \Phi_0 \left(\frac{E}{E_\text{ref}}\right)^{\gamma}</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    normalization: astropy.units.Quantity[flux]</span>
+<span class="sd">        :math:`\Phi_0`,</span>
+<span class="sd">    index: float</span>
+<span class="sd">        :math:`\gamma`</span>
+<span class="sd">    e_ref: astropy.units.Quantity[energy]</span>
+<span class="sd">        :math:`E_\text{ref}`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span>
+        <span class="n">normalization</span><span class="o">=</span><span class="p">[</span><span class="n">DIFFUSE_FLUX_UNIT</span><span class="p">,</span> <span class="n">POINT_SOURCE_FLUX_UNIT</span><span class="p">],</span> <span class="n">e_ref</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalization</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">e_ref</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new PowerLaw spectrum&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Index must be &lt; 0, got </span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="n">normalization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span> <span class="o">=</span> <span class="n">e_ref</span>
+
+<div class="viewcode-block" id="PowerLaw.__call__">
+<a class="viewcode-back" href="../../api/pyirf.spectral.PowerLaw.html#pyirf.spectral.PowerLaw.__call__">[docs]</a>
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">one</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">*</span> <span class="n">e</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span></div>
+
+
+<div class="viewcode-block" id="PowerLaw.from_simulation">
+<a class="viewcode-back" href="../../api/pyirf.spectral.PowerLaw.html#pyirf.spectral.PowerLaw.from_simulation">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">obstime</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">hour</span><span class="p">,</span> <span class="n">e_ref</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_simulation</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">simulated_event_info</span><span class="p">,</span> <span class="n">obstime</span><span class="p">,</span> <span class="n">e_ref</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the flux normalization for simulated events drawn</span>
+<span class="sd">        from a power law for a certain observation time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">e_min</span> <span class="o">=</span> <span class="n">simulated_event_info</span><span class="o">.</span><span class="n">energy_min</span>
+        <span class="n">e_max</span> <span class="o">=</span> <span class="n">simulated_event_info</span><span class="o">.</span><span class="n">energy_max</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">simulated_event_info</span><span class="o">.</span><span class="n">spectral_index</span>
+        <span class="n">n_showers</span> <span class="o">=</span> <span class="n">simulated_event_info</span><span class="o">.</span><span class="n">n_showers</span>
+        <span class="n">viewcone_min</span> <span class="o">=</span> <span class="n">simulated_event_info</span><span class="o">.</span><span class="n">viewcone_min</span>
+        <span class="n">viewcone_max</span> <span class="o">=</span> <span class="n">simulated_event_info</span><span class="o">.</span><span class="n">viewcone_max</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">viewcone_max</span> <span class="o">-</span> <span class="n">viewcone_min</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">solid_angle</span> <span class="o">=</span> <span class="n">cone_solid_angle</span><span class="p">(</span><span class="n">viewcone_max</span><span class="p">)</span> <span class="o">-</span> <span class="n">cone_solid_angle</span><span class="p">(</span>
+                <span class="n">viewcone_min</span>
+            <span class="p">)</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="n">DIFFUSE_FLUX_UNIT</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">solid_angle</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="n">POINT_SOURCE_FLUX_UNIT</span>
+
+        <span class="n">A</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">simulated_event_info</span><span class="o">.</span><span class="n">max_impact</span><span class="o">**</span><span class="mi">2</span>
+
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">e_max</span> <span class="o">**</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">e_min</span> <span class="o">**</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">nom</span> <span class="o">=</span> <span class="p">(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">e_ref</span><span class="o">**</span><span class="n">index</span> <span class="o">*</span> <span class="n">n_showers</span>
+        <span class="n">denom</span> <span class="o">=</span> <span class="p">(</span><span class="n">A</span> <span class="o">*</span> <span class="n">obstime</span> <span class="o">*</span> <span class="n">solid_angle</span><span class="p">)</span> <span class="o">*</span> <span class="n">delta</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="p">(</span><span class="n">nom</span> <span class="o">/</span> <span class="n">denom</span><span class="p">)</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">unit</span><span class="p">),</span>
+            <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">e_ref</span><span class="o">=</span><span class="n">e_ref</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="si">}</span><span class="s2"> * (E / </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="si">}</span><span class="s2">)**</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+<div class="viewcode-block" id="PowerLaw.integrate_cone">
+<a class="viewcode-back" href="../../api/pyirf.spectral.PowerLaw.html#pyirf.spectral.PowerLaw.integrate_cone">[docs]</a>
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">inner</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">,</span> <span class="n">outer</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">integrate_cone</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inner</span><span class="p">,</span> <span class="n">outer</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Integrate this powerlaw over solid angle in the given cone</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        inner : astropy.units.Quantity[angle]</span>
+<span class="sd">            inner opening angle of cone</span>
+<span class="sd">        outer : astropy.units.Quantity[angle]</span>
+<span class="sd">            outer opening angle of cone</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        integrated : PowerLaw</span>
+<span class="sd">            A new powerlaw instance with new normalization with the integration</span>
+<span class="sd">            result.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="o">.</span><span class="n">unit</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">DIFFUSE_FLUX_UNIT</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Can only integrate a diffuse flux over solid angle&quot;</span><span class="p">)</span>
+
+        <span class="n">solid_angle</span> <span class="o">=</span> <span class="n">cone_solid_angle</span><span class="p">(</span><span class="n">outer</span><span class="p">)</span> <span class="o">-</span> <span class="n">cone_solid_angle</span><span class="p">(</span><span class="n">inner</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">PowerLaw</span><span class="p">(</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">*</span> <span class="n">solid_angle</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">e_ref</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LogParabola">
+<a class="viewcode-back" href="../../api/pyirf.spectral.LogParabola.html#pyirf.spectral.LogParabola">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LogParabola</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A log parabola flux parameterization.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \Phi(E, \Phi_0, \alpha, \beta, E_\text{ref}) =</span>
+<span class="sd">        \Phi_0 \left(</span>
+<span class="sd">            \frac{E}{E_\text{ref}}</span>
+<span class="sd">        \right)^{\alpha + \beta \cdot \log_{10}(E / E_\text{ref})}</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    normalization: astropy.units.Quantity[flux]</span>
+<span class="sd">        :math:`\Phi_0`,</span>
+<span class="sd">    a: float</span>
+<span class="sd">        :math:`\alpha`</span>
+<span class="sd">    b: float</span>
+<span class="sd">        :math:`\beta`</span>
+<span class="sd">    e_ref: astropy.units.Quantity[energy]</span>
+<span class="sd">        :math:`E_\text{ref}`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span>
+        <span class="n">normalization</span><span class="o">=</span><span class="p">[</span><span class="n">DIFFUSE_FLUX_UNIT</span><span class="p">,</span> <span class="n">POINT_SOURCE_FLUX_UNIT</span><span class="p">],</span> <span class="n">e_ref</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalization</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">e_ref</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new LogParabola spectrum&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">=</span> <span class="n">normalization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">=</span> <span class="n">a</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">=</span> <span class="n">b</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span> <span class="o">=</span> <span class="n">e_ref</span>
+
+<div class="viewcode-block" id="LogParabola.__call__">
+<a class="viewcode-back" href="../../api/pyirf.spectral.LogParabola.html#pyirf.spectral.LogParabola.__call__">[docs]</a>
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">one</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span> <span class="o">*</span> <span class="n">e</span> <span class="o">**</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="si">}</span><span class="s2"> * (E / </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="si">}</span><span class="s2">)**(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">a</span><span class="si">}</span><span class="s2"> + </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">b</span><span class="si">}</span><span class="s2"> * log10(E / </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="si">}</span><span class="s2">))&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="PowerLawWithExponentialGaussian">
+<a class="viewcode-back" href="../../api/pyirf.spectral.PowerLawWithExponentialGaussian.html#pyirf.spectral.PowerLawWithExponentialGaussian">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PowerLawWithExponentialGaussian</span><span class="p">(</span><span class="n">PowerLaw</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A power law with an additional Gaussian bump.</span>
+<span class="sd">    Beware that the Gaussian is not normalized!</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \Phi(E, \Phi_0, \gamma, f, \mu, \sigma, E_\text{ref}) =</span>
+<span class="sd">        \Phi_0 \left(</span>
+<span class="sd">            \frac{E}{E_\text{ref}}</span>
+<span class="sd">        \right)^{\gamma}</span>
+<span class="sd">        \cdot \left(</span>
+<span class="sd">            1 + f \cdot</span>
+<span class="sd">            \left(</span>
+<span class="sd">                \exp\left(</span>
+<span class="sd">                    \operatorname{Gauss}(\log_{10}(E / E_\text{ref}), \mu, \sigma)</span>
+<span class="sd">                \right) - 1</span>
+<span class="sd">            \right)</span>
+<span class="sd">        \right)</span>
+
+<span class="sd">    Where :math:`\operatorname{Gauss}` is the unnormalized Gaussian distribution:</span>
+
+<span class="sd">    .. math::</span>
+<span class="sd">        \operatorname{Gauss}(x, \mu, \sigma) = \exp\left(</span>
+<span class="sd">            -\frac{1}{2} \left(\frac{x - \mu}{\sigma}\right)^2</span>
+<span class="sd">        \right)</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    normalization: astropy.units.Quantity[flux]</span>
+<span class="sd">        :math:`\Phi_0`,</span>
+<span class="sd">    a: float</span>
+<span class="sd">        :math:`\alpha`</span>
+<span class="sd">    b: float</span>
+<span class="sd">        :math:`\beta`</span>
+<span class="sd">    e_ref: astropy.units.Quantity[energy]</span>
+<span class="sd">        :math:`E_\text{ref}`</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span>
+        <span class="n">normalization</span><span class="o">=</span><span class="p">[</span><span class="n">DIFFUSE_FLUX_UNIT</span><span class="p">,</span> <span class="n">POINT_SOURCE_FLUX_UNIT</span><span class="p">],</span> <span class="n">e_ref</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">normalization</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">e_ref</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">mu</span><span class="p">,</span> <span class="n">sigma</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new PowerLawWithExponentialGaussian spectrum&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">normalization</span><span class="o">=</span><span class="n">normalization</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">index</span><span class="p">,</span> <span class="n">e_ref</span><span class="o">=</span><span class="n">e_ref</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">=</span> <span class="n">f</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mu</span> <span class="o">=</span> <span class="n">mu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span> <span class="o">=</span> <span class="n">sigma</span>
+
+<div class="viewcode-block" id="PowerLawWithExponentialGaussian.__call__">
+<a class="viewcode-back" href="../../api/pyirf.spectral.PowerLawWithExponentialGaussian.html#pyirf.spectral.PowerLawWithExponentialGaussian.__call__">[docs]</a>
+    <span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">energy</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+        <span class="n">power</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__call__</span><span class="p">(</span><span class="n">energy</span><span class="p">)</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">one</span><span class="p">)</span>
+        <span class="n">log10_e</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="c1"># ROOT&#39;s TMath::Gauss does not add the normalization</span>
+        <span class="c1"># this is missing from the IRFDocs</span>
+        <span class="c1"># the code used for the plot can be found here:</span>
+        <span class="c1"># https://gitlab.cta-observatory.org/cta-consortium/aswg/irfs-macros/cosmic-rays-spectra/-/blob/master/electron_spectrum.C#L508</span>
+        <span class="n">gauss</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">log10_e</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">power</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">f</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">gauss</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__repr__</span><span class="p">()</span>
+        <span class="n">gauss</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Gauss(log10(E / </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">e_ref</span><span class="si">}</span><span class="s2">), </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">mu</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sigma</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="n">s</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot; * (1 + </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">f</span><span class="si">}</span><span class="s2"> * (exp(</span><span class="si">{</span><span class="n">gauss</span><span class="si">}</span><span class="s2">) - 1))&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="TableInterpolationSpectrum">
+<a class="viewcode-back" href="../../api/pyirf.spectral.TableInterpolationSpectrum.html#pyirf.spectral.TableInterpolationSpectrum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TableInterpolationSpectrum</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Interpolate flux points to obtain a spectrum.</span>
+
+<span class="sd">    By default, flux is interpolated linearly in log-log space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">,</span> <span class="n">flux</span><span class="p">,</span> <span class="n">log_energy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_flux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reference_energy</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a new TableInterpolationSpectrum spectrum&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">energy</span> <span class="o">=</span> <span class="n">energy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flux</span> <span class="o">=</span> <span class="n">flux</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span> <span class="o">=</span> <span class="n">flux</span><span class="o">.</span><span class="n">unit</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_energy</span> <span class="o">=</span> <span class="n">log_energy</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_flux</span> <span class="o">=</span> <span class="n">log_flux</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reference_energy</span> <span class="o">=</span> <span class="n">reference_energy</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy</span> <span class="o">/</span> <span class="n">reference_energy</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">one</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">flux</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">log_energy</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">log_flux</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">interp</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="s2">&quot;extrapolate&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TableInterpolationSpectrum.__call__">
+<a class="viewcode-back" href="../../api/pyirf.spectral.TableInterpolationSpectrum.html#pyirf.spectral.TableInterpolationSpectrum.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">energy</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">energy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">reference_energy</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">one</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_energy</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_flux</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="mi">10</span><span class="o">**</span><span class="n">y</span>
+
+        <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_unit</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TableInterpolationSpectrum.from_table">
+<a class="viewcode-back" href="../../api/pyirf.spectral.TableInterpolationSpectrum.html#pyirf.spectral.TableInterpolationSpectrum.from_table">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_table</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">table</span><span class="p">:</span> <span class="n">QTable</span><span class="p">,</span> <span class="n">log_energy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_flux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reference_energy</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">&quot;energy&quot;</span><span class="p">],</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">],</span>
+            <span class="n">log_energy</span><span class="o">=</span><span class="n">log_energy</span><span class="p">,</span>
+            <span class="n">log_flux</span><span class="o">=</span><span class="n">log_flux</span><span class="p">,</span>
+            <span class="n">reference_energy</span><span class="o">=</span><span class="n">reference_energy</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TableInterpolationSpectrum.from_file">
+<a class="viewcode-back" href="../../api/pyirf.spectral.TableInterpolationSpectrum.html#pyirf.spectral.TableInterpolationSpectrum.from_file">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_file</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">log_energy</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">log_flux</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">reference_energy</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_table</span><span class="p">(</span>
+            <span class="n">QTable</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="n">log_energy</span><span class="o">=</span><span class="n">log_energy</span><span class="p">,</span>
+            <span class="n">log_flux</span><span class="o">=</span><span class="n">log_flux</span><span class="p">,</span>
+            <span class="n">reference_energy</span><span class="o">=</span><span class="n">reference_energy</span><span class="p">,</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<span class="c1">#: Power Law parametrization of the Crab Nebula spectrum as published by HEGRA</span>
+<span class="c1">#:</span>
+<span class="c1">#: From &quot;The Crab Nebula and Pulsar between 500 GeV and 80 TeV: Observations with the HEGRA stereoscopic air Cherenkov telescopes&quot;,</span>
+<span class="c1">#: Aharonian et al, 2004, ApJ 614.2</span>
+<span class="c1">#: doi.org/10.1086/423931</span>
+<span class="n">CRAB_HEGRA</span> <span class="o">=</span> <span class="n">PowerLaw</span><span class="p">(</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="mf">2.83e-11</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">),</span>
+    <span class="n">index</span><span class="o">=-</span><span class="mf">2.62</span><span class="p">,</span>
+    <span class="n">e_ref</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Log-Parabola parametrization of the Crab Nebula spectrum as published by MAGIC</span>
+<span class="c1">#:</span>
+<span class="c1">#: From &quot;Measurement of the Crab Nebula spectrum over three decades in energy with the MAGIC telescopes&quot;,</span>
+<span class="c1">#: Aleksìc et al., 2015, JHEAP</span>
+<span class="c1">#: https://doi.org/10.1016/j.jheap.2015.01.002</span>
+<span class="n">CRAB_MAGIC_JHEAP2015</span> <span class="o">=</span> <span class="n">LogParabola</span><span class="p">(</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="mf">3.23e-11</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span><span class="p">),</span>
+    <span class="n">a</span><span class="o">=-</span><span class="mf">2.47</span><span class="p">,</span>
+    <span class="n">b</span><span class="o">=-</span><span class="mf">0.24</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1">#: All particle spectrum</span>
+<span class="c1">#:</span>
+<span class="c1">#: (30.2) from &quot;The Review of Particle Physics (2020)&quot;</span>
+<span class="c1">#: https://pdg.lbl.gov/2020/reviews/rpp2020-rev-cosmic-rays.pdf</span>
+<span class="n">PDG_ALL_PARTICLE</span> <span class="o">=</span> <span class="n">PowerLaw</span><span class="p">(</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="mf">1.8e4</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GeV</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">sr</span><span class="p">),</span>
+    <span class="n">index</span><span class="o">=-</span><span class="mf">2.7</span><span class="p">,</span>
+    <span class="n">e_ref</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Proton spectrum definition defined in the CTA Prod3b IRF Document</span>
+<span class="c1">#:</span>
+<span class="c1">#: From &quot;Description of CTA Instrument Response Functions (Production 3b Simulation)&quot;, section 4.3.1</span>
+<span class="c1">#: https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description</span>
+<span class="n">IRFDOC_PROTON_SPECTRUM</span> <span class="o">=</span> <span class="n">PowerLaw</span><span class="p">(</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="mf">9.8e-6</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">sr</span><span class="p">),</span>
+    <span class="n">index</span><span class="o">=-</span><span class="mf">2.62</span><span class="p">,</span>
+    <span class="n">e_ref</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Electron spectrum definition defined in the CTA Prod3b IRF Document</span>
+<span class="c1">#:</span>
+<span class="c1">#: From &quot;Description of CTA Instrument Response Functions (Production 3b Simulation)&quot;, section 4.3.1</span>
+<span class="c1">#: https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description</span>
+<span class="n">IRFDOC_ELECTRON_SPECTRUM</span> <span class="o">=</span> <span class="n">PowerLawWithExponentialGaussian</span><span class="p">(</span>
+    <span class="n">normalization</span><span class="o">=</span><span class="mf">2.385e-9</span> <span class="o">/</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">cm</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">s</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">sr</span><span class="p">),</span>
+    <span class="n">index</span><span class="o">=-</span><span class="mf">3.43</span><span class="p">,</span>
+    <span class="n">e_ref</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">,</span>
+    <span class="n">mu</span><span class="o">=-</span><span class="mf">0.101</span><span class="p">,</span>
+    <span class="n">sigma</span><span class="o">=</span><span class="mf">0.741</span><span class="p">,</span>
+    <span class="n">f</span><span class="o">=</span><span class="mf">1.950</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1">#: Proton + Helium interpolated from DAMPE measurements</span>
+<span class="c1">#:</span>
+<span class="c1">#: Datapoints obtained from obtained from:</span>
+<span class="c1">#: https://inspirehep.net/files/62efc8374ffced58ea7e3a333bfa1217</span>
+<span class="c1">#: Points are from DAMPE, up to  8 TeV.</span>
+<span class="c1">#: For higher energies we assume a</span>
+<span class="c1">#: flattening of the dF/dE*E^2.7 more or less in the middle of the large</span>
+<span class="c1">#: spread of the available data reported on the same proceeding.</span>
+<span class="k">with</span> <span class="n">as_file</span><span class="p">(</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;pyirf&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;resources/dampe_p+he.ecsv&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">_path</span><span class="p">:</span>
+    <span class="n">DAMPE_P_He_SPECTRUM</span> <span class="o">=</span> <span class="n">TableInterpolationSpectrum</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">_path</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

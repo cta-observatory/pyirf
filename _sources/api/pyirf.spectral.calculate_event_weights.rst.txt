@@ -1,0 +1,6 @@
+calculate_event_weights
+=======================
+
+.. currentmodule:: pyirf.spectral
+
+.. autofunction:: calculate_event_weights

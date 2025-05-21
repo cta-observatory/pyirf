@@ -1,0 +1,19 @@
+GridDataInterpolator
+====================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: GridDataInterpolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~GridDataInterpolator.__call__
+      ~GridDataInterpolator.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

@@ -1,0 +1,19 @@
+QuantileInterpolator
+====================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: QuantileInterpolator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~QuantileInterpolator.__call__
+      ~QuantileInterpolator.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

@@ -1,0 +1,6 @@
+create_aeff2d_hdu
+=================
+
+.. currentmodule:: pyirf.io
+
+.. autofunction:: create_aeff2d_hdu

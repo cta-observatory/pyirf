@@ -1,0 +1,19 @@
+PDFNormalization
+================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: PDFNormalization
+   :show-inheritance:
+
+   .. rubric:: Attributes Summary
+
+   .. autosummary::
+
+      ~PDFNormalization.AREA
+      ~PDFNormalization.CONE_SOLID_ANGLE
+
+   .. rubric:: Attributes Documentation
+
+   .. autoattribute:: AREA
+   .. autoattribute:: CONE_SOLID_ANGLE

@@ -1,0 +1,6 @@
+psf_table
+=========
+
+.. currentmodule:: pyirf.irf
+
+.. autofunction:: psf_table

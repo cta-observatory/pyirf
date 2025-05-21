@@ -1,0 +1,17 @@
+PSFTableEstimator
+=================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: PSFTableEstimator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~PSFTableEstimator.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

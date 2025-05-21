@@ -1,0 +1,391 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.utils &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/utils.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.utils</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">angular_separation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">gadf_fov_coords_theta_phi</span><span class="p">,</span> <span class="n">gadf_fov_coords_lon_lat</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPY_IF_NEEDED</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">MissingColumns</span><span class="p">,</span> <span class="n">WrongColumnUnit</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;is_scalar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_theta&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_source_fov_offset&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;calculate_source_fov_position_angle&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;check_histograms&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cone_solid_angle&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="is_scalar">
+<a class="viewcode-back" href="../../api/pyirf.utils.is_scalar.html#pyirf.utils.is_scalar">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_scalar</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Workaround that also supports astropy quantities</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    val : object</span>
+<span class="sd">        Any object (value, list, etc...)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result: bool</span>
+<span class="sd">        True is if input object is a scalar, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">)</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_theta">
+<a class="viewcode-back" href="../../api/pyirf.utils.calculate_theta.html#pyirf.utils.calculate_theta">[docs]</a>
+<span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">assumed_source_az</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">assumed_source_alt</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_theta</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">assumed_source_az</span><span class="p">,</span> <span class="n">assumed_source_alt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate sky separation between assumed and reconstructed positions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events : astropy.QTable</span>
+<span class="sd">        Astropy Table object containing the reconstructed events information.</span>
+<span class="sd">    assumed_source_az: astropy.units.Quantity</span>
+<span class="sd">        Assumed Azimuth angle of the source.</span>
+<span class="sd">    assumed_source_alt: astropy.units.Quantity</span>
+<span class="sd">        Assumed Altitude angle of the source.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    theta: astropy.units.Quantity</span>
+<span class="sd">        Angular separation between the assumed and reconstructed positions</span>
+<span class="sd">        in the sky.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">angular_separation</span><span class="p">(</span>
+        <span class="n">assumed_source_az</span><span class="p">,</span>
+        <span class="n">assumed_source_alt</span><span class="p">,</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;reco_az&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;reco_alt&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">theta</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_source_fov_offset">
+<a class="viewcode-back" href="../../api/pyirf.utils.calculate_source_fov_offset.html#pyirf.utils.calculate_source_fov_offset">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_source_fov_offset</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate angular separation between true and pointing positions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events : astropy.QTable</span>
+<span class="sd">        Astropy Table object containing the reconstructed events information.</span>
+
+<span class="sd">    prefix: str</span>
+<span class="sd">        Column prefix for az / alt, can be used to calculate reco or true</span>
+<span class="sd">        source fov offset.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    theta: astropy.units.Quantity</span>
+<span class="sd">        Angular separation between the true and pointing positions</span>
+<span class="sd">        in the sky.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">theta</span> <span class="o">=</span> <span class="n">angular_separation</span><span class="p">(</span>
+        <span class="n">events</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_az&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_alt&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;pointing_az&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;pointing_alt&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">theta</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_source_fov_position_angle">
+<a class="viewcode-back" href="../../api/pyirf.utils.calculate_source_fov_position_angle.html#pyirf.utils.calculate_source_fov_position_angle">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_source_fov_position_angle</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate position_angle of true positions relative to pointing positions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events : astropy.QTable</span>
+<span class="sd">        Astropy Table object containing the reconstructed events information.</span>
+
+<span class="sd">    prefix: str</span>
+<span class="sd">        Column prefix for az / alt, can be used to calculate reco or true</span>
+<span class="sd">        source fov position_angle.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    phi: astropy.units.Quantity</span>
+<span class="sd">        Position angle of the true positions relative to the pointing positions</span>
+<span class="sd">        in the sky.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">phi</span> <span class="o">=</span> <span class="n">gadf_fov_coords_theta_phi</span><span class="p">(</span>
+        <span class="n">events</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_az&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_alt&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;pointing_az&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;pointing_alt&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">phi</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_source_fov_lonlat</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate position_angle of true positions relative to pointing positions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events : astropy.QTable</span>
+<span class="sd">        Astropy Table object containing the reconstructed events information.</span>
+
+<span class="sd">    prefix: str</span>
+<span class="sd">        Column prefix for az / alt, can be used to calculate reco or true</span>
+<span class="sd">        source fov position_angle.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    phi: astropy.units.Quantity</span>
+<span class="sd">        Position angle of the true positions relative to the pointing positions</span>
+<span class="sd">        in the sky.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">gadf_fov_coords_lon_lat</span><span class="p">(</span>
+        <span class="n">events</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_az&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s2">_alt&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;pointing_az&quot;</span><span class="p">],</span>
+        <span class="n">events</span><span class="p">[</span><span class="s2">&quot;pointing_alt&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">lon</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span> <span class="n">lat</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="check_histograms">
+<a class="viewcode-back" href="../../api/pyirf.utils.check_histograms.html#pyirf.utils.check_histograms">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_histograms</span><span class="p">(</span><span class="n">hist1</span><span class="p">,</span> <span class="n">hist2</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if two histogram tables have the same binning</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hist1: ``~astropy.table.Table``</span>
+<span class="sd">        First histogram table, as created by</span>
+<span class="sd">        ``~pyirf.binning.create_histogram_table``</span>
+<span class="sd">    hist2: ``~astropy.table.Table``</span>
+<span class="sd">        Second histogram table</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># check binning information and add to output</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">):</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">k</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">hist1</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="n">hist2</span><span class="p">[</span><span class="n">k</span><span class="p">]):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Binning for signal_hist and background_hist must be equal&quot;</span>
+            <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="cone_solid_angle">
+<a class="viewcode-back" href="../../api/pyirf.utils.cone_solid_angle.html#pyirf.utils.cone_solid_angle">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">cone_solid_angle</span><span class="p">(</span><span class="n">angle</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the solid angle of a view cone.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    angle: astropy.units.Quantity or astropy.coordinates.Angle</span>
+<span class="sd">        Opening angle of the view cone.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    solid_angle: astropy.units.Quantity</span>
+<span class="sd">        Solid angle of a view cone with opening angle ``angle``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">solid_angle</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">sr</span>
+    <span class="k">return</span> <span class="n">solid_angle</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rectangle_solid_angle</span><span class="p">(</span><span class="n">lon_low</span><span class="p">,</span> <span class="n">lon_high</span><span class="p">,</span> <span class="n">lat_low</span><span class="p">,</span> <span class="n">lat_high</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the solid angle of a latitude-longitude rectangle</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lon_low: astropy.units.Quantity[angle]</span>
+<span class="sd">        Lower longitude coordinate of the rectangle corner</span>
+<span class="sd">    lat_low: astropy.units.Quantity[angle]</span>
+<span class="sd">        Lower latitude coordinate of the rectangle corner</span>
+<span class="sd">    lon_high: astropy.units.Quantity[angle]</span>
+<span class="sd">        Higher longitude coordinate of the rectangle corner</span>
+<span class="sd">    lat_high: astropy.units.Quantity[angle]</span>
+<span class="sd">        Higher Latitude coordinates of the rectangle corner</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    solid angle: astropy.units.Quantity[solid angle]</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">diff_lon</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon_high</span> <span class="o">-</span> <span class="n">lon_low</span><span class="p">)</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">diff_lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat_high</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">))</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat_low</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">rad</span><span class="p">))</span>
+
+    <span class="n">solid_angle</span> <span class="o">=</span> <span class="n">diff_lon</span> <span class="o">*</span> <span class="n">diff_lat</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">sr</span>
+    <span class="k">return</span> <span class="n">solid_angle</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_table</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="n">required_columns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">required_units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check a table for required columns and units.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    table: astropy.table.QTable</span>
+<span class="sd">        Table to check</span>
+<span class="sd">    required_columns: iterable[str]</span>
+<span class="sd">        Column names that are required to be present</span>
+<span class="sd">    required_units: Mapping[str-&gt;astropy.units.Unit]</span>
+<span class="sd">        Required units for columns as a Mapping from column names to units.</span>
+<span class="sd">        Checks if the units are convertible, not if they are identical</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    MissingColumns: If any of the columns specified in ``required_columns`` or</span>
+<span class="sd">        as keys in ``required_units are`` not present in the table.</span>
+<span class="sd">    WrongColumnUnit: if any column has the wrong unit</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">required_columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">required_columns</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">table</span><span class="o">.</span><span class="n">colnames</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">MissingColumns</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">required_units</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">expected</span> <span class="ow">in</span> <span class="n">required_units</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">MissingColumns</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+            <span class="n">unit</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">expected</span><span class="o">.</span><span class="n">is_equivalent</span><span class="p">(</span><span class="n">unit</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">WrongColumnUnit</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">expected</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

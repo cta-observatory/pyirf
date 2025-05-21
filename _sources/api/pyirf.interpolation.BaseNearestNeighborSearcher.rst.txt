@@ -1,0 +1,19 @@
+BaseNearestNeighborSearcher
+===========================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: BaseNearestNeighborSearcher
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~BaseNearestNeighborSearcher.__call__
+      ~BaseNearestNeighborSearcher.interpolate
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
+   .. automethod:: interpolate

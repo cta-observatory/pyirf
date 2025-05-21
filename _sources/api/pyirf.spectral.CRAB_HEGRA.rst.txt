@@ -1,0 +1,6 @@
+CRAB_HEGRA
+==========
+
+.. currentmodule:: pyirf.spectral
+
+.. autodata:: CRAB_HEGRA

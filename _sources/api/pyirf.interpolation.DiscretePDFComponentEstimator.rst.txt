@@ -1,0 +1,17 @@
+DiscretePDFComponentEstimator
+=============================
+
+.. currentmodule:: pyirf.interpolation
+
+.. autoclass:: DiscretePDFComponentEstimator
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~DiscretePDFComponentEstimator.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__

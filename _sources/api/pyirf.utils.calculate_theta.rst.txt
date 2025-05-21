@@ -1,0 +1,6 @@
+calculate_theta
+===============
+
+.. currentmodule:: pyirf.utils
+
+.. autofunction:: calculate_theta

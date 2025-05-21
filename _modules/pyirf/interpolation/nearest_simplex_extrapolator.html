@@ -1,0 +1,389 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.interpolation.nearest_simplex_extrapolator &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/interpolation/nearest_simplex_extrapolator.html"/>
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.interpolation.nearest_simplex_extrapolator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.interpolation.nearest_simplex_extrapolator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Extrapolators for Parametrized and DiscretePDF components extrapolating from the </span>
+<span class="sd">nearest simplex</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">Delaunay</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.base_extrapolators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DiscretePDFExtrapolator</span><span class="p">,</span>
+    <span class="n">ParametrizedExtrapolator</span><span class="p">,</span>
+    <span class="n">PDFNormalization</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.moment_morph_interpolator</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">barycentric_2D_interpolation_coefficients</span><span class="p">,</span>
+    <span class="n">linesegment_1D_interpolation_coefficients</span><span class="p">,</span>
+    <span class="n">moment_morph_estimation</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_nearest_simplex</span><span class="p">,</span> <span class="n">get_bin_width</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;MomentMorphNearestSimplexExtrapolator&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ParametrizedNearestSimplexExtrapolator&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<div class="viewcode-block" id="ParametrizedNearestSimplexExtrapolator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.html#pyirf.interpolation.ParametrizedNearestSimplexExtrapolator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ParametrizedNearestSimplexExtrapolator</span><span class="p">(</span><span class="n">ParametrizedExtrapolator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extrapolator class extending linear or baryzentric interpolation outside a grid&#39;s convex hull.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_points</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extrapolator class using linear or baryzentric extrapolation in one ore two</span>
+<span class="sd">        grid-dimensions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims)</span>
+<span class="sd">            Grid points at which templates exist. May be one ot two dimensional.</span>
+<span class="sd">            Have to be sorted in accending order for 1D.</span>
+<span class="sd">        params: np.ndarray, shape=(n_points, ...)</span>
+<span class="sd">            Array of corresponding parameter values at each point in grid_points.</span>
+<span class="sd">            First dimesion has to correspond to number of grid_points</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls pyirf.interpolation.ParametrizedInterpolator.__init__.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span> <span class="o">=</span> <span class="n">Delaunay</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Extrapolation in more then two dimension not impemented.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extrapolate1D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_inds</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to compute extrapolation coefficients for a target_point on a</span>
+<span class="sd">        specified grid segment and extrapolate from this subset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">linesegment_1D_interpolation_coefficients</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="n">segment_inds</span><span class="p">],</span>
+            <span class="n">target_point</span><span class="o">=</span><span class="n">target_point</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># reshape to be broadcastable</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">coefficients</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">coefficients</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">segment_inds</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:</span>
+        <span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extrapolate2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simplex_inds</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to compute extrapolation coeficcients and extrapolate from the nearest</span>
+<span class="sd">        simplex by extending barycentric interpolation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">barycentric_2D_interpolation_coefficients</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="n">simplex_inds</span><span class="p">],</span>
+            <span class="n">target_point</span><span class="o">=</span><span class="n">target_point</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># reshape to be broadcastable</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">coefficients</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+            <span class="n">coefficients</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">ndim</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">coefficients</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">simplex_inds</span><span class="p">,</span> <span class="p">:],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)[</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="ParametrizedNearestSimplexExtrapolator.extrapolate">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.html#pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.extrapolate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extrapolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a grid of scalar values for a bunch of different parameters</span>
+<span class="sd">        and extrapolates it to given value of those parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: numpy.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Value for which the extrapolation is performed (target point)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        values: numpy.ndarray, shape=(1,...)</span>
+<span class="sd">            Extrapolated values</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target_point</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+                <span class="n">segment_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">segment_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+
+            <span class="n">extrapolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extrapolate1D</span><span class="p">(</span><span class="n">segment_inds</span><span class="p">,</span> <span class="n">target_point</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">nearest_simplex_ind</span> <span class="o">=</span> <span class="n">find_nearest_simplex</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="p">,</span> <span class="n">target_point</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">simplex_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="o">.</span><span class="n">simplices</span><span class="p">[</span><span class="n">nearest_simplex_ind</span><span class="p">]</span>
+
+            <span class="n">extrapolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extrapolate2D</span><span class="p">(</span><span class="n">simplex_indices</span><span class="p">,</span> <span class="n">target_point</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">extrapolant</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="MomentMorphNearestSimplexExtrapolator">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.MomentMorphNearestSimplexExtrapolator.html#pyirf.interpolation.MomentMorphNearestSimplexExtrapolator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MomentMorphNearestSimplexExtrapolator</span><span class="p">(</span><span class="n">DiscretePDFExtrapolator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extrapolator class extending moment morphing interpolation outside a grid&#39;s convex hull.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">grid_points</span><span class="p">,</span> <span class="n">bin_edges</span><span class="p">,</span> <span class="n">binned_pdf</span><span class="p">,</span> <span class="n">normalization</span><span class="o">=</span><span class="n">PDFNormalization</span><span class="o">.</span><span class="n">AREA</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extrapolator class extending/reusing parts of Moment Morphing</span>
+<span class="sd">        by allowing for negative extrapolation coefficients computed</span>
+<span class="sd">        by from the nearest simplex in 1D or 2D (so either a line-segement</span>
+<span class="sd">        or a triangle).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        grid_points: np.ndarray, shape=(n_points, n_dims)</span>
+<span class="sd">            Grid points at which templates exist. May be one ot two dimensional.</span>
+<span class="sd">            Have to be sorted in accending order for 1D.</span>
+<span class="sd">        bin_edges: np.ndarray, shape=(n_bins+1)</span>
+<span class="sd">            Edges of the data binning</span>
+<span class="sd">        binned_pdf: np.ndarray, shape=(n_points, ..., n_bins)</span>
+<span class="sd">            Content of each bin in bin_edges for</span>
+<span class="sd">            each point in grid_points. First dimesion has to correspond to number</span>
+<span class="sd">            of grid_points. Extrapolation dimension, meaning the</span>
+<span class="sd">            the quantity that should be interpolated (e.g. the Migra axis for EDisp)</span>
+<span class="sd">            has to be at the last axis as well as having entries</span>
+<span class="sd">            corresponding to the number of bins given through bin_edges keyword.</span>
+<span class="sd">        normalization : PDFNormalization</span>
+<span class="sd">            How the PDF is normalized</span>
+
+<span class="sd">        Note</span>
+<span class="sd">        ----</span>
+<span class="sd">            Also calls pyirf.interpolation.DiscretePDFExtrapolator.__init__.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">grid_points</span><span class="p">,</span> <span class="n">bin_edges</span><span class="p">,</span> <span class="n">binned_pdf</span><span class="p">,</span> <span class="n">normalization</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span> <span class="o">=</span> <span class="n">Delaunay</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="s2">&quot;Extrapolation in more then two dimension not impemented.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extrapolate1D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segment_inds</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to compute extrapolation coefficients for a target_point on a</span>
+<span class="sd">        specified grid segment and extrapolate from this subset</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">linesegment_1D_interpolation_coefficients</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="n">segment_inds</span><span class="p">],</span>
+            <span class="n">target_point</span><span class="o">=</span><span class="n">target_point</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">moment_morph_estimation</span><span class="p">(</span>
+            <span class="n">bin_edges</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_edges</span><span class="p">,</span>
+            <span class="n">binned_pdf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">binned_pdf</span><span class="p">[</span><span class="n">segment_inds</span><span class="p">],</span>
+            <span class="n">coefficients</span><span class="o">=</span><span class="n">coefficients</span><span class="p">,</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extrapolate2D</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simplex_inds</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Function to compute extrapolation coeficcients and extrapolate from the nearest</span>
+<span class="sd">        simplex by extending barycentric interpolation</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">coefficients</span> <span class="o">=</span> <span class="n">barycentric_2D_interpolation_coefficients</span><span class="p">(</span>
+            <span class="n">grid_points</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="p">[</span><span class="n">simplex_inds</span><span class="p">],</span>
+            <span class="n">target_point</span><span class="o">=</span><span class="n">target_point</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">moment_morph_estimation</span><span class="p">(</span>
+            <span class="n">bin_edges</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_edges</span><span class="p">,</span>
+            <span class="n">binned_pdf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">binned_pdf</span><span class="p">[</span><span class="n">simplex_inds</span><span class="p">],</span>
+            <span class="n">coefficients</span><span class="o">=</span><span class="n">coefficients</span><span class="p">,</span>
+            <span class="n">normalization</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">,</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="MomentMorphNearestSimplexExtrapolator.extrapolate">
+<a class="viewcode-back" href="../../../api/pyirf.interpolation.MomentMorphNearestSimplexExtrapolator.html#pyirf.interpolation.MomentMorphNearestSimplexExtrapolator.extrapolate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">extrapolate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_point</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Takes a grid of discretized PDFs for a bunch of different parameters</span>
+<span class="sd">        and extrapolates it to given value of those parameters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        target_point: numpy.ndarray, shape=(1, n_dims)</span>
+<span class="sd">            Value for which the extrapolation is performed (target point)</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        values: numpy.ndarray, shape=(1, ..., n_bins)</span>
+<span class="sd">            Extrapolated discretized PDFs</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">target_point</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_points</span><span class="o">.</span><span class="n">min</span><span class="p">():</span>
+                <span class="n">segment_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">segment_inds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;int&quot;</span><span class="p">)</span>
+
+            <span class="n">extrapolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extrapolate1D</span><span class="p">(</span><span class="n">segment_inds</span><span class="p">,</span> <span class="n">target_point</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid_dim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">nearest_simplex_ind</span> <span class="o">=</span> <span class="n">find_nearest_simplex</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="p">,</span> <span class="n">target_point</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="n">simplex_indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">triangulation</span><span class="o">.</span><span class="n">simplices</span><span class="p">[</span><span class="n">nearest_simplex_ind</span><span class="p">]</span>
+
+            <span class="n">extrapolant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_extrapolate2D</span><span class="p">(</span><span class="n">simplex_indices</span><span class="p">,</span> <span class="n">target_point</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">extrapolant</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Some bin-entries where below zero after extrapolation and &quot;</span>
+                <span class="s2">&quot;thus cut off. Check result carefully.&quot;</span>
+            <span class="p">)</span>
+
+            <span class="c1"># cut off values below 0 and re-normalize</span>
+            <span class="n">extrapolant</span><span class="p">[</span><span class="n">extrapolant</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">bin_width</span> <span class="o">=</span> <span class="n">get_bin_width</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bin_edges</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalization</span><span class="p">)</span>
+            <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">extrapolant</span> <span class="o">*</span> <span class="n">bin_width</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">),</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span>
+                <span class="n">extrapolant</span><span class="p">,</span> <span class="n">norm</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">extrapolant</span><span class="p">),</span> <span class="n">where</span><span class="o">=</span><span class="n">norm</span> <span class="o">!=</span> <span class="mi">0</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">binned_pdf</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">extrapolant</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

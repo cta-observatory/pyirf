@@ -1,0 +1,474 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.cut_optimization &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/cut_optimization.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.cut_optimization</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.cut_optimization</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">product</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">QTable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm.auto</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">operator</span>
+
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.cuts</span><span class="w"> </span><span class="kn">import</span> <span class="n">evaluate_binned_cut_by_index</span><span class="p">,</span> <span class="n">calculate_percentile_cut</span><span class="p">,</span> <span class="n">evaluate_binned_cut</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.sensitivity</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_sensitivity</span><span class="p">,</span> <span class="n">estimate_background</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_histogram_table</span><span class="p">,</span> <span class="n">bin_center</span><span class="p">,</span> <span class="n">calculate_bin_indices</span>
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;optimize_gh_cut&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">optimize_cuts</span><span class="p">(</span>
+    <span class="n">signal</span><span class="p">,</span>
+    <span class="n">background</span><span class="p">,</span>
+    <span class="n">reco_energy_bins</span><span class="p">,</span>
+    <span class="n">multiplicity_cuts</span><span class="p">,</span>
+    <span class="n">gh_cut_efficiencies</span><span class="p">,</span>
+    <span class="n">theta_cut_efficiencies</span><span class="p">,</span>
+    <span class="n">fov_offset_min</span><span class="o">=</span><span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">fov_offset_max</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">theta_min_value</span><span class="o">=</span><span class="mf">0.02</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">theta_max_value</span><span class="o">=</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Optimize the gamma/hadronnes, theta and multiplicity cut in every energy bin of reconstructed energy</span>
+<span class="sd">    for best sensitivity.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    signal: astropy.table.QTable</span>
+<span class="sd">        event list of simulated signal events.</span>
+<span class="sd">        Required columns are `theta`, `reco_energy`, &#39;weight&#39;, `gh_score`</span>
+<span class="sd">        No directional (theta) or gamma/hadron cut should already be applied.</span>
+<span class="sd">    background: astropy.table.QTable</span>
+<span class="sd">        event list of simulated background events.</span>
+<span class="sd">        Required columns are `reco_source_fov_offset`, `reco_energy`,</span>
+<span class="sd">        &#39;weight&#39;, `gh_score`.</span>
+<span class="sd">        No directional (theta) or gamma/hadron cut should already be applied.</span>
+<span class="sd">    reco_energy_bins: astropy.units.Quantity[energy]</span>
+<span class="sd">        Bins in reconstructed energy to use for sensitivity computation</span>
+<span class="sd">    multiplicity_cuts: np.ndarray[int, ndim=1]</span>
+<span class="sd">        Values to scan for minimum telescope multiplicity</span>
+<span class="sd">    gh_cut_efficiencies: np.ndarray[float, ndim=1]</span>
+<span class="sd">        The gamma/hadron separation cut efficiencies to scan for best sensitivity.</span>
+<span class="sd">    theta_cut_efficiencies: astropy.table.QTable</span>
+<span class="sd">        The theta cut efficiencies to scan for best sensitivity.</span>
+<span class="sd">    fov_offset_min: astropy.units.Quantity[angle]</span>
+<span class="sd">        Minimum distance from the fov center for background events to be taken into account</span>
+<span class="sd">    fov_offset_max: astropy.units.Quantity[angle]</span>
+<span class="sd">        Maximum distance from the fov center for background events to be taken into account</span>
+<span class="sd">    alpha: float</span>
+<span class="sd">        Size ratio of off region / on region. Will be used to</span>
+<span class="sd">        scale the background rate.</span>
+<span class="sd">    theta_min_value : u.Quantity[angle]</span>
+<span class="sd">        minimum theta cut value</span>
+<span class="sd">    theta_max_value : u.Quantity[angle]</span>
+<span class="sd">        maximum theta cut value</span>
+<span class="sd">    progress: bool</span>
+<span class="sd">        If True, show a progress bar during cut optimization</span>
+<span class="sd">    **kwargs are passed to ``calculate_sensitivity``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gh_cut_efficiencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">gh_cut_efficiencies</span><span class="p">)</span>
+    <span class="n">gh_cut_percentiles</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">gh_cut_efficiencies</span><span class="p">)</span>
+    <span class="n">fill_value</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;gh_score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="n">sensitivities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">cut_indicies</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">n_theta_cuts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">theta_cut_efficiencies</span><span class="p">)</span>
+    <span class="n">n_gh_cuts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">gh_cut_efficiencies</span><span class="p">)</span>
+    <span class="n">n_cuts</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">multiplicity_cuts</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_theta_cuts</span> <span class="o">*</span> <span class="n">n_gh_cuts</span>
+
+    <span class="n">signal_bin_index</span><span class="p">,</span> <span class="n">signal_valid</span> <span class="o">=</span> <span class="n">calculate_bin_indices</span><span class="p">(</span>
+        <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;reco_energy&#39;</span><span class="p">],</span> <span class="n">reco_energy_bins</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">background_bin_index</span><span class="p">,</span> <span class="n">background_valid</span> <span class="o">=</span> <span class="n">calculate_bin_indices</span><span class="p">(</span>
+        <span class="n">background</span><span class="p">[</span><span class="s1">&#39;reco_energy&#39;</span><span class="p">],</span> <span class="n">reco_energy_bins</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">gh_cut_grid</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">theta_cut_grid</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">with</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">total</span><span class="o">=</span><span class="n">n_cuts</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">progress</span><span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">multiplicity_index</span><span class="p">,</span> <span class="n">multiplicity_cut</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">multiplicity_cuts</span><span class="p">):</span>
+
+            <span class="n">signal_mask_multiplicity</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;multiplicity&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">multiplicity_cut</span>
+            <span class="n">background_mask_multiplicity</span> <span class="o">=</span> <span class="n">background</span><span class="p">[</span><span class="s2">&quot;multiplicity&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">multiplicity_cut</span>
+
+            <span class="n">gh_cuts</span> <span class="o">=</span> <span class="n">calculate_percentile_cut</span><span class="p">(</span>
+                <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;gh_score&#39;</span><span class="p">][</span><span class="n">signal_mask_multiplicity</span><span class="p">],</span>
+                <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;reco_energy&#39;</span><span class="p">][</span><span class="n">signal_mask_multiplicity</span><span class="p">],</span>
+                <span class="n">bins</span><span class="o">=</span><span class="n">reco_energy_bins</span><span class="p">,</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="n">fill_value</span><span class="p">,</span>
+                <span class="n">percentile</span><span class="o">=</span><span class="n">gh_cut_percentiles</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">gh_cut_grid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gh_cuts</span><span class="p">)</span>
+
+            <span class="n">theta_cuts</span> <span class="o">=</span> <span class="n">calculate_percentile_cut</span><span class="p">(</span>
+                <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">][</span><span class="n">signal_mask_multiplicity</span><span class="p">],</span>
+                <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;reco_energy&#39;</span><span class="p">][</span><span class="n">signal_mask_multiplicity</span><span class="p">],</span>
+                <span class="n">bins</span><span class="o">=</span><span class="n">reco_energy_bins</span><span class="p">,</span>
+                <span class="n">fill_value</span><span class="o">=</span><span class="n">theta_max_value</span><span class="p">,</span>
+                <span class="n">min_value</span><span class="o">=</span><span class="n">theta_min_value</span><span class="p">,</span>
+                <span class="n">max_value</span><span class="o">=</span><span class="n">theta_max_value</span><span class="p">,</span>
+                <span class="n">percentile</span><span class="o">=</span><span class="mi">100</span> <span class="o">*</span> <span class="n">theta_cut_efficiencies</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">theta_cut_grid</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">theta_cuts</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">gh_index</span><span class="p">,</span> <span class="n">theta_index</span> <span class="ow">in</span> <span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_gh_cuts</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_theta_cuts</span><span class="p">)):</span>
+
+                <span class="c1"># apply the current cuts</span>
+                <span class="n">theta_cut</span> <span class="o">=</span> <span class="n">theta_cuts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">theta_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_cuts</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][:,</span> <span class="n">theta_index</span><span class="p">]</span>
+                <span class="n">signal_mask_theta</span> <span class="o">=</span> <span class="n">evaluate_binned_cut_by_index</span><span class="p">(</span>
+                    <span class="n">signal</span><span class="p">[</span><span class="s2">&quot;theta&quot;</span><span class="p">],</span> <span class="n">signal_bin_index</span><span class="p">,</span> <span class="n">signal_valid</span><span class="p">,</span> <span class="n">theta_cut</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">le</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">gh_cut</span> <span class="o">=</span> <span class="n">gh_cuts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="n">gh_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gh_cuts</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][:,</span> <span class="n">gh_index</span><span class="p">]</span>
+                <span class="n">signal_mask_gh</span> <span class="o">=</span> <span class="n">evaluate_binned_cut_by_index</span><span class="p">(</span>
+                    <span class="n">signal</span><span class="p">[</span><span class="s2">&quot;gh_score&quot;</span><span class="p">],</span> <span class="n">signal_bin_index</span><span class="p">,</span> <span class="n">signal_valid</span><span class="p">,</span> <span class="n">gh_cut</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">ge</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">signal_selected</span> <span class="o">=</span> <span class="n">signal_mask_gh</span> <span class="o">&amp;</span> <span class="n">signal_mask_theta</span> <span class="o">&amp;</span> <span class="n">signal_mask_multiplicity</span>
+
+                <span class="n">background_mask_gh</span> <span class="o">=</span> <span class="n">evaluate_binned_cut_by_index</span><span class="p">(</span>
+                    <span class="n">background</span><span class="p">[</span><span class="s2">&quot;gh_score&quot;</span><span class="p">],</span> <span class="n">background_bin_index</span><span class="p">,</span> <span class="n">background_valid</span><span class="p">,</span> <span class="n">gh_cut</span><span class="p">,</span> <span class="n">operator</span><span class="o">.</span><span class="n">ge</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">background_selected</span> <span class="o">=</span> <span class="n">background_mask_gh</span> <span class="o">&amp;</span> <span class="n">background_mask_multiplicity</span>
+
+                <span class="c1"># create the histograms</span>
+                <span class="n">signal_hist</span> <span class="o">=</span> <span class="n">create_histogram_table</span><span class="p">(</span>
+                    <span class="n">signal</span><span class="p">[</span><span class="n">signal_selected</span><span class="p">],</span> <span class="n">reco_energy_bins</span><span class="p">,</span> <span class="s2">&quot;reco_energy&quot;</span>
+                <span class="p">)</span>
+
+                <span class="n">background_hist</span> <span class="o">=</span> <span class="n">estimate_background</span><span class="p">(</span>
+                    <span class="n">events</span><span class="o">=</span><span class="n">background</span><span class="p">[</span><span class="n">background_selected</span><span class="p">],</span>
+                    <span class="n">reco_energy_bins</span><span class="o">=</span><span class="n">reco_energy_bins</span><span class="p">,</span>
+                    <span class="n">theta_cuts</span><span class="o">=</span><span class="n">theta_cut</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                    <span class="n">fov_offset_min</span><span class="o">=</span><span class="n">fov_offset_min</span><span class="p">,</span>
+                    <span class="n">fov_offset_max</span><span class="o">=</span><span class="n">fov_offset_max</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">sensitivity</span> <span class="o">=</span> <span class="n">calculate_sensitivity</span><span class="p">(</span>
+                    <span class="n">signal_hist</span><span class="p">,</span> <span class="n">background_hist</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">cut_indicies</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">multiplicity_index</span><span class="p">,</span> <span class="n">theta_index</span><span class="p">,</span> <span class="n">gh_index</span><span class="p">))</span>
+                <span class="n">sensitivities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sensitivity</span><span class="p">)</span>
+                <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">best_gh_cut</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+    <span class="n">best_gh_cut</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">best_gh_cut</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_center</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span>
+    <span class="n">best_gh_cut</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">best_gh_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">best_gh_cut</span><span class="p">[</span><span class="s2">&quot;efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">best_multiplicity_cut</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+    <span class="n">best_multiplicity_cut</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">best_multiplicity_cut</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_center</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span>
+    <span class="n">best_multiplicity_cut</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">best_multiplicity_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">best_theta_cut</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+    <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_center</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span>
+    <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span> <span class="o">=</span> <span class="n">theta_cuts</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">unit</span>
+    <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">best_sensitivity</span> <span class="o">=</span> <span class="n">sensitivities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">bin_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">sensitivities_bin</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;relative_sensitivity&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sensitivities</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sensitivities_bin</span><span class="p">)):</span>
+            <span class="c1"># nanargmin won&#39;t return the index of nan entries</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanargmin</span><span class="p">(</span><span class="n">sensitivities_bin</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if all are invalid, just use the first one</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">multiplicity_index</span><span class="p">,</span> <span class="n">theta_index</span><span class="p">,</span> <span class="n">gh_index</span> <span class="o">=</span> <span class="n">cut_indicies</span><span class="p">[</span><span class="n">best</span><span class="p">]</span>
+
+        <span class="n">best_sensitivity</span><span class="p">[</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">sensitivities</span><span class="p">[</span><span class="n">best</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span>
+
+        <span class="n">best_gh_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">gh_cut_grid</span><span class="p">[</span><span class="n">multiplicity_index</span><span class="p">][</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">][</span><span class="n">gh_index</span><span class="p">]</span>
+        <span class="n">best_multiplicity_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">multiplicity_cuts</span><span class="p">[</span><span class="n">multiplicity_index</span><span class="p">]</span>
+        <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_cut_grid</span><span class="p">[</span><span class="n">multiplicity_index</span><span class="p">][</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">][</span><span class="n">theta_index</span><span class="p">]</span>
+
+        <span class="n">best_gh_cut</span><span class="p">[</span><span class="s2">&quot;efficiency&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">gh_cut_efficiencies</span><span class="p">[</span><span class="n">gh_index</span><span class="p">]</span>
+        <span class="n">best_theta_cut</span><span class="p">[</span><span class="s2">&quot;efficiency&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">theta_cut_efficiencies</span><span class="p">[</span><span class="n">theta_index</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">best_sensitivity</span><span class="p">,</span> <span class="n">best_multiplicity_cut</span><span class="p">,</span> <span class="n">best_theta_cut</span><span class="p">,</span> <span class="n">best_gh_cut</span>
+
+
+<div class="viewcode-block" id="optimize_gh_cut">
+<a class="viewcode-back" href="../../api/pyirf.cut_optimization.optimize_gh_cut.html#pyirf.cut_optimization.optimize_gh_cut">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">optimize_gh_cut</span><span class="p">(</span>
+    <span class="n">signal</span><span class="p">,</span>
+    <span class="n">background</span><span class="p">,</span>
+    <span class="n">reco_energy_bins</span><span class="p">,</span>
+    <span class="n">gh_cut_efficiencies</span><span class="p">,</span>
+    <span class="n">theta_cuts</span><span class="p">,</span>
+    <span class="n">op</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">ge</span><span class="p">,</span>
+    <span class="n">fov_offset_min</span><span class="o">=</span><span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">fov_offset_max</span><span class="o">=</span><span class="mi">1</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">progress</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This procedure is EventDisplay-like, since it only applies a</span>
+<span class="sd">    pre-computed theta cut and then optimizes only the gamma/hadron separation</span>
+<span class="sd">    cut.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    signal: astropy.table.QTable</span>
+<span class="sd">        event list of simulated signal events.</span>
+<span class="sd">        Required columns are `theta`, `reco_energy`, &#39;weight&#39;, `gh_score`</span>
+<span class="sd">        No directional (theta) or gamma/hadron cut should already be applied.</span>
+<span class="sd">    background: astropy.table.QTable</span>
+<span class="sd">        event list of simulated background events.</span>
+<span class="sd">        Required columns are `reco_source_fov_offset`, `reco_energy`,</span>
+<span class="sd">        &#39;weight&#39;, `gh_score`.</span>
+<span class="sd">        No directional (theta) or gamma/hadron cut should already be applied.</span>
+<span class="sd">    reco_energy_bins: astropy.units.Quantity[energy]</span>
+<span class="sd">        Bins in reconstructed energy to use for sensitivity computation</span>
+<span class="sd">    gh_cut_efficiencies: np.ndarray[float, ndim=1]</span>
+<span class="sd">        The cut efficiencies to scan for best sensitivity.</span>
+<span class="sd">    op: comparison function with signature f(a, b) -&gt; bool</span>
+<span class="sd">        The comparison function to use for the gamma hadron score.</span>
+<span class="sd">        Returning true means an event passes the cut, so is not discarded.</span>
+<span class="sd">        E.g. for gammaness-like score, use `operator.ge` (&gt;=) and for a</span>
+<span class="sd">        hadroness-like score use `operator.le` (&lt;=).</span>
+<span class="sd">    fov_offset_min: astropy.units.Quantity[angle]</span>
+<span class="sd">        Minimum distance from the fov center for background events to be taken into account</span>
+<span class="sd">    fov_offset_max: astropy.units.Quantity[angle]</span>
+<span class="sd">        Maximum distance from the fov center for background events to be taken into account</span>
+<span class="sd">    alpha: float</span>
+<span class="sd">        Size ratio of off region / on region. Will be used to</span>
+<span class="sd">        scale the background rate.</span>
+<span class="sd">    progress: bool</span>
+<span class="sd">        If True, show a progress bar during cut optimization</span>
+<span class="sd">    **kwargs are passed to ``calculate_sensitivity``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># we apply each cut for all reco_energy_bins globally, calculate the</span>
+    <span class="c1"># sensitivity and then lookup the best sensitivity for each</span>
+    <span class="c1"># bin independently</span>
+
+    <span class="n">signal_selected_theta</span> <span class="o">=</span> <span class="n">evaluate_binned_cut</span><span class="p">(</span>
+        <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">],</span> <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;reco_energy&#39;</span><span class="p">],</span> <span class="n">theta_cuts</span><span class="p">,</span>
+        <span class="n">op</span><span class="o">=</span><span class="n">operator</span><span class="o">.</span><span class="n">le</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">sensitivities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># calculate necessary percentile needed for</span>
+    <span class="c1"># ``calculate_percentile_cut`` with the correct efficiency.</span>
+    <span class="c1"># Depends on the operator, since we need to invert the</span>
+    <span class="c1"># efficiency if we compare using &gt;=, since percentile is</span>
+    <span class="c1"># defines as &lt;=.</span>
+    <span class="n">gh_cut_efficiencies</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asanyarray</span><span class="p">(</span><span class="n">gh_cut_efficiencies</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">op</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="c1"># if operator behaves like &quot;&lt;=&quot;, &quot;&lt;&quot; etc:</span>
+        <span class="n">percentiles</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">gh_cut_efficiencies</span>
+        <span class="n">fill_value</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;gh_score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># operator behaves like &quot;&gt;=&quot;, &quot;&gt;&quot;</span>
+        <span class="n">percentiles</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">gh_cut_efficiencies</span><span class="p">)</span>
+        <span class="n">fill_value</span> <span class="o">=</span> <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;gh_score&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+    <span class="n">gh_cuts</span> <span class="o">=</span> <span class="n">calculate_percentile_cut</span><span class="p">(</span>
+        <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;gh_score&#39;</span><span class="p">],</span> <span class="n">signal</span><span class="p">[</span><span class="s1">&#39;reco_energy&#39;</span><span class="p">],</span>
+        <span class="n">bins</span><span class="o">=</span><span class="n">reco_energy_bins</span><span class="p">,</span>
+        <span class="n">fill_value</span><span class="o">=</span><span class="n">fill_value</span><span class="p">,</span>
+        <span class="n">percentile</span><span class="o">=</span><span class="n">percentiles</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">gh_cut_efficiencies</span><span class="p">)),</span> <span class="n">disable</span><span class="o">=</span><span class="ow">not</span> <span class="n">progress</span><span class="p">):</span>
+        <span class="n">gh_cut</span> <span class="o">=</span> <span class="n">gh_cuts</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">gh_cut</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gh_cuts</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][:,</span> <span class="n">col</span><span class="p">]</span>
+
+        <span class="c1"># apply the current cut</span>
+        <span class="n">signal_selected</span> <span class="o">=</span> <span class="n">evaluate_binned_cut</span><span class="p">(</span>
+            <span class="n">signal</span><span class="p">[</span><span class="s2">&quot;gh_score&quot;</span><span class="p">],</span> <span class="n">signal</span><span class="p">[</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">],</span> <span class="n">gh_cut</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span>
+        <span class="p">)</span> <span class="o">&amp;</span> <span class="n">signal_selected_theta</span>
+
+        <span class="n">background_selected</span> <span class="o">=</span> <span class="n">evaluate_binned_cut</span><span class="p">(</span>
+            <span class="n">background</span><span class="p">[</span><span class="s2">&quot;gh_score&quot;</span><span class="p">],</span> <span class="n">background</span><span class="p">[</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">],</span> <span class="n">gh_cut</span><span class="p">,</span> <span class="n">op</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># create the histograms</span>
+        <span class="n">signal_hist</span> <span class="o">=</span> <span class="n">create_histogram_table</span><span class="p">(</span>
+            <span class="n">signal</span><span class="p">[</span><span class="n">signal_selected</span><span class="p">],</span> <span class="n">reco_energy_bins</span><span class="p">,</span> <span class="s2">&quot;reco_energy&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">background_hist</span> <span class="o">=</span> <span class="n">estimate_background</span><span class="p">(</span>
+            <span class="n">events</span><span class="o">=</span><span class="n">background</span><span class="p">[</span><span class="n">background_selected</span><span class="p">],</span>
+            <span class="n">reco_energy_bins</span><span class="o">=</span><span class="n">reco_energy_bins</span><span class="p">,</span>
+            <span class="n">theta_cuts</span><span class="o">=</span><span class="n">theta_cuts</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">fov_offset_min</span><span class="o">=</span><span class="n">fov_offset_min</span><span class="p">,</span>
+            <span class="n">fov_offset_max</span><span class="o">=</span><span class="n">fov_offset_max</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">sensitivity</span> <span class="o">=</span> <span class="n">calculate_sensitivity</span><span class="p">(</span>
+            <span class="n">signal_hist</span><span class="p">,</span> <span class="n">background_hist</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">sensitivities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sensitivity</span><span class="p">)</span>
+
+    <span class="n">best_cut_table</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+    <span class="n">best_cut_table</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">best_cut_table</span><span class="p">[</span><span class="s2">&quot;center&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bin_center</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span>
+    <span class="n">best_cut_table</span><span class="p">[</span><span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">reco_energy_bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">best_cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">best_cut_table</span><span class="p">[</span><span class="s2">&quot;efficiency&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+    <span class="n">best_sensitivity</span> <span class="o">=</span> <span class="n">sensitivities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">bin_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">reco_energy_bins</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">sensitivities_bin</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;relative_sensitivity&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sensitivities</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">sensitivities_bin</span><span class="p">)):</span>
+            <span class="c1"># nanargmin won&#39;t return the index of nan entries</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nanargmin</span><span class="p">(</span><span class="n">sensitivities_bin</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># if all are invalid, just use the first one</span>
+            <span class="n">best</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">best_sensitivity</span><span class="p">[</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">sensitivities</span><span class="p">[</span><span class="n">best</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span>
+        <span class="n">best_cut_table</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">gh_cuts</span><span class="p">[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">][</span><span class="n">best</span><span class="p">]</span>
+        <span class="n">best_cut_table</span><span class="p">[</span><span class="s2">&quot;efficiency&quot;</span><span class="p">][</span><span class="n">bin_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">gh_cut_efficiencies</span><span class="p">[</span><span class="n">best</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">best_sensitivity</span><span class="p">,</span> <span class="n">best_cut_table</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

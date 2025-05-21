@@ -1,0 +1,599 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Using pyirf to calculate IRFs from the FACT Open Data &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=fd3f3429" />
+      <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/notebooks/fact_example.html"/>
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+      <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="How to contribute" href="../contribute.html" />
+    <link rel="prev" title="Example Notebooks" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Example Notebooks</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Using <code class="docutils literal notranslate"><span class="pre">pyirf</span></code> to calculate IRFs from the FACT Open Data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Download-Data">Download Data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Read-in-the-data">Read in the data</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Simulated-Event-Info">Simulated Event Info</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#DL2-Event-List">DL2 Event List</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Apply-Event-Selection">Apply Event Selection</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Calculate-IRFs">Calculate IRFs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Effective-area">Effective area</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Calculate-effective-area">Calculate effective area</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Point-Spread-Function">Point Spread Function</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Energy-Dispersion">Energy Dispersion</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#Export-to-GADF-FITS-files">Export to GADF FITS files</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Example Notebooks</a></li>
+      <li class="breadcrumb-item active">Using <code class="docutils literal notranslate"><span class="pre">pyirf</span></code> to calculate IRFs from the FACT Open Data</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/notebooks/fact_example.ipynb.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Using-pyirf-to-calculate-IRFs-from-the-FACT-Open-Data">
+<h1>Using <code class="docutils literal notranslate"><span class="pre">pyirf</span></code> to calculate IRFs from the FACT Open Data<a class="headerlink" href="#Using-pyirf-to-calculate-IRFs-from-the-FACT-Open-Data" title="Link to this heading"></a></h1>
+<p><strong>Note</strong> In FACT, we used a different terminology, partly because of being a monoscopic telescope or out of confusion witht the CTA terms, in this context DL3 are reconstructed events, but not necessarily already with the IRF</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+<section id="Download-Data">
+<h2>Download Data<a class="headerlink" href="#Download-Data" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">path</span> <span class="o">=</span> <span class="s2">&quot;gamma_test_dl3.hdf5&quot;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;https://factdata.app.tu-dortmund.de/dl3/FACT-Tools/v1.1.2/</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="n">ret</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;curl&quot;</span><span class="p">,</span> <span class="s2">&quot;-z&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;-fsSLO&quot;</span><span class="p">,</span> <span class="n">url</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="n">sp</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">ret</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">ret</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Read-in-the-data">
+<h2>Read in the data<a class="headerlink" href="#Read-in-the-data" title="Link to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">QTable</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tables</span>
+</pre></div>
+</div>
+</div>
+<section id="Simulated-Event-Info">
+<h3>Simulated Event Info<a class="headerlink" href="#Simulated-Event-Info" title="Link to this heading"></a></h3>
+<p>Currently, pyirf only works with powerlaw simulated events, like CORSIKA does it. We want to also support arbitrary histograms / event distributions, but that is not yet implemented.</p>
+<p>This can be created from a file with that information, but I will just create it here.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.simulations</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimulatedEventsInfo</span>
+
+<span class="n">simulation_info</span> <span class="o">=</span> <span class="n">SimulatedEventsInfo</span><span class="p">(</span>
+    <span class="n">energy_min</span><span class="o">=</span><span class="mi">200</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="p">,</span>
+    <span class="n">energy_max</span><span class="o">=</span><span class="mi">50</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">,</span>
+    <span class="n">spectral_index</span><span class="o">=-</span><span class="mf">2.7</span><span class="p">,</span>
+    <span class="n">n_showers</span><span class="o">=</span><span class="mi">12600000</span><span class="p">,</span>
+    <span class="n">max_impact</span><span class="o">=</span><span class="mi">300</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">m</span><span class="p">,</span>
+    <span class="n">viewcone_min</span><span class="o">=</span><span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+    <span class="n">viewcone_max</span><span class="o">=</span><span class="mi">0</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="DL2-Event-List">
+<h3>DL2 Event List<a class="headerlink" href="#DL2-Event-List" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">pyirf</span></code> does not prescribe or use a specific DL2 <em>file</em> format. You need to read the data into an <code class="docutils literal notranslate"><span class="pre">astropy.table.QTable</span></code> following our conventions, detailed in the docs here:</p>
+<p><a class="reference external" href="https://cta-observatory.github.io/pyirf/introduction.html#dl2-event-lists">https://cta-observatory.github.io/pyirf/introduction.html#dl2-event-lists</a></p>
+<div class="line-block">
+<div class="line">The FACT-Tools / aict-tools analysis chain uses a column-oriented hdf5 file written using h5py.</div>
+<div class="line">Unfortunately, units have to be known and are not in the metadata.</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gammas</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+
+<span class="c1"># mapping of &lt;target column name&gt;: (&lt;column in the file, unit&gt;)</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;obs_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;run_id&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s1">&#39;event_id&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;event_num&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="s1">&#39;reco_energy&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;gamma_energy_prediction&#39;</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="p">),</span>
+    <span class="s1">&#39;true_energy&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;corsika_event_header_total_energy&#39;</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="p">),</span>
+    <span class="s1">&#39;true_az&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;source_position_az&#39;</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+    <span class="s1">&#39;pointing_az&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;pointing_position_az&#39;</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+    <span class="s1">&#39;theta&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;theta_deg&#39;</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">),</span>
+    <span class="s1">&#39;gh_score&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;gamma_prediction&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="k">with</span> <span class="n">tables</span><span class="o">.</span><span class="n">open_file</span><span class="p">(</span><span class="s1">&#39;gamma_test_dl3.hdf5&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">root</span><span class="o">.</span><span class="n">events</span>
+
+    <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">unit</span><span class="p">)</span> <span class="ow">in</span> <span class="n">columns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">unit</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">gammas</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">name</span><span class="p">][:],</span> <span class="n">unit</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gammas</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">events</span><span class="p">[</span><span class="n">name</span><span class="p">][:]</span>
+
+    <span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;true_alt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">90</span> <span class="o">-</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;source_position_zd&#39;</span><span class="p">][:],</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;pointing_alt&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="mi">90</span> <span class="o">-</span> <span class="n">events</span><span class="p">[</span><span class="s1">&#39;pointing_position_zd&#39;</span><span class="p">][:],</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="c1"># make it display nice</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">gammas</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">gammas</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="n">gammas</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">info</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="s1">&#39;.2f&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gammas</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div><i>QTable length=10</i>
+<table id="table139681999750624" class="table-striped table-bordered table-condensed">
+<thead><tr><th>obs_id</th><th>event_id</th><th>reco_energy</th><th>true_energy</th><th>true_az</th><th>pointing_az</th><th>theta</th><th>gh_score</th><th>true_alt</th><th>pointing_alt</th></tr></thead>
+<thead><tr><th></th><th></th><th>GeV</th><th>GeV</th><th>deg</th><th>deg</th><th>deg</th><th></th><th>deg</th><th>deg</th></tr></thead>
+<thead><tr><th>int64</th><th>int64</th><th>float64</th><th>float64</th><th>float64</th><th>float64</th><th>float64</th><th>float64</th><th>float64</th><th>float64</th></tr></thead>
+<tr><td>11583</td><td>403</td><td>638.00</td><td>712.87</td><td>353.00</td><td>349.76</td><td>1.49</td><td>0.45</td><td>79.34</td><td>79.33</td></tr>
+<tr><td>106806</td><td>237</td><td>815.28</td><td>885.04</td><td>353.00</td><td>42.35</td><td>0.02</td><td>0.82</td><td>89.37</td><td>89.23</td></tr>
+<tr><td>11325</td><td>166</td><td>838.62</td><td>928.05</td><td>353.00</td><td>-4.95</td><td>0.26</td><td>0.75</td><td>83.37</td><td>83.92</td></tr>
+<tr><td>13486</td><td>165</td><td>680.72</td><td>420.22</td><td>353.00</td><td>348.77</td><td>0.13</td><td>0.78</td><td>81.92</td><td>82.02</td></tr>
+<tr><td>14228</td><td>122</td><td>1896.68</td><td>2458.86</td><td>353.00</td><td>351.27</td><td>0.08</td><td>0.88</td><td>70.51</td><td>70.69</td></tr>
+<tr><td>108312</td><td>221</td><td>4430.69</td><td>5347.98</td><td>353.00</td><td>-5.94</td><td>0.05</td><td>0.97</td><td>66.55</td><td>66.12</td></tr>
+<tr><td>13327</td><td>310</td><td>3649.23</td><td>4550.83</td><td>353.00</td><td>347.98</td><td>0.04</td><td>0.91</td><td>83.53</td><td>83.75</td></tr>
+<tr><td>107296</td><td>237</td><td>1723.47</td><td>2109.52</td><td>353.00</td><td>350.67</td><td>0.05</td><td>0.20</td><td>82.56</td><td>82.05</td></tr>
+<tr><td>14269</td><td>217</td><td>956.90</td><td>953.94</td><td>353.00</td><td>-5.98</td><td>0.17</td><td>0.79</td><td>69.53</td><td>70.02</td></tr>
+<tr><td>108669</td><td>183</td><td>804.27</td><td>626.66</td><td>353.00</td><td>-6.38</td><td>0.12</td><td>0.84</td><td>61.06</td><td>60.54</td></tr>
+</table></div></div>
+</div>
+</section>
+<section id="Apply-Event-Selection">
+<h3>Apply Event Selection<a class="headerlink" href="#Apply-Event-Selection" title="Link to this heading"></a></h3>
+<p>We remove likely hadronic events by requiring a minimal <code class="docutils literal notranslate"><span class="pre">gh_score</span></code>.</p>
+<p>We will calculate point-like IRFs, that means selecting events in a radius around the assumed source position.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected_gh&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;gh_score&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.8</span>
+<span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected_theta&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;theta&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.16</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+
+<span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected_gh&#39;</span><span class="p">]</span> <span class="o">&amp;</span> <span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected_theta&#39;</span><span class="p">]</span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected&#39;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">gammas</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.18115575805640652
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Calculate-IRFs">
+<h2>Calculate IRFs<a class="headerlink" href="#Calculate-IRFs" title="Link to this heading"></a></h2>
+<section id="Effective-area">
+<h3>Effective area<a class="headerlink" href="#Effective-area" title="Link to this heading"></a></h3>
+<p>We only have point-like simulations at a specific wobble offset (0.6° for FACT), so we calculate the effective area for all events at once, equivalent to a single fov offset bin.</p>
+<section id="Create-the-binning">
+<h4>Create the binning<a class="headerlink" href="#Create-the-binning" title="Link to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.binning</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_bins_per_decade</span><span class="p">,</span> <span class="n">bin_center</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">true_energy_bins</span> <span class="o">=</span> <span class="n">create_bins_per_decade</span><span class="p">(</span><span class="n">simulation_info</span><span class="o">.</span><span class="n">energy_min</span><span class="p">,</span> <span class="n">simulation_info</span><span class="o">.</span><span class="n">energy_max</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+<span class="c1"># single offset bin around the wobble distance</span>
+<span class="c1"># since we are dealing with point-like simulations</span>
+<span class="n">wobble_offset</span> <span class="o">=</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+<span class="n">fov_offset_bins</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.59</span><span class="p">,</span> <span class="mf">0.61</span><span class="p">]</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="Calculate-effective-area">
+<h3>Calculate effective area<a class="headerlink" href="#Calculate-effective-area" title="Link to this heading"></a></h3>
+<p>Effective area is calculated before and after cuts, for the IRF, we only need after the event selection has been applied.</p>
+<p>The difference between point-like IRFs and Full-Enclosure IRFs is if a theta cut has been applied or not.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.irf</span><span class="w"> </span><span class="kn">import</span> <span class="n">effective_area_per_energy</span>
+
+<span class="n">aeff_all</span> <span class="o">=</span> <span class="n">effective_area_per_energy</span><span class="p">(</span><span class="n">gammas</span><span class="p">,</span> <span class="n">simulation_info</span><span class="p">,</span> <span class="n">true_energy_bins</span><span class="p">)</span>
+<span class="n">aeff_selected</span> <span class="o">=</span> <span class="n">effective_area_per_energy</span><span class="p">(</span><span class="n">gammas</span><span class="p">[</span><span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected&#39;</span><span class="p">]],</span> <span class="n">simulation_info</span><span class="p">,</span> <span class="n">true_energy_bins</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Let’s use gammapy to plot the IRF</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># utility function to converet pyirf Quantities to the gammapy classes</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.gammapy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_effective_area_table_2d</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">aeff</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">((</span><span class="n">aeff_all</span><span class="p">,</span> <span class="n">aeff_selected</span><span class="p">),</span> <span class="p">(</span><span class="s1">&#39;All Events&#39;</span><span class="p">,</span> <span class="s1">&#39;Selected Events&#39;</span><span class="p">)):</span>
+    <span class="n">aeff_gammapy</span> <span class="o">=</span> <span class="n">create_effective_area_table_2d</span><span class="p">(</span>
+        <span class="c1"># add a new dimension for the single fov offset bin</span>
+        <span class="n">effective_area</span><span class="o">=</span><span class="n">aeff</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">],</span>
+        <span class="n">true_energy_bins</span><span class="o">=</span><span class="n">true_energy_bins</span><span class="p">,</span>
+        <span class="n">fov_offset_bins</span><span class="o">=</span><span class="n">fov_offset_bins</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+    <span class="n">aeff_gammapy</span><span class="o">.</span><span class="n">plot_energy_dependence</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="n">wobble_offset</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span><span class="n">true_energy_bins</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="p">),</span> <span class="n">true_energy_bins</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">aeff_gammapy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/opt/hostedtoolcache/Python/3.9.22/x64/lib/python3.9/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+EffectiveAreaTable2D
+--------------------
+
+  axes  : [&#39;energy_true&#39;, &#39;offset&#39;]
+  shape : (11, 1)
+  ndim  : 2
+  unit  : m2
+  dtype : float64
+
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_fact_example_20_2.png" src="../_images/notebooks_fact_example_20_2.png" />
+</div>
+</div>
+</section>
+<section id="Point-Spread-Function">
+<h3>Point Spread Function<a class="headerlink" href="#Point-Spread-Function" title="Link to this heading"></a></h3>
+<p>The point spread function describes how well the direction of the gamma rays is estimated.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.irf</span><span class="w"> </span><span class="kn">import</span> <span class="n">psf_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_source_fov_offset</span>
+
+
+<span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;true_source_fov_offset&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">calculate_source_fov_offset</span><span class="p">(</span><span class="n">gammas</span><span class="p">)</span>
+
+
+<span class="n">source_offset_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="o">*</span> <span class="n">u</span><span class="o">.</span><span class="n">deg</span>
+
+<span class="c1"># calculate this only for the events after the gamma/hadron separation</span>
+<span class="n">psf</span> <span class="o">=</span> <span class="n">psf_table</span><span class="p">(</span><span class="n">gammas</span><span class="p">[</span><span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected_gh&#39;</span><span class="p">]],</span> <span class="n">true_energy_bins</span><span class="p">,</span> <span class="n">source_offset_bins</span><span class="p">,</span> <span class="n">fov_offset_bins</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">psf</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(11, 1, 99)
+</pre></div></div>
+</div>
+<p>Again, let’s use gammapy to plot:</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.gammapy</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_psf_3d</span>
+
+<span class="n">psf_gammapy</span> <span class="o">=</span> <span class="n">create_psf_3d</span><span class="p">(</span><span class="n">psf</span><span class="p">,</span> <span class="n">true_energy_bins</span><span class="p">,</span> <span class="n">source_offset_bins</span><span class="p">,</span>  <span class="n">fov_offset_bins</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">psf_gammapy</span><span class="o">.</span><span class="n">plot_psf_vs_rad</span><span class="p">(</span><span class="n">offset</span><span class="o">=</span><span class="p">[</span><span class="n">wobble_offset</span><span class="p">],</span> <span class="n">energy_true</span><span class="o">=</span><span class="p">[</span><span class="mf">1.</span><span class="p">,</span> <span class="mf">10.</span><span class="p">]</span><span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;1 TeV&#39;</span><span class="p">,</span> <span class="s1">&#39;10 TeV&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;matplotlib.legend.Legend at 0x7f0a4a4f4280&gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_fact_example_25_1.png" src="../_images/notebooks_fact_example_25_1.png" />
+</div>
+</div>
+</section>
+<section id="Energy-Dispersion">
+<h3>Energy Dispersion<a class="headerlink" href="#Energy-Dispersion" title="Link to this heading"></a></h3>
+<p>Describes how well the energy is estimated</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.irf</span><span class="w"> </span><span class="kn">import</span> <span class="n">energy_dispersion</span>
+
+<span class="c1"># logarithmic space, is &quot;symmetric&quot; in terms of ratios 0.1 is a factor of 10 from 1 is a factor of 10 from 10</span>
+<span class="n">migration_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">geomspace</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="n">edisp</span> <span class="o">=</span> <span class="n">energy_dispersion</span><span class="p">(</span>
+    <span class="n">gammas</span><span class="p">[</span><span class="n">gammas</span><span class="p">[</span><span class="s1">&#39;selected&#39;</span><span class="p">]],</span>
+    <span class="n">true_energy_bins</span><span class="o">=</span><span class="n">true_energy_bins</span><span class="p">,</span>
+    <span class="n">fov_offset_bins</span><span class="o">=</span><span class="n">fov_offset_bins</span><span class="p">,</span>
+    <span class="n">migration_bins</span><span class="o">=</span><span class="n">migration_bins</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Plot edisp</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">gammapy.irf</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnergyDispersion2D</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span>
+    <span class="n">true_energy_bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">GeV</span><span class="p">),</span>
+    <span class="n">migration_bins</span><span class="p">,</span>
+    <span class="n">edisp</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;inferno&#39;</span>
+<span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;$E_\mathrm</span><span class="si">{true}</span><span class="s1"> / \mathrm</span><span class="si">{GeV}</span><span class="s1">$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;$\mu$&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xscale</span><span class="p">(</span><span class="s1">&#39;log&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_fact_example_29_0.png" src="../_images/notebooks_fact_example_29_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Export-to-GADF-FITS-files">
+<h2>Export to GADF FITS files<a class="headerlink" href="#Export-to-GADF-FITS-files" title="Link to this heading"></a></h2>
+<p>We use the classes and methods from <code class="docutils literal notranslate"><span class="pre">astropy.io.fits</span></code> and <code class="docutils literal notranslate"><span class="pre">pyirf.io.gadf</span></code> to write files following the GADF specification, which can be found here:</p>
+<p><a class="reference external" href="https://gamma-astro-data-formats.readthedocs.io/en/latest/">https://gamma-astro-data-formats.readthedocs.io/en/latest/</a></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pyirf.io.gadf</span><span class="w"> </span><span class="kn">import</span> <span class="n">create_aeff2d_hdu</span><span class="p">,</span> <span class="n">create_energy_dispersion_hdu</span><span class="p">,</span> <span class="n">create_psf_table_hdu</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">fits</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.time</span><span class="w"> </span><span class="kn">import</span> <span class="n">Time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyirf</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
+
+<span class="c1"># set some common meta data for all hdus</span>
+<span class="n">meta</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">CREATOR</span><span class="o">=</span><span class="s1">&#39;pyirf-v&#39;</span> <span class="o">+</span> <span class="n">__version__</span><span class="p">,</span>
+    <span class="n">TELESCOP</span><span class="o">=</span><span class="s1">&#39;FACT&#39;</span><span class="p">,</span>
+    <span class="n">INSTRUME</span><span class="o">=</span><span class="s1">&#39;FACT&#39;</span><span class="p">,</span>
+    <span class="n">DATE</span><span class="o">=</span><span class="n">Time</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">iso</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">hdus</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># every fits file has to have an Image HDU as first HDU.</span>
+<span class="c1"># GADF only uses Binary Table HDUs, so we need to add an empty HDU in front</span>
+<span class="n">hdus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">fits</span><span class="o">.</span><span class="n">PrimaryHDU</span><span class="p">(</span><span class="n">header</span><span class="o">=</span><span class="n">fits</span><span class="o">.</span><span class="n">Header</span><span class="p">(</span><span class="n">meta</span><span class="p">)))</span>
+
+<span class="n">hdus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">create_aeff2d_hdu</span><span class="p">(</span><span class="n">aeff_selected</span><span class="p">,</span> <span class="n">true_energy_bins</span><span class="p">,</span> <span class="n">fov_offset_bins</span><span class="p">,</span> <span class="o">**</span><span class="n">meta</span><span class="p">))</span>
+<span class="n">hdus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">create_energy_dispersion_hdu</span><span class="p">(</span><span class="n">edisp</span><span class="p">,</span> <span class="n">true_energy_bins</span><span class="p">,</span> <span class="n">migration_bins</span><span class="p">,</span> <span class="n">fov_offset_bins</span><span class="p">,</span> <span class="o">**</span><span class="n">meta</span><span class="p">))</span>
+<span class="n">hdus</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">create_psf_table_hdu</span><span class="p">(</span><span class="n">psf</span><span class="p">,</span> <span class="n">true_energy_bins</span><span class="p">,</span>    <span class="n">source_offset_bins</span><span class="p">,</span> <span class="n">fov_offset_bins</span><span class="p">,</span> <span class="o">**</span><span class="n">meta</span><span class="p">))</span>
+
+<span class="n">fits</span><span class="o">.</span><span class="n">HDUList</span><span class="p">(</span><span class="n">hdus</span><span class="p">)</span><span class="o">.</span><span class="n">writeto</span><span class="p">(</span><span class="s1">&#39;fact_irf.fits.gz&#39;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Example Notebooks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../contribute.html" class="btn btn-neutral float-right" title="How to contribute" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

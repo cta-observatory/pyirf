@@ -1,0 +1,450 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pyirf.binning &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/_modules/pyirf/binning.html"/>
+      <script src="../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../../_static/doctools.js?v=9a2dae69"></script>
+      <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contribute.html">How to contribute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">pyirf.binning</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for pyirf.binning</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Utility functions for binning</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.interpolate</span><span class="w"> </span><span class="kn">import</span> <span class="n">interp1d</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">astropy.units</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">u</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">astropy.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">QTable</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.compat</span><span class="w"> </span><span class="kn">import</span> <span class="n">COPY_IF_NEEDED</span>
+
+
+<span class="c1">#: Index returned by `calculate_bin_indices` for underflown values</span>
+<span class="n">UNDERFLOW_INDEX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">min</span>
+<span class="c1">#: Index returned by `calculate_bin_indices` for overflown values</span>
+<span class="n">OVERFLOW_INDEX</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
+
+
+<div class="viewcode-block" id="bin_center">
+<a class="viewcode-back" href="../../api/pyirf.binning.bin_center.html#pyirf.binning.bin_center">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">bin_center</span><span class="p">(</span><span class="n">edges</span><span class="p">):</span>
+    <span class="k">return</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span></div>
+
+
+
+<div class="viewcode-block" id="join_bin_lo_hi">
+<a class="viewcode-back" href="../../api/pyirf.binning.join_bin_lo_hi.html#pyirf.binning.join_bin_lo_hi">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">join_bin_lo_hi</span><span class="p">(</span><span class="n">bin_lo</span><span class="p">,</span> <span class="n">bin_hi</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Function joins bins into lo and hi part,</span>
+<span class="sd">    e.g. [0, 1, 2] and [1, 2, 4] into [0, 1, 2, 4]</span>
+<span class="sd">    It works on multidimentional arrays as long as the binning is in the last axis</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bin_lo: np.array or u.Quantity</span>
+<span class="sd">        Lo bin edges array</span>
+<span class="sd">    bin_hi: np.array or u.Quantity</span>
+<span class="sd">        Hi bin edges array</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bins: np.array of u.Quantity</span>
+<span class="sd">        The joint bins</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">bin_lo</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:],</span> <span class="n">bin_hi</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1.0e-5</span><span class="p">):</span>
+        <span class="n">last_axis</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bin_lo</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">bin_lo</span><span class="p">,</span> <span class="n">bin_hi</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:]),</span> <span class="n">axis</span><span class="o">=</span><span class="n">last_axis</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bins</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Not matching bin edges&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="split_bin_lo_hi">
+<a class="viewcode-back" href="../../api/pyirf.binning.split_bin_lo_hi.html#pyirf.binning.split_bin_lo_hi">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">split_bin_lo_hi</span><span class="p">(</span><span class="n">bins</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Inverted function to join_bin_hi_lo,</span>
+<span class="sd">    e.g. it splits [0, 1, 2, 4] into [0, 1, 2] and [1, 2, 4]</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bins: np.array of u.Quantity</span>
+<span class="sd">        The joint bins</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bin_lo: np.array or u.Quantity</span>
+<span class="sd">        Lo bin edges array</span>
+<span class="sd">    bin_hi: np.array or u.Quantity</span>
+<span class="sd">        Hi bin edges array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bin_lo</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">bin_hi</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">:]</span>
+    <span class="k">return</span> <span class="n">bin_lo</span><span class="p">,</span> <span class="n">bin_hi</span></div>
+
+
+
+<div class="viewcode-block" id="add_overflow_bins">
+<a class="viewcode-back" href="../../api/pyirf.binning.add_overflow_bins.html#pyirf.binning.add_overflow_bins">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_overflow_bins</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">positive</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add under and overflow bins to a bin array.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    bins: np.array or u.Quantity</span>
+<span class="sd">        Bin edges array</span>
+<span class="sd">    positive: bool</span>
+<span class="sd">        If True, the underflow array will start at 0, if not at ``-np.inf``</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lower</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">positive</span> <span class="k">else</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="s2">&quot;unit&quot;</span><span class="p">):</span>
+        <span class="n">lower</span> <span class="o">*=</span> <span class="n">bins</span><span class="o">.</span><span class="n">unit</span>
+        <span class="n">upper</span> <span class="o">*=</span> <span class="n">bins</span><span class="o">.</span><span class="n">unit</span>
+
+    <span class="k">if</span> <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">lower</span><span class="p">:</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lower</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">upper</span><span class="p">:</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">upper</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">bins</span></div>
+
+
+
+<div class="viewcode-block" id="create_bins_per_decade">
+<a class="viewcode-back" href="../../api/pyirf.binning.create_bins_per_decade.html#pyirf.binning.create_bins_per_decade">[docs]</a>
+<span class="nd">@u</span><span class="o">.</span><span class="n">quantity_input</span><span class="p">(</span><span class="n">e_min</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">,</span> <span class="n">e_max</span><span class="o">=</span><span class="n">u</span><span class="o">.</span><span class="n">TeV</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_bins_per_decade</span><span class="p">(</span><span class="n">e_min</span><span class="p">,</span> <span class="n">e_max</span><span class="p">,</span> <span class="n">bins_per_decade</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create a bin array with bins equally spaced in logarithmic energy</span>
+<span class="sd">    with ``bins_per_decade`` bins per decade.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    e_min: u.Quantity[energy]</span>
+<span class="sd">        Minimum energy, inclusive</span>
+<span class="sd">    e_max: u.Quantity[energy]</span>
+<span class="sd">        Maximum energy, non-inclusive</span>
+<span class="sd">        If the endpoint exactly matches the ``n_bins_per_decade`` requirement,</span>
+<span class="sd">        it will be included.</span>
+<span class="sd">    n_bins_per_decade: int</span>
+<span class="sd">        number of bins per decade</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bins: u.Quantity[energy]</span>
+<span class="sd">        The created bin array, will have units of e_min</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unit</span> <span class="o">=</span> <span class="n">e_min</span><span class="o">.</span><span class="n">unit</span>
+    <span class="n">log_lower</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">e_min</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">))</span>
+    <span class="n">log_upper</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">e_max</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">))</span>
+
+    <span class="n">step</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">bins_per_decade</span>
+    <span class="c1"># include endpoint if reasonably close</span>
+    <span class="n">eps</span> <span class="o">=</span> <span class="n">step</span> <span class="o">/</span> <span class="mi">10000</span>
+    <span class="n">bins</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">**</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">log_lower</span><span class="p">,</span> <span class="n">log_upper</span> <span class="o">+</span> <span class="n">eps</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="n">e_min</span><span class="o">.</span><span class="n">unit</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">COPY_IF_NEEDED</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_bin_indices">
+<a class="viewcode-back" href="../../api/pyirf.binning.calculate_bin_indices.html#pyirf.binning.calculate_bin_indices">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_bin_indices</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate bin indices of inidividula entries of the given data array using</span>
+<span class="sd">    the supplied binning. Underflow will be indicated by `UNDERFLOW_INDEX` and</span>
+<span class="sd">    overflow by `OVERFLOW_INDEX`.</span>
+
+<span class="sd">    If the bins already include underflow / overflow bins, e.g.</span>
+<span class="sd">    `bins[0] = -np.inf` and `bins[-1] = np.inf`, using the result of this</span>
+<span class="sd">    function will always be a valid index into the resulting histogram.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data: ``~np.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        Array with the data</span>
+
+<span class="sd">    bins: ``~np.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        Array or Quantity of bin edges. Must have the same unit as ``data`` if a Quantity.</span>
+
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bin_index: np.ndarray[int]</span>
+<span class="sd">        Indices of the histogram bin the values in data belong to.</span>
+<span class="sd">        Under- and overflown values will have values of `UNDERFLOW_INDEX`</span>
+<span class="sd">        and `OVERFLOW_INDEX` respectively.</span>
+
+<span class="sd">    valid: np.ndarray[bool]</span>
+<span class="sd">        Boolean mask indicating if a given value belongs into one of the defined bins.</span>
+<span class="sd">        False indicates that an entry fell into the over- or underflow bins.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s2">&quot;unit&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">bins</span><span class="p">,</span> <span class="s2">&quot;unit&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;If ``data`` is a Quantity, so must ``bins``, got </span><span class="si">{</span><span class="n">bins</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">unit</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">unit</span><span class="p">)</span>
+
+    <span class="n">n_bins</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="n">underflow</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">&lt;</span> <span class="mi">0</span>
+    <span class="n">overflow</span> <span class="o">=</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">n_bins</span>
+    <span class="n">idx</span><span class="p">[</span><span class="n">underflow</span><span class="p">]</span> <span class="o">=</span> <span class="n">UNDERFLOW_INDEX</span>
+    <span class="n">idx</span><span class="p">[</span><span class="n">overflow</span><span class="p">]</span> <span class="o">=</span> <span class="n">OVERFLOW_INDEX</span>
+    <span class="n">valid</span> <span class="o">=</span> <span class="o">~</span><span class="n">underflow</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">overflow</span>
+    <span class="k">return</span> <span class="n">idx</span><span class="p">,</span> <span class="n">valid</span></div>
+
+
+
+<div class="viewcode-block" id="create_histogram_table">
+<a class="viewcode-back" href="../../api/pyirf.binning.create_histogram_table.html#pyirf.binning.create_histogram_table">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_histogram_table</span><span class="p">(</span><span class="n">events</span><span class="p">,</span> <span class="n">bins</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;reco_energy&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Histogram a variable from events data into an astropy table.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    events : ``astropy.QTable``</span>
+<span class="sd">        Astropy Table object containing the reconstructed events information.</span>
+<span class="sd">    bins: ``~np.ndarray`` or ``~astropy.units.Quantity``</span>
+<span class="sd">        Array or Quantity of bin edges.</span>
+<span class="sd">        It must have the same units as ``data`` if a Quantity.</span>
+<span class="sd">    key : ``string``</span>
+<span class="sd">        Variable to histogram from the events table.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    hist: ``astropy.QTable``</span>
+<span class="sd">        Astropy table containg the histogram.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hist</span> <span class="o">=</span> <span class="n">QTable</span><span class="p">()</span>
+    <span class="n">hist</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;_low&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">hist</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;_high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">hist</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;_center&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="n">hist</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;_low&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">hist</span><span class="p">[</span><span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;_high&quot;</span><span class="p">])</span>
+    <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">events</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">bins</span><span class="p">)</span>
+
+    <span class="c1"># also calculate weighted number of events</span>
+    <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+        <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;n_weighted&quot;</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
+            <span class="n">events</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">events</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;n_weighted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+
+    <span class="c1"># create counts per particle type, only works if there is at least 1 event</span>
+    <span class="k">if</span> <span class="s2">&quot;particle_type&quot;</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">colnames</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">events</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">by_particle</span> <span class="o">=</span> <span class="n">events</span><span class="o">.</span><span class="n">group_by</span><span class="p">(</span><span class="s2">&quot;particle_type&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">group_key</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">by_particle</span><span class="o">.</span><span class="n">groups</span><span class="o">.</span><span class="n">keys</span><span class="p">,</span> <span class="n">by_particle</span><span class="o">.</span><span class="n">groups</span><span class="p">):</span>
+            <span class="n">particle</span> <span class="o">=</span> <span class="n">group_key</span><span class="p">[</span><span class="s2">&quot;particle_type&quot;</span><span class="p">]</span>
+
+            <span class="n">hist</span><span class="p">[</span><span class="s2">&quot;n_&quot;</span> <span class="o">+</span> <span class="n">particle</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">bins</span><span class="p">)</span>
+
+            <span class="c1"># also calculate weighted number of events</span>
+            <span class="n">col</span> <span class="o">=</span> <span class="s2">&quot;n_&quot;</span> <span class="o">+</span> <span class="n">particle</span>
+            <span class="k">if</span> <span class="s2">&quot;weight&quot;</span> <span class="ow">in</span> <span class="n">events</span><span class="o">.</span><span class="n">colnames</span><span class="p">:</span>
+                <span class="n">hist</span><span class="p">[</span><span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_weighted&quot;</span><span class="p">],</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
+                    <span class="n">group</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">group</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">hist</span><span class="p">[</span><span class="n">col</span> <span class="o">+</span> <span class="s2">&quot;_weighted&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">hist</span><span class="p">[</span><span class="n">col</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">hist</span></div>
+
+
+
+<div class="viewcode-block" id="resample_histogram1d">
+<a class="viewcode-back" href="../../api/pyirf.binning.resample_histogram1d.html#pyirf.binning.resample_histogram1d">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">resample_histogram1d</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">old_edges</span><span class="p">,</span> <span class="n">new_edges</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Rebinning of a histogram by interpolation along a given axis.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    data : ``numpy.ndarray`` or ``astropy.units.Quantity``</span>
+<span class="sd">        Histogram.</span>
+<span class="sd">    old_edges : ``numpy.array`` or ``astropy.units.Quantity``</span>
+<span class="sd">        Binning used to calculate ``data``.</span>
+<span class="sd">        ``len(old_edges) - 1`` needs to equal the length of ``data``</span>
+<span class="sd">        along interpolation axis (``axis``).</span>
+<span class="sd">        If quantity, needs to be compatible to ``new_edges``.</span>
+<span class="sd">    new_edges : ``numpy.array`` or ``astropy.units.Quantity``</span>
+<span class="sd">        Binning of new histogram.</span>
+<span class="sd">        If quantity, needs to be compatible to ``old_edges``.</span>
+<span class="sd">    axis : int</span>
+<span class="sd">        Interpolation axis.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ``numpy.ndarray`` or ``astropy.units.Quantity``</span>
+<span class="sd">        Interpolated histogram with dimension according to ``data`` and ``new_edges``.</span>
+<span class="sd">        If ``data`` is a quantity, this has the same unit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">data_unit</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">):</span>
+        <span class="n">data_unit</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">unit</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">to_value</span><span class="p">(</span><span class="n">data_unit</span><span class="p">)</span>
+
+    <span class="n">over_underflow_bin_width</span> <span class="o">=</span> <span class="n">old_edges</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="n">old_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">old_edges</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span>
+            <span class="n">old_edges</span><span class="p">,</span>
+            <span class="n">posinf</span><span class="o">=</span><span class="n">old_edges</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">]</span> <span class="o">+</span> <span class="n">over_underflow_bin_width</span><span class="p">,</span>
+            <span class="n">neginf</span><span class="o">=</span><span class="n">old_edges</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">over_underflow_bin_width</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="n">new_edges</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">new_edges</span><span class="p">))</span>
+
+    <span class="n">old_edges</span> <span class="o">=</span> <span class="n">old_edges</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="n">new_edges</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+
+    <span class="n">cumsum</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
+
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">norm</span><span class="p">[</span><span class="n">norm</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">cumsum</span> <span class="o">/=</span> <span class="n">norm</span>
+
+    <span class="n">f_integral</span> <span class="o">=</span> <span class="n">interp1d</span><span class="p">(</span>
+        <span class="n">old_edges</span><span class="p">,</span>
+        <span class="n">cumsum</span><span class="p">,</span>
+        <span class="n">bounds_error</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">fill_value</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;quadratic&quot;</span><span class="p">,</span>
+        <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">f_integral</span><span class="p">(</span><span class="n">new_edges</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span> <span class="o">*</span> <span class="n">norm</span>
+    <span class="k">if</span> <span class="n">data_unit</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">Quantity</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">unit</span><span class="o">=</span><span class="n">data_unit</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">values</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

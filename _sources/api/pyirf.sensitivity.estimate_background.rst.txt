@@ -1,0 +1,6 @@
+estimate_background
+===================
+
+.. currentmodule:: pyirf.sensitivity
+
+.. autofunction:: estimate_background

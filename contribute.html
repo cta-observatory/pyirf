@@ -1,0 +1,262 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to contribute &mdash; pyirf  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=fd3f3429" />
+
+  
+    <link rel="canonical" href="https://pyirf.readthedocs.io/contribute.html"/>
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9a2dae69"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Changelog" href="changelog.html" />
+    <link rel="prev" title="Using pyirf to calculate IRFs from the FACT Open Data" href="notebooks/fact_example.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            pyirf
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Overview</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction to <code class="docutils literal notranslate"><span class="pre">pyirf</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/index.html">Example Notebooks</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to contribute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#issue-tracker">Issue Tracker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-procedure">Development procedure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#running-the-tests-and-looking-at-coverage">Running the tests and looking at coverage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#building-the-documentation">Building the documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#making-your-contribution-visible">Making your contribution visible</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#further-details">Further details</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AUTHORS.html">Authors</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Documentation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="irf/index.html">Instrument Response Functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sensitivity.html">Sensitivity</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks/index.html">Benchmarks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cuts.html">Calculating and Applying Cuts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cut_optimization.html">Cut Optimization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="simulation.html">Simulation Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="spectral.html">Event Weighting and Spectrum Definitions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Statistics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="binning.html">Binning and Histogram Utilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io/index.html">Input / Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="interpolation.html">Interpolation and Extrapolation of IRFs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gammapy.html">Gammapy Interoperability</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utility functions</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">pyirf</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">How to contribute</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/contribute.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="how-to-contribute">
+<span id="contribute"></span><h1>How to contribute<a class="headerlink" href="#how-to-contribute" title="Link to this heading"></a></h1>
+<nav class="contents local" id="current-projects">
+<p class="topic-title">Current projects</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#issue-tracker" id="id1">Issue Tracker</a></p></li>
+<li><p><a class="reference internal" href="#development-procedure" id="id2">Development procedure</a></p></li>
+<li><p><a class="reference internal" href="#running-the-tests-and-looking-at-coverage" id="id3">Running the tests and looking at coverage</a></p></li>
+<li><p><a class="reference internal" href="#building-the-documentation" id="id4">Building the documentation</a></p></li>
+<li><p><a class="reference internal" href="#making-your-contribution-visible" id="id5">Making your contribution visible</a></p></li>
+<li><p><a class="reference internal" href="#further-details" id="id6">Further details</a></p></li>
+</ul>
+</nav>
+<section id="issue-tracker">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Issue Tracker</a><a class="headerlink" href="#issue-tracker" title="Link to this heading"></a></h2>
+<p>We use the <a class="reference external" href="https://github.com/cta-observatory/pyirf">GitHub issue tracker</a>
+for individual issues and the <a class="reference external" href="https://github.com/cta-observatory/pyirf/projects">GitHub Projects page</a> can give you a quick overview.</p>
+<p>If you found a bug or you are missing a feature, please check the existing
+issues and then open a new one or contribute to the existing issue.</p>
+</section>
+<section id="development-procedure">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Development procedure</a><a class="headerlink" href="#development-procedure" title="Link to this heading"></a></h2>
+<p>We use the standard <a class="reference external" href="https://guides.github.com/introduction/flow/">GitHub workflow</a>.</p>
+<p>If you are not part of the <code class="docutils literal notranslate"><span class="pre">cta-observatory</span></code> organization,
+you need to fork the repository to contribute.
+See the <a class="reference external" href="https://docs.github.com/en/github/getting-started-with-github/fork-a-repo">GitHub tutorial on forks</a> if you are unsure how to do this.</p>
+<ol class="arabic">
+<li><p>When you find something that is wrong or missing</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Go to the issue tracker  and check if an issue already exists for your bug or feature</p></li>
+<li><p>In general it is always better to anticipate a PR with a new issue and link the two</p></li>
+</ul>
+</div></blockquote>
+</li>
+<li><p>To work on a bug fix or new feature, create a new branch, add commits and open your pull request</p>
+<ul class="simple">
+<li><p>If you think your pull request is good to go and ready to be reviewed,
+you can directly open it as normal pull request.</p></li>
+<li><p>You can also open it as a “Draft Pull Request”, if you are not yet finished
+but want to get early feedback on your ideas.</p></li>
+<li><p>Especially when working on a bug, it makes sense to first add a new
+test that fails due to the bug and in a later commit add the fix showing
+that the test is then passing.
+This helps understanding the bug and will prevent it from reappearing later.</p></li>
+<li><p>Create a changelog entry in <code class="docutils literal notranslate"><span class="pre">docs/changes</span></code>, please note the <code class="docutils literal notranslate"><span class="pre">README.md</span></code> there.
+Minor changes (on the magnitude of fixing a broken link or renaming a variable) can receive the <code class="docutils literal notranslate"><span class="pre">no-changelog-needed</span></code> label.
+This should, however, be a rare exception.</p></li>
+</ul>
+</li>
+<li><p>Wait for review comments and then implement or discuss requested changes.</p></li>
+</ol>
+<p>We use <a class="reference external" href="https://github.com/cta-observatory/pyirf/actions?query=workflow%3ACI+branch%3Amaster">Github Actions</a> to
+run the unit tests and documentation building automatically for every pull request.
+Passing unit tests and coverage of the changed code are required for all pull requests.</p>
+</section>
+<section id="running-the-tests-and-looking-at-coverage">
+<h2><a class="toc-backref" href="#id3" role="doc-backlink">Running the tests and looking at coverage</a><a class="headerlink" href="#running-the-tests-and-looking-at-coverage" title="Link to this heading"></a></h2>
+<p>For more immediate feedback, you should run the tests locally before pushing,
+as builds on travis take quite long.</p>
+<p>To run the tests locally, make sure you have the <cite>tests</cite> extras installed and then
+run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pytest<span class="w"> </span>-v
+</pre></div>
+</div>
+<p>To also inspect the coverage, run</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>pytest<span class="w"> </span>--cov<span class="o">=</span>pyirf<span class="w"> </span>--cov-report<span class="o">=</span>html<span class="w"> </span>-v
+</pre></div>
+</div>
+<p>This will create a coverage report in html form in the <code class="docutils literal notranslate"><span class="pre">htmlcov</span></code> directory,
+which you can serve locally using</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>-d<span class="w"> </span>htmlcov
+</pre></div>
+</div>
+<p>After this, you can view the report in your browser by visiting the url printed
+to the terminal.</p>
+</section>
+<section id="building-the-documentation">
+<h2><a class="toc-backref" href="#id4" role="doc-backlink">Building the documentation</a><a class="headerlink" href="#building-the-documentation" title="Link to this heading"></a></h2>
+<p>This documentation uses sphinx and restructured text.
+For an Introduction, see the <a class="reference external" href="https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html">Sphinx documentation</a>.</p>
+<p>To build the docs locally, enter the <code class="docutils literal notranslate"><span class="pre">docs</span></code> directory and call:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>html
+</pre></div>
+</div>
+<p>Some changes require a full remake of the documentation, for that call</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>make<span class="w"> </span>clean<span class="w"> </span>html
+</pre></div>
+</div>
+<p>If you created or deleted file or submodule, you also need to remove the
+<code class="docutils literal notranslate"><span class="pre">api</span></code> directory, it will be regenerated automatically.</p>
+<p>Make sure the docs are built without warnings from sphinx, as these
+will be treated as errors in the build in the CI system as they most often
+result in broken styling.</p>
+<p>To look at the docs, use</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span>_build/html
+</pre></div>
+</div>
+<p>and visit the printed URL in your browser.</p>
+</section>
+<section id="making-your-contribution-visible">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Making your contribution visible</a><a class="headerlink" href="#making-your-contribution-visible" title="Link to this heading"></a></h2>
+<p>Together with the changes that will come with you PR, you should check that the
+following maintenance files are up-to-date:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.mailmap</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CODEOWNERS</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.zenodo.json</span></code></p></li>
+</ul>
+</section>
+<section id="further-details">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Further details</a><a class="headerlink" href="#further-details" title="Link to this heading"></a></h2>
+<p>Please also have a look at the</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ctapipe</span></code> <a class="reference external" href="https://cta-observatory.github.io/ctapipe/development/index.html">development guidelines</a></p></li>
+<li><p>The <a class="reference external" href="https://gamma-astro-data-formats.readthedocs.io/en/latest/">Open Gamma-Ray Astronomy data formats</a>
+which also describe the IRF formats and their definitions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ctools</span></code> <a class="reference external" href="http://cta.irap.omp.eu/ctools/users/user_manual/irf_cta.html">documentation page on IRFs</a></p></li>
+<li><p><a class="reference external" href="https://forge.in2p3.fr/projects/instrument-response-functions/wiki">CTA IRF working group wiki (internal)</a></p></li>
+<li><p><a class="reference external" href="https://gitlab.cta-observatory.org/cta-consortium/aswg/documentation/internal_reports/irfs-reports/prod3b-irf-description">CTA IRF Description Document for Prod3b (internal)</a></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="notebooks/fact_example.html" class="btn btn-neutral float-left" title="Using pyirf to calculate IRFs from the FACT Open Data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2020, Maximilian Nöthe, Michele Peresano, Thomas Vuillaume.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

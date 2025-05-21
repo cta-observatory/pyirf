@@ -1,0 +1,17 @@
+PowerLawWithExponentialGaussian
+===============================
+
+.. currentmodule:: pyirf.spectral
+
+.. autoclass:: PowerLawWithExponentialGaussian
+   :show-inheritance:
+
+   .. rubric:: Methods Summary
+
+   .. autosummary::
+
+      ~PowerLawWithExponentialGaussian.__call__
+
+   .. rubric:: Methods Documentation
+
+   .. automethod:: __call__
