@@ -46,6 +46,7 @@ setup(
         "astropy>=5.3,<7.0.0a0",
         "numpy>=1.21",
         "scipy",
+        "setuptools<65.6",
         "tqdm",
         "packaging",
     ],
