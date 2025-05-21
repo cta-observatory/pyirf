@@ -50,8 +50,6 @@ docs = [
     "sphinx_automodapi",
     "numpydoc",
     "nbsphinx",
-    "uproot",
-    "awkward1",
     "notebook",
     "tables",
     "towncrier",
@@ -61,8 +59,6 @@ tests = [
     "pytest",
     "pytest-cov",
     "ogadf-schema ~=0.2.3",
-    "uproot ~=4.0",
-    "awkward ~=1.0",
     "pyirf[gammapy]",
 ]
 dev = [
