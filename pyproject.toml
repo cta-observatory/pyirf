@@ -2,6 +2,85 @@
 requires = ["setuptools>=60", "setuptools-scm[toml]>=8.0"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "pyirf"
+description = "A python library to calculate IACT IRFs and Sensitivities"
+readme = "README.rst"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [
+    { name = "CTA Consortium, Analysis and Simulation Working Group", email = "maximilian.linhoff@tu-dortmund.de" }
+]
+dynamic = [
+  "version",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Astronomy",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+dependencies = [
+  "astropy>=5.3,<8.0.0a0",
+  "numpy>=1.21",
+  "scipy",
+  "tqdm",
+  "packaging",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/cta-observatory/pyirf"
+"Bug Tracker" = "https://github.com/cta-observatory/pyirf/issues"
+"Documentation" = "https://cta-observatory.github.io/pyirf"
+"Source Code" = "https://github.com/cta-observatory/pyirf"
+
+[project.optional-dependencies]
+gammapy = [
+  "gammapy ~=1.0"
+]
+docs = [
+    "sphinx",
+    "sphinx_rtd_theme",
+    "sphinx_automodapi",
+    "numpydoc",
+    "nbsphinx",
+    "uproot",
+    "awkward1",
+    "notebook",
+    "tables",
+    "towncrier",
+    "pyirf[gammapy]",
+]
+tests = [
+    "pytest",
+    "pytest-cov",
+    "ogadf-schema ~=0.2.3",
+    "uproot ~=4.0",
+    "awkward ~=1.0",
+    "pyirf[gammapy]",
+]
+dev = [
+  "setuptools_scm",
+]
+all = [
+  "pyirf[tests,docs,dev]",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+exclude = ["pyirf._dev_version", "docs*", "examples*"]
+
+[tool.setuptools_scm]
+write_to = "pyirf/_version.py"
+
 [tool.towncrier]
     package = "pyirf"
     directory = "docs/changes"
