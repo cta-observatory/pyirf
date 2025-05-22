@@ -1,2 +1,0 @@
-Add support for astropy up to 7.1,
-drop support for python 3.9.
