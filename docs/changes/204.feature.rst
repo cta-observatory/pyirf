@@ -1,3 +1,0 @@
-Add function ``pyirf.cut_optimization.optimize_cuts`` doing
-a full grid search on gammaness, theta and multiplicity cut
-to find best point source sensitivity.

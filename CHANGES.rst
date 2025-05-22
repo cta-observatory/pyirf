@@ -1,3 +1,27 @@
+pyirf v0.13.0 (2025-05-22)
+==========================
+
+New Features
+------------
+
+- Add function ``pyirf.cut_optimization.optimize_cuts`` doing
+  a full grid search on gammaness, theta and multiplicity cut
+  to find best point source sensitivity. [`#204 <https://github.com/cta-observatory/pyirf/pull/204>`__]
+
+
+Maintenance
+-----------
+
+- Add support for astropy up to 7.1,
+  drop support for python 3.9. [`#302 <https://github.com/cta-observatory/pyirf/pull/302>`__]
+
+
+Refactoring and Optimization
+----------------------------
+
+- Improve performance of ``pyirf.cut_optimization.optimize_gh_cuts``.
+  [`#204 <https://github.com/cta-observatory/pyirf/pull/204>`__]
+
 pyirf v0.12.0 (2024-11-15)
 ==========================
 
