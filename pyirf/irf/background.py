@@ -109,7 +109,7 @@ def background_3d_lonlat(events, reco_energy_bins, fov_lon_bins, fov_lat_bins, t
     # divide all energy bins by their width
     # hist has shape (n_energy, n_fov_offset) so we need to transpose and then back
     bin_width_energy = np.diff(reco_energy_bins)
-    per_energy = (hist / bin_width_energy[:, np.newaxis, np.newaxis])
+    per_energy = hist / bin_width_energy[:, np.newaxis, np.newaxis]
 
     # divide by solid angle in each fov bin and the observation time
     bin_solid_angle = rectangle_solid_angle(

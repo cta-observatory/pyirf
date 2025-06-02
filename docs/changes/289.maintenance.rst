@@ -1,3 +1,0 @@
-Make pyirf compatible with numpy 2.0.
-
-Replace deprecated ``logging.warn`` with ``logging.warning``.

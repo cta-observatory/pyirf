@@ -81,7 +81,7 @@ def test_background_3d_lonlat():
                 ]
             )
             * u.TeV,
-            "reco_fov_lon": np.concatenate(
+            "reco_source_fov_lon": np.concatenate(
                 [
                     np.full(N_low // 4, Lon_low),
                     np.full(N_high // 4, Lon_hig),
@@ -94,9 +94,8 @@ def test_background_3d_lonlat():
                 ]
             )
             * u.deg,
-            "reco_fov_lat": np.append(
-                np.full(N_tot // 2, Lat_low),
-                np.full(N_tot // 2, Lat_hig)
+            "reco_source_fov_lat": np.append(
+                np.full(N_tot // 2, Lat_low), np.full(N_tot // 2, Lat_hig)
             )
             * u.deg,
             "weight": np.full(N_tot, 1.0),
@@ -119,11 +118,17 @@ def test_background_3d_lonlat():
 
     # Convert to counts, project to energy axis, and check counts round-trip correctly
     assert np.allclose(
-        (bin_solid_angle * bkg_rate * bin_width_energy[:, np.newaxis, np.newaxis]).sum(axis=(1, 2)) * t_obs,
+        (bin_solid_angle * bkg_rate * bin_width_energy[:, np.newaxis, np.newaxis]).sum(
+            axis=(1, 2)
+        )
+        * t_obs,
         [N_low, N_high, 0],
     )
     # Convert to counts, project to latitude axis, and check counts round-trip correctly
     assert np.allclose(
-        (bin_solid_angle * bkg_rate * bin_width_energy[:, np.newaxis, np.newaxis]).sum(axis=(0, 1)) * t_obs,
+        (bin_solid_angle * bkg_rate * bin_width_energy[:, np.newaxis, np.newaxis]).sum(
+            axis=(0, 1)
+        )
+        * t_obs,
         2 * [N_tot // 2],
     )
