@@ -61,6 +61,36 @@ def psf_hdu():
 
 
 @pytest.fixture
+def psf3d_polar_hdu():
+    from pyirf.io import create_psf_table_3d_polar_hdu
+    from pyirf.utils import cone_solid_angle
+
+    psf = np.zeros((len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(source_bins) - 1))
+    psf[:, 0, 0, :] = 1
+    psf = psf / cone_solid_angle(source_bins[1])
+
+    hdu = create_psf_table_3d_polar_hdu(
+        psf, e_bins, source_bins, fov_bins, fov_bins, point_like=False
+    )
+    return psf, hdu
+
+
+@pytest.fixture
+def psf3d_lonlat_hdu():
+    from pyirf.io import create_psf_table_3d_lonlat_hdu
+    from pyirf.utils import cone_solid_angle
+
+    psf = np.zeros((len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(source_bins) - 1))
+    psf[:, 0, 0, :] = 1
+    psf = psf / cone_solid_angle(source_bins[1])
+
+    hdu = create_psf_table_3d_lonlat_hdu(
+        psf, e_bins, source_bins, fov_bins, fov_bins, point_like=False
+    )
+    return psf, hdu
+
+
+@pytest.fixture
 def bg_hdu():
     from pyirf.io import create_background_2d_hdu
 
@@ -151,6 +181,52 @@ def test_psf_schema(psf_hdu):
     from ogadf_schema.irfs import PSF_TABLE
 
     _, hdu = psf_hdu
+    PSF_TABLE.validate_hdu(hdu)
+
+
+@pytest.mark.xfail(reason="Asymmetric PSF not implemented in gammapy yet.", raises=ImportError)
+def test_psf_table_3d_polar_gammapy(psf3d_polar_hdu):
+    '''Test our psf is readable by gammapy'''
+    from gammapy.irf import PSF_asym
+
+    psf, hdu = psf3d_polar_hdu
+
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+
+        # test reading with gammapy works
+        psf3d = PSF3D.read(f.name, 'PSF')
+        assert u.allclose(psf, psf3d.quantity, atol=1e-16 / u.sr)
+
+
+@pytest.mark.xfail(reason="PSF_TABLE_3D not implemented yet", raises=ImportError)
+def test_psf3d_polar_schema(psf3d_polar_hdu):
+    from ogadf_schema.irfs import PSF_TABLE_3D
+
+    _, hdu = psf3d_polar_hdu
+    PSF_TABLE.validate_hdu(hdu)
+
+
+@pytest.mark.xfail(reason="Asymmetric PSF not implemented in gammapy yet.", raises=ImportError)
+def test_psf_table_3d_lonlat_gammapy(psf3d_lonlat_hdu):
+    '''Test our psf is readable by gammapy'''
+    from gammapy.irf import PSF_asym
+
+    psf, hdu = psf3d_lonlat_hdu
+
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+
+        # test reading with gammapy works
+        psf3d = PSF3D.read(f.name, 'PSF')
+        assert u.allclose(psf, psf3d.quantity, atol=1e-16 / u.sr)
+
+
+@pytest.mark.xfail(reason="PSF_TABLE_3D not implemented yet", raises=ImportError)
+def test_psf3d_lonlat_schema(psf3d_lonlat_hdu):
+    from ogadf_schema.irfs import PSF_TABLE_3D
+
+    _, hdu = psf3d_lonlat_hdu
     PSF_TABLE.validate_hdu(hdu)
 
 
