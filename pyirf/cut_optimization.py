@@ -13,6 +13,7 @@ from .binning import create_histogram_table, bin_center, calculate_bin_indices
 
 __all__ = [
     "optimize_gh_cut",
+    "optimize_cuts",
 ]
 
 
