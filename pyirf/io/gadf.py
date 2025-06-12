@@ -261,6 +261,73 @@ def create_background_2d_hdu(
 
 
 @u.quantity_input(
+    background=GADF_BACKGROUND_UNIT,
+    reco_energy_bins=u.TeV,
+    fov_lon_bins=u.deg,
+    fov_lat_bins=u.deg,
+)
+def create_background_3d_hdu(
+    background_3d,
+    reco_energy_bins,
+    fov_lon_bins,
+    fov_lat_bins,
+    alignment="ALTAZ",
+    extname="BACKGROUND",
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for the background 3d table.
+    Assumes ALTAZ coordinates.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/bkg/index.html#bkg-2d
+
+    Parameters
+    ----------
+    background_3d: astropy.units.Quantity[(MeV s sr)^-1]
+        Background rate, must have shape
+        (n_energy_bins, n_fov_offset_bins, n_fov_offset_bins)
+    reco_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in reconstructed energy
+    fov_lon_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view system, becomes the DETX values
+    fov_lat_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view system, becomes the DETY values
+    alignment: str
+        Whether the FOV coordinates are aligned with the ALTAZ or RADEC system, more details at
+        https://gamma-astro-data-formats.readthedocs.io/en/latest/general/coordinates.html
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+
+    bkg = QTable()
+    bkg["ENERG_LO"], bkg["ENERG_HI"] = binning.split_bin_lo_hi(reco_energy_bins[np.newaxis, :].to(u.TeV))
+    bkg["DETX_LO"], bkg["DETX_HI"] = binning.split_bin_lo_hi(fov_lon_bins[np.newaxis, :].to(u.deg))
+    bkg["DETY_LO"], bkg["DETY_HI"] = binning.split_bin_lo_hi(fov_lat_bins[np.newaxis, :].to(u.deg))
+    # transpose as FITS uses opposite dimension order
+    bkg["BKG"] = background_3d.T[np.newaxis, ...].to(GADF_BACKGROUND_UNIT)
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "BKG"
+    header["HDUCLAS3"] = "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "BKG_3D"
+    if alignment in ["ALTAZ", "RADEC"]:
+        header["FOVALIGN"] = alignment
+    else:
+        raise ValueError(f"'alignment' must be one of 'ALTAZ' or 'RADEC', got {alignment}")
+    header["DATE"] = Time.now().utc.iso
+    idx = bkg.colnames.index("BKG") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,DETX_LO:DETX_HI,DETY_LO:DETY_HI)"
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(bkg, header=header, name=extname)
+
+
+@u.quantity_input(
     rad_max=u.deg,
     reco_energy_bins=u.TeV,
     fov_offset_bins=u.deg,

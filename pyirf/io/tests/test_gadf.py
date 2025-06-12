@@ -76,6 +76,22 @@ def bg_hdu():
 
 
 @pytest.fixture
+def bg3d_hdu():
+    from pyirf.io import create_background_3d_hdu
+
+    background = np.column_stack([
+        np.geomspace(1e9, 1e3, len(e_bins) - 1),
+        np.geomspace(0.5e9, 0.5e3, len(e_bins) - 1),
+        np.geomspace(1e8, 1e2, len(e_bins) - 1),
+    ]) * u.Unit('TeV-1 s-1 sr-1')
+    background = np.dstack((background, background, background))
+
+    hdu = create_background_3d_hdu(background, e_bins, fov_bins, fov_bins)
+
+    return background, hdu
+
+
+@pytest.fixture
 def rad_max_hdu():
     from pyirf.io import create_rad_max_hdu
 
@@ -174,6 +190,28 @@ def test_background_2d_schema(bg_hdu):
 
     _, hdu = bg_hdu
     BKG_2D.validate_hdu(hdu)
+
+
+def test_background_3d_gammapy(bg3d_hdu):
+    '''Test our background hdu is readable by gammapy'''
+    from gammapy.irf import Background3D
+
+    background, hdu = bg3d_hdu
+
+    with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        fits.HDUList([fits.PrimaryHDU(), hdu]).writeto(f.name)
+
+        # test reading with gammapy works
+        bg3d = Background3D.read(f.name, 'BACKGROUND')
+
+        assert u.allclose(background, bg3d.quantity, atol=1e-16 * u.Unit('TeV-1 s-1 sr-1'))
+
+
+def test_background_3d_schema(bg3d_hdu):
+    from ogadf_schema.irfs import BKG_3D
+
+    _, hdu = bg3d_hdu
+    BKG_3D.validate_hdu(hdu)
 
 
 def test_rad_max_schema(rad_max_hdu):
