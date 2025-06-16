@@ -23,18 +23,19 @@ def _normalize_hist(hist, migration_bins):
 
     # calculate number of events along the N_MIGRA axis to get events
     # per energy per fov
-    norm = hist.sum(axis=1)
 
     with np.errstate(invalid="ignore"):
         if hist.ndim == 3:
             # hist shape is (N_E, N_MIGRA, N_FOV), norm shape is (N_E, N_FOV)
             # so we need to add a new axis in the middle to get (N_E, 1, N_FOV)
             # bin_width is 1d, so we need newaxis, use the values, newaxis
+            norm = hist.sum(axis=1)
             hist = hist / norm[:, np.newaxis, :] / bin_width[np.newaxis, :, np.newaxis]
         else:
-            # this handles the asymmetric case where hist shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2)
-            hist /= norm[:, np.newaxis, ...]
-            hist /= bin_width[np.newaxis, :, np.newaxis, np.newaxis]
+            # this handles the asymmetric case where hist shape is (N_E, N_FOV_1, N_FOV_2, N_MIGRA)
+            norm = hist.sum(axis=-1)
+            hist /= norm[..., np.newaxis]
+            hist /= bin_width[np.newaxis, np.newaxis, np.newaxis, :]
     return np.nan_to_num(hist)
 
 
@@ -114,8 +115,6 @@ def energy_dispersion_3d_polar(
         ``true_source_fov_position_angle``.
     true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
-    migration_bins: astropy.units.Quantity[energy]
-        Bin edges in relative deviation, recommended range: [0.2, 5]
     fov_offset_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view offset.
         For Point-Like IRFs, only giving a single bin is appropriate.
@@ -123,6 +122,8 @@ def energy_dispersion_3d_polar(
         Bin edges in the field of view position angle.
         For Point-Like IRFs or when only considering offset, only giving a single bin
         is apporpriate.
+    migration_bins: astropy.units.Quantity[energy]
+        Bin edges in relative deviation, recommended range: [0.2, 5]
 
     Returns
     -------
@@ -139,16 +140,16 @@ def energy_dispersion_3d_polar(
         np.column_stack(
             [
                 selected_events["true_energy"].to_value(u.TeV),
-                mu,
                 selected_events["true_source_fov_offset"].to_value(u.deg),
                 selected_events["true_source_fov_position_angle"].to_value(u.deg),
+                mu,
             ]
         ),
         bins=[
             true_energy_bins.to_value(u.TeV),
-            migration_bins,
             fov_offset_bins.to_value(u.deg),
             fov_position_angle_bins.to_value(u.deg),
+            migration_bins,
         ],
     )
 
@@ -178,14 +179,14 @@ def energy_dispersion_3d_lonlat(
         ``true_source_fov_lat``.
     true_energy_bins: astropy.units.Quantity[energy]
         Bin edges in true energy
-    migration_bins: astropy.units.Quantity[energy]
-        Bin edges in relative deviation, recommended range: [0.2, 5]
     fov_longitude_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view longitude.
         For Point-Like IRFs, only giving a single bin is appropriate.
     fov_latitude_bins: astropy.units.Quantity[angle]
         Bin edges in the field of view latitude.
         For Point-Like IRFs, only giving a single bin is apporpriate.
+    migration_bins: astropy.units.Quantity[energy]
+        Bin edges in relative deviation, recommended range: [0.2, 5]
 
     Returns
     -------
@@ -202,16 +203,16 @@ def energy_dispersion_3d_lonlat(
         np.column_stack(
             [
                 selected_events["true_energy"].to_value(u.TeV),
-                mu,
                 selected_events["true_source_fov_lon"].to_value(u.deg),
                 selected_events["true_source_fov_lat"].to_value(u.deg),
+                mu,
             ]
         ),
         bins=[
             true_energy_bins.to_value(u.TeV),
-            migration_bins,
             fov_longitude_bins.to_value(u.deg),
             fov_latitude_bins.to_value(u.deg),
+            migration_bins,
         ],
     )
 
@@ -513,12 +514,12 @@ def energy_dispersion_to_migration_3d(
         (
             len(new_true_energy_edges) - 1,
             len(new_reco_energy_edges) - 1,
-            *dispersion_matrix.shape[2:],
+            *dispersion_matrix.shape[1:3],
         )
     )
 
     migra_width = np.diff(disp_migration_edges)
-    probability = dispersion_matrix * migra_width[np.newaxis, :, np.newaxis, np.newaxis]
+    probability = dispersion_matrix * migra_width[np.newaxis, np.newaxis, np.newaxis, :]
 
     true_energy_interpolation = resample_histogram1d(
         probability,
@@ -527,7 +528,7 @@ def energy_dispersion_to_migration_3d(
         axis=0,
     )
 
-    norm = np.sum(true_energy_interpolation, axis=1, keepdims=True)
+    norm = np.sum(true_energy_interpolation, axis=-1, keepdims=True)
     norm[norm == 0] = 1
     true_energy_interpolation /= norm
 
@@ -548,8 +549,8 @@ def energy_dispersion_to_migration_3d(
             e_true_dispersion,
             disp_migration_edges,
             interpolation_edges,
-            axis=0,
-        )
+            axis=-1,
+        ).swapaxes(0, -1)
 
         migration_matrix[idx, ...] = y
 

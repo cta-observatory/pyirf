@@ -165,17 +165,17 @@ def test_energy_dispersion_3d_polar():
         migration_bins,
     )
 
-    assert result.shape == (3, 1000, 2, 2)
+    assert result.shape == (3, 2, 2, 1000)
 
     bin_width = np.diff(migration_bins)
     bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
     # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2),
     # we need to integrate over migration axis
-    integral = (result * bin_width[np.newaxis, :, np.newaxis, np.newaxis]).sum(axis=1)
+    integral = (result * bin_width[np.newaxis, np.newaxis, np.newaxis, :]).sum(axis=-1)
 
     np.testing.assert_allclose(integral, 1.0)
 
-    cdf = np.cumsum(result * bin_width[np.newaxis, :, np.newaxis, np.newaxis], axis=1)
+    cdf = np.cumsum(result * bin_width[np.newaxis, np.newaxis, np.newaxis, :], axis=-1)
 
     def ppf(cdf, bins, value):
         return np.interp(value, cdf, bins[1:])
@@ -184,8 +184,8 @@ def test_energy_dispersion_3d_polar():
         TRUE_SIGMA_1,
         0.5
         * (
-            ppf(cdf[0, :, 0, 0], migration_bins, 0.84)
-            - ppf(cdf[0, :, 0, 0], migration_bins, 0.16)
+            ppf(cdf[0, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[0, 0, 0, :], migration_bins, 0.16)
         ),
         rtol=0.1,
     )
@@ -193,8 +193,8 @@ def test_energy_dispersion_3d_polar():
         TRUE_SIGMA_2,
         0.5
         * (
-            ppf(cdf[1, :, 0, 0], migration_bins, 0.84)
-            - ppf(cdf[1, :, 0, 0], migration_bins, 0.16)
+            ppf(cdf[1, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[1, 0, 0, :], migration_bins, 0.16)
         ),
         rtol=0.1,
     )
@@ -202,8 +202,8 @@ def test_energy_dispersion_3d_polar():
         TRUE_SIGMA_3,
         0.5
         * (
-            ppf(cdf[2, :, 0, 0], migration_bins, 0.84)
-            - ppf(cdf[2, :, 0, 0], migration_bins, 0.16)
+            ppf(cdf[2, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[2, 0, 0, :], migration_bins, 0.16)
         ),
         rtol=0.1,
     )
@@ -279,17 +279,17 @@ def test_energy_dispersion_3d_lonlat():
         selected_events, true_energy_bins, fov_lon_bins, fov_lat_bins, migration_bins
     )
 
-    assert result.shape == (3, 1000, 2, 2)
+    assert result.shape == (3, 2, 2, 1000)
 
     bin_width = np.diff(migration_bins)
     bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
     # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2),
     # we need to integrate over migration axis
-    integral = (result * bin_width[np.newaxis, :, np.newaxis, np.newaxis]).sum(axis=1)
+    integral = (result * bin_width[np.newaxis, np.newaxis, np.newaxis, :]).sum(axis=-1)
 
     np.testing.assert_allclose(integral, 1.0)
 
-    cdf = np.cumsum(result * bin_width[np.newaxis, :, np.newaxis, np.newaxis], axis=1)
+    cdf = np.cumsum(result * bin_width[np.newaxis, np.newaxis, np.newaxis, :], axis=-1)
 
     def ppf(cdf, bins, value):
         return np.interp(value, cdf, bins[1:])
@@ -298,8 +298,8 @@ def test_energy_dispersion_3d_lonlat():
         TRUE_SIGMA_1,
         0.5
         * (
-            ppf(cdf[0, :, 0, 0], migration_bins, 0.84)
-            - ppf(cdf[0, :, 0, 0], migration_bins, 0.16)
+            ppf(cdf[0, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[0, 0, 0, :], migration_bins, 0.16)
         ),
         rtol=0.1,
     )
@@ -307,8 +307,8 @@ def test_energy_dispersion_3d_lonlat():
         TRUE_SIGMA_2,
         0.5
         * (
-            ppf(cdf[1, :, 0, 0], migration_bins, 0.84)
-            - ppf(cdf[1, :, 0, 0], migration_bins, 0.16)
+            ppf(cdf[1, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[1, 0, 0, :], migration_bins, 0.16)
         ),
         rtol=0.1,
     )
@@ -316,8 +316,8 @@ def test_energy_dispersion_3d_lonlat():
         TRUE_SIGMA_3,
         0.5
         * (
-            ppf(cdf[2, :, 0, 0], migration_bins, 0.84)
-            - ppf(cdf[2, :, 0, 0], migration_bins, 0.16)
+            ppf(cdf[2, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[2, 0, 0, :], migration_bins, 0.16)
         ),
         rtol=0.1,
     )
@@ -450,8 +450,8 @@ def test_energy_dispersion_to_migration_3d_polar():
     # test dimension
     assert migration_matrix.shape[0] == len(new_true_energy_bins) - 1
     assert migration_matrix.shape[1] == len(new_reco_energy_bins) - 1
-    assert migration_matrix.shape[2] == dispersion_matrix.shape[2]
-    assert migration_matrix.shape[3] == dispersion_matrix.shape[3]
+    assert migration_matrix.shape[2] == dispersion_matrix.shape[1]
+    assert migration_matrix.shape[3] == dispersion_matrix.shape[2]
 
     # test that all migrations are included for central energies
     assert np.isclose(migration_matrix.sum(axis=1).max(), 1, rtol=0.01)
@@ -529,8 +529,8 @@ def test_energy_dispersion_to_migration_3d_lonlat():
     # test dimension
     assert migration_matrix.shape[0] == len(new_true_energy_bins) - 1
     assert migration_matrix.shape[1] == len(new_reco_energy_bins) - 1
-    assert migration_matrix.shape[2] == dispersion_matrix.shape[2]
-    assert migration_matrix.shape[3] == dispersion_matrix.shape[3]
+    assert migration_matrix.shape[2] == dispersion_matrix.shape[1]
+    assert migration_matrix.shape[3] == dispersion_matrix.shape[2]
 
     # test that all migrations are included for central energies
     assert np.isclose(migration_matrix.sum(axis=1).max(), 1, rtol=0.01)

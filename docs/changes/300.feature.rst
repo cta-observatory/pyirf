@@ -6,6 +6,6 @@ These functions are
 * ``energy_migration_matrix_asymmetric_lonlat``
 * ``energy_dispersion_to_migration_asymmetric``
 
-Also adds functions to create fits table HDUs in GADF format for the energy dispersion to ``pyirf.io.gadf``.
+Also adds functions to create fits table HDUs in a format to the existing GADF definition for the energy dispersion to ``pyirf.io.gadf``.
 * ``create_energy_dispersion_asymmetric_polar_hdu``
 * ``create_energy_dispersion_asymmetric_lonlat_hdu``

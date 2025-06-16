@@ -49,12 +49,14 @@ def edisp_hdus():
 def edisp_3d_polar_hdus():
     from pyirf.io import create_energy_dispersion_3d_polar_hdu
 
-    edisp = np.zeros((len(e_bins) - 1, len(migra_bins) - 1, len(fov_bins) - 1))
-    edisp[:, 50, :] = 1.0
+    edisp = np.zeros(
+        (len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(migra_bins) - 1)
+    )
+    edisp[..., 50] = 1.0
 
     hdus = [
         create_energy_dispersion_3d_polar_hdu(
-            edisp, e_bins, migra_bins, fov_bins, fov_bins, point_like=point_like
+            edisp, e_bins, fov_bins, fov_bins, migra_bins, point_like=point_like
         )
         for point_like in [True, False]
     ]
@@ -66,12 +68,14 @@ def edisp_3d_polar_hdus():
 def edisp_3d_lonlat_hdus():
     from pyirf.io import create_energy_dispersion_3d_lonlat_hdu
 
-    edisp = np.zeros((len(e_bins) - 1, len(migra_bins) - 1, len(fov_bins) - 1))
-    edisp[:, 50, :] = 1.0
+    edisp = np.zeros(
+        (len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(migra_bins) - 1)
+    )
+    edisp[..., 50] = 1.0
 
     hdus = [
         create_energy_dispersion_3d_lonlat_hdu(
-            edisp, e_bins, migra_bins, fov_bins, fov_bins, point_like=point_like
+            edisp, e_bins, fov_bins, fov_bins, migra_bins, point_like=point_like
         )
         for point_like in [True, False]
     ]
