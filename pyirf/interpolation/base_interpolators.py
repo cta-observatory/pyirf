@@ -83,9 +83,9 @@ class ParametrizedInterpolator(BaseInterpolator):
             Corresponding parameter values at each point in grid_points.
             First dimesion has to correspond to number of grid_points
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseInterpolators.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseInterpolators.__init__
         """
         super().__init__(grid_points)
 
@@ -120,9 +120,9 @@ class DiscretePDFInterpolator(BaseInterpolator):
         normalization : PDFNormalization
             How the PDF is normalized
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseInterpolators.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseInterpolators.__init__
         """
         super().__init__(grid_points)
 
