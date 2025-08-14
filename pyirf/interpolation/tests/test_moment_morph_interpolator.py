@@ -149,6 +149,7 @@ def test_linesegment_1D_interpolation_coefficients():
     np.testing.assert_allclose(
         linesegment_1D_interpolation_coefficients(grid_points, target_point),
         np.array([[0, 1]]),
+        atol=1e-12,
     )
 
     target_point = np.array([[25]])

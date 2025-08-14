@@ -15,10 +15,25 @@ env:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          - os: "ubuntu-24.04"
+            python-version: "3.11"
+          - os: "ubuntu-24.04"
+            python-version: "3.12"
+            codecov: true
+          - os: "ubuntu-24.04"
+            python-version: "3.13"
+
+          # macos 14 image is x86 based
+          - os: macos-13
+            python-version: "3.12"
+
+          # macos 14 image is arm64 based
+          - os: macos-14
+            python-version: "3.12"
 
     steps:
       - uses: actions/checkout@v4
@@ -59,6 +74,7 @@ jobs:
           pytest --cov=pyirf --cov-report=xml
 
       - uses: codecov/codecov-action@v3
+        if: matrix.codecov
 
   docs:
     runs-on: ubuntu-latest

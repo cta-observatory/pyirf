@@ -66,9 +66,9 @@ class ParametrizedExtrapolator(BaseExtrapolator):
             Corresponding parameter values at each point in grid_points.
             First dimesion has to correspond to number of grid_points
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseExtrapolators.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseExtrapolators.__init__
         """
         super().__init__(grid_points)
 
@@ -103,9 +103,9 @@ class DiscretePDFExtrapolator(BaseExtrapolator):
         normalization: PDFNormalization
             How the PDF is normalized
 
-        Note
+        Notes
         ----
-            Also calls pyirf.interpolation.BaseExtrapolators.__init__
+        Also calls pyirf.interpolation.BaseExtrapolators.__init__
         """
         super().__init__(grid_points)
 

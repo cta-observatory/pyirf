@@ -30,6 +30,9 @@ __all__ = [
 ]
 
 
+_float_max = np.finfo(np.longdouble).dtype
+
+
 class BaseComponentEstimator:
     """
     Base class for all Estimators working on specific IRF components.
@@ -61,7 +64,7 @@ class BaseComponentEstimator:
             raise TypeError("Input grid_points is not a numpy array.")
         if grid_points.dtype == "O":
             raise TypeError("Input grid_points array cannot be of dtype object.")
-        if not np.can_cast(grid_points.dtype, np.float128):
+        if not np.can_cast(grid_points.dtype, _float_max):
             raise TypeError("Input grid_points dtype incompatible with float.")
 
         self.grid_points = grid_points
@@ -211,9 +214,9 @@ class DiscretePDFComponentEstimator(BaseComponentEstimator):
             When number of histograms in binned_pdf and points in grid_points
             is not matching.
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseComponentEstimator.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseComponentEstimator.__init__
         """
 
         super().__init__(
@@ -323,9 +326,9 @@ class ParametrizedComponentEstimator(BaseComponentEstimator):
         ValueError:
             When number of points grid_points and params do not match.
 
-        Note
-        ----
-            Also calls pyirf.interpolation.BaseComponentEstimator.__init__
+        Notes
+        -----
+        Also calls pyirf.interpolation.BaseComponentEstimator.__init__
         """
 
         super().__init__(
@@ -418,10 +421,10 @@ class EffectiveAreaEstimator(ParametrizedComponentEstimator):
             lower than this value are set to this value. Defaults to 1 m**2.
 
 
-        Note
-        ----
-            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
-            and pyirf.interpolation.ParametrizedEstimator
+        Notes
+        -----
+        Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+        and pyirf.interpolation.ParametrizedEstimator
         """
 
         # get rid of units
@@ -520,10 +523,10 @@ class RadMaxEstimator(ParametrizedComponentEstimator):
             Dict of all kwargs that are passed to the extrapolator, defaults to
             None which is the same as passing an empty dict.
 
-        Note
-        ----
-            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
-            and pyirf.interpolation.ParametrizedEstimator
+        Notes
+        -----
+        Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+        and pyirf.interpolation.ParametrizedEstimator
         """
 
         super().__init__(
@@ -714,10 +717,10 @@ class EnergyDispersionEstimator(DiscretePDFComponentEstimator):
             Axis, along which the actual n_migration_bins are. Input is assumed to
             be EDISP_2D compatible, so this defaults to -2
 
-        Note
-        ----
-            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
-            and pyirf.interpolation.ParametrizedEstimator
+        Notes
+        -----
+        Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+        and pyirf.interpolation.ParametrizedEstimator
         """
 
         self.axis = axis
@@ -800,10 +803,10 @@ class PSFTableEstimator(DiscretePDFComponentEstimator):
             Axis, along which the actual n_source_offset_bins are. Input is assumed to
             be PSF_TABLE compatible, so this defaults to -1
 
-        Note
-        ----
-            Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
-            and pyirf.interpolation.ParametrizedEstimator
+        Notes
+        -----
+        Also calls __init__ of pyirf.interpolation.BaseComponentEstimator
+        and pyirf.interpolation.ParametrizedEstimator
         """
 
         self.axis = axis

@@ -116,7 +116,7 @@ def find_nearest_facet(qhull_points, target):
             (plumb_point_dist(line, target), point_facet_angle(line, target))
             for line in qhull_points
         ],
-        dtype=[("plumb_dist", "<f16"), ("facet_point_angle", "<f16")],
+        dtype=[("plumb_dist", np.longdouble), ("facet_point_angle", np.longdouble)],
     )
 
     return np.argsort(plumbs, order=["plumb_dist", "facet_point_angle"])[0]

@@ -42,9 +42,9 @@ class ParametrizedNearestSimplexExtrapolator(ParametrizedExtrapolator):
             Array of corresponding parameter values at each point in grid_points.
             First dimesion has to correspond to number of grid_points
 
-        Note
-        ----
-            Also calls pyirf.interpolation.ParametrizedInterpolator.__init__.
+        Notes
+        -----
+        Also calls pyirf.interpolation.ParametrizedInterpolator.__init__.
         """
         super().__init__(grid_points, params)
 
@@ -156,9 +156,9 @@ class MomentMorphNearestSimplexExtrapolator(DiscretePDFExtrapolator):
         normalization : PDFNormalization
             How the PDF is normalized
 
-        Note
-        ----
-            Also calls pyirf.interpolation.DiscretePDFExtrapolator.__init__.
+        Notes
+        -----
+        Also calls pyirf.interpolation.DiscretePDFExtrapolator.__init__.
         """
         super().__init__(grid_points, bin_edges, binned_pdf, normalization)
 

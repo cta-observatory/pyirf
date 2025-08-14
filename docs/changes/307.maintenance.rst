@@ -1,0 +1,2 @@
+Support platforms that do not have a long double
+with more than 64 bits (e.g. MacOS arm).
