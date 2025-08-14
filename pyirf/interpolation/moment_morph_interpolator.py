@@ -285,9 +285,9 @@ class MomentMorphInterpolator(DiscretePDFInterpolator):
         normalization : PDFNormalization
             How the PDF is normalized
 
-        Note
-        ----
-            Also calls pyirf.interpolation.DiscretePDFInterpolator.__init__.
+        Notes
+        -----
+        Also calls pyirf.interpolation.DiscretePDFInterpolator.__init__.
         """
         super().__init__(grid_points, bin_edges, binned_pdf, normalization)
 
