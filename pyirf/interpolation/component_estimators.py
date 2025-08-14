@@ -30,6 +30,9 @@ __all__ = [
 ]
 
 
+_float_max = np.finfo(np.longdouble).dtype
+
+
 class BaseComponentEstimator:
     """
     Base class for all Estimators working on specific IRF components.
@@ -61,7 +64,7 @@ class BaseComponentEstimator:
             raise TypeError("Input grid_points is not a numpy array.")
         if grid_points.dtype == "O":
             raise TypeError("Input grid_points array cannot be of dtype object.")
-        if not np.can_cast(grid_points.dtype, np.float128):
+        if not np.can_cast(grid_points.dtype, _float_max):
             raise TypeError("Input grid_points dtype incompatible with float.")
 
         self.grid_points = grid_points
