@@ -23,6 +23,7 @@ jobs:
             python-version: "3.11"
           - os: "ubuntu-24.04"
             python-version: "3.12"
+            codecov: true
           - os: "ubuntu-24.04"
             python-version: "3.13"
 
@@ -73,6 +74,7 @@ jobs:
           pytest --cov=pyirf --cov-report=xml
 
       - uses: codecov/codecov-action@v3
+        if: matrix.codecov
 
   docs:
     runs-on: ubuntu-latest
