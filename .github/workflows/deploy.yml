@@ -9,23 +9,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.9
+          python-version: "3.12"
 
       - name: Install dependencies
         run: |
           python --version
-          pip install -U pip setuptools wheel setuptools_scm[toml]
+          pip install -U pip build setuptools_scm[toml]
           # make sure we have the version, grep will exit with 1 if it finds 0.0.0
-          python setup.py --version | grep -v '0.0.0'
-          python setup.py sdist bdist_wheel
+          python -m setuptools_scm | grep -v '0.0.0'
+          python -m build
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
