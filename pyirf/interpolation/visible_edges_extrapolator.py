@@ -123,9 +123,9 @@ class ParametrizedVisibleEdgesExtrapolator(ParametrizedNearestSimplexExtrapolato
     ValueError:
         If m is not a non-zero integer
 
-    Note
-    ----
-        Also calls pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.__init__.
+    Notes
+    -----
+    Also calls pyirf.interpolation.ParametrizedNearestSimplexExtrapolator.__init__.
 
     References
     ----------

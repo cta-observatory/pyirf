@@ -100,3 +100,7 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
+
+
+.. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4740755.svg
+  :target: https://doi.org/10.5281/zenodo.4740755
