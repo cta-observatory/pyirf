@@ -24,8 +24,8 @@ Cherenkov Telescopes (IACTs).
 
 Citing this software
 --------------------
-If you use a released version of this software for a publication,
-please cite it by using the corresponding DOI:
+If you use this software for a publication, please cite our publication and the software
+DOI published to Zenodo that corresponds to the version of the software you are using:
 
 - latest : |doilatest|
 - all versions: `Please visit Zenodo <https://zenodo.org/record/5833284>`_ and select the correct version

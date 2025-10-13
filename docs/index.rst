@@ -36,20 +36,29 @@ which this documentation is linked.
 
 Citing this software
 --------------------
-
-.. |doilatest| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4740755.svg
-  :target: https://doi.org/10.5281/zenodo.4740755
-.. |doi_v0.5.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4748994.svg
-  :target: https://doi.org/10.5281/zenodo.4748994
-.. |doi_v0.4.0| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.4304466.svg
-  :target: https://doi.org/10.5281/zenodo.4304466
-
-If you use a released version of this software for a publication,
-please cite it by using the corresponding DOI.
+If you use this software for a publication, please cite our publication and the software
+DOI published to Zenodo that corresponds to the version of the software you are using:
 
 - latest : |doilatest|
-- v0.5.0 : |doi_v0.5.0|
-- v0.4.0 : |doi_v0.4.0|
+- all versions: `Please visit Zenodo <https://zenodo.org/record/5833284>`_ and select the correct version
+
+At this point, our latest publication is the `2023 ICRC proceeding <https://doi.org/10.22323/1.444.0618>`_, which you can
+cite using the following bibtex entry, especially if using functionalities from ``pyirf.interpolation``:
+
+.. code::
+
+   @inproceedings{pyirf-icrc-2023,
+     author = {Dominik, Rune Michael and Linhoff, Maximilian and Sitarek, Julian},
+     title = {Interpolation of Instrument Response Functions for the Cherenkov Telescope Array in the Context of pyirf},
+     usera = {for the CTA Consortium},
+     doi = {10.22323/1.444.0703},
+     booktitle = {Proceedings, 38th International Cosmic Ray Conference},
+     year=2023,
+     volume={444},
+     number={618},
+     location={Nagoya, Japan},
+   }
+
 
 .. toctree::
   :maxdepth: 1

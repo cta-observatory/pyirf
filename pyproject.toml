@@ -37,7 +37,7 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/cta-observatory/pyirf"
 "Bug Tracker" = "https://github.com/cta-observatory/pyirf/issues"
-"Documentation" = "https://cta-observatory.github.io/pyirf"
+"Documentation" = "https://pyirf.readthedocs.io/"
 "Source Code" = "https://github.com/cta-observatory/pyirf"
 
 [project.optional-dependencies]
