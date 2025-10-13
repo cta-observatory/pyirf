@@ -40,7 +40,7 @@ If you use this software for a publication, please cite our publication and the 
 DOI published to Zenodo that corresponds to the version of the software you are using:
 
 - latest : |doilatest|
-- all versions: `Please visit Zenodo <https://zenodo.org/record/5833284>`_ and select the correct version
+- all versions: `Please visit Zenodo <https://zenodo.org/search?q=parent.id%3A4740755&f=allversions%3Atrue&l=list&p=1&s=10&sort=version>`_ and select the correct version
 
 At this point, our latest publication is the `2023 ICRC proceeding <https://doi.org/10.22323/1.444.0618>`_, which you can
 cite using the following bibtex entry, especially if using functionalities from ``pyirf.interpolation``:
