@@ -178,3 +178,37 @@ def test_calculate_percentile_cuts_table():
         [dist1.ppf(0.68), dist2.ppf(0.68)],
         rtol=0.1,
     )
+
+
+
+
+def test_calculate_percentile_cuts_multiple():
+    from pyirf.cuts import calculate_percentile_cut
+
+    np.random.seed(0)
+
+    dist1 = norm(0, 1)
+    dist2 = norm(10, 1)
+    N = int(1e4)
+
+    values = np.append(dist1.rvs(size=N), dist2.rvs(size=N)) * u.deg
+    bin_values = np.append(np.zeros(N), np.ones(N)) * u.m
+    # add some values outside of binning to test that under/overflow are ignored
+    bin_values[10] = 5 * u.m
+    bin_values[30] = -1 * u.m
+
+    bins = [-0.5, 0.5, 1.5] * u.m
+
+    cuts = calculate_percentile_cut(values, bin_values, bins, fill_value=np.nan * u.deg, percentile=[50, 68, 95])
+    assert np.all(cuts["low"] == bins[:-1])
+    assert np.all(cuts["high"] == bins[1:])
+
+    np.testing.assert_allclose(
+        cuts["cut"].to_value(u.deg),
+        [
+            [dist1.ppf(0.5), dist1.ppf(0.68), dist1.ppf(0.95)],
+            [dist2.ppf(0.5), dist2.ppf(0.68), dist2.ppf(0.95)],
+        ],
+        rtol=0.1,
+        atol=0.1, # dist1.ppf(0.5) == 0, so we also need a non-zero atol 
+    )
