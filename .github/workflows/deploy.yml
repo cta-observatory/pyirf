@@ -8,14 +8,18 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -29,6 +33,3 @@ jobs:
 
       - name: Publish package
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: __token__
-          password: ${{ secrets.pypi_password }}
