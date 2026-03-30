@@ -46,6 +46,44 @@ def edisp_hdus():
 
 
 @pytest.fixture
+def edisp_3d_polar_hdus():
+    from pyirf.io import create_energy_dispersion_3d_polar_hdu
+
+    edisp = np.zeros(
+        (len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(migra_bins) - 1)
+    )
+    edisp[..., 50] = 1.0
+
+    hdus = [
+        create_energy_dispersion_3d_polar_hdu(
+            edisp, e_bins, fov_bins, fov_bins, migra_bins, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+
+    return edisp, hdus
+
+
+@pytest.fixture
+def edisp_3d_lonlat_hdus():
+    from pyirf.io import create_energy_dispersion_3d_lonlat_hdu
+
+    edisp = np.zeros(
+        (len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(migra_bins) - 1)
+    )
+    edisp[..., 50] = 1.0
+
+    hdus = [
+        create_energy_dispersion_3d_lonlat_hdu(
+            edisp, e_bins, fov_bins, fov_bins, migra_bins, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+
+    return edisp, hdus
+
+
+@pytest.fixture
 def psf_hdu():
     from pyirf.io import create_psf_table_hdu
     from pyirf.utils import cone_solid_angle
@@ -147,6 +185,26 @@ def test_energy_dispersion_schema(edisp_hdus):
 
     for hdu in hdus:
         EDISP_2D.validate_hdu(hdu)
+
+
+@pytest.mark.xfail(reason="EDISP_3D not implemented yet", raises=ImportError)
+def test_energy_dispersion_schema_3d_polar(edisp_3d_polar_hdus):
+    from ogadf_schema.irfs import EDISP_3D
+
+    _, hdus = edisp_3d_polar_hdus
+
+    for hdu in hdus:
+        EDISP_3D.validate_hdu(hdu)
+
+
+@pytest.mark.xfail(reason="EDISP_3D not implemented yet", raises=ImportError)
+def test_energy_dispersion_schema_3d_lonlat(edisp_3d_lonlat_hdus):
+    from ogadf_schema.irfs import EDISP_3D
+
+    _, hdus = edisp_3d_lonlat_hdus
+
+    for hdu in hdus:
+        EDISP_3D.validate_hdu(hdu)
 
 
 def test_psf_table_gammapy(psf_hdu):
