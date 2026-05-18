@@ -26,7 +26,7 @@ classifiers = [
 ]
 
 dependencies = [
-  "astropy>=5.3,<8.0.0a0",
+  "astropy>=7.0,<9.0.0",
   "numpy>=1.21",
   "scipy",
   "tqdm",
@@ -41,7 +41,7 @@ dependencies = [
 
 [project.optional-dependencies]
 gammapy = [
-  "gammapy ~=1.0"
+  "gammapy >=1.0",
 ]
 docs = [
     "sphinx",
