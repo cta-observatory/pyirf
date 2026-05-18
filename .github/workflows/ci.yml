@@ -42,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: |
           python --version
-          pip install -U pip setuptools wheel restructuredtext_lint
+          pip install -U pip restructuredtext_lint
           pip install -e .[all]
           pip freeze
 
