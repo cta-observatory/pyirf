@@ -185,10 +185,10 @@ class QuantileInterpolator(DiscretePDFInterpolator):
         ValueError:
             When last axis in binned_pdf and number of bins are not equal.
 
-        Note
-        ----
-            Also calls __init__ of pyirf.interpolation.BaseInterpolator and
-            DiscretePDFInterpolator
+        Notes
+        -----
+        Also calls __init__ of pyirf.interpolation.BaseInterpolator and
+        DiscretePDFInterpolator
         """
         # Remember input shape
         self.input_shape = binned_pdf.shape
