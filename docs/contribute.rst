@@ -135,7 +135,7 @@ Further details
 
 Please also have a look at the
 
-- ``ctapipe`` `development guidelines <https://cta-observatory.github.io/ctapipe/development/index.html>`__
+- ``ctapipe`` `development guidelines <https://ctapipe.readthedocs.io/en/latest/developer-guide/>`__
 - The `Open Gamma-Ray Astronomy data formats <https://gamma-astro-data-formats.readthedocs.io/en/latest/>`__
   which also describe the IRF formats and their definitions.
 - ``ctools`` `documentation page on IRFs <http://cta.irap.omp.eu/ctools/users/user_manual/irf_cta.html>`__
