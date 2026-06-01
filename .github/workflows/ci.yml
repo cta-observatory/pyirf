@@ -27,12 +27,12 @@ jobs:
           - os: "ubuntu-24.04"
             python-version: "3.14"
 
-          # macos 14 image is x86 based
-          - os: macos-13
+          # macos arm (Mx)
+          - os: macos-26
             python-version: "3.12"
 
-          # macos 14 image is arm64 based
-          - os: macos-14
+          # macos x86-64
+          - os: macos-26-intel
             python-version: "3.12"
 
     steps:
