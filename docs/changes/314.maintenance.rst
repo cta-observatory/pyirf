@@ -1,1 +1,0 @@
-Add support for python 3.14 and , astropy 8.0, require python >=3.12.

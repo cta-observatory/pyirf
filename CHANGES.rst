@@ -1,3 +1,23 @@
+pyirf v0.14.0 (2026-06-01)
+==========================
+
+
+New Features
+------------
+
+- Add function to make 3d background for lon/lat coordinates. [`#276 <https://github.com/cta-observatory/pyirf/pull/276>`__]
+
+
+Maintenance
+-----------
+
+- Support platforms that do not have a long double
+  with more than 64 bits (e.g. MacOS arm). [`#307 <https://github.com/cta-observatory/pyirf/pull/307>`__]
+
+- Add support for python 3.14 and , astropy 8.0, require python >=3.12. [`#314 <https://github.com/cta-observatory/pyirf/pull/314>`__]
+
+
+
 pyirf v0.13.0 (2025-05-22)
 ==========================
 
