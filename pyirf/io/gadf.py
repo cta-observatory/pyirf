@@ -85,6 +85,130 @@ def create_aeff2d_hdu(
 
 
 @u.quantity_input(
+    effective_area=u.m ** 2,
+    true_energy_bins=u.TeV,
+    fov_offset_bins=u.deg,
+    fov_position_angle_bins=u.deg,
+)
+def create_aeff3d_polar_hdu(
+    effective_area,
+    true_energy_bins,
+    fov_offset_bins,
+    fov_position_angle_bins,
+    extname="EFFECTIVE AREA",
+    point_like=True,
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for effective area.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
+
+    Parameters
+    ----------
+    effective_area: astropy.units.Quantity[area]
+        Effective area array, must have shape (n_energy_bins, n_fov_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    fov_offset_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view offset.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_position_angle_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view position angle.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    point_like: bool
+        If the provided effective area was calculated after applying a direction cut,
+        pass ``True``, else ``False`` for a full-enclosure effective area.
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+    aeff = QTable()
+    aeff["ENERG_LO"], aeff["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    aeff["THETA_LO"], aeff["THETA_HI"] = binning.split_bin_lo_hi(fov_offset_bins[np.newaxis, :].to(u.deg))
+    aeff["PHI_LO"], aeff["PHI_HI"] = binning.split_bin_lo_hi(fov_position_angle_bins[np.newaxis, :].to(u.deg))
+    # transpose because FITS uses opposite dimension order than numpy
+    aeff["EFFAREA"] = effective_area.T[np.newaxis, ...].to(u.m ** 2)
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "EFF_AREA"
+    header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "AEFF_3D"
+    header["DATE"] = Time.now().utc.iso
+    idx = aeff.colnames.index("EFFAREA") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,THETA_LO:THETA_HI,PHI_LO:PHI_HI)"
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(aeff, header=header, name=extname)
+
+
+@u.quantity_input(
+    effective_area=u.m ** 2,
+    true_energy_bins=u.TeV,
+    fov_longitude_bins=u.deg,
+    fov_latitude_bins=u.deg,
+)
+def create_aeff3d_lonlat_hdu(
+    effective_area,
+    true_energy_bins,
+    fov_longitude_bins,
+    fov_latitude_bins,
+    extname="EFFECTIVE AREA",
+    point_like=True,
+    **header_cards,
+):
+    """
+    Create a fits binary table HDU in GADF format for effective area.
+    See the specification at
+    https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
+
+    Parameters
+    ----------
+    effective_area: astropy.units.Quantity[area]
+        Effective area array, must have shape (n_energy_bins, n_fov_offset_bins)
+    true_energy_bins: astropy.units.Quantity[energy]
+        Bin edges in true energy
+    fov_longitude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view longitude.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    fov_latitude_bins: astropy.units.Quantity[angle]
+        Bin edges in the field of view latitude.
+        For Point-Like IRFs, only giving a single bin is appropriate.
+    point_like: bool
+        If the provided effective area was calculated after applying a direction cut,
+        pass ``True``, else ``False`` for a full-enclosure effective area.
+    extname: str
+        Name for BinTableHDU
+    **header_cards
+        Additional metadata to add to the header, use this to set e.g. TELESCOP or
+        INSTRUME.
+    """
+    aeff = QTable()
+    aeff["ENERG_LO"], aeff["ENERG_HI"] = binning.split_bin_lo_hi(true_energy_bins[np.newaxis, :].to(u.TeV))
+    aeff["DETX_LO"], aeff["DETX_HI"] = binning.split_bin_lo_hi(fov_longitude_bins[np.newaxis, :].to(u.deg))
+    aeff["DETY_LO"], aeff["DETY_HI"] = binning.split_bin_lo_hi(fov_latitude_bins[np.newaxis, :].to(u.deg))
+    # transpose because FITS uses opposite dimension order than numpy
+    aeff["EFFAREA"] = effective_area.T[np.newaxis, ...].to(u.m ** 2)
+
+    # required header keywords
+    header = DEFAULT_HEADER.copy()
+    header["HDUCLAS1"] = "RESPONSE"
+    header["HDUCLAS2"] = "EFF_AREA"
+    header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
+    header["HDUCLAS4"] = "AEFF_3D"
+    header["DATE"] = Time.now().utc.iso
+    idx = aeff.colnames.index("EFFAREA") + 1
+    header[f"CREF{idx}"] = "(ENERG_LO:ENERG_HI,DETX_LO:DETX_HI,DETY_LO:DETY_HI)"
+    _add_header_cards(header, **header_cards)
+
+    return BinTableHDU(aeff, header=header, name=extname)
+
+
+@u.quantity_input(
     psf=u.sr ** -1,
     true_energy_bins=u.TeV,
     source_offset_bins=u.deg,
