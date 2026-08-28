@@ -11,6 +11,8 @@ import tempfile
 e_bins = np.geomspace(0.1, 100, 31) * u.TeV
 migra_bins = np.linspace(0.2, 5, 101)
 fov_bins = [0, 1, 2, 3] * u.deg
+fov_bins_phi = [0, 120, 240, 360] * u.deg
+fov_bins_lonlat = [-1, -0.33, 0.33, 1] * u.deg
 source_bins = np.linspace(0, 1, 101) * u.deg
 
 
@@ -38,6 +40,44 @@ def edisp_hdus():
     hdus = [
         create_energy_dispersion_hdu(
             edisp, e_bins, migra_bins, fov_bins, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+
+    return edisp, hdus
+
+
+@pytest.fixture
+def edisp_3d_polar_hdus():
+    from pyirf.io import create_energy_dispersion_3d_polar_hdu
+
+    edisp = np.zeros(
+        (len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(migra_bins) - 1)
+    )
+    edisp[..., 50] = 1.0
+
+    hdus = [
+        create_energy_dispersion_3d_polar_hdu(
+            edisp, e_bins, fov_bins, fov_bins, migra_bins, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+
+    return edisp, hdus
+
+
+@pytest.fixture
+def edisp_3d_lonlat_hdus():
+    from pyirf.io import create_energy_dispersion_3d_lonlat_hdu
+
+    edisp = np.zeros(
+        (len(e_bins) - 1, len(fov_bins) - 1, len(fov_bins) - 1, len(migra_bins) - 1)
+    )
+    edisp[..., 50] = 1.0
+
+    hdus = [
+        create_energy_dispersion_3d_lonlat_hdu(
+            edisp, e_bins, fov_bins, fov_bins, migra_bins, point_like=point_like
         )
         for point_like in [True, False]
     ]
@@ -149,6 +189,26 @@ def test_energy_dispersion_schema(edisp_hdus):
         EDISP_2D.validate_hdu(hdu)
 
 
+@pytest.mark.xfail(reason="EDISP_3D not implemented yet", raises=ImportError)
+def test_energy_dispersion_schema_3d_polar(edisp_3d_polar_hdus):
+    from ogadf_schema.irfs import EDISP_3D
+
+    _, hdus = edisp_3d_polar_hdus
+
+    for hdu in hdus:
+        EDISP_3D.validate_hdu(hdu)
+
+
+@pytest.mark.xfail(reason="EDISP_3D not implemented yet", raises=ImportError)
+def test_energy_dispersion_schema_3d_lonlat(edisp_3d_lonlat_hdus):
+    from ogadf_schema.irfs import EDISP_3D
+
+    _, hdus = edisp_3d_lonlat_hdus
+
+    for hdu in hdus:
+        EDISP_3D.validate_hdu(hdu)
+
+
 def test_psf_table_gammapy(psf_hdu):
     '''Test our psf is readable by gammapy'''
     from gammapy.irf import PSF3D
@@ -221,30 +281,47 @@ def test_rad_max_schema(rad_max_hdu):
     RAD_MAX.validate_hdu(hdu)
 
 
-def test_cref(aeff2d_hdus, edisp_hdus, psf_hdu, bg_hdu, rad_max_hdu):
-    for point_like in range (2):
-        hdus = [fits.PrimaryHDU(),
-                aeff2d_hdus[1][point_like],
-                edisp_hdus[1][point_like],
-                psf_hdu[1],
-                bg_hdu[1],
-                rad_max_hdu[1]]
+def test_cref(
+    aeff2d_hdus,
+    edisp_hdus,
+    edisp_3d_polar_hdus,
+    edisp_3d_lonlat_hdus,
+    psf_hdu,
+    bg_hdu,
+    rad_max_hdu,
+):
+    for point_like in range(2):
+        hdus = [
+            fits.PrimaryHDU(),
+            aeff2d_hdus[1][point_like],
+            edisp_hdus[1][point_like],
+            edisp_3d_polar_hdus[1][point_like],
+            edisp_3d_lonlat_hdus[1][point_like],
+            psf_hdu[1],
+            bg_hdu[1],
+            rad_max_hdu[1],
+        ]
 
-        with tempfile.NamedTemporaryFile(suffix='.fits') as f:
+        with tempfile.NamedTemporaryFile(suffix=".fits") as f:
             fits.HDUList(hdus).writeto(f.name)
             readhdul = fits.open(f.name)
-            for hdu in readhdul[1:]: # skip Primary
-                names=hdu.data.columns.names
+            for hdu in readhdul[1:]:  # skip Primary
+                names = hdu.data.columns.names
                 # the IRF is always in the last column
-                cref = hdu.header['CREF'+str(len(names))]
+                cref = hdu.header["CREF" + str(len(names))]
                 # drop parentheses and get the expected list of axes
-                cref = cref[1:-1].split(',')
+                cref = cref[1:-1].split(",")
                 # transposed due to different fits and numpy axis order
-                readshape=hdu.data[names[-1]].T.shape
+                readshape = hdu.data[names[-1]].T.shape
                 # only one set of IRFs saved per test file
                 assert readshape[-1] == 1, "first axis size is not 1"
 
-                for i in range(len(readshape)-1):
-                    for axis in cref[i].split(':'):
-                        err="not matching shape in "+hdu.header['EXTNAME']+" at axis "+axis
+                for i in range(len(readshape) - 1):
+                    for axis in cref[i].split(":"):
+                        err = (
+                            "not matching shape in "
+                            + hdu.header["EXTNAME"]
+                            + " at axis "
+                            + axis
+                        )
                         assert readshape[i] == hdu.data[axis].shape[1], err

@@ -52,7 +52,6 @@ def test_energy_dispersion():
     assert result.shape == (3, 1000, 2)
 
     bin_width = np.diff(migration_bins)
-    bin_centers = 0.5 * (migration_bins[1:] + migration_bins[:-1])
     # edisp shape is (N_E, N_MIGRA, N_FOV), we need to integrate over migration axis
     integral = (result * bin_width[np.newaxis, :, np.newaxis]).sum(axis=1)
     np.testing.assert_allclose(integral, 1.0)
@@ -91,8 +90,238 @@ def test_energy_dispersion():
     )
 
 
+def test_energy_dispersion_3d_polar():
+    from pyirf.irf import energy_dispersion_3d_polar
+
+    np.random.seed(0)
+
+    N = 10000
+    TRUE_SIGMA_1 = 0.20
+    TRUE_SIGMA_2 = 0.10
+    TRUE_SIGMA_3 = 0.05
+
+    selected_events = QTable(
+        {
+            "reco_energy": np.concatenate(
+                [
+                    np.random.normal(1.0, TRUE_SIGMA_1, size=N) * 0.5,
+                    np.random.normal(1.0, TRUE_SIGMA_2, size=N) * 5,
+                    np.random.normal(1.0, TRUE_SIGMA_3, size=N) * 50,
+                ]
+            )
+            * u.TeV,
+            "true_energy": np.concatenate(
+                [np.full(N, 0.5), np.full(N, 5.0), np.full(N, 50.0)]
+            )
+            * u.TeV,
+            "true_source_fov_offset": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                ]
+            )
+            * u.deg,
+            "true_source_fov_position_angle": np.concatenate(
+                [
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    true_energy_bins = np.array([0.1, 1.0, 10.0, 100]) * u.TeV
+    fov_offset_bins = np.array([0, 1, 2]) * u.deg
+    fov_position_angle_bins = np.array([0, 180, 360]) * u.deg
+    migration_bins = np.linspace(0, 2, 1001)
+
+    result = energy_dispersion_3d_polar(
+        selected_events,
+        true_energy_bins,
+        fov_offset_bins,
+        fov_position_angle_bins,
+        migration_bins,
+    )
+
+    assert result.shape == (3, 2, 2, 1000)
+
+    bin_width = np.diff(migration_bins)
+    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2),
+    # we need to integrate over migration axis
+    integral = (result * bin_width[np.newaxis, np.newaxis, np.newaxis, :]).sum(axis=-1)
+
+    np.testing.assert_allclose(integral, 1.0)
+
+    cdf = np.cumsum(result * bin_width[np.newaxis, np.newaxis, np.newaxis, :], axis=-1)
+
+    def ppf(cdf, bins, value):
+        return np.interp(value, cdf, bins[1:])
+
+    assert np.isclose(
+        TRUE_SIGMA_1,
+        0.5
+        * (
+            ppf(cdf[0, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[0, 0, 0, :], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_2,
+        0.5
+        * (
+            ppf(cdf[1, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[1, 0, 0, :], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_3,
+        0.5
+        * (
+            ppf(cdf[2, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[2, 0, 0, :], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+
+
+def test_energy_dispersion_3d_lonlat():
+    from pyirf.irf import energy_dispersion_3d_lonlat
+
+    np.random.seed(0)
+
+    N = 10000
+    TRUE_SIGMA_1 = 0.20
+    TRUE_SIGMA_2 = 0.10
+    TRUE_SIGMA_3 = 0.05
+
+    selected_events = QTable(
+        {
+            "reco_energy": np.concatenate(
+                [
+                    np.random.normal(1.0, TRUE_SIGMA_1, size=N) * 0.5,
+                    np.random.normal(1.0, TRUE_SIGMA_2, size=N) * 5,
+                    np.random.normal(1.0, TRUE_SIGMA_3, size=N) * 50,
+                ]
+            )
+            * u.TeV,
+            "true_energy": np.concatenate(
+                [np.full(N, 0.5), np.full(N, 5.0), np.full(N, 50.0)]
+            )
+            * u.TeV,
+            "true_source_fov_lon": np.concatenate(
+                [
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                ]
+            )
+            * u.deg,
+            "true_source_fov_lat": np.concatenate(
+                [
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    true_energy_bins = np.array([0.1, 1.0, 10.0, 100]) * u.TeV
+    fov_lon_bins = np.array([-1, 0, 1]) * u.deg
+    fov_lat_bins = np.array([-1, 0, 1]) * u.deg
+    migration_bins = np.linspace(0, 2, 1001)
+
+    result = energy_dispersion_3d_lonlat(
+        selected_events, true_energy_bins, fov_lon_bins, fov_lat_bins, migration_bins
+    )
+
+    assert result.shape == (3, 2, 2, 1000)
+
+    bin_width = np.diff(migration_bins)
+    # edisp shape is (N_E, N_MIGRA, N_FOV_1, N_FOV_2),
+    # we need to integrate over migration axis
+    integral = (result * bin_width[np.newaxis, np.newaxis, np.newaxis, :]).sum(axis=-1)
+
+    np.testing.assert_allclose(integral, 1.0)
+
+    cdf = np.cumsum(result * bin_width[np.newaxis, np.newaxis, np.newaxis, :], axis=-1)
+
+    def ppf(cdf, bins, value):
+        return np.interp(value, cdf, bins[1:])
+
+    assert np.isclose(
+        TRUE_SIGMA_1,
+        0.5
+        * (
+            ppf(cdf[0, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[0, 0, 0, :], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_2,
+        0.5
+        * (
+            ppf(cdf[1, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[1, 0, 0, :], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+    assert np.isclose(
+        TRUE_SIGMA_3,
+        0.5
+        * (
+            ppf(cdf[2, 0, 0, :], migration_bins, 0.84)
+            - ppf(cdf[2, 0, 0, :], migration_bins, 0.16)
+        ),
+        rtol=0.1,
+    )
+
+
 def test_energy_dispersion_to_migration():
-    from pyirf.irf import energy_dispersion
+    from pyirf.irf import energy_dispersion, energy_dispersion_3d_lonlat
     from pyirf.irf.energy_dispersion import energy_dispersion_to_migration
 
     np.random.seed(0)
@@ -100,6 +329,8 @@ def test_energy_dispersion_to_migration():
     true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
 
     fov_offset_bins = np.array([0, 1, 2]) * u.deg
+    fov_longitude_bins = np.array([-1, 0, 1]) * u.deg
+    fov_latitude_bins = np.array([-1, 0, 1]) * u.deg
     migration_bins = np.linspace(0, 2, 101)
 
     true_energy = (
@@ -121,9 +352,40 @@ def test_energy_dispersion_to_migration():
             * u.deg,
         }
     )
+    selected_events_3d = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "true_source_fov_lon": np.concatenate(
+                [
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                ]
+            )
+            * u.deg,
+            "true_source_fov_lat": np.concatenate(
+                [
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, -0.5),
+                    np.full(N // 4, 0.5),
+                    np.full(N // 4, 0.5),
+                ]
+            )
+            * u.deg,
+        }
+    )
 
     dispersion_matrix = energy_dispersion(
         selected_events, true_energy_bins, fov_offset_bins, migration_bins
+    )
+    dispersion_matrix_3d = energy_dispersion_3d_lonlat(
+        selected_events_3d,
+        true_energy_bins,
+        fov_longitude_bins,
+        fov_latitude_bins,
+        migration_bins,
     )
 
     # migration matrix selecting a limited energy band with different binsizes
@@ -136,21 +398,38 @@ def test_energy_dispersion_to_migration():
         new_true_energy_bins,
         new_reco_energy_bins,
     )
+    migration_matrix_3d = energy_dispersion_to_migration(
+        dispersion_matrix_3d,
+        true_energy_bins,
+        migration_bins,
+        new_true_energy_bins,
+        new_reco_energy_bins,
+    )
 
+    # common tests for 2d and 3d
+    for migration in [migration_matrix, migration_matrix_3d]:
+        # test dimension
+        assert migration.shape[0] == len(new_true_energy_bins) - 1
+        assert migration.shape[1] == len(new_reco_energy_bins) - 1
+
+        # test that all migrations are included for central energies
+        assert np.isclose(migration.sum(axis=1).max(), 1, rtol=0.01)
+        assert np.all(np.isfinite(migration))
+
+    # nD migration specific tests
     # test dimension
-    assert migration_matrix.shape[0] == len(new_true_energy_bins) - 1
-    assert migration_matrix.shape[1] == len(new_reco_energy_bins) - 1
     assert migration_matrix.shape[2] == dispersion_matrix.shape[2]
-
-    # test that all migrations are included for central energies
-    assert np.isclose(migration_matrix.sum(axis=1).max(), 1, rtol=0.01)
+    assert migration_matrix_3d.shape[2] == dispersion_matrix_3d.shape[1]
+    assert migration_matrix_3d.shape[3] == dispersion_matrix_3d.shape[2]
 
     # test that migrations dont always sum to 1 (since some energies are
     # not included in the matrix)
     assert migration_matrix.sum() < (len(new_true_energy_bins) - 1) * (
         len(fov_offset_bins) - 1
     )
-    assert np.all(np.isfinite(migration_matrix))
+    assert migration_matrix_3d.sum() < (len(new_true_energy_bins) - 1) * (
+        len(fov_longitude_bins) - 1
+    ) * (len(fov_latitude_bins) - 1)
 
 
 def test_energy_migration_matrix_from_events():
@@ -190,6 +469,122 @@ def test_energy_migration_matrix_from_events():
         len(true_energy_bins) - 1,
         len(reco_energy_bins) - 1,
         len(fov_offset_bins) - 1,
+    )
+    assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
+
+
+def test_energy_migration_matrix_3d_polar_from_events():
+    from pyirf.irf.energy_dispersion import energy_migration_matrix_3d_polar
+
+    np.random.seed(0)
+    N = 10000
+    true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
+    reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
+    fov_offset_bins = np.array([0, 1, 2]) * u.deg
+    fov_position_angle_bins = np.array([0, 180, 360]) * u.deg
+
+    true_energy = (
+        np.random.uniform(true_energy_bins[0].value, true_energy_bins[-1].value, size=N)
+        * u.TeV
+    )
+    reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
+
+    events = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "true_source_fov_offset": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 1.5),
+                    np.full(N // 4, 1.5),
+                ]
+            )
+            * u.deg,
+            "true_source_fov_position_angle": np.concatenate(
+                [
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                    np.full(N // 4, 90),
+                    np.full(N // 4, 270),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    matrix = energy_migration_matrix_3d_polar(
+        events,
+        true_energy_bins,
+        reco_energy_bins,
+        fov_offset_bins,
+        fov_position_angle_bins,
+    )
+
+    assert matrix.shape == (
+        len(true_energy_bins) - 1,
+        len(reco_energy_bins) - 1,
+        len(fov_offset_bins) - 1,
+        len(fov_position_angle_bins) - 1,
+    )
+    assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
+
+
+def test_energy_migration_matrix_3d_lonlat_from_events():
+    from pyirf.irf.energy_dispersion import energy_migration_matrix_3d_lonlat
+
+    np.random.seed(0)
+    N = 10000
+    true_energy_bins = 10 ** np.arange(np.log10(0.2), np.log10(200), 1 / 10) * u.TeV
+    reco_energy_bins = 10 ** np.arange(np.log10(2), np.log10(20), 1 / 5) * u.TeV
+    fov_longitude_bins = np.array([-1, 0, 1]) * u.deg
+    fov_latitude_bins = np.array([-1, 0, 1]) * u.deg
+
+    true_energy = (
+        np.random.uniform(true_energy_bins[0].value, true_energy_bins[-1].value, size=N)
+        * u.TeV
+    )
+    reco_energy = true_energy * np.random.uniform(0.5, 1.5, size=N)
+
+    events = QTable(
+        {
+            "reco_energy": reco_energy,
+            "true_energy": true_energy,
+            "true_source_fov_lon": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, -0.2),
+                    np.full(N // 4, -0.2),
+                ]
+            )
+            * u.deg,
+            "true_source_fov_lat": np.concatenate(
+                [
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, -0.2),
+                    np.full(N // 4, 0.2),
+                    np.full(N // 4, -0.2),
+                ]
+            )
+            * u.deg,
+        }
+    )
+
+    matrix = energy_migration_matrix_3d_lonlat(
+        events,
+        true_energy_bins,
+        reco_energy_bins,
+        fov_longitude_bins,
+        fov_latitude_bins,
+    )
+
+    assert matrix.shape == (
+        len(true_energy_bins) - 1,
+        len(reco_energy_bins) - 1,
+        len(fov_longitude_bins) - 1,
+        len(fov_latitude_bins) - 1,
     )
     assert np.allclose(matrix.sum(axis=1).max(), 1, rtol=0.1)
 
