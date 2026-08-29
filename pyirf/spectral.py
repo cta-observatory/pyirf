@@ -195,25 +195,32 @@ class LogParabola:
         :math:`\beta`
     e_ref: astropy.units.Quantity[energy]
         :math:`E_\text{ref}`
+    from_log10: bool
+        If True, compute the energy ration in the exponent factor
+        using base 10, else use natural logarithm.
     """
 
     @u.quantity_input(
         normalization=[DIFFUSE_FLUX_UNIT, POINT_SOURCE_FLUX_UNIT], e_ref=u.TeV
     )
-    def __init__(self, normalization, a, b, e_ref=1 * u.TeV):
+    def __init__(self, normalization, a, b, e_ref=1 * u.TeV, from_log10=True):
         """Create a new LogParabola spectrum"""
         self.normalization = normalization
         self.a = a
         self.b = b
         self.e_ref = e_ref
+        self.from_log10 = from_log10
 
     @u.quantity_input(energy=u.TeV)
     def __call__(self, energy):
         e = (energy / self.e_ref).to_value(u.one)
-        return self.normalization * e ** (self.a + self.b * np.log10(e))
+        log_factor = np.log10(e) if self.from_log10 else np.log(e)
+        return self.normalization * e ** (self.a + self.b * log_factor)
 
     def __repr__(self):
-        return f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**({self.a} + {self.b} * log10(E / {self.e_ref}))"
+        log_factor = "log10" if self.from_log10 else "ln"
+        str_rep = f"{self.__class__.__name__}({self.normalization} * (E / {self.e_ref})**({self.a} + {self.b} * {log_factor}(E / {self.e_ref}))"
+        return str_rep
 
 
 class PowerLawWithExponentialGaussian(PowerLaw):
