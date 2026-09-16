@@ -100,8 +100,8 @@ def create_aeff3d_polar_hdu(
     **header_cards,
 ):
     """
-    Create a fits binary table HDU in GADF format for effective area.
-    See the specification at
+    Create a fits binary table HDU in a format similar to the GADF definition of the effective area, but using two-axis polar FoV coordinates.
+    See the similar GADF specification at
     https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
 
     Parameters
@@ -133,7 +133,7 @@ def create_aeff3d_polar_hdu(
     aeff["EFFAREA"] = effective_area.T[np.newaxis, ...].to(u.m ** 2)
 
     # required header keywords
-    header = DEFAULT_HEADER.copy()
+    header = Header(dict(CREATOR=f"pyirf v{__version__}"))
     header["HDUCLAS1"] = "RESPONSE"
     header["HDUCLAS2"] = "EFF_AREA"
     header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
@@ -162,8 +162,8 @@ def create_aeff3d_lonlat_hdu(
     **header_cards,
 ):
     """
-    Create a fits binary table HDU in GADF format for effective area.
-    See the specification at
+    Create a fits binary table HDU in a format similar to the GADF definition of the effective area, but using two-axis longitude-latitude FoV coordinates.
+    See the similar GADF specification at
     https://gamma-astro-data-formats.readthedocs.io/en/latest/irfs/full_enclosure/aeff/index.html
 
     Parameters
@@ -195,7 +195,7 @@ def create_aeff3d_lonlat_hdu(
     aeff["EFFAREA"] = effective_area.T[np.newaxis, ...].to(u.m ** 2)
 
     # required header keywords
-    header = DEFAULT_HEADER.copy()
+    header = Header(dict(CREATOR=f"pyirf v{__version__}"))
     header["HDUCLAS1"] = "RESPONSE"
     header["HDUCLAS2"] = "EFF_AREA"
     header["HDUCLAS3"] = "POINT-LIKE" if point_like else "FULL-ENCLOSURE"
