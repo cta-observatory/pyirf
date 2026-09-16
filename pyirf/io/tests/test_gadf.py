@@ -31,6 +31,38 @@ def aeff2d_hdus():
 
 
 @pytest.fixture
+def aeff3d_polar_hdus():
+    from pyirf.io import create_aeff3d_polar_hdu
+
+    area = np.full((len(e_bins) - 1, len(fov_bins) - 1), 1e6) * u.m**2
+
+    hdus = [
+        create_aeff3d_polar_hdu(
+            area, e_bins, fov_bins, fov_bins_phi, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+
+    return area, hdus
+
+
+@pytest.fixture
+def aeff3d_lonlat_hdus():
+    from pyirf.io import create_aeff3d_lonlat_hdu
+
+    area = np.full((len(e_bins) - 1, len(fov_bins) - 1), 1e6) * u.m**2
+
+    hdus = [
+        create_aeff3d_lonlat_hdu(
+            area, e_bins, fov_bins_lonlat, fov_bins_lonlat, point_like=point_like
+        )
+        for point_like in [True, False]
+    ]
+
+    return area, hdus
+
+
+@pytest.fixture
 def edisp_hdus():
     from pyirf.io import create_energy_dispersion_hdu
 
@@ -165,6 +197,28 @@ def test_effective_area2d_schema(aeff2d_hdus):
         AEFF_2D.validate_hdu(hdu)
 
 
+@pytest.mark.xfail(reason="AEFF_3D not implemented yet", raises=ImportError)
+def test_effective_area3d_polar_schema(aeff3d_polar_hdus):
+    """Test our effective area is readable by gammapy"""
+    from ogadf_schema.irfs import AEFF_3D
+
+    _, hdus = aeff3d_polar_hdus
+
+    for hdu in hdus:
+        AEFF_3D.validate_hdu(hdu)
+
+
+@pytest.mark.xfail(reason="AEFF_3D not implemented yet", raises=ImportError)
+def test_effective_area3d_lonlat_schema(aeff3d_lonlat_hdus):
+    """Test our effective area is readable by gammapy"""
+    from ogadf_schema.irfs import AEFF_3D
+
+    _, hdus = aeff3d_lonlat_hdus
+
+    for hdu in hdus:
+        AEFF_3D.validate_hdu(hdu)
+
+
 def test_energy_dispersion_gammapy(edisp_hdus):
     '''Test our energy dispersion is readable by gammapy'''
     from gammapy.irf import EnergyDispersion2D
@@ -283,6 +337,8 @@ def test_rad_max_schema(rad_max_hdu):
 
 def test_cref(
     aeff2d_hdus,
+    aeff3d_polar_hdus,
+    aeff3d_lonlat_hdus,
     edisp_hdus,
     edisp_3d_polar_hdus,
     edisp_3d_lonlat_hdus,
@@ -294,6 +350,8 @@ def test_cref(
         hdus = [
             fits.PrimaryHDU(),
             aeff2d_hdus[1][point_like],
+            aeff3d_polar_hdus[1][point_like],
+            aeff3d_lonlat_hdus[1][point_like],
             edisp_hdus[1][point_like],
             edisp_3d_polar_hdus[1][point_like],
             edisp_3d_lonlat_hdus[1][point_like],
