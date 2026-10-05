@@ -1,3 +1,36 @@
+pyirf v0.15.0 (2026-10-05)
+==========================
+
+
+Bug Fixes
+---------
+
+- Fixed conflict of gammapy<=2.1 with regions>=0.12 due to renamed function from regions imported in gammapy.regions. [`#316 <https://github.com/cta-observatory/pyirf/pull/316>`__]
+
+- Changes `interpolation.utils.plumb_point_distance()` to fix `numpy.cross()` 2-component vector functionality removed in numpy>=2.5. [`#317 <https://github.com/cta-observatory/pyirf/pull/317>`__]
+
+
+New Features
+------------
+
+- Add functions to calculate asymmetric energy dispersion and energy migration matrices to ``pyirf.irf.energy_dispersion``, supporting both binning in ``true_source_fov_offset`` / ``true_source_fov_position_angle`` and ``true_source_fov_lon`` / ``true_source_fov_lat``.
+  These functions are
+  * ``energy_dispersion_3d_polar``
+  * ``energy_dispersion_3d_lonlat``
+  * ``energy_migration_matrix_3d_polar``
+  * ``energy_migration_matrix_3d_lonlat``
+
+  Also adds functions to create fits table HDUs in a format similar to the existing GADF definition for the energy dispersion to ``pyirf.io.gadf``.
+  * ``create_energy_dispersion_3d_polar_hdu``
+  * ``create_energy_dispersion_3d_lonlat_hdu`` [`#300 <https://github.com/cta-observatory/pyirf/pull/300>`__]
+
+- Adds the missing HDU creation functions for the 3D effective area and relevant tests:
+
+  * ``create_aeff3d_polar_hdu``
+  * ``create_aeff3d_lonlat_hdu`` [`#319 <https://github.com/cta-observatory/pyirf/pull/319>`__]
+
+
+
 pyirf v0.14.0 (2026-06-01)
 ==========================
 

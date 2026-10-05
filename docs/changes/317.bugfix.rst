@@ -1,1 +1,0 @@
-Changes `interpolation.utils.plumb_point_distance()` to fix `numpy.cross()` 2-component vector functionality removed in numpy>=2.5.

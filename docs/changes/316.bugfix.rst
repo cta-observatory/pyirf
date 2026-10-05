@@ -1,1 +1,0 @@
-Fixed conflict of gammapy<=2.1 with regions>=0.12 due to renamed function from regions imported in gammapy.regions.

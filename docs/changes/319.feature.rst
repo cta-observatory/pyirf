@@ -1,4 +1,0 @@
-Adds the missing HDU creation functions for the 3D effective area and relevant tests:
-
-* ``create_aeff3d_polar_hdu``
-* ``create_aeff3d_lonlat_hdu``
