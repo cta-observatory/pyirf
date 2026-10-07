@@ -255,7 +255,9 @@ class SimulatedEventsInfo:
             self, fov_longitude_bins, fov_latitude_bins, subpixels=subpixels
         )
 
-        bin_grid_lon, bin_grid_lat = np.meshgrid(fov_longitude_bins,fov_latitude_bins)
+        bin_grid_lon, bin_grid_lat = np.meshgrid(
+            fov_longitude_bins, fov_latitude_bins, indexing="ij"
+        )
         bin_area = rectangle_solid_angle(
             bin_grid_lon[:-1,:-1],
             bin_grid_lon[1:,1:],
@@ -340,7 +342,9 @@ def _fov_lonlat_grid_overlap(self, bin_edges_lon, bin_edges_lat, subpixels=20):
     bin inside the viewcone.
     """
     # treat edge cases where all bins are either fully inside or outside of the viewcone
-    bin_grid_lon, bin_grid_lat = np.meshgrid(bin_edges_lon, bin_edges_lat)
+    bin_grid_lon, bin_grid_lat = np.meshgrid(
+        bin_edges_lon, bin_edges_lat, indexing="ij"
+    )
 
     bin_dist = angular_separation(
         bin_grid_lon,
@@ -369,7 +373,7 @@ def _fov_lonlat_grid_overlap(self, bin_edges_lon, bin_edges_lat, subpixels=20):
     fov_bin_centers_lat = bin_center(bin_edges_lat)
 
     bin_centers_grid_lon, bin_centers_grid_lat = np.meshgrid(
-        fov_bin_centers_lon, fov_bin_centers_lat,
+        fov_bin_centers_lon, fov_bin_centers_lat, indexing="ij"
     )
 
     # calculate angular separation of bin centers to FOV center

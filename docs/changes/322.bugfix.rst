@@ -1,0 +1,4 @@
+Fixed the axis order of ``SimulatedEventsInfo.calculate_n_showers_3d_lonlat``,
+which returned ``(n_energy, n_lat, n_lon)`` instead of the documented
+``(n_energy, n_lon, n_lat)`` when the longitude and latitude grids have
+different numbers of bins.

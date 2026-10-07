@@ -193,6 +193,78 @@ def test_integrate_3d_lonlat():
     assert np.all(n_events > 0)
     assert np.isclose(np.sum(n_events), int(1e6), rtol=1e-2)
 
+    # non-square fov grid, completely inside the viewcone:
+    # the result must follow the documented (n_energy, n_lon, n_lat) axis order
+    info = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=100 * u.GeV,
+        energy_max=10 * u.TeV,
+        max_impact=500 * u.m,
+        spectral_index=-2,
+        viewcone_min=0 * u.deg,
+        viewcone_max=15 * u.deg,
+    )
+
+    lon_bins = [-10, -6, 1, 10] * u.deg
+    lat_bins = [-10, -2, 10] * u.deg
+    energy_bins = np.geomspace(info.energy_min, info.energy_max, 20)
+
+    n_events = info.calculate_n_showers_3d_lonlat(energy_bins, lon_bins, lat_bins)
+
+    assert n_events.shape == (len(energy_bins) - 1, 3, 2)
+
+    # all bins lie inside the viewcone, so the expected number of showers per
+    # bin follows directly from its solid angle
+    from pyirf.utils import cone_solid_angle, rectangle_solid_angle
+
+    viewcone_area = cone_solid_angle(info.viewcone_max) - cone_solid_angle(
+        info.viewcone_min
+    )
+    bin_areas = (
+        np.array(
+            [
+                [
+                    rectangle_solid_angle(
+                        lon_bins[i], lon_bins[i + 1], lat_bins[j], lat_bins[j + 1]
+                    ).to_value(u.sr)
+                    for j in range(2)
+                ]
+                for i in range(3)
+            ]
+        )
+        * u.sr
+    )
+    e_integral = info.calculate_n_showers_per_energy(energy_bins)
+    expected = (
+        e_integral[:, np.newaxis, np.newaxis]
+        * (info.n_showers / viewcone_area * bin_areas)
+        / info.n_showers
+    )
+    np.testing.assert_allclose(n_events, expected, rtol=1e-8)
+
+    # non-square grid with the viewcone edge cutting through the bins:
+    # exercises the subpixel overlap calculation with n_lon != n_lat
+    info = SimulatedEventsInfo(
+        n_showers=int(1e6),
+        energy_min=100 * u.GeV,
+        energy_max=10 * u.TeV,
+        max_impact=500 * u.m,
+        spectral_index=-2,
+        viewcone_min=0 * u.deg,
+        viewcone_max=10 * u.deg,
+    )
+    lon_bins = [-20, -10, 0, 10, 20] * u.deg
+    lat_bins = [-15, -5, 5, 15] * u.deg
+
+    n_events = info.calculate_n_showers_3d_lonlat(energy_bins, lon_bins, lat_bins)
+
+    assert n_events.shape == (len(energy_bins) - 1, 4, 3)
+    # the outer longitude bins lie completely outside the viewcone
+    assert np.all(n_events[:, 0, :] == 0)
+    assert np.all(n_events[:, 3, :] == 0)
+    assert np.all(n_events[:, 1:3, :] > 0)
+    assert np.isclose(np.sum(n_events), int(1e6), rtol=1e-2)
+
 
 def test_viewcone_integral():
     from pyirf.simulations import _viewcone_pdf_integral
